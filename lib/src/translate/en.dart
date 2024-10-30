@@ -1,0 +1,1 @@
+const String splash_title = "Travel. Share.";
