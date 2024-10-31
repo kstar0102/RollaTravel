@@ -1,4 +1,5 @@
 import 'package:RollaStrava/src/constants/app_styles.dart';
+import 'package:RollaStrava/src/screen/trip/start_trip.dart';
 import 'package:RollaStrava/src/translate/en.dart';
 import 'package:flutter/material.dart';
 
@@ -17,7 +18,14 @@ class BottomNavBar extends StatelessWidget {
         // Navigation logic for SearchPage
         break;
       case 2:
-        // Navigation logic for the central button
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+              pageBuilder: (context, animation1, animation2) => StartTripScreen(),
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+          ),
+        );
         break;
       case 3:
         // Navigation logic for DroppingPage
