@@ -1,4 +1,6 @@
 import 'package:RollaStrava/src/constants/app_styles.dart';
+import 'package:RollaStrava/src/screen/auth/signin_screen.dart';
+import 'package:RollaStrava/src/screen/auth/signup_step1_screen.dart';
 import 'package:RollaStrava/src/translate/en.dart';
 import 'package:RollaStrava/src/utils/index.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +20,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   }
 
   void getData() async {
-    
+    Future.delayed(const Duration(seconds: 3), () {
+      Navigator.push(context, MaterialPageRoute(
+        builder: (context) => const SigninScreen(),
+      ));
+    });
   }
 
   @override
@@ -37,7 +43,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
             child:  Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                SizedBox(height: vh(context, 30)),
+                SizedBox(height: vh(context, 35)),
                 Image.asset(
                   'assets/images/icons/logo.png',
                 ),
@@ -45,7 +51,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                   alignment: Alignment.bottomCenter,
                   height: vh(context, 10),
                   child: Text(
-                    splash_title.toString(),
+                    trave_share.toString(),
                     style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color:kColorGrey),
                   ),
                 )

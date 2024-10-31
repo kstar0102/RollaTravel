@@ -6,14 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 enum ButtonWidgetType {
+  LoginText,
   ContinueText,
-  ResendCodeTitle,
-  SaveTitle,
-  StartConversationTitle,
-  UpgradeTitle,
-  ContactsalesTitle,
-  AddCardTitle,
-  CloseTitle,
+  CreateAccountTitle
 }
 
 class ButtonWidget extends StatefulWidget {
@@ -41,23 +36,14 @@ class _ButtonWidgetState extends State<ButtonWidget> {
   Widget build(BuildContext context) {
     String btnTitle;
     switch (widget.btnType) {
+      case ButtonWidgetType.LoginText:
+        btnTitle = login_title;
+        break;
       case ButtonWidgetType.ContinueText:
-        btnTitle = "Continue";
+        btnTitle = continue_text;
         break;
-      case ButtonWidgetType.ResendCodeTitle:
-        btnTitle = "Resend the code";
-        break;
-      case ButtonWidgetType.SaveTitle:
-        btnTitle = "Save";
-        break;
-      case ButtonWidgetType.StartConversationTitle:
-        btnTitle = "Save & Start Conversation";
-        break;
-      case ButtonWidgetType.UpgradeTitle:
-        btnTitle = "Upgrade";
-        break;
-      case ButtonWidgetType.ContactsalesTitle:
-        btnTitle = "Contact Sales";
+      case ButtonWidgetType.CreateAccountTitle:
+        btnTitle = create_account;
         break;
       default:
         btnTitle = "unknow";
@@ -71,12 +57,12 @@ class _ButtonWidgetState extends State<ButtonWidget> {
           ),
           child: SizedBox(
             width: vw(context, 100),
-            height: vh(context, 6),
+            height: vh(context, 5),
             child: Container(
               decoration: BoxDecoration(
                 color:  widget.fullColor ,
                 border: Border.all(color: widget.borderColor!),
-                borderRadius: BorderRadius.circular(10)
+                borderRadius: BorderRadius.circular(15)
               ),
             ),
           ),
@@ -88,7 +74,7 @@ class _ButtonWidgetState extends State<ButtonWidget> {
               textStyle: TextStyle(
                 fontFamily: 'LeyendoDEMO',
                 fontWeight: FontWeight.w500,
-                fontSize: 50.sp,
+                fontSize: 40.sp,
               ),
             ),
             onPressed: widget.onPressed,

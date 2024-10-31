@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 const Color kColorWhite = Color(0xFFFFFFFF);
 const Color kColorBlack = Color(0xFF000000);
 const Color kColorGrey = Color(0XFFA7A7A7);
+const Color kColorButtonPrimary = Color(0XFF933F10);
+const Color kColorHereButton = Color(0XFF19B4D7);
+const Color kColorCreateButton = Color(0XFF4D9750);
 
 
 // ------------------------ Message -------------------------------- //
@@ -24,7 +27,7 @@ Color getRandomColor() {
 
 
 const kEnableBorder = OutlineInputBorder(
-  borderSide: BorderSide(color: kColorBlack, width: 1),
+  borderSide: BorderSide(color: kColorGrey, width: 1),
   borderRadius: BorderRadius.all(Radius.circular(15)),
 );
 const kFocusBorder = OutlineInputBorder(
