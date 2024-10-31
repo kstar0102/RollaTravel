@@ -8,7 +8,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 enum ButtonWidgetType {
   LoginText,
   ContinueText,
-  CreateAccountTitle
+  CreateAccountTitle,
+  EditProfileText,
+  SettingText,
+  FollowingText
 }
 
 class ButtonWidget extends StatefulWidget {
@@ -44,6 +47,15 @@ class _ButtonWidgetState extends State<ButtonWidget> {
         break;
       case ButtonWidgetType.CreateAccountTitle:
         btnTitle = create_account;
+        break;
+      case ButtonWidgetType.EditProfileText:
+        btnTitle = edit_profile;
+        break;
+      case ButtonWidgetType.FollowingText:
+        btnTitle = following;
+        break;
+      case ButtonWidgetType.SettingText:
+        btnTitle = settings;
         break;
       default:
         btnTitle = "unknow";

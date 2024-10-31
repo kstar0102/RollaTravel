@@ -1,5 +1,6 @@
 import 'package:RollaStrava/src/constants/app_button.dart';
 import 'package:RollaStrava/src/constants/app_styles.dart';
+import 'package:RollaStrava/src/screen/home/home_screen.dart';
 import 'package:RollaStrava/src/translate/en.dart';
 import 'package:RollaStrava/src/utils/index.dart';
 import 'package:flutter/material.dart';
@@ -13,12 +14,6 @@ class LoginUserFlowScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginUserFlowScreenState extends ConsumerState<LoginUserFlowScreen> {
-  final _usernameController = TextEditingController();
-  final _useremailController= TextEditingController();
-  final _passwordController = TextEditingController();
-  String get username => _usernameController.text;
-  String get email => _useremailController.text;
-  String get password => _passwordController.text;
   double screenHeight = 0;
   double keyboardHeight = 0;
   final bool _isKeyboardVisible = false;
@@ -39,9 +34,6 @@ class _LoginUserFlowScreenState extends ConsumerState<LoginUserFlowScreen> {
 
   @override
   void dispose() {
-    _usernameController.dispose();
-    _passwordController.dispose();
-    _useremailController.dispose();
     super.dispose();
   }
 
@@ -125,7 +117,9 @@ class _LoginUserFlowScreenState extends ConsumerState<LoginUserFlowScreen> {
                           textColor: kColorWhite,
                           fullColor: kColorButtonPrimary,
                           onPressed: () {
-                            
+                            Navigator.push(context, MaterialPageRoute(
+                              builder: (context) => const HomeScreen(),
+                            ));
                           },
                         ),
                       ),
