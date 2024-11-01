@@ -11,7 +11,8 @@ enum ButtonWidgetType {
   CreateAccountTitle,
   EditProfileText,
   SettingText,
-  FollowingText
+  FollowingText,
+  StartTripTitle
 }
 
 class ButtonWidget extends StatefulWidget {
@@ -56,6 +57,9 @@ class _ButtonWidgetState extends State<ButtonWidget> {
         break;
       case ButtonWidgetType.SettingText:
         btnTitle = settings;
+        break;
+      case ButtonWidgetType.StartTripTitle:
+        btnTitle = start_trip;
         break;
       default:
         btnTitle = "unknow";

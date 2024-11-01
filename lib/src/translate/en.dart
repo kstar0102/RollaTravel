@@ -47,3 +47,6 @@ const String miles_traveled = "Miles traveled";
 const String soundtrack = "Soundtrack";
 const String edit_destination = "Edit destination";
 const String edit_playlist = "Edit playlist";
+const String start_trip = "Start trip";
+const String end_trip = "End trip";
+const String trip_note = "Note: Start trip, then drop a pin to make your post visible to your followers";
