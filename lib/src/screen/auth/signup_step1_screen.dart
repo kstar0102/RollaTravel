@@ -7,19 +7,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class SignupStep1Screen extends ConsumerStatefulWidget {
-  const SignupStep1Screen({Key? key}) : super(key: key);
+  const SignupStep1Screen({super.key});
 
   @override
   ConsumerState<SignupStep1Screen> createState() => _SignupStep1ScreenState();
 }
 
 class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
-  final _usernameController = TextEditingController();
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
   final _useremailController= TextEditingController();
-  final _passwordController = TextEditingController();
-  String get username => _usernameController.text;
+  final _countryController = TextEditingController();
+  String get firstname => _firstNameController.text;
+  String get lastname => _lastNameController.text;
   String get email => _useremailController.text;
-  String get password => _passwordController.text;
+  String get country => _countryController.text;
   bool isPasswordVisible = false;
   double screenHeight = 0;
   double keyboardHeight = 0;
@@ -31,7 +33,7 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-      if (this.mounted) {
+      if (mounted) {
         setState(() {
           this.keyboardHeight = keyboardHeight;
         });
@@ -41,15 +43,16 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
 
   @override
   void dispose() {
-    _usernameController.dispose();
-    _passwordController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     _useremailController.dispose();
+    _countryController.dispose();
     super.dispose();
   }
 
-  Future<bool> _onWillPop() async {
-    return false;
-  }
+  // Future<bool> _onWillPop() async {
+  //   return false;
+  // }
 
 
   @override
@@ -60,8 +63,7 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
       screenHeight = 800;
       keyboardHeight = 0;
     }
-    return WillPopScope(
-      onWillPop: _onWillPop,
+    return PopScope (
       child: Scaffold(
         resizeToAvoidBottomInset: true,
         body: SizedBox.expand(
@@ -89,6 +91,7 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
                           child: Image.asset(
                             'assets/images/icons/allow-left.png',
                             width: vww(context, 15),
+                            height: 15,
                           ),
                         ),
                         
@@ -100,68 +103,68 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
                         Container(width: vww(context, 15),),
                       ],
                     ),
-                    const Text(trave_share, style: TextStyle(color: kColorGrey, fontSize: 16),),
+                    const Text(trave_share, style: TextStyle(color: kColorGrey, fontSize: 14),),
 
                     SizedBox(height: vhh(context, 5),),
                     SizedBox(
                       width: vw(context, 38),
-                      height: vh(context, 8),
+                      height: vh(context, 6.5),
+                      child: TextField(
+                        controller: _firstNameController,
+                        keyboardType: TextInputType.name,
+                        autocorrect: false,
+                        cursorColor: kColorGrey,
+                        style: const TextStyle(color: kColorBlack, fontSize: 14),
+                        decoration: const InputDecoration(
+                          floatingLabelBehavior: FloatingLabelBehavior.always,
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: kColorGrey, width: 1),
+                          ),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: kColorBlack, width: 1.5),
+                          ),
+                          hintText: firstName,
+                          hintStyle: TextStyle(color: kColorGrey),
+                          contentPadding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 0),
+                          counterText: '',
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(
+                      width: vw(context, 38),
+                      height: vh(context, 6.5),
+                      child: TextField(
+                        controller: _lastNameController,
+                        keyboardType: TextInputType.name,
+                        autocorrect: false,
+                        cursorColor: kColorGrey,
+                        style: const TextStyle(color: kColorBlack,fontSize: 14),
+                        decoration: const InputDecoration(
+                          floatingLabelBehavior: FloatingLabelBehavior.always,
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: kColorGrey, width: 1),
+                          ),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: kColorBlack, width: 1.5),
+                          ),
+                          hintText: lastName,
+                          hintStyle: TextStyle(color: kColorGrey),
+                          contentPadding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 0),
+                          counterText: '',
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(
+                      width: vw(context, 38),
+                      height: vh(context, 6.5),
                       child: TextField(
                         controller: _useremailController,
-                        keyboardType: TextInputType.name,
-                        autocorrect: false,
-                        cursorColor: kColorGrey,
-                        style: const TextStyle(color: kColorBlack),
-                        decoration: const InputDecoration(
-                          floatingLabelBehavior: FloatingLabelBehavior.always,
-                          enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: kColorGrey, width: 1),
-                          ),
-                          focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: kColorBlack, width: 1.5),
-                          ),
-                          hintText: first_name,
-                          hintStyle: TextStyle(color: kColorGrey),
-                          contentPadding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 0),
-                          counterText: '',
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(
-                      width: vw(context, 38),
-                      height: vh(context, 8),
-                      child: TextField(
-                        controller: _passwordController,
-                        keyboardType: TextInputType.name,
-                        autocorrect: false,
-                        cursorColor: kColorGrey,
-                        style: const TextStyle(color: kColorBlack),
-                        decoration: const InputDecoration(
-                          floatingLabelBehavior: FloatingLabelBehavior.always,
-                          enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: kColorGrey, width: 1),
-                          ),
-                          focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: kColorBlack, width: 1.5),
-                          ),
-                          hintText: last_name,
-                          hintStyle: TextStyle(color: kColorGrey),
-                          contentPadding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 0),
-                          counterText: '',
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(
-                      width: vw(context, 38),
-                      height: vh(context, 8),
-                      child: TextField(
-                        controller: _passwordController,
                         keyboardType: TextInputType.visiblePassword,
                         autocorrect: false,
                         cursorColor: kColorGrey,
-                        style: const TextStyle(color: kColorBlack),
+                        style: const TextStyle(color: kColorBlack, fontSize: 14),
                         decoration: const InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           enabledBorder: UnderlineInputBorder(
@@ -170,9 +173,34 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
                           focusedBorder: UnderlineInputBorder(
                             borderSide: BorderSide(color: kColorBlack, width: 1.5),
                           ),
-                          hintText: email_address,
+                          hintText: emailAddress,
                           hintStyle: TextStyle(color: kColorGrey),
-                          contentPadding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 0),
+                          contentPadding: EdgeInsets.symmetric(vertical: 3.0, horizontal: 0),
+                          counterText: '',
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(
+                      width: vw(context, 38),
+                      height: vh(context, 6.5),
+                      child: TextField(
+                        controller: _countryController,
+                        keyboardType: TextInputType.visiblePassword,
+                        autocorrect: false,
+                        cursorColor: kColorGrey,
+                        style: const TextStyle(color: kColorBlack, fontSize: 14),
+                        decoration: const InputDecoration(
+                          floatingLabelBehavior: FloatingLabelBehavior.always,
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: kColorGrey, width: 1),
+                          ),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: kColorBlack, width: 1.5),
+                          ),
+                          hintText: countryResidence,
+                          hintStyle: TextStyle(color: kColorGrey),
+                          contentPadding: EdgeInsets.symmetric(vertical: 3.0, horizontal: 0),
                           counterText: '',
                         ),
                       ),

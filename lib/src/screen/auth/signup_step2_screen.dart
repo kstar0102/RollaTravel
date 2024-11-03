@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class SignupStep2Screen extends ConsumerStatefulWidget {
-  const SignupStep2Screen({Key? key}) : super(key: key);
+  const SignupStep2Screen({super.key});
 
   @override
   ConsumerState<SignupStep2Screen> createState() => _SignupStep2ScreenState();
@@ -15,11 +15,11 @@ class SignupStep2Screen extends ConsumerStatefulWidget {
 
 class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
   final _usernameController = TextEditingController();
-  final _useremailController= TextEditingController();
-  final _passwordController = TextEditingController();
-  String get username => _usernameController.text;
-  String get email => _useremailController.text;
+  final _passwordController= TextEditingController();
+  final _rePasswordController = TextEditingController();
+  String get userName => _usernameController.text;
   String get password => _passwordController.text;
+  String get rePassword => _rePasswordController.text;
   bool isPasswordVisible = false;
   double screenHeight = 0;
   double keyboardHeight = 0;
@@ -32,7 +32,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-      if (this.mounted) {
+      if (mounted) {
         setState(() {
           this.keyboardHeight = keyboardHeight;
         });
@@ -44,13 +44,13 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
   void dispose() {
     _usernameController.dispose();
     _passwordController.dispose();
-    _useremailController.dispose();
+    _rePasswordController.dispose();
     super.dispose();
   }
 
-  Future<bool> _onWillPop() async {
-    return false;
-  }
+  // Future<bool> _onWillPop() async {
+  //   return false;
+  // }
 
 
   @override
@@ -61,8 +61,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
       screenHeight = 800;
       keyboardHeight = 0;
     }
-    return WillPopScope(
-      onWillPop: _onWillPop,
+    return PopScope (
       child: Scaffold(
         resizeToAvoidBottomInset: true,
         body: SizedBox.expand(
@@ -108,7 +107,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                       width: vw(context, 38),
                       height: vh(context, 8),
                       child: TextField(
-                        controller: _useremailController,
+                        controller: _usernameController,
                         keyboardType: TextInputType.name,
                         autocorrect: false,
                         cursorColor: kColorGrey,
@@ -158,7 +157,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                       width: vw(context, 38),
                       height: vh(context, 8),
                       child: TextField(
-                        controller: _passwordController,
+                        controller: _rePasswordController,
                         keyboardType: TextInputType.visiblePassword,
                         autocorrect: false,
                         cursorColor: kColorGrey,

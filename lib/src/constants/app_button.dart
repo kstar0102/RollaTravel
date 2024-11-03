@@ -1,4 +1,3 @@
-import 'package:RollaStrava/src/constants/app_styles.dart';
 import 'package:RollaStrava/src/translate/en.dart';
 import 'package:RollaStrava/src/utils/index.dart';
 import 'package:flutter/material.dart';
@@ -90,7 +89,7 @@ class _ButtonWidgetState extends State<ButtonWidget> {
               textStyle: TextStyle(
                 fontFamily: 'LeyendoDEMO',
                 fontWeight: FontWeight.w500,
-                fontSize: 40.sp,
+                fontSize: 36.sp,
               ),
             ),
             onPressed: widget.onPressed,

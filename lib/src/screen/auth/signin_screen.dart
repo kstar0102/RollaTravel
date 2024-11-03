@@ -30,7 +30,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-      if (this.mounted) {
+      if (mounted) {
         setState(() {
           this.keyboardHeight = keyboardHeight;
         });
@@ -46,10 +46,6 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
     super.dispose();
   }
 
-  Future<bool> _onWillPop() async {
-    return false;
-  }
-
   @override
   Widget build(BuildContext context) {
     if (_isKeyboardVisible == true) {
@@ -58,8 +54,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
       screenHeight = 800;
       keyboardHeight = 0;
     }
-    return WillPopScope(
-      onWillPop: _onWillPop,
+    return PopScope (
       child: Scaffold(
         resizeToAvoidBottomInset: true,
         body: SizedBox.expand(
@@ -79,20 +74,19 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                       ),
                       Image.asset(
                         'assets/images/icons/logo.png',
-                        width: vww(context, 25),
+                        width: vww(context, 24),
                       ),
-                      const Text(trave_share, style: TextStyle(color: kColorGrey, fontSize: 16),),
-
+                      const Text(trave_share, style: TextStyle(color: kColorGrey, fontSize: 12),),
                       SizedBox(height: vhh(context, 5),),
                       SizedBox(
                         width: vw(context, 38),
-                        height: vh(context, 8),
+                        height: vh(context, 6.5),
                         child: TextField(
                           controller: _useremailController,
                           keyboardType: TextInputType.name,
                           autocorrect: false,
                           cursorColor: kColorGrey,
-                          style: const TextStyle(color: kColorBlack),
+                          style: const TextStyle(color: kColorBlack, fontSize: 14),
                           decoration: const InputDecoration(
                             floatingLabelBehavior: FloatingLabelBehavior.always,
                             enabledBorder: UnderlineInputBorder(
@@ -111,13 +105,13 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
 
                       SizedBox(
                         width: vw(context, 38),
-                        height: vh(context, 8),
+                        height: vh(context, 6.5),
                         child: TextField(
                           controller: _passwordController,
                           keyboardType: TextInputType.visiblePassword,
                           autocorrect: false,
                           cursorColor: kColorGrey,
-                          style: const TextStyle(color: kColorBlack),
+                          style: const TextStyle(color: kColorBlack, fontSize: 14),
                           decoration: const InputDecoration(
                             floatingLabelBehavior: FloatingLabelBehavior.always,
                             enabledBorder: UnderlineInputBorder(
@@ -142,20 +136,15 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                           textColor: kColorWhite,
                           fullColor: kColorButtonPrimary,
                           onPressed: () {
-                            
                           },
                         ),
                       ),
 
-                      SizedBox(
-                        height: vhh(context, 3),
-                      ),
+                      SizedBox( height: vhh(context, 3),),
 
-                      const Text(country_residence, style: TextStyle(color: kColorBlack, fontSize: 16, fontWeight: FontWeight.bold),),
+                      const Text(countryResidence, style: TextStyle(color: kColorBlack, fontSize: 14, fontWeight: FontWeight.bold),),
 
-                      SizedBox(
-                        height: vhh(context, 1),
-                      ),
+                      SizedBox(height: vhh(context, 1)),
 
                       Padding(
                         padding: EdgeInsets.only(
@@ -169,14 +158,14 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                                 text: dont_have_account,
                                 style: TextStyle(
                                   color: kColorGrey,
-                                  fontSize: 16,
+                                  fontSize: 14,
                                 ),
                               ),
                               TextSpan(
                                 text: here_title,
                                 style: const TextStyle(
                                   color: kColorHereButton,
-                                  fontSize: 16,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                   decoration: TextDecoration.underline,
                                   decorationColor: kColorHereButton,
@@ -206,17 +195,17 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                           TextSpan(
                             children: [
                               const TextSpan(
-                                text: forgot_passwod,
+                                text: forgotPasswod,
                                 style: TextStyle(
                                   color: kColorGrey,
-                                  fontSize: 16,
+                                  fontSize: 14,
                                 ),
                               ),
                               TextSpan(
-                                text: here_title,
+                                text: hereTitleNo,
                                 style: const TextStyle(
                                   color: kColorHereButton,
-                                  fontSize: 16,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                   decoration: TextDecoration.underline,
                                   decorationColor: kColorHereButton,
@@ -225,10 +214,10 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                                 },
                               ),
                               const TextSpan(
-                                text: to_reset,
+                                text: toReset,
                                 style: TextStyle(
                                   color: kColorGrey,
-                                  fontSize: 16,
+                                  fontSize: 14,
                                 ),
                               ),
                             ],
