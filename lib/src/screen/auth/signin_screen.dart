@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/gestures.dart';
 
 class SigninScreen extends ConsumerStatefulWidget {
-  const SigninScreen({Key? key}) : super(key: key);
+  const SigninScreen({super.key});
 
   @override
   ConsumerState<SigninScreen> createState() => _SigninScreenState();
