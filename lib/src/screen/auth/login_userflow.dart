@@ -1,13 +1,13 @@
 import 'package:RollaStrava/src/constants/app_button.dart';
 import 'package:RollaStrava/src/constants/app_styles.dart';
-import 'package:RollaStrava/src/screen/home/home_screen.dart';
+import 'package:RollaStrava/src/screen/auth/signin_screen.dart';
 import 'package:RollaStrava/src/translate/en.dart';
 import 'package:RollaStrava/src/utils/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LoginUserFlowScreen extends ConsumerStatefulWidget {
-  const LoginUserFlowScreen({Key? key}) : super(key: key);
+  const LoginUserFlowScreen({super.key});
 
   @override
   ConsumerState<LoginUserFlowScreen> createState() => _LoginUserFlowScreenState();
@@ -24,7 +24,7 @@ class _LoginUserFlowScreenState extends ConsumerState<LoginUserFlowScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-      if (this.mounted) {
+      if (mounted) {
         setState(() {
           this.keyboardHeight = keyboardHeight;
         });
@@ -118,7 +118,7 @@ class _LoginUserFlowScreenState extends ConsumerState<LoginUserFlowScreen> {
                           fullColor: kColorButtonPrimary,
                           onPressed: () {
                             Navigator.push(context, MaterialPageRoute(
-                              builder: (context) => const HomeScreen(),
+                              builder: (context) => const SigninScreen(),
                             ));
                           },
                         ),

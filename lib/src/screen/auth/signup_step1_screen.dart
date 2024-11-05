@@ -50,9 +50,9 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
     super.dispose();
   }
 
-  // Future<bool> _onWillPop() async {
-  //   return false;
-  // }
+  Future<bool> _onWillPop() async {
+    return false;
+  }
 
 
   @override
@@ -63,7 +63,8 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
       screenHeight = 800;
       keyboardHeight = 0;
     }
-    return PopScope (
+    return WillPopScope (
+      onWillPop: _onWillPop,
       child: Scaffold(
         resizeToAvoidBottomInset: true,
         body: SizedBox.expand(
@@ -91,7 +92,7 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
                           child: Image.asset(
                             'assets/images/icons/allow-left.png',
                             width: vww(context, 15),
-                            height: 15,
+                            height: 20,
                           ),
                         ),
                         

@@ -48,9 +48,9 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
     super.dispose();
   }
 
-  // Future<bool> _onWillPop() async {
-  //   return false;
-  // }
+  Future<bool> _onWillPop() async {
+    return false;
+  }
 
 
   @override
@@ -61,7 +61,8 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
       screenHeight = 800;
       keyboardHeight = 0;
     }
-    return PopScope (
+    return WillPopScope (
+      onWillPop: _onWillPop,
       child: Scaffold(
         resizeToAvoidBottomInset: true,
         body: SizedBox.expand(
@@ -76,7 +77,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     SizedBox(
-                      height: vhh(context, 10),
+                      height: vhh(context, 8),
                     ),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -89,6 +90,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                           child: Image.asset(
                             'assets/images/icons/allow-left.png',
                             width: vww(context, 15),
+                            height: 20,
                           ),
                         ),
                         
@@ -101,17 +103,16 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                       ],
                     ),
                     const Text(trave_share, style: TextStyle(color: kColorGrey, fontSize: 16),),
-
-                    SizedBox(height: vhh(context, 5),),
+                    SizedBox(height: vhh(context, 3),),
                     SizedBox(
                       width: vw(context, 38),
-                      height: vh(context, 8),
+                      height: vh(context, 6.5),
                       child: TextField(
                         controller: _usernameController,
                         keyboardType: TextInputType.name,
                         autocorrect: false,
                         cursorColor: kColorGrey,
-                        style: const TextStyle(color: kColorBlack),
+                        style: const TextStyle(color: kColorBlack, fontSize: 14),
                         decoration: const InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           enabledBorder: UnderlineInputBorder(
@@ -130,13 +131,13 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
 
                     SizedBox(
                       width: vw(context, 38),
-                      height: vh(context, 8),
+                      height: vh(context, 6.5),
                       child: TextField(
                         controller: _passwordController,
                         keyboardType: TextInputType.name,
                         autocorrect: false,
                         cursorColor: kColorGrey,
-                        style: const TextStyle(color: kColorBlack),
+                        style: const TextStyle(color: kColorBlack, fontSize: 14),
                         decoration: const InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           enabledBorder: UnderlineInputBorder(
@@ -155,13 +156,13 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
 
                     SizedBox(
                       width: vw(context, 38),
-                      height: vh(context, 8),
+                      height: vh(context, 6.5),
                       child: TextField(
                         controller: _rePasswordController,
                         keyboardType: TextInputType.visiblePassword,
                         autocorrect: false,
                         cursorColor: kColorGrey,
-                        style: const TextStyle(color: kColorBlack),
+                        style: const TextStyle(color: kColorBlack, fontSize: 14),
                         decoration: const InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           enabledBorder: UnderlineInputBorder(
@@ -193,7 +194,13 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                           ),
                           SizedBox(height: vhh(context, 1)),
                           RadioListTile<String>(
-                            title: const Text(i_saw_ad),
+                            controlAffinity: ListTileControlAffinity.trailing,
+                            contentPadding: EdgeInsets.zero, // Remove extra padding
+                            visualDensity: const VisualDensity(horizontal: -4, vertical: -4), // Adjust density to reduce spacing
+                            title: const Padding(
+                              padding: EdgeInsets.only(left: 20), // Indent the text by approximately 10 inches
+                              child: Text(i_saw_ad),
+                            ),
                             value: i_saw_ad,
                             groupValue: _selectedOption,
                             onChanged: (value) {
@@ -203,7 +210,13 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                             },
                           ),
                           RadioListTile<String>(
-                            title: const Text(recommendation),
+                            controlAffinity: ListTileControlAffinity.trailing,
+                            contentPadding: EdgeInsets.zero,
+                            visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+                            title: const Padding(
+                              padding: EdgeInsets.only(left: 20), // Indent the text by approximately 10 inches
+                              child: Text(recommendation),
+                            ),
                             value: recommendation,
                             groupValue: _selectedOption,
                             onChanged: (value) {
@@ -213,7 +226,13 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                             },
                           ),
                           RadioListTile<String>(
-                            title: const Text(other),
+                            controlAffinity: ListTileControlAffinity.trailing,
+                            contentPadding: EdgeInsets.zero,
+                            visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+                            title: const Padding(
+                              padding: EdgeInsets.only(left: 20), // Indent the text by approximately 10 inches
+                              child: Text(other),
+                            ),
                             value: other,
                             groupValue: _selectedOption,
                             onChanged: (value) {
@@ -227,7 +246,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                     ),
 
                     Padding(
-                      padding: EdgeInsets.only(left: vww(context, 15), right: vww(context, 15), top: vhh(context, 3)),
+                      padding: EdgeInsets.only(left: vww(context, 15), right: vww(context, 15), top: vhh(context, 2)),
                       child: ButtonWidget(
                         btnType: ButtonWidgetType.CreateAccountTitle,
                         borderColor: kColorCreateButton,

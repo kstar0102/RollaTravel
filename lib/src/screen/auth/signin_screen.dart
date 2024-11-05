@@ -1,6 +1,7 @@
 import 'package:RollaStrava/src/constants/app_button.dart';
 import 'package:RollaStrava/src/constants/app_styles.dart';
 import 'package:RollaStrava/src/screen/auth/signup_step1_screen.dart';
+import 'package:RollaStrava/src/screen/profile/profile_screen.dart';
 import 'package:RollaStrava/src/translate/en.dart';
 import 'package:RollaStrava/src/utils/index.dart';
 import 'package:flutter/material.dart';
@@ -46,6 +47,10 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
     super.dispose();
   }
 
+  Future<bool> _onWillPop() async {
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isKeyboardVisible == true) {
@@ -54,7 +59,8 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
       screenHeight = 800;
       keyboardHeight = 0;
     }
-    return PopScope (
+    return WillPopScope (
+      onWillPop: _onWillPop,
       child: Scaffold(
         resizeToAvoidBottomInset: true,
         body: SizedBox.expand(
@@ -102,7 +108,6 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                           ),
                         ),
                       ),
-
                       SizedBox(
                         width: vw(context, 38),
                         height: vh(context, 6.5),
@@ -127,7 +132,6 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                           ),
                         ),
                       ),
-
                       Padding(
                         padding: EdgeInsets.only(left: vww(context, 15), right: vww(context, 15), top: vhh(context, 3)),
                         child: ButtonWidget(
@@ -136,16 +140,13 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                           textColor: kColorWhite,
                           fullColor: kColorButtonPrimary,
                           onPressed: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileScreen())); 
                           },
                         ),
                       ),
-
                       SizedBox( height: vhh(context, 3),),
-
                       const Text(countryResidence, style: TextStyle(color: kColorBlack, fontSize: 14, fontWeight: FontWeight.bold),),
-
                       SizedBox(height: vhh(context, 1)),
-
                       Padding(
                         padding: EdgeInsets.only(
                           left: vww(context, 10), 
