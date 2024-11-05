@@ -20,7 +20,7 @@ class StartTripScreen extends ConsumerStatefulWidget {
 class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   double screenHeight = 0;
   double keyboardHeight = 0;
-  final int _currentIndex = 0;
+  final int _currentIndex = 2;
   LatLng? _currentLocation;
   final MapController _mapController = MapController();
 

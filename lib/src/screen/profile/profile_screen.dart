@@ -18,7 +18,7 @@ class ProfileScreen extends ConsumerStatefulWidget {
 class ProfileScreenState extends ConsumerState<ProfileScreen> {
   double screenHeight = 0;
   double keyboardHeight = 0;
-  final int _currentIndex = 0;
+  final int _currentIndex = 4;
   // final bool _isKeyboardVisible = false;
 
   @override
@@ -112,21 +112,21 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 ),
                               ],
                             ),
-                           Container(
-                            height: vhh(context, 15),
-                            width: vhh(context, 15),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(100),
-                              border: Border.all(
-                                color: kColorHereButton,
-                                width: 2,
-                              ),
-                              image: const DecorationImage(
-                                image: AssetImage("assets/images/background/2.png"),
-                                fit: BoxFit.cover,
+                            Container(
+                              height: vhh(context, 15),
+                              width: vhh(context, 15),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(100),
+                                border: Border.all(
+                                  color: kColorHereButton,
+                                  width: 2,
+                                ),
+                                image: const DecorationImage(
+                                  image: AssetImage("assets/images/background/2.png"),
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
-                          ),
                             Column(
                               children: [
                                 Image.asset(

@@ -1,4 +1,5 @@
 import 'package:RollaStrava/src/constants/app_styles.dart';
+import 'package:RollaStrava/src/screen/home/home_screen.dart';
 import 'package:RollaStrava/src/screen/profile/profile_screen.dart';
 import 'package:RollaStrava/src/screen/trip/start_trip.dart';
 import 'package:RollaStrava/src/translate/en.dart';
@@ -13,7 +14,14 @@ class BottomNavBar extends StatelessWidget {
     if (index == currentIndex) return;
     switch (index) {
       case 0:
-        // Navigation logic for HomePage
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+              pageBuilder: (context, animation1, animation2) => const HomeScreen(),
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+          ),
+        );
         break;
       case 1:
         // Navigation logic for SearchPage
