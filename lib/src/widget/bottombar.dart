@@ -168,7 +168,7 @@ class BottomNavBar extends StatelessWidget {
                         borderRadius: BorderRadius.circular(50),
                         child: const Image(
                           fit: BoxFit.cover,
-                          image: AssetImage("assets/images/background/2.png"),
+                          image: AssetImage("assets/images/background/image2.png"),
                           width: 50,
                           height: 50,
                         ),

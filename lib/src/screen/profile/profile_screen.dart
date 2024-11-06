@@ -122,7 +122,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   width: 2,
                                 ),
                                 image: const DecorationImage(
-                                  image: AssetImage("assets/images/background/2.png"),
+                                  image: AssetImage("assets/images/background/image2.png"),
                                   fit: BoxFit.cover,
                                 ),
                               ),
