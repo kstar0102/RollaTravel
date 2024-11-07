@@ -1,4 +1,5 @@
 import 'package:RollaStrava/src/constants/app_styles.dart';
+import 'package:RollaStrava/src/screen/droppin/drop_pin.dart';
 import 'package:RollaStrava/src/screen/home/home_screen.dart';
 import 'package:RollaStrava/src/screen/profile/profile_screen.dart';
 import 'package:RollaStrava/src/screen/trip/start_trip.dart';
@@ -37,7 +38,14 @@ class BottomNavBar extends StatelessWidget {
         );
         break;
       case 3:
-        // Navigation logic for DroppingPage
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+              pageBuilder: (context, animation1, animation2) => const DropPinScreen(),
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+          ),
+        );
         break;
       case 4:
         Navigator.pushReplacement(
@@ -56,131 +64,125 @@ class BottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BottomAppBar(
-      color: Colors.white,
-      child: Container(
-        height: 80,
-        decoration: const BoxDecoration(
-          border: Border(
-            top: BorderSide(color: kColorBlack, width: 2), // Black line at the very top
+    return SafeArea(
+      child: BottomAppBar(
+        color: Colors.white,
+        child: Container(
+          height: 100,
+          decoration: const BoxDecoration(
+            border: Border(
+              top: BorderSide(color: kColorBlack, width: 2), // Black line at the very top
+            ),
           ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Expanded(
-              child: InkWell(
-                onTap: () => onTabTapped(context, 0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      bottom_home,
-                      style: TextStyle(
-                        color: currentIndex == 0 ? kColorBlack : kColorButtonPrimary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Expanded(
-              child: InkWell(
-                onTap: () => onTabTapped(context, 1),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      bottom_search,
-                      style: TextStyle(
-                        color: currentIndex == 1 ? kColorBlack : kColorButtonPrimary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Expanded(
-              child: InkWell(
-                onTap: () => onTabTapped(context, 2),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.blue,
-                          width: 2.0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Expanded(
+                child: InkWell(
+                  onTap: () => onTabTapped(context, 0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        bottom_home,
+                        style: TextStyle(
+                          color: currentIndex == 0 ? kColorBlack : kColorButtonPrimary,
                         ),
                       ),
-                      child: const Icon(
-                        Icons.directions_car,
-                        color: kColorBlack,
-                        size: 30,
+                    ],
+                  ),
+                ),
+              ),
+              Expanded(
+                child: InkWell(
+                  onTap: () => onTabTapped(context, 1),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        bottom_search,
+                        style: TextStyle(
+                          color: currentIndex == 1 ? kColorBlack : kColorButtonPrimary,
+                        ),
                       ),
-                    ),
-                    if (currentIndex == 2)
+                    ],
+                  ),
+                ),
+              ),
+              Expanded(
+                child: InkWell(
+                  onTap: () => onTabTapped(context, 2),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        width: 50,
+                        height: 50,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(50),
+                          child: const Image(
+                            fit: BoxFit.cover,
+                            image: AssetImage("assets/images/icons/home.png"),
+                            width: 50,
+                            height: 50,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Expanded(
+                child: InkWell(
+                  onTap: () => onTabTapped(context, 3),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        bottom_drop_pin,
+                        style: TextStyle(
+                          color: currentIndex == 3 ? kColorBlack : kColorButtonPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Expanded(
+                child: InkWell(
+                  onTap: () => onTabTapped(context, 4),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
                       Container(
-                        margin: const EdgeInsets.only(top: 5),
-                        height: 3,
                         width: 40,
-                        color: kColorBlack,
-                      ),
-                  ],
-                ),
-              ),
-            ),
-            Expanded(
-              child: InkWell(
-                onTap: () => onTabTapped(context, 3),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      bottom_drop_pin,
-                      style: TextStyle(
-                        color: currentIndex == 3 ? kColorBlack : kColorButtonPrimary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Expanded(
-              child: InkWell(
-                onTap: () => onTabTapped(context, 4),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 45,
-                      height: 45,
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: currentIndex == 4 ? Colors.blue : Colors.grey,
-                          width: 2.0,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: currentIndex == 4 ? Colors.blue : Colors.grey,
+                            width: 2.0,
+                          ),
+                          borderRadius: BorderRadius.circular(50),
                         ),
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(50),
-                        child: const Image(
-                          fit: BoxFit.cover,
-                          image: AssetImage("assets/images/background/image2.png"),
-                          width: 50,
-                          height: 50,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(50),
+                          child: const Image(
+                            fit: BoxFit.cover,
+                            image: AssetImage("assets/images/background/image2.png"),
+                            width: 45,
+                            height: 45,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
+     
   }
 }
