@@ -1,6 +1,5 @@
 import 'package:RollaStrava/src/constants/app_styles.dart';
 import 'package:RollaStrava/src/screen/auth/signin_screen.dart';
-// import 'package:RollaStrava/src/screen/auth/signup_step1_screen.dart';
 import 'package:RollaStrava/src/translate/en.dart';
 import 'package:RollaStrava/src/utils/index.dart';
 import 'package:flutter/material.dart';

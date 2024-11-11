@@ -38,7 +38,7 @@ class DropPinScreenState extends ConsumerState<DropPinScreen> {
 
   Widget buildInstructionItem(int number, String text) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      padding: const EdgeInsets.only(left: 16.0, top: 4.0, bottom: 4.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -51,17 +51,48 @@ class DropPinScreenState extends ConsumerState<DropPinScreen> {
             ),
           ),
           Expanded(
-            child: Text(
-              text,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[600],
-              ),
+            child: RichText(
+              text: _buildTextWithImage(text),
             ),
           ),
         ],
       ),
     );
+  }
+
+  TextSpan _buildTextWithImage(String text) {
+    List<InlineSpan> children = [];
+    final parts = text.split('\u{1F698}');
+
+    for (int i = 0; i < parts.length; i++) {
+      // Add the text part
+      if (parts[i].isNotEmpty) {
+        children.add(TextSpan(
+          text: parts[i],
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.grey[600],
+          ),
+        ));
+      }
+
+      // Add the image if not the last part
+      if (i != parts.length - 1) {
+        children.add(WidgetSpan(
+          alignment: PlaceholderAlignment.middle,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 2.0),
+            child: Image.asset(
+              'assets/images/icons/home.png', // Ensure this path is correct
+              width: 20,
+              height: 20,
+            ),
+          ),
+        ));
+      }
+    }
+
+    return TextSpan(children: children);
   }
 
   @override
@@ -84,18 +115,39 @@ class DropPinScreenState extends ConsumerState<DropPinScreen> {
                   width: vww(context, 20),
                 ),
               ),
-              SizedBox(height: vhh(context, 10)),
+              SizedBox(height: vhh(context, 8)),
               
               // Note text
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.0), // Adjust the value as needed
-                child: Text(
-                  'Note: You must start trip under the \u{1F698} button before you can drop a pin and post your map.',
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0), // Adjust the value as needed
+                child: RichText(
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontStyle: FontStyle.italic,
-                    fontWeight: FontWeight.bold,
+                  text: TextSpan(
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontStyle: FontStyle.italic,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black, // Set the text color
+                    ),
+                    children: [
+                      const TextSpan(
+                        text: 'Note: You must start trip under the ',
+                      ),
+                      WidgetSpan(
+                        alignment: PlaceholderAlignment.middle,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4.0), // Adjust spacing if needed
+                          child: Image.asset(
+                            'assets/images/icons/home.png',
+                            width: 20, // Adjust the size to fit well with the text
+                            height: 20,
+                          ),
+                        ),
+                      ),
+                      const TextSpan(
+                        text: ' button before you can drop a pin and post your map.',
+                      ),
+                    ],
                   ),
                 ),
               ),

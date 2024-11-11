@@ -1,5 +1,7 @@
 import 'package:RollaStrava/src/constants/app_button.dart';
 import 'package:RollaStrava/src/constants/app_styles.dart';
+import 'package:RollaStrava/src/screen/trip/destination_screen.dart';
+import 'package:RollaStrava/src/screen/trip/end_trip.dart';
 import 'package:RollaStrava/src/translate/en.dart';
 import 'package:RollaStrava/src/utils/index.dart';
 import 'package:RollaStrava/src/widget/bottombar.dart';
@@ -9,6 +11,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:logger/logger.dart';
 
 class StartTripScreen extends ConsumerStatefulWidget {
   const StartTripScreen({super.key});
@@ -23,6 +26,10 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   final int _currentIndex = 2;
   LatLng? _currentLocation;
   final MapController _mapController = MapController();
+  final logger = Logger();
+  final TextEditingController _captionController = TextEditingController();
+
+  bool isTripStarted = false;
 
   @override
   void initState() {
@@ -30,19 +37,42 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     _getCurrentLocation();
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    _mapController.dispose();
+  }
+
+  void toggleTrip() {
+  setState(() {
+    isTripStarted = !isTripStarted;
+    if (!isTripStarted) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const EndTripScreen()),
+      );
+    }
+  });
+}
+
   Future<void> _getCurrentLocation() async {
+    logger.i("Larrrived");
     final permissionStatus = await Permission.location.request();
 
     if (permissionStatus.isGranted) {
       Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
+      );
       setState(() {
         _currentLocation = LatLng(position.latitude, position.longitude);
+        logger.i("$_currentLocation");
       });
-       _mapController.move(_currentLocation!, 15.0);
+       _mapController.move(_currentLocation!, 13.0);
     } else {
       // Handle the case when location permission is denied.
-      print("Location permission denied");
+      logger.i("Location permission denied");
     }
   }
 
@@ -61,7 +91,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                SizedBox(height: vhh(context, 10)),
+                SizedBox(height: vhh(context, 5)),
                 Padding(
                   padding: EdgeInsets.only(left: vww(context, 4), right: vww(context, 4)),
                     child: Row(
@@ -70,7 +100,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                     children: [
                       Image.asset(
                         'assets/images/icons/logo.png',
-                        width: vww(context, 15),
+                        width: vww(context, 20),
                       ),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -89,7 +119,6 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                   ),
                 ),
                 
-                SizedBox(height: vhh(context, 1)),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: vww(context, 4)),
                   child: const Divider(color: kColorGrey, thickness: 1),
@@ -97,30 +126,42 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                 SizedBox(height: vhh(context, 1)),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: vww(context, 4)),
-                  child: const Column(
+                  child: Column(
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
+                          const Text(
                             destination,
                             style: TextStyle(
                               color: kColorBlack,
                               fontSize: 14,
                             ),
                           ),
-                          Text(
-                            edit_destination,
-                            style: TextStyle(
-                              color: kColorButtonPrimary,
-                              fontSize: 14,
-                              decoration: TextDecoration.underline,
-                              decorationColor: kColorButtonPrimary,
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pushReplacement(
+                                context,
+                                PageRouteBuilder(
+                                    pageBuilder: (context, animation1, animation2) => const DestinationScreen(),
+                                    transitionDuration: Duration.zero,
+                                    reverseTransitionDuration: Duration.zero,
+                                ),
+                              );
+                            },
+                            child: const Text(
+                              edit_destination,
+                              style: TextStyle(
+                                color: kColorButtonPrimary,
+                                fontSize: 14,
+                                decoration: TextDecoration.underline,
+                                decorationColor: kColorButtonPrimary,
+                              ),
                             ),
                           ),
                         ],
                       ),
-                      Row(
+                      const Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
@@ -142,20 +183,25 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
+                          const Text(
                             soundtrack,
                             style: TextStyle(
                               color: kColorBlack,
                               fontSize: 14,
                             ),
                           ),
-                          Text(
-                            edit_playlist,
-                            style: TextStyle(
-                              color: kColorButtonPrimary,
-                              fontSize: 14,
-                              decoration: TextDecoration.underline,
-                              decorationColor: kColorButtonPrimary,
+                          GestureDetector(
+                            onTap: () {
+                              // Handle the onTap event here
+                            },
+                            child: const Text(
+                              edit_playlist,
+                              style: TextStyle(
+                                color: kColorButtonPrimary,
+                                fontSize: 14,
+                                decoration: TextDecoration.underline,
+                                decorationColor: kColorButtonPrimary,
+                              ),
                             ),
                           ),
                         ],
@@ -163,38 +209,59 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                     ],
                   ),
                 ),
+                SizedBox(height: vhh(context, 1),),
 
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: vww(context, 4)),
                   child: Container(
-                    height: vhh(context, 5),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Caption:',
-                            style: TextStyle(
-                              color: kColorBlack,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200], // Background color similar to the image
+                      border: Border.all(color: Colors.black), // Black border
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0), // Inner padding
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'Caption:',
+                          style: TextStyle(
+                            color: kColorBlack,
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(width: 8), // Spacing between the label and input field
+                        Expanded(
+                          child: TextField(
+                            controller: _captionController,
+                            decoration: const InputDecoration(
+                              isDense: true, // Reduces padding inside the TextField
+                              border: InputBorder.none, // Removes default TextField border
+                              hintText: '', // Empty hint text for a cleaner look
+                              
+                            ),
+                            style: const TextStyle(
                               fontSize: 14,
+                              color: kColorBlack,
                             ),
                           ),
-                        ],
-                      ),
-                  ) 
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-                
+                SizedBox(height: vhh(context, 1),),
                 // MapBox integration with a customized size
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: vww(context, 4)),
-                  child: Container(
-                    height: vhh(context, 50),
+                  child: SizedBox(
+                    height: vhh(context, 55),
                     child: Stack(
                       children: [
                         FlutterMap(
                           mapController: _mapController, 
                           options: MapOptions(
-                            initialCenter: _currentLocation ?? LatLng(37.7749, -122.4194),
-                            initialZoom: 10.0,
+                            initialCenter: _currentLocation ?? const LatLng(37.7749, -122.4194),
+                            initialZoom: 12.0,
                           ),
                           children: [
                             TileLayer(
@@ -217,40 +284,116 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                               ),
                           ],
                         ),
+                        isTripStarted? Positioned(
+                          top: 1,
+                          left: 0,
+                          right: 0,
+                          child: Padding(
+                            padding: EdgeInsets.zero, // Adjust for width
+                            child: Container(
+                              padding: const EdgeInsets.all(3.0),
+                              color: Colors.white.withOpacity(0.5),
+                              child: const Column(
+                                children: [
+                                  Text(
+                                    'Trip in progress',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  Text(
+                                    'Drop a pin to post your map',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 15,
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ) : const SizedBox(),
+                        
+                        // Zoom in/out buttons
+                        Positioned(
+                          right: 10,
+                          top: 70,
+                          child: Column(
+                            children: [
+                              FloatingActionButton(
+                                onPressed: () {
+                                  _mapController.move(
+                                    _mapController.camera.center,
+                                    _mapController.camera.zoom + 1,
+                                  );
+                                },
+                                mini: true,
+                                child: const Icon(Icons.zoom_in),
+                              ),
+                              const SizedBox(height: 8),
+                              FloatingActionButton(
+                                onPressed: () {
+                                  _mapController.move(
+                                    _mapController.camera.center,
+                                    _mapController.camera.zoom - 1,
+                                  );
+                                },
+                                mini: true,
+                                child: const Icon(Icons.zoom_out),
+                              ),
+                            ],
+                          ),
+                        ),
+                        
+                        
                         // Button overlay
                         Positioned(
-                          bottom: 20,
+                          bottom: 70,
                           left: 0,
                           right: 0,
                           child: Center(
                             child: Padding(
                               padding: EdgeInsets.only(left: vww(context, 15), right: vww(context, 15), top: vhh(context, 3)),
                               child: ButtonWidget(
-                                btnType: ButtonWidgetType.StartTripTitle,
-                                borderColor: kColorButtonPrimary,
+                                btnType: isTripStarted ? ButtonWidgetType.endTripTitle : ButtonWidgetType.startTripTitle,
+                                borderColor: isTripStarted ? Colors.red : kColorButtonPrimary,
                                 textColor: kColorWhite,
-                                fullColor: kColorButtonPrimary,
-                                onPressed: () {
-                                  
-                                },
+                                fullColor: isTripStarted ? Colors.red : kColorButtonPrimary,
+                                onPressed: toggleTrip,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        Positioned(
+                          bottom: 5,
+                          left: 0,
+                          right: 0,
+                          child: Padding(
+                            padding: EdgeInsets.zero, // Adjust for width
+                            child: Container(
+                              padding: const EdgeInsets.all(3.0), // Inner padding for spacing around text
+                              color: Colors.white.withOpacity(0.5), // Background color with slight transparency
+                              child: const Text(
+                                'Note: Start trip, then drop a pin to make\nyour post visible to your followers',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 15,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                                textAlign: TextAlign.center,
                               ),
                             ),
                           ),
                         ),
                       ],
                     ),
-                  ),
-                ),
-                // Note below the map
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8.0),
-                  child: Text(
-                    trip_note,
-                    style: TextStyle(
-                      color: kColorBlack,
-                      fontSize: 12,
-                    ),
-                    textAlign: TextAlign.center,
                   ),
                 ),
               ],
