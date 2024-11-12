@@ -1,53 +1,39 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:RollaStrava/src/utils/index.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:RollaStrava/src/widget/bottombar.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:flutter_typeahead/flutter_typeahead.dart';
 
-class DestinationScreen extends ConsumerStatefulWidget{
-  final String initialDestination;
-  const DestinationScreen({super.key, required this.initialDestination});
+class SoundScreen extends ConsumerStatefulWidget {
+  final String initialSound;
+
+  const SoundScreen({super.key, required this.initialSound});
 
   @override
-  ConsumerState<DestinationScreen> createState() => DestinationScreenState();
+  ConsumerState<SoundScreen> createState() => SoundScreenState();
 }
 
-class DestinationScreenState extends ConsumerState<DestinationScreen> {
+class SoundScreenState extends ConsumerState<SoundScreen> {
   double screenHeight = 0;
   double keyboardHeight = 0;
   final int _currentIndex = 2;
-  late TextEditingController _searchController = TextEditingController();
+  final TextEditingController _soundController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    // _soundController = TextEditingController(text: widget.initialSound);
   }
 
   @override
   void dispose() {
     super.dispose();
-    _searchController.dispose();
+    _soundController.dispose();
   }
 
   Future<bool> _onWillPop() async {
     return false;
   }
 
-  Future<List<String>> fetchAddressSuggestions(String query) async {
-    final response = await http.get(
-      Uri.parse('https://api.mapbox.com/geocoding/v5/mapbox.places/$query.json?access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw'),
-    );
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      final features = data['features'] as List;
-      return features.map((feature) => feature['place_name'] as String).toList();
-    } else {
-      throw Exception('Failed to load suggestions');
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,17 +45,13 @@ class DestinationScreenState extends ConsumerState<DestinationScreen> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 40), // Spacing from the top
+              const SizedBox(height: 40),
               Row(
                 children: [
                   const SizedBox(width: 16),
                   InkWell(
                     onTap: () {
-                      if(_searchController.text.isNotEmpty){
-                        Navigator.pop(context, _searchController.text);
-                      } else {
-                        Navigator.pop(context, widget.initialDestination);
-                      }
+                      Navigator.pop(context, _soundController.text);
                     },
                     child: Image.asset(
                       'assets/images/icons/allow-left.png',
@@ -80,7 +62,7 @@ class DestinationScreenState extends ConsumerState<DestinationScreen> {
                   const Expanded(
                     child: Center(
                       child: Text(
-                        'Destination',
+                        'My soundtrack',
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -91,7 +73,7 @@ class DestinationScreenState extends ConsumerState<DestinationScreen> {
                   const SizedBox(width: 48), // To balance the space taken by the IconButton
                 ],
               ),
-              
+
               const SizedBox(height: 30),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -99,12 +81,12 @@ class DestinationScreenState extends ConsumerState<DestinationScreen> {
                   children: [
                     const Icon(Icons.search, size: 24, color: Colors.black),
                     const SizedBox(width: 8),
+
                     Expanded(
-                      child: TypeAheadFormField(
-                        textFieldConfiguration: TextFieldConfiguration(
-                          controller: _searchController,
-                          decoration: InputDecoration(
-                            hintText: "Search Locations", 
+                      child: TextField(
+                        controller: _soundController,
+                        decoration: InputDecoration(
+                            hintText: 'Search locations',
                             hintStyle: const TextStyle(fontSize: 16), // Set font size for hint text
                             contentPadding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0), // Set inner padding
                             border: OutlineInputBorder(
@@ -122,31 +104,17 @@ class DestinationScreenState extends ConsumerState<DestinationScreen> {
                             filled: true,
                             fillColor: Colors.grey[200],
                           ),
-                          style: const TextStyle(fontSize: 16), // Set font size for input text
-                        ),
-                        suggestionsCallback: (pattern) async {
-                          return await fetchAddressSuggestions(pattern);
-                        },
-                        itemBuilder: (context, suggestion) {
-                          return ListTile(
-                            title: Text(suggestion),
-                          );
-                        },
-                        onSuggestionSelected: (suggestion) {
-                          _searchController.text = suggestion;
-                        },
+                          style: const TextStyle(fontSize: 16),
                       ),
                     ),
                   ],
                 ),
               ),
-            ],
+            ]
           ),
         ),
         bottomNavigationBar: BottomNavBar(currentIndex: _currentIndex),
-      ),
+      ), 
     );
-    
   }
-
 }

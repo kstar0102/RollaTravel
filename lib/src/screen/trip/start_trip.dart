@@ -2,6 +2,7 @@ import 'package:RollaStrava/src/constants/app_button.dart';
 import 'package:RollaStrava/src/constants/app_styles.dart';
 import 'package:RollaStrava/src/screen/trip/destination_screen.dart';
 import 'package:RollaStrava/src/screen/trip/end_trip.dart';
+import 'package:RollaStrava/src/screen/trip/sound_screen.dart';
 import 'package:RollaStrava/src/translate/en.dart';
 import 'package:RollaStrava/src/utils/index.dart';
 import 'package:RollaStrava/src/widget/bottombar.dart';
@@ -12,7 +13,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:logger/logger.dart';
-
+import 'package:RollaStrava/src/utils/global_variable.dart';
 class StartTripScreen extends ConsumerStatefulWidget {
   const StartTripScreen({super.key});
 
@@ -28,6 +29,8 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   final MapController _mapController = MapController();
   final logger = Logger();
   final TextEditingController _captionController = TextEditingController();
+  String editDestination = 'Edit destination';
+  String initialSound = "Edit Playlist";
 
   bool isTripStarted = false;
 
@@ -44,16 +47,17 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   }
 
   void toggleTrip() {
-  setState(() {
-    isTripStarted = !isTripStarted;
-    if (!isTripStarted) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const EndTripScreen()),
-      );
-    }
-  });
-}
+    setState(() {
+      isTripStarted = !isTripStarted;
+      ref.read(isTripStartedProvider.notifier).state = isTripStarted;
+      if (!isTripStarted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const EndTripScreen()),
+        );
+      }
+    });
+  }
 
   Future<void> _getCurrentLocation() async {
     logger.i("Larrrived");
@@ -139,24 +143,31 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                             ),
                           ),
                           GestureDetector(
-                            onTap: () {
-                              Navigator.pushReplacement(
+                            onTap: () async {
+                              final result = await Navigator.push(
                                 context,
                                 PageRouteBuilder(
-                                    pageBuilder: (context, animation1, animation2) => const DestinationScreen(),
-                                    transitionDuration: Duration.zero,
-                                    reverseTransitionDuration: Duration.zero,
+                                  pageBuilder: (context, animation1, animation2) => DestinationScreen(initialDestination: editDestination),
+                                  transitionDuration: Duration.zero,
+                                  reverseTransitionDuration: Duration.zero,
                                 ),
                               );
+                              if (result != null) {
+                                setState(() {
+                                  editDestination = result;
+                                });
+                              }
                             },
-                            child: const Text(
-                              edit_destination,
-                              style: TextStyle(
+                            child: Text(
+                              editDestination.length > 30 ? '${editDestination.substring(0, 30)}...' : editDestination,
+                              style: const TextStyle(
                                 color: kColorButtonPrimary,
                                 fontSize: 14,
                                 decoration: TextDecoration.underline,
                                 decorationColor: kColorButtonPrimary,
                               ),
+                              overflow: TextOverflow.ellipsis, // Add ellipsis if text is too long
+                              maxLines: 1, // Limit to one line
                             ),
                           ),
                         ],
@@ -191,8 +202,20 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                             ),
                           ),
                           GestureDetector(
-                            onTap: () {
-                              // Handle the onTap event here
+                            onTap: () async {
+                              final result = await Navigator.push(
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation1, animation2) => SoundScreen(initialSound: initialSound),
+                                  transitionDuration: Duration.zero,
+                                  reverseTransitionDuration: Duration.zero,
+                                ),
+                              );
+                              if (result != null) {
+                                setState(() {
+                                  initialSound = result;
+                                });
+                              }
                             },
                             child: const Text(
                               edit_playlist,

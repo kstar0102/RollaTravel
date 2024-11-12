@@ -1,26 +1,30 @@
 import 'package:RollaStrava/src/constants/app_styles.dart';
 import 'package:RollaStrava/src/screen/droppin/drop_pin.dart';
+import 'package:RollaStrava/src/screen/droppin/photo_select_screen.dart';
 import 'package:RollaStrava/src/screen/home/home_screen.dart';
 import 'package:RollaStrava/src/screen/profile/profile_screen.dart';
 import 'package:RollaStrava/src/screen/trip/start_trip.dart';
 import 'package:RollaStrava/src/translate/en.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:RollaStrava/src/utils/global_variable.dart';
 
-class BottomNavBar extends StatelessWidget {
+class BottomNavBar extends ConsumerWidget {
   final int currentIndex;
 
   const BottomNavBar({required this.currentIndex, super.key});
 
-  void onTabTapped(BuildContext context, int index) {
+  void onTabTapped(BuildContext context, WidgetRef ref, int index) {
+    final isTripStarted = ref.watch(isTripStartedProvider);
     if (index == currentIndex) return;
     switch (index) {
       case 0:
         Navigator.pushReplacement(
           context,
           PageRouteBuilder(
-              pageBuilder: (context, animation1, animation2) => const HomeScreen(),
-              transitionDuration: Duration.zero,
-              reverseTransitionDuration: Duration.zero,
+            pageBuilder: (context, animation1, animation2) => const HomeScreen(),
+            transitionDuration: Duration.zero,
+            reverseTransitionDuration: Duration.zero,
           ),
         );
         break;
@@ -31,29 +35,32 @@ class BottomNavBar extends StatelessWidget {
         Navigator.pushReplacement(
           context,
           PageRouteBuilder(
-              pageBuilder: (context, animation1, animation2) => const StartTripScreen(),
-              transitionDuration: Duration.zero,
-              reverseTransitionDuration: Duration.zero,
+            pageBuilder: (context, animation1, animation2) => const StartTripScreen(),
+            transitionDuration: Duration.zero,
+            reverseTransitionDuration: Duration.zero,
           ),
         );
         break;
       case 3:
-        Navigator.pushReplacement(
-          context,
-          PageRouteBuilder(
-              pageBuilder: (context, animation1, animation2) => const DropPinScreen(),
-              transitionDuration: Duration.zero,
-              reverseTransitionDuration: Duration.zero,
-          ),
-        );
+        if (!isTripStarted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => DropPinScreen()),
+          );
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => PhotoSelectScreen()),
+          );
+        }
         break;
       case 4:
         Navigator.pushReplacement(
           context,
           PageRouteBuilder(
-              pageBuilder: (context, animation1, animation2) => const ProfileScreen(),
-              transitionDuration: Duration.zero,
-              reverseTransitionDuration: Duration.zero,
+            pageBuilder: (context, animation1, animation2) => const ProfileScreen(),
+            transitionDuration: Duration.zero,
+            reverseTransitionDuration: Duration.zero,
           ),
         );
         break;
@@ -63,7 +70,7 @@ class BottomNavBar extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return SafeArea(
       child: BottomAppBar(
         color: Colors.white,
@@ -79,7 +86,7 @@ class BottomNavBar extends StatelessWidget {
             children: [
               Expanded(
                 child: InkWell(
-                  onTap: () => onTabTapped(context, 0),
+                  onTap: () => onTabTapped(context, ref, 0),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -95,7 +102,7 @@ class BottomNavBar extends StatelessWidget {
               ),
               Expanded(
                 child: InkWell(
-                  onTap: () => onTabTapped(context, 1),
+                  onTap: () => onTabTapped(context, ref, 1),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -111,7 +118,7 @@ class BottomNavBar extends StatelessWidget {
               ),
               Expanded(
                 child: InkWell(
-                  onTap: () => onTabTapped(context, 2),
+                  onTap: () => onTabTapped(context, ref, 2),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -134,7 +141,7 @@ class BottomNavBar extends StatelessWidget {
               ),
               Expanded(
                 child: InkWell(
-                  onTap: () => onTabTapped(context, 3),
+                  onTap: () => onTabTapped(context, ref, 3),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -150,7 +157,7 @@ class BottomNavBar extends StatelessWidget {
               ),
               Expanded(
                 child: InkWell(
-                  onTap: () => onTabTapped(context, 4),
+                  onTap: () => onTabTapped(context, ref, 4),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -183,6 +190,5 @@ class BottomNavBar extends StatelessWidget {
         ),
       ),
     );
-     
   }
 }
