@@ -1,7 +1,11 @@
+import 'package:RollaStrava/src/screen/droppin/take_picture_screen.dart';
+import 'package:RollaStrava/src/utils/index.dart';
+import 'package:RollaStrava/src/widget/bottombar.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:logger/logger.dart';
+import 'package:image_picker/image_picker.dart';
 
 class PhotoSelectScreen extends StatefulWidget {
   const PhotoSelectScreen({super.key});
@@ -11,9 +15,11 @@ class PhotoSelectScreen extends StatefulWidget {
 }
 
 class PhotoSelectScreenState extends State<PhotoSelectScreen> {
+  final int _currentIndex = 3;
   late CameraController _cameraController;
   Future<void>? _initializeControllerFuture;
   final logger = Logger();
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -27,19 +33,22 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
       await _initializeCamera();
     } else {
       // Handle the case where the user denies the permission
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Camera Permission'),
-          content: const Text('Camera permission is required to take photos.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('OK'),
-            ),
-          ],
-        ),
-      );
+      if(mounted){
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Camera Permission'),
+            content: const Text('Camera permission is required to take photos.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
+      
     }
   }
 
@@ -57,10 +66,10 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
         _initializeControllerFuture = _cameraController.initialize();
         setState(() {}); // Trigger a rebuild to ensure the FutureBuilder gets the updated future
       } else {
-        print('No cameras available');
+        logger.i('No cameras available');
       }
     } catch (e) {
-      print('Error initializing camera: $e');
+      logger.i('Error initializing camera: $e');
     }
   }
 
@@ -75,9 +84,33 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
       await _initializeControllerFuture;
       final image = await _cameraController.takePicture();
       // Handle the captured image
-      print('Image captured at: ${image.path}');
+      logger.i('Image captured at: ${image.path}');
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => TakePictureScreen(imagePath: image.path),
+        ),
+      );
     } catch (e) {
-      print(e);
+      logger.i(e);
+    }
+  }
+
+  Future<void> _getImageFromGallery() async {
+    try {
+      final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        // Handle the selected image
+        logger.i('Image selected from gallery: ${pickedFile.path}');
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TakePictureScreen(imagePath: pickedFile.path),
+          ),
+        );
+      }
+    } catch (e) {
+      logger.i(e);
     }
   }
 
@@ -95,47 +128,69 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
               Align(
                 alignment: Alignment.centerLeft,
                 child: Image.asset('assets/images/icons/logo.png', height: 100),
               ),
               const Text(
-                'Select photo\nto drop on your map',
+                'Select photo to drop \non your map',
                 style: TextStyle(
                   fontSize: 20,
                   color: Colors.black,
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: FutureBuilder<void>(
-                  future: _initializeControllerFuture,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.done) {
-                      return CameraPreview(_cameraController);
-                    } else if (snapshot.hasError) {
-                      return Center(child: Text('Error: ${snapshot.error}'));
-                    } else {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                  },
+              Center(
+                child: SizedBox(
+                  width: double.infinity,
+                  height: vhh(context, 55),
+                  child: Stack(
+                    alignment: Alignment.center, // Center contents in the stack
+                    children: [
+                      Container(
+                        color: Colors.grey[300], // Set the background to a light gray color
+                        width: double.infinity,
+                        height: double.infinity,
+                      ),
+                      FutureBuilder<void>(
+                        future: _initializeControllerFuture,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.done) {
+                            return CameraPreview(_cameraController);
+                          } else if (snapshot.hasError) {
+                            return Center(child: Text('Error: ${snapshot.error}'));
+                          } else {
+                            return const Center(child: CircularProgressIndicator());
+                          }
+                        },
+                      ),
+                      Positioned(
+                        bottom: 20, // Position the button 20 pixels from the bottom of the Stack
+                        child: ElevatedButton(
+                          onPressed: _getImageFromCamera,
+                          style: ElevatedButton.styleFrom(
+                            shape: const CircleBorder(),
+                            padding: const EdgeInsets.all(20), // Adjust button size
+                            backgroundColor: Colors.white, // Set button color if desired
+                          ),
+                          child: const Icon(Icons.camera_alt, size: 30, color: Colors.black),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
+              const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: _getImageFromCamera,
-                child: const Text('Take a photo'),
+                onPressed: _getImageFromGallery,
+                child: const Text('Photo Library'),
               ),
             ],
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _getImageFromCamera,
-        child: Icon(Icons.camera),
-        heroTag: 'uniqueTag', // Set a unique heroTag
-      ),
+      bottomNavigationBar: BottomNavBar(currentIndex: _currentIndex),
     );
   }
 }
