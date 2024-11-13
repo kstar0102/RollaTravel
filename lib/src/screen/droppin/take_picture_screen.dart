@@ -1,4 +1,5 @@
 import 'package:RollaStrava/src/constants/app_styles.dart';
+import 'package:RollaStrava/src/screen/droppin/select_locaiton_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:io';
@@ -21,6 +22,10 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
   Future<bool> _onWillPop() async {
     // Handle back navigation here if needed
     return true; // Return true to allow back navigation
+  }
+
+  Future<void> _handleLocationSelection() async {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => const SelectLocationScreen()));
   }
 
   @override
@@ -157,9 +162,7 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: ElevatedButton(
-                    onPressed: () {
-                      // Handle location selection
-                    },
+                    onPressed: _handleLocationSelection,
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.zero,
                       backgroundColor: kColorButtonPrimary, // Button color

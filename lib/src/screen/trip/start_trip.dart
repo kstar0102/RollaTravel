@@ -14,6 +14,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:logger/logger.dart';
 import 'package:RollaStrava/src/utils/global_variable.dart';
+
 class StartTripScreen extends ConsumerStatefulWidget {
   const StartTripScreen({super.key});
 
@@ -90,20 +91,22 @@ void _showPermissionDeniedDialog() {
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: Text("Location Permission Required"),
-        content: Text(
+        title: const Text("Location Permission Required"),
+        content: const Text(
           "To access your location, please enable permissions in System Preferences > Security & Privacy > Privacy > Location Services.",
         ),
         actions: [
           TextButton(
-            child: Text("Open Settings"),
+            child: const Text("Open Settings"),
             onPressed: () async {
-              await openAppSettings(); // This will open app settings
-              Navigator.of(context).pop();
+              await openAppSettings();
+              if (mounted) {
+                Navigator.of(context).pop();
+              }
             },
           ),
           TextButton(
-            child: Text("Cancel"),
+            child: const Text("Cancel"),
             onPressed: () {
               Navigator.of(context).pop();
             },
@@ -385,6 +388,7 @@ void _showPermissionDeniedDialog() {
                           child: Column(
                             children: [
                               FloatingActionButton(
+                                heroTag: 'zoom_in_button', // Unique tag for the zoom in button
                                 onPressed: () {
                                   _mapController.move(
                                     _mapController.camera.center,
@@ -396,6 +400,7 @@ void _showPermissionDeniedDialog() {
                               ),
                               const SizedBox(height: 8),
                               FloatingActionButton(
+                                heroTag: 'zoom_out_button', // Unique tag for the zoom out button
                                 onPressed: () {
                                   _mapController.move(
                                     _mapController.camera.center,
