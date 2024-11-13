@@ -59,26 +59,61 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     });
   }
 
-  Future<void> _getCurrentLocation() async {
-    logger.i("Larrrived");
-    final permissionStatus = await Permission.location.request();
+Future<void> _getCurrentLocation() async {
+  logger.i("Checking location permission...");
 
-    if (permissionStatus.isGranted) {
-      Position position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-        ),
-      );
-      setState(() {
-        _currentLocation = LatLng(position.latitude, position.longitude);
-        logger.i("$_currentLocation");
-      });
-       _mapController.move(_currentLocation!, 13.0);
-    } else {
-      // Handle the case when location permission is denied.
-      logger.i("Location permission denied");
-    }
+  final permissionStatus = await Permission.location.request();
+
+  if (permissionStatus.isGranted) {
+    // Permission granted, fetch current location
+    Position position = await Geolocator.getCurrentPosition(
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.high,
+      ),
+    );
+    setState(() {
+      _currentLocation = LatLng(position.latitude, position.longitude);
+      logger.i("Location: $_currentLocation");
+    });
+    _mapController.move(_currentLocation!, 13.0);
+  } else if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
+    // Permission denied - prompt user to open settings
+    logger.i("Location permission denied. Redirecting to settings.");
+    _showPermissionDeniedDialog();
+  } else {
+    logger.i("Location permission status: $permissionStatus");
   }
+}
+
+void _showPermissionDeniedDialog() {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text("Location Permission Required"),
+        content: Text(
+          "To access your location, please enable permissions in System Preferences > Security & Privacy > Privacy > Location Services.",
+        ),
+        actions: [
+          TextButton(
+            child: Text("Open Settings"),
+            onPressed: () async {
+              await openAppSettings(); // This will open app settings
+              Navigator.of(context).pop();
+            },
+          ),
+          TextButton(
+            child: Text("Cancel"),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
 
   Future<bool> _onWillPop() async {
     return false;
