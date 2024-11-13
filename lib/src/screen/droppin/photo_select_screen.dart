@@ -16,7 +16,7 @@ class PhotoSelectScreen extends StatefulWidget {
 
 class PhotoSelectScreenState extends State<PhotoSelectScreen> {
   final int _currentIndex = 3;
-  late CameraController _cameraController;
+  CameraController? _cameraController;
   Future<void>? _initializeControllerFuture;
   final logger = Logger();
   final ImagePicker _picker = ImagePicker();
@@ -63,7 +63,7 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
           ResolutionPreset.medium,
         );
 
-        _initializeControllerFuture = _cameraController.initialize();
+        _initializeControllerFuture = _cameraController!.initialize();
         setState(() {}); // Trigger a rebuild to ensure the FutureBuilder gets the updated future
       } else {
         logger.i('No cameras available');
@@ -75,22 +75,24 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
 
   @override
   void dispose() {
-    _cameraController.dispose();
+    _cameraController?.dispose();
     super.dispose();
   }
 
   Future<void> _getImageFromCamera() async {
     try {
       await _initializeControllerFuture;
-      final image = await _cameraController.takePicture();
+      final image = await _cameraController!.takePicture();
       // Handle the captured image
       logger.i('Image captured at: ${image.path}');
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => TakePictureScreen(imagePath: image.path),
-        ),
-      );
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TakePictureScreen(imagePath: image.path),
+          ),
+        );
+      }
     } catch (e) {
       logger.i(e);
     }
@@ -102,12 +104,14 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
       if (pickedFile != null) {
         // Handle the selected image
         logger.i('Image selected from gallery: ${pickedFile.path}');
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => TakePictureScreen(imagePath: pickedFile.path),
-          ),
-        );
+        if (mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => TakePictureScreen(imagePath: pickedFile.path),
+            ),
+          );
+        }
       }
     } catch (e) {
       logger.i(e);
@@ -157,7 +161,7 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
                         future: _initializeControllerFuture,
                         builder: (context, snapshot) {
                           if (snapshot.connectionState == ConnectionState.done) {
-                            return CameraPreview(_cameraController);
+                            return CameraPreview(_cameraController!);
                           } else if (snapshot.hasError) {
                             return Center(child: Text('Error: ${snapshot.error}'));
                           } else {

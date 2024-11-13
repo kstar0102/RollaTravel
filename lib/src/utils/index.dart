@@ -22,12 +22,30 @@ double vh(BuildContext context, double height) {
   return MediaQuery.of(context).size.height / 110 * height;
 }
 
+// double vww(BuildContext context, double width) {
+//   return MediaQuery.of(context).size.width / 100 * width;
+// }
+
 double vww(BuildContext context, double width) {
-  return MediaQuery.of(context).size.width / 100 * width;
+  final screenWidth = MediaQuery.of(context).size.width;
+  final calculatedWidth = screenWidth / 100 * width;
+  if (calculatedWidth.isInfinite || calculatedWidth.isNaN) {
+    throw UnsupportedError('Invalid width calculation');
+  }
+  return calculatedWidth;
 }
 
+// double vhh(BuildContext context, double height) {
+//   return MediaQuery.of(context).size.height / 100 * height;
+// }
+
 double vhh(BuildContext context, double height) {
-  return MediaQuery.of(context).size.height / 100 * height;
+  final screenHeight = MediaQuery.of(context).size.height;
+  final calculatedHeight = screenHeight / 100 * height;
+  if (calculatedHeight.isInfinite || calculatedHeight.isNaN) {
+    throw UnsupportedError('Invalid height calculation');
+  }
+  return calculatedHeight;
 }
 
 double getLogicalPixels(BuildContext context, double physicalPixels) {
