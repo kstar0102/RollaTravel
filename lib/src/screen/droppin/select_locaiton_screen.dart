@@ -1,5 +1,6 @@
 import 'package:RollaStrava/src/constants/app_styles.dart';
 import 'package:RollaStrava/src/screen/droppin/another_location_screen.dart';
+import 'package:RollaStrava/src/screen/droppin/choosen_location_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -144,6 +145,10 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
         );
       },
     );
+  }
+
+  void _dropPinSelected(){
+    Navigator.push(context, MaterialPageRoute(builder: (context) => const ChoosenLocationScreen()));
   }
 
   Future<bool> _onWillPop() async {
@@ -306,9 +311,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: ElevatedButton(
-                    onPressed: () {
-                      // Navigator.of(context).pop(_currentLocation);
-                    },
+                    onPressed: _dropPinSelected,
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.zero,
                       backgroundColor: kColorHereButton,
