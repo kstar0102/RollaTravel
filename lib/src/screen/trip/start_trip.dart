@@ -76,7 +76,7 @@ Future<void> _getCurrentLocation() async {
       _currentLocation = LatLng(position.latitude, position.longitude);
       logger.i("Location: $_currentLocation");
     });
-    _mapController.move(_currentLocation!, 13.0);
+    _mapController.move(_currentLocation!, 14.0);
   } else if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
     // Permission denied - prompt user to open settings
     logger.i("Location permission denied. Redirecting to settings.");
@@ -321,8 +321,8 @@ void _showPermissionDeniedDialog() {
                         FlutterMap(
                           mapController: _mapController, 
                           options: MapOptions(
-                            initialCenter: _currentLocation ?? const LatLng(37.7749, -122.4194),
-                            initialZoom: 12.0,
+                            initialCenter: _currentLocation ?? const LatLng(43.1557, -77.6157),
+                            initialZoom: 13.0,
                           ),
                           children: [
                             TileLayer(

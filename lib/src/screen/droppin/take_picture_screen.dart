@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:io';
 import 'package:RollaStrava/src/utils/index.dart';
 import 'package:RollaStrava/src/widget/bottombar.dart';
+import 'package:latlong2/latlong.dart';
 
 class TakePictureScreen extends ConsumerStatefulWidget {
   final String imagePath;
@@ -18,14 +19,14 @@ class TakePictureScreen extends ConsumerStatefulWidget {
 class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
   bool showLikes = true;
   final int _currentIndex = 3;
-
+  final LatLng photoLocation = const LatLng (0, 0);
   Future<bool> _onWillPop() async {
     // Handle back navigation here if needed
     return true; // Return true to allow back navigation
   }
 
   Future<void> _handleLocationSelection() async {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => const SelectLocationScreen()));
+    Navigator.push(context, MaterialPageRoute(builder: (context) => SelectLocationScreen(selectedLocation: photoLocation,)));
   }
 
   @override

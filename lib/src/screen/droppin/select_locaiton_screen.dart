@@ -1,4 +1,5 @@
 import 'package:RollaStrava/src/constants/app_styles.dart';
+import 'package:RollaStrava/src/screen/droppin/another_location_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,10 +9,12 @@ import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:logger/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
-
+import 'dart:async';
 
 class SelectLocationScreen extends ConsumerStatefulWidget {
-  const SelectLocationScreen({super.key});
+  final LatLng? selectedLocation;
+  const SelectLocationScreen({super.key, required this.selectedLocation});
+
   @override
   ConsumerState<SelectLocationScreen> createState() => SelectLocationScreenState();
 }
@@ -23,6 +26,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
   final logger = Logger();
   LatLng? _currentLocation;
   final MapController _mapController = MapController();
+  final Completer<void> _mapReadyCompleter = Completer<void>();
 
   @override
   void initState() {
@@ -41,6 +45,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
   @override
   void dispose() {
     super.dispose();
+    _mapController.dispose();
   }
   Future<void> _getCurrentLocation() async {
     logger.i("Checking location permission...");
@@ -58,6 +63,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
         _currentLocation = LatLng(position.latitude, position.longitude);
         logger.i("Location: $_currentLocation");
       });
+      await _mapReadyCompleter.future;
       _mapController.move(_currentLocation!, 13.0);
     } else if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
       // Permission denied - prompt user to open settings
@@ -86,12 +92,55 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
               },
             ),
             TextButton(
-              child: Text("Cancel"),
+              child: const Text("Cancel"),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
           ],
+        );
+      },
+    );
+  }
+
+  void _showImageDialog(){
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          insetPadding: const EdgeInsets.symmetric(horizontal: 30), // Adjust padding to match the screenshot
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Caption and Close Icon Row
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "Caption",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.black),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ],
+                ),
+              ),
+              // Image
+              Image.asset("assets/images/background/Lake1.png", fit: BoxFit.cover, width: vww(context, 90), height: vhh(context, 70),),
+              const Divider(height: 1, color: Colors.grey), // Divider between image and footer
+              SizedBox(height: vhh(context, 5))
+            ],
+          ),
         );
       },
     );
@@ -154,6 +203,9 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                           options: MapOptions(
                             initialCenter: _currentLocation ?? const LatLng(37.7749, -122.4194),
                             initialZoom: 12.0,
+                            onMapReady: () {
+                              _mapReadyCompleter.complete();
+                            },
                           ),
                           children: [
                             TileLayer(
@@ -163,17 +215,30 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                                 'access_token': 'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw',
                               },
                             ),
-                            if (_currentLocation != null)
-                              MarkerLayer(
-                                markers: [
+                            MarkerLayer(
+                              markers: [
+                                if (widget.selectedLocation == const LatLng(0, 0))
                                   Marker(
                                     width: 80.0,
                                     height: 80.0,
-                                    point: _currentLocation!,
-                                    child: const Icon(Icons.location_on, color: Colors.red, size: 40),
-                                  ),
-                                ],
-                              ),
+                                    point: _currentLocation ?? const LatLng(43.1557, -77.6157),
+                                    child: GestureDetector(
+                                      onTap: () => _showImageDialog(),
+                                      child: const Icon(Icons.location_on, color: Colors.red, size: 40),
+                                    ),
+                                  )
+                                else if(widget.selectedLocation != const LatLng(0, 0))
+                                  Marker(
+                                    width: 80.0,
+                                    height: 80.0,
+                                    point: widget.selectedLocation ?? const LatLng(43.1557, -77.6157),
+                                    child: GestureDetector(
+                                      onTap: () => _showImageDialog(),
+                                      child: const Icon(Icons.location_on, color: Colors.red, size: 40),
+                                    ),
+                                  )
+                              ]
+                            ),
                           ],
                         ),
 
@@ -216,11 +281,11 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                           child: Padding(
                             padding: EdgeInsets.zero, // Adjust for width
                             child: Container(
-                              padding: const EdgeInsets.all(3.0), // Inner padding for spacing around text
-                              child: const Text(
+                              padding: const EdgeInsets.all(5.0), // Inner padding for spacing around text
+                              child: Text(
                                 'Tap the pin to see your photo',
                                 style: TextStyle(
-                                  color: Colors.black,
+                                  color: Colors.black.withOpacity(0.8),
                                   fontSize: 14,
                                   fontStyle: FontStyle.italic,
                                 ),
@@ -242,7 +307,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.of(context).pop(_currentLocation);
+                      // Navigator.of(context).pop(_currentLocation);
                     },
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.zero,
@@ -266,7 +331,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
               //choose another location buttion with underline
               GestureDetector(
                 onTap: () async {
-                  
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const AnotherLocationScreen()));
                 },
                 child: const Text(
                   "Choose another location",

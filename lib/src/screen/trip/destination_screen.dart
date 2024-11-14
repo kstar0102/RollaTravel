@@ -5,6 +5,7 @@ import 'package:RollaStrava/src/widget/bottombar.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:flutter_map/flutter_map.dart';
 
 class DestinationScreen extends ConsumerStatefulWidget{
   final String initialDestination;
@@ -18,7 +19,7 @@ class DestinationScreenState extends ConsumerState<DestinationScreen> {
   double screenHeight = 0;
   double keyboardHeight = 0;
   final int _currentIndex = 2;
-  late TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
