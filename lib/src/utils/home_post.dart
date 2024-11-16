@@ -12,6 +12,7 @@ class Post {
   final List<LatLng> locations;
   final List<String> locationImages;
   final List<String> locationDecription;
+  final List<Map<String, String>> commentsList;
 
   Post({
     required this.username,
@@ -25,5 +26,6 @@ class Post {
     required this.locations,
     required this.locationImages,
     required this.locationDecription,
+    required this.commentsList,
   });
 }

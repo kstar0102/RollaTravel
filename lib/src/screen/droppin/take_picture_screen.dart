@@ -56,7 +56,7 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
 
               // Image with overlays in a constrained height
               SizedBox(
-                height: vhh(context, 65),
+                height: vhh(context, 60),
                 width: vww(context, 96),
                 child: Stack(
                   children: [

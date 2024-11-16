@@ -1,3 +1,4 @@
+import 'package:RollaStrava/src/screen/home/home_tag_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:RollaStrava/src/constants/app_styles.dart';
@@ -27,7 +28,6 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
   final int _currentIndex = 0;
   LatLng? _currentLocation;
   final logger = Logger();
-
   // Sample data for posts
   final List<Post> posts = [
     Post(
@@ -54,6 +54,11 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
         "Lake Placid, NY 2",
         "Lake Placid, NY 3",
       ],
+      commentsList: [
+        {"user": "@User1", "comment": "Great place!"},
+        {"user": "@User2", "comment": "Looks amazing!"},
+        {"user": "@User3", "comment": "I want to visit!"},
+      ],
     ),
     Post(
       username: "@john",
@@ -78,6 +83,11 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
         "Yellowstone, WY 1",
         "Yellowstone, WY 2",
         "Yellowstone, WY 3",
+      ],
+      commentsList: [
+        {"user": "@User13", "comment": "Example 1 Great place!"},
+        {"user": "@User23", "comment": "Example 2 Looks amazing!"},
+        {"user": "@User13", "comment": "Example 3 I want to visit!"},
       ],
     ),
     // Add more posts as needed
@@ -159,7 +169,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
                   itemCount: posts.length,
                   itemBuilder: (context, index) {
                     final post = posts[index];
-                    return PostWidget( post: post,);
+                    return PostWidget( post: post, dropIndex: index,);
                   },
                 ),
               ),
@@ -174,8 +184,8 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
 
 class PostWidget extends StatefulWidget {
   final Post post;
-
-  const PostWidget({super.key, required this.post,});
+  final int dropIndex;
+  const PostWidget({super.key, required this.post, required this.dropIndex});
 
   @override
   PostWidgetState createState() => PostWidgetState();
@@ -184,8 +194,11 @@ class PostWidget extends StatefulWidget {
 
 class PostWidgetState extends State<PostWidget> {
   late MapController mapController;
-   List<LatLng> routePoints = [];
-
+  List<LatLng> routePoints = [];
+  bool showComments = false;
+  bool isLiked = false;
+  bool showLikesDropdown = false;
+  // bool isLiked = true;
   @override
   void initState() {
     super.initState();
@@ -266,62 +279,149 @@ class PostWidgetState extends State<PostWidget> {
   void _showImageDialog(String imagePath, String caption, int likes) {
     showDialog(
       context: context,
-      builder: (context) {
-        return Dialog(
-          insetPadding: const EdgeInsets.symmetric(horizontal: 30), // Adjust padding to match the screenshot
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Caption and Close Icon Row
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      caption,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey,
-                      ),
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Dialog(
+              insetPadding: const EdgeInsets.symmetric(horizontal: 30), // Adjust padding to match the screenshot
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Caption and Close Icon Row
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          caption,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close, color: Colors.black),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            setState(() {
+                              showLikesDropdown = false; // Hide the likes dropdown when the dialog is closed
+                            });
+                          }
+                        ),
+                      ],
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.close, color: Colors.black),
-                      onPressed: () => Navigator.of(context).pop(),
+                  ),
+                  // Image
+                  Image.asset(
+                    imagePath,
+                    fit: BoxFit.cover,
+                    width: MediaQuery.of(context).size.width * 0.9, // Replace vww
+                    height: MediaQuery.of(context).size.height * 0.5, // Replace vhh
+                  ),
+                  const Divider(height: 1, color: Colors.grey), // Divider between image and footer
+                  // Footer with Like Icon and Likes Count
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            // Update dialog state
+                            setState(() {
+                              isLiked = !isLiked;
+                            });
+                          },
+                          child: Icon(
+                            isLiked ? Icons.favorite : Icons.favorite_border,
+                            color: isLiked ? Colors.red : Colors.black,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              showLikesDropdown = !showLikesDropdown; // Toggle the visibility of the dropdown
+                            });
+                          },
+                          child: Text(
+                            '$likes likes',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                  if (showLikesDropdown)
+                    Column(
+                      children: widget.post.commentsList.map((comment) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4.0),
+                          child: Row(
+                            children: [
+                              Container(
+                                height: vhh(context, 4),
+                                width: vhh(context, 4),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(100),
+                                  border: Border.all(
+                                    color: kColorHereButton,
+                                    width: 2,
+                                  ),
+                                  image: const DecorationImage(
+                                    image: AssetImage("assets/images/background/image1.png"),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 5),
+                              Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                        comment['user']!,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold, 
+                                          color: kColorHereButton,
+                                          fontSize: 13
+                                        ),
+                                      ),
+                                      const SizedBox(width: 5),
+                                      const Icon(Icons.verified, color: Colors.blue, size: 16),
+                                    ],
+                                  ),
+                                  const Text("Brain Smith")
+                                ],
+                              ),
+                              
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                ],
               ),
-              // Image
-              Image.asset(imagePath, fit: BoxFit.cover, width: vww(context, 90), height: vhh(context, 70),),
-              const Divider(height: 1, color: Colors.grey), // Divider between image and footer
-              // Footer with Like Icon and Likes Count
-              const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    Icon(Icons.favorite_border, color: Colors.black),
-                    SizedBox(width: 4),
-                    Text(
-                      '# likes',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
   }
 
+  void _goTagScreen(){
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const HomeTagScreen()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -397,19 +497,24 @@ class PostWidgetState extends State<PostWidget> {
                   width: 1,
                 ),
               ),
-              child: Container(
-                padding: const EdgeInsets.all(1),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: index >= 3 ? Colors.blue : Colors.black,
-                    width: 2,
+              child: GestureDetector(
+                onTap: () {
+                  _showImageDialog(widget.post.locationImages[index], widget.post.locationDecription[index], index);
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(1),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: index >= 3 ? Colors.blue : Colors.black,
+                      width: 2,
+                    ),
                   ),
-                ),
-                child: CircleAvatar(
-                  radius: 10,
-                  backgroundColor: Colors.white,
-                  child: Text('${index + 1}', style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                  child: CircleAvatar(
+                    radius: 10,
+                    backgroundColor: Colors.white,
+                    child: Text('${index + 1}', style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                  ),
                 ),
               ),
             ),
@@ -475,6 +580,7 @@ class PostWidgetState extends State<PostWidget> {
                 child: Column(
                   children: [
                     FloatingActionButton(
+                      heroTag: 'zoom_in_button',
                       onPressed: () {
                         mapController.move(
                           mapController.camera.center,
@@ -486,6 +592,7 @@ class PostWidgetState extends State<PostWidget> {
                     ),
                     const SizedBox(height: 8),
                     FloatingActionButton(
+                      heroTag: 'zoom_out_button',
                       onPressed: () {
                         mapController.move(
                           mapController.camera.center,
@@ -509,11 +616,30 @@ class PostWidgetState extends State<PostWidget> {
           children: [
             Row(
               children: [
-                const Text('# likes', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey, fontSize: 16)),
+                GestureDetector(
+                  onTap: (){
+                    _showImageDialog(widget.post.locationImages[widget.dropIndex], widget.post.locationDecription[widget.dropIndex], widget.dropIndex);
+                    setState(() {
+                      showLikesDropdown = true;
+                    });
+                  },
+                  child: const Text(
+                  '# likes', 
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold, 
+                    color: Colors.grey, 
+                    fontSize: 16)
+                  ),
+                ),
                 const Spacer(),
                 Image.asset("assets/images/icons/messageicon.png", width: vww(context, 5)),
                 const SizedBox(width: 15),
-                Image.asset("assets/images/icons/add_car.png", width: vww(context, 9)),
+                GestureDetector(
+                  onTap: () {
+                    _goTagScreen();
+                  },
+                  child: Image.asset("assets/images/icons/add_car.png", width: vww(context, 9)),
+                ),
               ],
             ),
             const SizedBox(height: 5),
@@ -526,7 +652,62 @@ class PostWidgetState extends State<PostWidget> {
               ],
             ),
             const SizedBox(height: 10),
-            Center(child: Text('${widget.post.comments} comments', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16))),
+            Center(
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    showComments = !showComments; // Toggle the visibility of comments
+                  });
+                },
+                child: Text(
+                  '${widget.post.comments} comments',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ),
+            if (showComments)
+              Column(
+                children: widget.post.commentsList.map((comment) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                    child: Row(
+                      children: [
+                        Container(
+                          height: vhh(context, 3),
+                          width: vhh(context, 3),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(100),
+                            border: Border.all(
+                              color: kColorHereButton,
+                              width: 2,
+                            ),
+                            image: const DecorationImage(
+                              image: AssetImage("assets/images/background/image1.png"),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          comment['user']!,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold, 
+                            color: kColorHereButton,
+                            fontSize: 13
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        const Icon(Icons.verified, color: Colors.blue, size: 16),
+                        const SizedBox(width: 8),
+                        Text(comment['comment']!),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
             const SizedBox(height: 8),
             Text(widget.post.lastUpdated, style: const TextStyle(color: Colors.grey, fontSize: 12)),
           ],
