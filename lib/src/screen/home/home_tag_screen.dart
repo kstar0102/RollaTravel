@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:RollaStrava/src/utils/index.dart';
+import 'package:RollaStrava/src/constants/app_styles.dart';
+import 'package:RollaStrava/src/widget/bottombar.dart';
 
 class HomeTagScreen extends ConsumerStatefulWidget  {
   const HomeTagScreen({super.key});
@@ -9,6 +12,7 @@ class HomeTagScreen extends ConsumerStatefulWidget  {
 }
 
 class HomeTagScreenState extends ConsumerState<HomeTagScreen> {
+  final int _currentIndex = 0;
   Future<bool> _onWillPop() async {
     return false;
   }
@@ -17,65 +21,98 @@ class HomeTagScreenState extends ConsumerState<HomeTagScreen> {
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
-        body: Stack(
-          children: [
-            Positioned(
-              top: 50,
-              left: 20,
-              child: Text(
-                'Rolla',
-                style: TextStyle(
-                  fontFamily: 'Cursive',
-                  fontSize: 24,
-                ),
-              ),
-            ),
-            Positioned.fill(
-              child: Align(
-                alignment: Alignment.center,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+        body: Center(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0, left: 8.0, right: 8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Users tagged in this post',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                    Image.asset('assets/images/icons/logo.png', height: vhh(context, 12)),
+                    Center(
+                      child: Column(
+                        children: [
+                          SizedBox(height: vhh(context, 5)),
+                          const Text(
+                            "Users tagged in this post",
+                            style: TextStyle(color: Colors.grey, fontSize: 15),
+                          ),
+                          Image.asset("assets/images/icons/add_car.png", width: vww(context, 8)),
+                         
+                        ],
                       ),
                     ),
-                    SizedBox(height: 20),
-                    Icon(
-                      Icons.directions_car, // You can replace this with your car icon
-                      size: 50,
+                    IconButton(
+                      icon: const Icon(Icons.close, size: 30),
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Close the screen
+                      },
                     ),
                   ],
                 ),
               ),
-            ),
-            Positioned(
-              top: 50,
-              right: 20,
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.pop(context); // Handle close button logic
-                },
-                child: Icon(
-                  Icons.close,
-                  size: 24,
+              SizedBox(
+                width: vww(context, 80), // Set the width of the Divider
+                child: const Divider(
+                  thickness: 0.6, // Set the thickness of the line
+                  color: Colors.grey, // Optional: Set the color of the Divider
                 ),
               ),
-            ),
-            Positioned(
-              bottom: 10,
-              left: 0,
-              right: 0,
-              child: Divider(
-                color: Colors.black,
-                thickness: 1,
+              Expanded(
+                child: ListView.builder(
+                  itemCount: 5,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 20),
+                      child: Row(
+                        children: [
+                          Container(
+                            height: vhh(context, 6),
+                            width: vhh(context, 6),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(100),
+                              border: Border.all(
+                                color: kColorHereButton,
+                                width: 2,
+                              ),
+                              image: const DecorationImage(
+                                image: AssetImage("assets/images/background/image1.png"),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 5),
+                          const Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    "@smith",
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold, 
+                                      fontSize: 15
+                                    ),
+                                  ),
+                                  SizedBox(width: 5),
+                                  Icon(Icons.verified, color: Colors.blue, size: 16),
+                                ],
+                              ),
+                              Text("Brain Smith", style: TextStyle(fontSize: 15, color: Colors.grey),)
+                            ],
+                          ),
+                          const Spacer(),
+                          Image.asset("assets/images/icons/reference.png"),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
+        bottomNavigationBar: BottomNavBar(currentIndex: _currentIndex),
       ),
     );
   }

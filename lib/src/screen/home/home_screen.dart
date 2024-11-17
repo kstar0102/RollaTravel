@@ -1,4 +1,5 @@
 import 'package:RollaStrava/src/screen/home/home_tag_screen.dart';
+import 'package:RollaStrava/src/screen/home/home_user_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:RollaStrava/src/constants/app_styles.dart';
@@ -196,8 +197,10 @@ class PostWidgetState extends State<PostWidget> {
   late MapController mapController;
   List<LatLng> routePoints = [];
   bool showComments = false;
+  bool isAddComments = false;
   bool isLiked = false;
   bool showLikesDropdown = false;
+  final TextEditingController _addCommitController = TextEditingController();
   // bool isLiked = true;
   @override
   void initState() {
@@ -423,6 +426,12 @@ class PostWidgetState extends State<PostWidget> {
     );
   }
 
+  void _goUserScreen(){
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const HomeUserScreen()),
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -432,21 +441,26 @@ class PostWidgetState extends State<PostWidget> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
-              height: vhh(context, 7),
-              width: vhh(context, 7),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(100),
-                border: Border.all(
-                  color: kColorHereButton,
-                  width: 2,
-                ),
-                image: DecorationImage(
-                  image: AssetImage(widget.post.imagePath),
-                  fit: BoxFit.cover,
+            GestureDetector(
+              onTap: () {
+                _goUserScreen();
+              },
+              child: Container(
+                height: vhh(context, 7),
+                width: vhh(context, 7),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(100),
+                  border: Border.all(
+                    color: kColorHereButton,
+                    width: 2,
+                  ),
+                  image: DecorationImage(
+                    image: AssetImage(widget.post.imagePath),
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
-            ),
+            ),  
             const SizedBox(width: 10),
             Text(widget.post.username, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(width: 10),
@@ -608,7 +622,42 @@ class PostWidgetState extends State<PostWidget> {
             ],
           ),
         ),
-
+        if(isAddComments)
+          TextField(
+            controller: _addCommitController,
+            decoration: const InputDecoration(
+              hintText: 'add a comment',
+              hintStyle: TextStyle(
+                color: Colors.grey,
+                fontSize: 15,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(8.0)), // Optional: Add border radius for rounded corners
+                borderSide: BorderSide(
+                  color: Colors.grey, // Set the border color
+                  width: 1.0, // Set the border width
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(8.0)), // Optional: Add border radius for rounded corners
+                borderSide: BorderSide(
+                  color: Colors.grey, // Set the border color
+                  width: 1.0, // Set the border width
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(8.0)), // Optional: Add border radius for rounded corners
+                borderSide: BorderSide(
+                  color: Colors.grey, // Set the border color when focused
+                  width: 1.0, // Set the border width when focused
+                ),
+              ),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 8.0, // Adjust horizontal padding
+                vertical: 5.0, // Adjust vertical padding
+              ),
+            ),
+          ),
         const SizedBox(height: 10),
         // Likes and Comments Section
         Column(
@@ -632,7 +681,14 @@ class PostWidgetState extends State<PostWidget> {
                   ),
                 ),
                 const Spacer(),
-                Image.asset("assets/images/icons/messageicon.png", width: vww(context, 5)),
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      isAddComments = !isAddComments; // Toggle the visibility of comments
+                    });
+                  },
+                  child: Image.asset("assets/images/icons/messageicon.png", width: vww(context, 5)),
+                ),
                 const SizedBox(width: 15),
                 GestureDetector(
                   onTap: () {
