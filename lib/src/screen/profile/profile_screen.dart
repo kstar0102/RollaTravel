@@ -1,5 +1,6 @@
 import 'package:RollaStrava/src/constants/app_button.dart';
 import 'package:RollaStrava/src/constants/app_styles.dart';
+import 'package:RollaStrava/src/screen/home/home_follower_screen.dart';
 import 'package:RollaStrava/src/screen/profile/edit_profile.dart';
 import 'package:RollaStrava/src/screen/settings/settings_screen.dart';
 import 'package:RollaStrava/src/translate/en.dart';
@@ -20,6 +21,32 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   double keyboardHeight = 0;
   final int _currentIndex = 4;
   // final bool _isKeyboardVisible = false;
+  bool isLiked = false;
+  bool showLikesDropdown = false;
+
+  final List<String> imagePaths = [
+    'assets/images/background/Lake1.png',
+    'assets/images/background/Lake2.png',
+    'assets/images/background/Lake3.png',
+    'assets/images/background/yellowstone1.png',
+    'assets/images/background/yellowstone2.png',
+    'assets/images/background/yellowstone3.png',
+  ];
+
+  final List<String> locationDecription = [
+    "Lake Placid, NY 1",
+    "Lake Placid, NY 2",
+    "Lake Placid, NY 3",
+    "Yellowstone, WY 1",
+    "Yellowstone, WY 2",
+    "Yellowstone, WY 3",
+  ];
+
+  final List<Map<String, String>> commentsList = [
+    {"user": "@User13", "comment": "Example 1 Great place!"},
+    {"user": "@User23", "comment": "Example 2 Looks amazing!"},
+    {"user": "@User13", "comment": "Example 3 I want to visit!"},
+  ];
 
   @override
   void initState() {
@@ -41,6 +68,150 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   Future<bool> _onWillPop() async {
     return false;
+  }
+
+  void _onFollowers(){
+    Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeFollowScreen()));
+  }
+
+  void _showImageDialog(String imagePath, String caption, int likes) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Dialog(
+              insetPadding: const EdgeInsets.symmetric(horizontal: 30), // Adjust padding to match the screenshot
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Caption and Close Icon Row
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          caption,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close, color: Colors.black),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            setState(() {
+                              showLikesDropdown = false; // Hide the likes dropdown when the dialog is closed
+                            });
+                          }
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Image
+                  Image.asset(
+                    imagePath,
+                    fit: BoxFit.cover,
+                    width: MediaQuery.of(context).size.width * 0.9, // Replace vww
+                    height: MediaQuery.of(context).size.height * 0.5, // Replace vhh
+                  ),
+                  const Divider(height: 1, color: Colors.grey), // Divider between image and footer
+                  // Footer with Like Icon and Likes Count
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            // Update dialog state
+                            setState(() {
+                              isLiked = !isLiked;
+                            });
+                          },
+                          child: Icon(
+                            isLiked ? Icons.favorite : Icons.favorite_border,
+                            color: isLiked ? Colors.red : Colors.black,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              showLikesDropdown = !showLikesDropdown; // Toggle the visibility of the dropdown
+                            });
+                          },
+                          child: Text(
+                            '$likes likes',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (showLikesDropdown)
+                    Column(
+                      children: commentsList.map((comment) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4.0),
+                          child: Row(
+                            children: [
+                              Container(
+                                height: vhh(context, 4),
+                                width: vhh(context, 4),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(100),
+                                  border: Border.all(
+                                    color: kColorHereButton,
+                                    width: 2,
+                                  ),
+                                  image: const DecorationImage(
+                                    image: AssetImage("assets/images/background/image1.png"),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 5),
+                              Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                        comment['user']!,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold, 
+                                          color: kColorHereButton,
+                                          fontSize: 13
+                                        ),
+                                      ),
+                                      const SizedBox(width: 5),
+                                      const Icon(Icons.verified, color: Colors.blue, size: 16),
+                                    ],
+                                  ),
+                                  const Text("Brain Smith")
+                                ],
+                              ),
+                              
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -65,16 +236,16 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
-                        SizedBox(height: vhh(context, 10)),
+                        SizedBox(height: vhh(context, 5)),
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Image.asset(
                               'assets/images/icons/logo.png',
-                              width: vww(context, 15),
+                              width: vww(context, 20),
                             ),
-                            SizedBox(width: vww(context, 23)),
+                            SizedBox(width: vww(context, 20)),
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
@@ -133,12 +304,17 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   'assets/images/icons/followers.png',
                                   width: vww(context, 15),
                                 ),
-                                const Text(
-                                  "30",
-                                  style: TextStyle(
-                                      fontSize: 20,
-                                      color: kColorButtonPrimary,
-                                      fontWeight: FontWeight.bold),
+                                GestureDetector(
+                                  onTap: () {
+                                    _onFollowers();
+                                  },
+                                  child: const Text(
+                                    "30",
+                                    style: TextStyle(
+                                        fontSize: 20,
+                                        color: kColorButtonPrimary,
+                                        fontWeight: FontWeight.bold),
+                                  ),
                                 ),
                               ],
                             ),
@@ -186,7 +362,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 borderColor: kColorStrongGrey,
                                 textColor: kColorWhite,
                                 fullColor: kColorStrongGrey,
-                                onPressed: () {},
+                                onPressed: () {
+                                  _onFollowers();
+                                },
                               ),
                             ),
                             SizedBox(width: vww(context, 1)),
@@ -273,15 +451,21 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                           height: 100,
                           child: ListView(
                             scrollDirection: Axis.horizontal,
-                            children: List.generate(5, (index) {
+                            children: List.generate(imagePaths.length, (index) {
                               return Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 3),
-                                child: Image.asset(
-                                  'assets/images/background/1.png',
-                                  width: 100,
-                                  height: 100,
-                                  fit: BoxFit.cover,
-                                ),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    // Handle the click event here
+                                    _showImageDialog(imagePaths[index], locationDecription[index], 4);
+                                  },
+                                  child: Image.asset(
+                                    imagePaths[index],
+                                    width: 100,
+                                    height: 100,
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
                               );
                             }),
                           ),

@@ -3,6 +3,7 @@ import 'package:RollaStrava/src/screen/droppin/drop_pin.dart';
 import 'package:RollaStrava/src/screen/droppin/photo_select_screen.dart';
 import 'package:RollaStrava/src/screen/home/home_screen.dart';
 import 'package:RollaStrava/src/screen/profile/profile_screen.dart';
+import 'package:RollaStrava/src/screen/search/search_%20screen.dart';
 import 'package:RollaStrava/src/screen/trip/start_trip.dart';
 import 'package:RollaStrava/src/translate/en.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +30,14 @@ class BottomNavBar extends ConsumerWidget {
         );
         break;
       case 1:
-        // Navigation logic for SearchPage
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation1, animation2) => const SearchScreen(),
+            transitionDuration: Duration.zero,
+            reverseTransitionDuration: Duration.zero,
+          ),
+        );
         break;
       case 2:
         Navigator.pushReplacement(
