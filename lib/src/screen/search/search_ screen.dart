@@ -14,7 +14,8 @@ class SearchScreenState extends ConsumerState<SearchScreen> {
   double screenHeight = 0;
   double keyboardHeight = 0;
   final int _currentIndex = 1;
-  final TextEditingController _soundController = TextEditingController();
+  final TextEditingController _searchAccount = TextEditingController();
+  final TextEditingController _searchDestination = TextEditingController();
 
   @override
   void initState() {
@@ -25,7 +26,8 @@ class SearchScreenState extends ConsumerState<SearchScreen> {
   @override
   void dispose() {
     super.dispose();
-    _soundController.dispose();
+    _searchAccount.dispose();
+    _searchDestination.dispose();
   }
 
   Future<bool> _onWillPop() async {
@@ -43,71 +45,78 @@ class SearchScreenState extends ConsumerState<SearchScreen> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 40),
-              Row(
-                children: [
-                  const SizedBox(width: 16),
-                  InkWell(
-                    onTap: () {
-                      Navigator.pop(context, _soundController.text);
-                    },
-                    child: Image.asset(
-                      'assets/images/icons/allow-left.png',
-                      width: vww(context, 5),
-                      height: 20,
-                    ),
-                  ),
-                  const Expanded(
-                    child: Center(
-                      child: Text(
-                        'My soundtrack',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 48), // To balance the space taken by the IconButton
-                ],
-              ),
-
-              const SizedBox(height: 30),
+              const SizedBox(height: 15),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                padding: const EdgeInsets.all(8.0),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Icon(Icons.search, size: 24, color: Colors.black),
-                    const SizedBox(width: 8),
-
-                    Expanded(
-                      child: TextField(
-                        controller: _soundController,
-                        decoration: InputDecoration(
-                            hintText: 'Search locations',
-                            hintStyle: const TextStyle(fontSize: 16), // Set font size for hint text
-                            contentPadding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0), // Set inner padding
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(4.0),
-                              borderSide: const BorderSide(color: Colors.black, width: 1.0),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(4.0),
-                              borderSide: const BorderSide(color: Colors.black, width: 1.0),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(4.0),
-                              borderSide: const BorderSide(color: Colors.black, width: 1.0),
-                            ),
-                            filled: true,
-                            fillColor: Colors.grey[200],
-                          ),
-                          style: const TextStyle(fontSize: 16),
-                      ),
+                    Image.asset('assets/images/icons/logo.png', height: vhh(context, 12)),
+                    IconButton(
+                      icon: const Icon(Icons.search, size: 35),
+                      onPressed: () {
+                        // Navigator.of(context).pop();
+                      },
                     ),
                   ],
                 ),
               ),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                child: TextField(
+                  controller: _searchAccount,
+                  decoration: InputDecoration(
+                    hintText: 'Search user accounts',
+                    hintStyle: const TextStyle(fontSize: 16), // Set font size for hint text
+                    contentPadding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 16.0), // Reduce inner padding
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(4.0),
+                      borderSide: const BorderSide(color: Colors.black, width: 1.0),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(4.0),
+                      borderSide: const BorderSide(color: Colors.black, width: 1.0),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(4.0),
+                      borderSide: const BorderSide(color: Colors.black, width: 1.0),
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[200],
+                  ),
+                  style: const TextStyle(fontSize: 14),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                child: TextField(
+                  controller: _searchAccount,
+                  decoration: InputDecoration(
+                      hintText: 'Search Destinations',
+                      hintStyle: const TextStyle(fontSize: 16), // Set font size for hint text
+                      contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 16.0), // Set inner padding
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(4.0),
+                        borderSide: const BorderSide(color: Colors.black, width: 1.0),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(4.0),
+                        borderSide: const BorderSide(color: Colors.black, width: 1.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(4.0),
+                        borderSide: const BorderSide(color: Colors.black, width: 1.0),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey[200],
+                    ),
+                    style: const TextStyle(fontSize: 16),
+                ),
+              ),
+                  
+              
             ]
           ),
         ),

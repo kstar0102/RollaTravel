@@ -101,7 +101,7 @@ class _$WrongPassword implements WrongPassword {
   }
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator == (Object  other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType && other is _$WrongPassword);
   }
@@ -203,7 +203,7 @@ class _$UserNotFound implements UserNotFound {
   }
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator == (Object  other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType && other is _$UserNotFound);
   }
