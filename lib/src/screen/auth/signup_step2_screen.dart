@@ -7,7 +7,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class SignupStep2Screen extends ConsumerStatefulWidget {
-  const SignupStep2Screen({super.key});
+  final String firstName;
+  final String lastName;
+  final String emailAddress;
+  final String countryResidence;
+  const SignupStep2Screen({
+    super.key, 
+    required this.firstName,
+    required this.lastName,
+    required this.emailAddress,
+    required this.countryResidence
+  });
 
   @override
   ConsumerState<SignupStep2Screen> createState() => _SignupStep2ScreenState();
@@ -17,15 +27,18 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
   final _usernameController = TextEditingController();
   final _passwordController= TextEditingController();
   final _rePasswordController = TextEditingController();
-  String get userName => _usernameController.text;
-  String get password => _passwordController.text;
-  String get rePassword => _rePasswordController.text;
+  // String get userName => _usernameController.text;
+  // String get password => _passwordController.text;
+  // String get rePassword => _rePasswordController.text;
   bool isPasswordVisible = false;
   double screenHeight = 0;
   double keyboardHeight = 0;
   final bool _isKeyboardVisible = false;
   bool isChecked = false;
   String? _selectedOption;
+  String? userNameError;
+  String? passwordError;
+  String? rePasswordError;
 
   @override
   void initState() {
@@ -113,19 +126,40 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                         autocorrect: false,
                         cursorColor: kColorGrey,
                         style: const TextStyle(color: kColorBlack, fontSize: 14),
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
-                          enabledBorder: UnderlineInputBorder(
+                          enabledBorder: const UnderlineInputBorder(
                             borderSide: BorderSide(color: kColorGrey, width: 1),
                           ),
-                          focusedBorder: UnderlineInputBorder(
+                          focusedBorder: const UnderlineInputBorder(
                             borderSide: BorderSide(color: kColorBlack, width: 1.5),
                           ),
-                          hintText: rolla_username,
-                          hintStyle: TextStyle(color: kColorGrey),
-                          contentPadding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 0),
+                          errorText: userNameError,
+                          hintText: "Rolla Username",
+                          hintStyle: const TextStyle(color: kColorGrey, fontSize: 14),
+                          contentPadding: const EdgeInsets.only(
+                            top: -8, // Push hint closer to the top
+                            bottom: -5, // Reduce space between text and underline
+                          ),
+                          errorStyle: const TextStyle(
+                            color: Colors.red, // Customize error message color
+                            fontSize: 12, // Reduce font size of the error message
+                            height: 0.5, // Adjust line height for tighter spacing
+                          ),
                           counterText: '',
                         ),
+                        onChanged: (value) {
+                          setState(() {
+                            if (value.length < 4) {
+                              userNameError = 'Username must be at least 6 characters.';
+                            } else if(value.isEmpty){
+                              userNameError = "username is required";
+                            }
+                            else {
+                              userNameError = null; // No error
+                            }
+                          });
+                        },
                       ),
                     ),
 
@@ -134,23 +168,45 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                       height: vh(context, 6.5),
                       child: TextField(
                         controller: _passwordController,
-                        keyboardType: TextInputType.name,
+                        keyboardType: TextInputType.visiblePassword,
                         autocorrect: false,
+                        obscureText: true,
                         cursorColor: kColorGrey,
                         style: const TextStyle(color: kColorBlack, fontSize: 14),
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
-                          enabledBorder: UnderlineInputBorder(
+                          enabledBorder: const UnderlineInputBorder(
                             borderSide: BorderSide(color: kColorGrey, width: 1),
                           ),
-                          focusedBorder: UnderlineInputBorder(
+                          focusedBorder: const UnderlineInputBorder(
                             borderSide: BorderSide(color: kColorBlack, width: 1.5),
                           ),
+                          errorText: passwordError,
                           hintText: password_title,
-                          hintStyle: TextStyle(color: kColorGrey),
-                          contentPadding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 0),
+                          hintStyle: const TextStyle(color: kColorGrey, fontSize: 14),
+                          contentPadding: const EdgeInsets.only(
+                            top: -8, // Push hint closer to the top
+                            bottom: -5, // Reduce space between text and underline
+                          ),
+                          errorStyle: const TextStyle(
+                            color: Colors.red, // Customize error message color
+                            fontSize: 12, // Reduce font size of the error message
+                            height: 0.5, // Adjust line height for tighter spacing
+                          ),
                           counterText: '',
                         ),
+                        onChanged: (value) {
+                          setState(() {
+                            if (value.length < 6) {
+                              passwordError = 'Password must be at least 6 characters.';
+                            } else if(value.isEmpty){
+                              passwordError = "Password is required";
+                            }
+                            else {
+                              passwordError = null; // No error
+                            }
+                          });
+                        },
                       ),
                     ),
 
@@ -161,21 +217,45 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                         controller: _rePasswordController,
                         keyboardType: TextInputType.visiblePassword,
                         autocorrect: false,
+                        obscureText: true,
                         cursorColor: kColorGrey,
                         style: const TextStyle(color: kColorBlack, fontSize: 14),
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
-                          enabledBorder: UnderlineInputBorder(
+                          enabledBorder: const UnderlineInputBorder(
                             borderSide: BorderSide(color: kColorGrey, width: 1),
                           ),
-                          focusedBorder: UnderlineInputBorder(
+                          focusedBorder: const UnderlineInputBorder(
                             borderSide: BorderSide(color: kColorBlack, width: 1.5),
                           ),
+                          errorText: rePasswordError, 
                           hintText: re_enter_password,
-                          hintStyle: TextStyle(color: kColorGrey),
-                          contentPadding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 0),
+                          hintStyle: const TextStyle(color: kColorGrey, fontSize: 14),
+                          contentPadding: const EdgeInsets.only(
+                            top: -8, // Push hint closer to the top
+                            bottom: -5, // Reduce space between text and underline
+                          ),
+                          errorStyle: const TextStyle(
+                            color: Colors.red, // Customize error message color
+                            fontSize: 12, // Reduce font size of the error message
+                            height: 0.5, // Adjust line height for tighter spacing
+                          ),
                           counterText: '',
                         ),
+                        onChanged: (value) {
+                        setState(() {
+                          if (value != _passwordController.text) {
+                            rePasswordError = 'Passwords do not match.';
+                          } else if (value.length < 6) {
+                            rePasswordError = 'Password must be at least 6 characters.';
+                          } else if(value.isEmpty){
+                            rePasswordError = 'Re-enter password is required.';
+                          } 
+                          else {
+                            rePasswordError = null; // No error
+                          }
+                        });
+                      },
                       ),
                     ),
 

@@ -2,11 +2,14 @@ import 'package:RollaStrava/src/constants/app_button.dart';
 import 'package:RollaStrava/src/constants/app_styles.dart';
 import 'package:RollaStrava/src/screen/auth/signup_step1_screen.dart';
 import 'package:RollaStrava/src/screen/profile/profile_screen.dart';
+import 'package:RollaStrava/src/services/api_service.dart';
 import 'package:RollaStrava/src/translate/en.dart';
 import 'package:RollaStrava/src/utils/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/gestures.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class SigninScreen extends ConsumerStatefulWidget {
   const SigninScreen({super.key});
@@ -17,14 +20,14 @@ class SigninScreen extends ConsumerStatefulWidget {
 
 class _SigninScreenState extends ConsumerState<SigninScreen> {
   final _usernameController = TextEditingController();
-  final _useremailController= TextEditingController();
   final _passwordController = TextEditingController();
-  String get username => _usernameController.text;
-  String get email => _useremailController.text;
-  String get password => _passwordController.text;
   double screenHeight = 0;
   double keyboardHeight = 0;
   final bool _isKeyboardVisible = false;
+  final _apiService = ApiService();
+  bool _isLoading = false;
+  String? usernameError;
+  String? passwordError;
 
   @override
   void initState() {
@@ -37,14 +40,117 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
         });
       } 
     });
+    _usernameController.addListener(() {
+      _validateUsername(_usernameController.text);
+    });
+
+    _passwordController.addListener(() {
+      _validatePassword(_passwordController.text);
+    });
   }
 
   @override
   void dispose() {
     _usernameController.dispose();
     _passwordController.dispose();
-    _useremailController.dispose();
+    // _useremailController.dispose();
     super.dispose();
+  }
+
+  void _validateUsername(String value) {
+    setState(() {
+      if (value.isEmpty) {
+        usernameError = 'Username is required';
+      } else if (value.length < 3) {
+        usernameError = 'Username must be at least 3 characters';
+      } else {
+        usernameError = null; // No error
+      }
+    });
+  }
+
+  void _validatePassword(String value) {
+    setState(() {
+      if (value.isEmpty) {
+        passwordError = 'Password is required';
+      } else if (value.length < 4) {
+        passwordError = 'Password must be at least 6 characters';
+      } else {
+        passwordError = null; // No error
+      }
+    });
+  }
+
+  Future<void> _handleLogin() async {
+    setState(() {
+      if (_usernameController.text.isEmpty) {
+        usernameError = 'Username is required';
+      } else if (_usernameController.text.length < 3) {
+        usernameError = 'Username must be at least 3 characters';
+      } else {
+        usernameError = null; // No error
+      }
+
+      if (_passwordController.text.isEmpty) {
+        passwordError = 'Password is required';
+      } else if (_passwordController.text.length < 4) {
+        passwordError = 'Password must be at least 6 characters';
+      } else {
+        passwordError = null; // No error
+      }
+    });
+   
+    if (usernameError == null && passwordError == null) {
+       setState(() {
+        _isLoading = true;
+      });
+      
+      try {
+        final response = await _apiService.login(
+          _usernameController.text,
+          _passwordController.text,
+        );
+
+        if (response['token'] != null && response['token'].isNotEmpty) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('token', response['token']);
+          await prefs.setString('userData', jsonEncode(response['userData']));
+          if (mounted) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ProfileScreen()),
+            );
+          }
+        } else {
+          _showErrorDialog(response['message']);
+        }
+      } catch (e) {
+        // Handle unexpected errors
+        _showErrorDialog('An unexpected error occurred. Please try again later.');
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Error'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<bool> _onWillPop() async {
@@ -88,22 +194,31 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                         width: vw(context, 38),
                         height: vh(context, 6.5),
                         child: TextField(
-                          controller: _useremailController,
+                          controller: _usernameController,
                           keyboardType: TextInputType.name,
                           autocorrect: false,
                           cursorColor: kColorGrey,
-                          style: const TextStyle(color: kColorBlack, fontSize: 14),
-                          decoration: const InputDecoration(
+                          style: const TextStyle(color: kColorBlack, fontSize: 16),
+                          decoration: InputDecoration(
                             floatingLabelBehavior: FloatingLabelBehavior.always,
-                            enabledBorder: UnderlineInputBorder(
+                            enabledBorder: const UnderlineInputBorder(
                               borderSide: BorderSide(color: kColorGrey, width: 1),
                             ),
-                            focusedBorder: UnderlineInputBorder(
+                            focusedBorder: const UnderlineInputBorder(
                               borderSide: BorderSide(color: kColorBlack, width: 1.5),
                             ),
                             hintText: user_name,
-                            hintStyle: TextStyle(color: kColorGrey),
-                            contentPadding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 0),
+                            errorText: (usernameError != null && usernameError!.isNotEmpty) ? usernameError : null,
+                            hintStyle: const TextStyle(color: kColorGrey, fontSize: 14),
+                            contentPadding: const EdgeInsets.only(
+                              top: -8, // Push hint closer to the top
+                              bottom: -5, // Reduce space between text and underline
+                            ),
+                            errorStyle: const TextStyle(
+                              color: Colors.red, // Customize error message color
+                              fontSize: 12, // Reduce font size of the error message
+                              height: 0.5, // Adjust line height for tighter spacing
+                            ),
                             counterText: '',
                           ),
                         ),
@@ -111,39 +226,55 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                       SizedBox(
                         width: vw(context, 38),
                         height: vh(context, 6.5),
-                        child: TextField(
+                        child: TextFormField(
                           controller: _passwordController,
                           keyboardType: TextInputType.visiblePassword,
                           autocorrect: false,
                           cursorColor: kColorGrey,
-                          style: const TextStyle(color: kColorBlack, fontSize: 14),
-                          decoration: const InputDecoration(
+                          style: const TextStyle(color: kColorBlack, fontSize: 16),
+                          decoration: InputDecoration(
                             floatingLabelBehavior: FloatingLabelBehavior.always,
-                            enabledBorder: UnderlineInputBorder(
+                            enabledBorder: const UnderlineInputBorder(
                               borderSide: BorderSide(color: kColorGrey, width: 1),
                             ),
-                            focusedBorder: UnderlineInputBorder(
+                            focusedBorder: const UnderlineInputBorder(
                               borderSide: BorderSide(color: kColorBlack, width: 1.5),
                             ),
                             hintText: password_title,
-                            hintStyle: TextStyle(color: kColorGrey),
-                            contentPadding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 0),
+                            errorText: (passwordError != null && passwordError!.isNotEmpty) ? passwordError : null,
+                            hintStyle: const TextStyle(color: kColorGrey, fontSize: 14),
+                            contentPadding: const EdgeInsets.only(
+                              top: -8, // Push hint closer to the top
+                              bottom: -5, // Reduce space between text and underline
+                            ),
+                            errorStyle: const TextStyle(
+                              color: Colors.red, // Customize error message color
+                              fontSize: 12, // Reduce font size of the error message
+                              height: 0.5, // Adjust line height for tighter spacing
+                            ),
                             counterText: '',
                           ),
                         ),
                       ),
-                      Padding(
-                        padding: EdgeInsets.only(left: vww(context, 15), right: vww(context, 15), top: vhh(context, 3)),
-                        child: ButtonWidget(
-                          btnType: ButtonWidgetType.LoginText,
-                          borderColor: kColorButtonPrimary,
-                          textColor: kColorWhite,
-                          fullColor: kColorButtonPrimary,
-                          onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileScreen())); 
-                          },
+                      _isLoading ? const CircularProgressIndicator() 
+                      : Padding(
+                          padding: EdgeInsets.only(left: vww(context, 15), right: vww(context, 15), top: vhh(context, 3)),
+                          child: ButtonWidget(
+                            btnType: ButtonWidgetType.LoginText,
+                            borderColor: kColorButtonPrimary,
+                            textColor: kColorWhite,
+                            fullColor: kColorButtonPrimary,
+                            onPressed: () {
+                              if (usernameError == null && passwordError == null) {
+                                _handleLogin();
+                              }else {
+                                print("Form validation failed or FormState is null.");
+                              }
+                            },
+                          ),
                         ),
-                      ),
+                          
+                      
                       SizedBox( height: vhh(context, 3),),
                       const Text(countryResidence, style: TextStyle(color: kColorBlack, fontSize: 14, fontWeight: FontWeight.bold),),
                       SizedBox(height: vhh(context, 1)),

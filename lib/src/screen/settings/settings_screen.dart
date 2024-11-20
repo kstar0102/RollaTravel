@@ -1,4 +1,5 @@
 import 'package:RollaStrava/src/constants/app_styles.dart';
+import 'package:RollaStrava/src/screen/auth/signin_screen.dart';
 import 'package:RollaStrava/src/translate/en.dart';
 import 'package:RollaStrava/src/utils/index.dart';
 import 'package:RollaStrava/src/widget/bottombar.dart';
@@ -6,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
-  const SettingsScreen({Key? key}) : super(key: key);
+  const SettingsScreen({super.key});
 
   @override
   ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
@@ -38,6 +39,39 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Future<bool> _onWillPop() async {
     return false;
+  }
+
+  void _showConfirmationDialog({
+    required String title,
+    required String message,
+  }) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text("No"),
+            ),
+            TextButton(
+              onPressed: () {
+                if(title == "Logout"){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const SigninScreen()));
+                }else {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const SigninScreen()));
+                }
+              },
+              child: const Text("Yes"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -159,7 +193,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             style: TextStyle(color: Colors.grey[600]),
                           ),
                           onTap: () {
-
+                            _showConfirmationDialog(title: "Logout", message: "Are you sure you want to logout?");
                           },
                         ),
                         ListTile(
@@ -176,6 +210,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             style: TextStyle(color: Colors.grey[600]),
                           ),
                           onTap: () {
+                            _showConfirmationDialog(title: "Delete Account", message: "Are you sure you want to delete your account?");
                           },
                         ),
                       ],

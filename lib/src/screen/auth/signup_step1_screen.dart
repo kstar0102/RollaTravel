@@ -18,15 +18,15 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
   final _lastNameController = TextEditingController();
   final _useremailController= TextEditingController();
   final _countryController = TextEditingController();
-  String get firstname => _firstNameController.text;
-  String get lastname => _lastNameController.text;
-  String get email => _useremailController.text;
-  String get country => _countryController.text;
   bool isPasswordVisible = false;
   double screenHeight = 0;
   double keyboardHeight = 0;
   final bool _isKeyboardVisible = false;
   bool isChecked = false;
+  String? firstNameError;
+  String? lastNameError;
+  String? emailAddressError;
+  String? countryResidenceError;
 
   @override
   void initState() {
@@ -38,6 +38,21 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
           this.keyboardHeight = keyboardHeight;
         });
       } 
+    });
+    _firstNameController.addListener(() {
+      _validateFirstName(_firstNameController.text);
+    });
+
+    _lastNameController.addListener(() {
+      _validateLastName(_lastNameController.text);
+    });
+
+    _useremailController.addListener(() {
+      _validateEmailAddress(_useremailController.text);
+    });
+
+    _countryController.addListener(() {
+      _validateCountryResidence(_countryController.text);
     });
   }
 
@@ -52,6 +67,86 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
 
   Future<bool> _onWillPop() async {
     return false;
+  }
+
+  void _validateFirstName(String value) {
+    setState(() {
+      if (value.isEmpty) {
+        firstNameError = 'First name is required';
+      } else {
+        firstNameError = null; // No error
+      }
+    });
+  }
+
+  void _validateLastName(String value) {
+    setState(() {
+      if (value.isEmpty) {
+        lastNameError = 'Last name is required';
+      } else {
+        lastNameError = null; // No error
+      }
+    });
+  }
+
+  void _validateEmailAddress(String value) {
+    setState(() {
+      if (value.isEmpty) {
+        emailAddressError = 'Email address is required';
+      } else {
+        emailAddressError = null; // No error
+      }
+    });
+  }
+
+  void _validateCountryResidence(String value) {
+    setState(() {
+      if (value.isEmpty) {
+        countryResidenceError = 'Country of residence is required';
+      } else {
+        countryResidenceError = null; // No error
+      }
+    });
+  }
+
+  void _onPressContinue(){
+    setState(() {
+      if (_firstNameController.text.isEmpty) {
+        firstNameError = 'First name is required';
+      } else {
+        firstNameError = null; // No error
+      }
+
+      if (_lastNameController.text.isEmpty) {
+        lastNameError = 'Last name is required';
+      } else {
+        lastNameError = null; // No error
+      }
+
+      if (_useremailController.text.isEmpty) {
+        emailAddressError = 'Email address is required';
+      } else {
+        emailAddressError = null; // No error
+      }
+
+      if (_countryController.text.isEmpty) {
+        countryResidenceError = 'Country of residence is required';
+      } else {
+        countryResidenceError = null; // No error
+      }
+    });
+
+    if(firstNameError == null && lastNameError == null && emailAddressError == null && countryResidenceError == null){
+      Navigator.push(context, MaterialPageRoute(
+        builder: (context) => SignupStep2Screen(
+          firstName: _firstNameController.text,
+          lastName: _lastNameController.text,
+          emailAddress: _useremailController.text,
+          countryResidence: _countryController.text,
+        ),
+      ));
+    }
+    
   }
 
 
@@ -115,18 +210,27 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
                         keyboardType: TextInputType.name,
                         autocorrect: false,
                         cursorColor: kColorGrey,
-                        style: const TextStyle(color: kColorBlack, fontSize: 14),
-                        decoration: const InputDecoration(
+                        style: const TextStyle(color: kColorBlack, fontSize: 16),
+                        decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
-                          enabledBorder: UnderlineInputBorder(
+                          enabledBorder: const UnderlineInputBorder(
                             borderSide: BorderSide(color: kColorGrey, width: 1),
                           ),
-                          focusedBorder: UnderlineInputBorder(
+                          focusedBorder: const UnderlineInputBorder(
                             borderSide: BorderSide(color: kColorBlack, width: 1.5),
                           ),
-                          hintText: firstName,
-                          hintStyle: TextStyle(color: kColorGrey),
-                          contentPadding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 0),
+                          hintText: "First name",
+                          errorText: (firstNameError != null && firstNameError!.isNotEmpty) ? firstNameError : null,
+                          hintStyle: const TextStyle(color: kColorGrey, fontSize: 14),
+                          contentPadding: const EdgeInsets.only(
+                            top: -8, // Push hint closer to the top
+                            bottom: -5, // Reduce space between text and underline
+                          ),
+                          errorStyle: const TextStyle(
+                            color: Colors.red, // Customize error message color
+                            fontSize: 12, // Reduce font size of the error message
+                            height: 0.5, // Adjust line height for tighter spacing
+                          ),
                           counterText: '',
                         ),
                       ),
@@ -140,18 +244,27 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
                         keyboardType: TextInputType.name,
                         autocorrect: false,
                         cursorColor: kColorGrey,
-                        style: const TextStyle(color: kColorBlack,fontSize: 14),
-                        decoration: const InputDecoration(
+                        style: const TextStyle(color: kColorBlack, fontSize: 16),
+                        decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
-                          enabledBorder: UnderlineInputBorder(
+                          enabledBorder: const UnderlineInputBorder(
                             borderSide: BorderSide(color: kColorGrey, width: 1),
                           ),
-                          focusedBorder: UnderlineInputBorder(
+                          focusedBorder: const UnderlineInputBorder(
                             borderSide: BorderSide(color: kColorBlack, width: 1.5),
                           ),
-                          hintText: lastName,
-                          hintStyle: TextStyle(color: kColorGrey),
-                          contentPadding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 0),
+                          hintText: "Last name",
+                          errorText: (lastNameError != null && lastNameError!.isNotEmpty) ? lastNameError : null,
+                          hintStyle: const TextStyle(color: kColorGrey, fontSize: 14),
+                          contentPadding: const EdgeInsets.only(
+                            top: -8, // Push hint closer to the top
+                            bottom: -5, // Reduce space between text and underline
+                          ),
+                          errorStyle: const TextStyle(
+                            color: Colors.red, // Customize error message color
+                            fontSize: 12, // Reduce font size of the error message
+                            height: 0.5, // Adjust line height for tighter spacing
+                          ),
                           counterText: '',
                         ),
                       ),
@@ -162,21 +275,30 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
                       height: vh(context, 6.5),
                       child: TextField(
                         controller: _useremailController,
-                        keyboardType: TextInputType.visiblePassword,
+                        keyboardType: TextInputType.name,
                         autocorrect: false,
                         cursorColor: kColorGrey,
-                        style: const TextStyle(color: kColorBlack, fontSize: 14),
-                        decoration: const InputDecoration(
+                        style: const TextStyle(color: kColorBlack, fontSize: 16),
+                        decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
-                          enabledBorder: UnderlineInputBorder(
+                          enabledBorder: const UnderlineInputBorder(
                             borderSide: BorderSide(color: kColorGrey, width: 1),
                           ),
-                          focusedBorder: UnderlineInputBorder(
+                          focusedBorder: const UnderlineInputBorder(
                             borderSide: BorderSide(color: kColorBlack, width: 1.5),
                           ),
-                          hintText: emailAddress,
-                          hintStyle: TextStyle(color: kColorGrey),
-                          contentPadding: EdgeInsets.symmetric(vertical: 3.0, horizontal: 0),
+                          hintText: "Email address",
+                          errorText: (emailAddressError != null && emailAddressError!.isNotEmpty) ? emailAddressError : null,
+                          hintStyle: const TextStyle(color: kColorGrey, fontSize: 14),
+                          contentPadding: const EdgeInsets.only(
+                            top: -8, // Push hint closer to the top
+                            bottom: -5, // Reduce space between text and underline
+                          ),
+                          errorStyle: const TextStyle(
+                            color: Colors.red, // Customize error message color
+                            fontSize: 12, // Reduce font size of the error message
+                            height: 0.5, // Adjust line height for tighter spacing
+                          ),
                           counterText: '',
                         ),
                       ),
@@ -187,21 +309,30 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
                       height: vh(context, 6.5),
                       child: TextField(
                         controller: _countryController,
-                        keyboardType: TextInputType.visiblePassword,
+                        keyboardType: TextInputType.name,
                         autocorrect: false,
                         cursorColor: kColorGrey,
-                        style: const TextStyle(color: kColorBlack, fontSize: 14),
-                        decoration: const InputDecoration(
+                        style: const TextStyle(color: kColorBlack, fontSize: 16),
+                        decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
-                          enabledBorder: UnderlineInputBorder(
+                          enabledBorder: const UnderlineInputBorder(
                             borderSide: BorderSide(color: kColorGrey, width: 1),
                           ),
-                          focusedBorder: UnderlineInputBorder(
+                          focusedBorder: const UnderlineInputBorder(
                             borderSide: BorderSide(color: kColorBlack, width: 1.5),
                           ),
-                          hintText: countryResidence,
-                          hintStyle: TextStyle(color: kColorGrey),
-                          contentPadding: EdgeInsets.symmetric(vertical: 3.0, horizontal: 0),
+                          hintText: "Country of residence",
+                          errorText: (countryResidenceError != null && countryResidenceError!.isNotEmpty) ? countryResidenceError : null,
+                          hintStyle: const TextStyle(color: kColorGrey, fontSize: 14),
+                          contentPadding: const EdgeInsets.only(
+                            top: -8, // Push hint closer to the top
+                            bottom: -5, // Reduce space between text and underline
+                          ),
+                          errorStyle: const TextStyle(
+                            color: Colors.red, // Customize error message color
+                            fontSize: 12, // Reduce font size of the error message
+                            height: 0.5, // Adjust line height for tighter spacing
+                          ),
                           counterText: '',
                         ),
                       ),
@@ -215,9 +346,9 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
                         textColor: kColorWhite,
                         fullColor: kColorButtonPrimary,
                         onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(
-                            builder: (context) => const SignupStep2Screen(),
-                          )); 
+                          if(firstNameError == null && lastNameError == null && emailAddressError == null && countryResidenceError == null){
+                            _onPressContinue();
+                          }
                         },
                       ),
                     ),
