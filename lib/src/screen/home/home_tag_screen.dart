@@ -98,7 +98,7 @@ class HomeTagScreenState extends ConsumerState<HomeTagScreen> {
                                   Icon(Icons.verified, color: Colors.blue, size: 16),
                                 ],
                               ),
-                              Text("Brain Smith", style: TextStyle(fontSize: 15, color: Colors.grey,fontFamily: 'Kadaw',),)
+                              Text("Brain Smith", style: TextStyle(fontSize: 15, color: Colors.grey, fontFamily: 'Kadaw',),)
                             ],
                           ),
                           const Spacer(),
