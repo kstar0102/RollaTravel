@@ -178,6 +178,7 @@ void _showPermissionDeniedDialog() {
                             style: TextStyle(
                               color: kColorBlack,
                               fontSize: 14,
+                              fontFamily: 'Kadaw'
                             ),
                           ),
                           GestureDetector(
@@ -201,6 +202,7 @@ void _showPermissionDeniedDialog() {
                               style: const TextStyle(
                                 color: kColorButtonPrimary,
                                 fontSize: 14,
+                                fontFamily: 'Kadaw',
                                 decoration: TextDecoration.underline,
                                 decorationColor: kColorButtonPrimary,
                               ),
@@ -218,6 +220,7 @@ void _showPermissionDeniedDialog() {
                             style: TextStyle(
                               color: kColorBlack,
                               fontSize: 14,
+                              fontFamily: 'Kadaw'
                             ),
                           ),
                           Text(
@@ -225,6 +228,7 @@ void _showPermissionDeniedDialog() {
                             style: TextStyle(
                               color: kColorBlack,
                               fontSize: 14,
+                              fontFamily: 'Kadaw'
                             ),
                           ),
                         ],
@@ -237,6 +241,7 @@ void _showPermissionDeniedDialog() {
                             style: TextStyle(
                               color: kColorBlack,
                               fontSize: 14,
+                              fontFamily: 'Kadaw'
                             ),
                           ),
                           GestureDetector(
@@ -262,6 +267,7 @@ void _showPermissionDeniedDialog() {
                                 fontSize: 14,
                                 decoration: TextDecoration.underline,
                                 decorationColor: kColorButtonPrimary,
+                                fontFamily: 'Kadaw'
                               ),
                             ),
                           ),
@@ -288,6 +294,7 @@ void _showPermissionDeniedDialog() {
                           style: TextStyle(
                             color: kColorBlack,
                             fontSize: 14,
+                            fontFamily: 'Kadaw'
                           ),
                         ),
                         const SizedBox(width: 8), // Spacing between the label and input field
@@ -303,6 +310,7 @@ void _showPermissionDeniedDialog() {
                             style: const TextStyle(
                               fontSize: 14,
                               color: kColorBlack,
+                              fontFamily: 'Kadaw'
                             ),
                           ),
                         ),
@@ -360,9 +368,9 @@ void _showPermissionDeniedDialog() {
                                     'Trip in progress',
                                     style: TextStyle(
                                       color: Colors.black,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
                                       fontStyle: FontStyle.italic,
+                                      fontFamily: 'KadawBold'
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
@@ -370,8 +378,9 @@ void _showPermissionDeniedDialog() {
                                     'Drop a pin to post your map',
                                     style: TextStyle(
                                       color: Colors.black,
-                                      fontSize: 15,
+                                      fontSize: 14,
                                       fontStyle: FontStyle.italic,
+                                      fontFamily: 'Kadaw'
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
@@ -388,7 +397,7 @@ void _showPermissionDeniedDialog() {
                           child: Column(
                             children: [
                               FloatingActionButton(
-                                heroTag: 'zoom_in_button', // Unique tag for the zoom in button
+                                heroTag: 'zoom_in_button_starttrip', // Unique tag for the zoom in button
                                 onPressed: () {
                                   _mapController.move(
                                     _mapController.camera.center,
@@ -400,7 +409,7 @@ void _showPermissionDeniedDialog() {
                               ),
                               const SizedBox(height: 8),
                               FloatingActionButton(
-                                heroTag: 'zoom_out_button', // Unique tag for the zoom out button
+                                heroTag: 'zoom_out_button_starttrip', // Unique tag for the zoom out button
                                 onPressed: () {
                                   _mapController.move(
                                     _mapController.camera.center,
@@ -447,8 +456,9 @@ void _showPermissionDeniedDialog() {
                                 'Note: Start trip, then drop a pin to make\nyour post visible to your followers',
                                 style: TextStyle(
                                   color: Colors.black,
-                                  fontSize: 15,
+                                  fontSize: 14,
                                   fontStyle: FontStyle.italic,
+                                  fontFamily: 'Kadaw',
                                 ),
                                 textAlign: TextAlign.center,
                               ),

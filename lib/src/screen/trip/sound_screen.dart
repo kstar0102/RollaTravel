@@ -64,8 +64,8 @@ class SoundScreenState extends ConsumerState<SoundScreen> {
                       child: Text(
                         'My soundtrack',
                         style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 22,
+                          fontFamily: 'KadawBold'
                         ),
                       ),
                     ),
@@ -87,7 +87,7 @@ class SoundScreenState extends ConsumerState<SoundScreen> {
                         controller: _soundController,
                         decoration: InputDecoration(
                             hintText: 'Search locations',
-                            hintStyle: const TextStyle(fontSize: 16), // Set font size for hint text
+                            hintStyle: const TextStyle(fontSize: 16, fontFamily: 'Kadaw'), // Set font size for hint text
                             contentPadding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0), // Set inner padding
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(4.0),
@@ -104,7 +104,7 @@ class SoundScreenState extends ConsumerState<SoundScreen> {
                             filled: true,
                             fillColor: Colors.grey[200],
                           ),
-                          style: const TextStyle(fontSize: 16),
+                          style: const TextStyle(fontSize: 16, fontFamily: 'Kadaw'),
                       ),
                     ),
                   ],

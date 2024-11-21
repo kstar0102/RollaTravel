@@ -370,7 +370,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             SizedBox(
                               width: vww(context, 30),
                               child: ButtonWidget(
-                                btnType: ButtonWidgetType.EditProfileText,
+                                btnType: ButtonWidgetType.editProfileText,
                                 borderColor: kColorStrongGrey,
                                 textColor: kColorWhite,
                                 fullColor: kColorStrongGrey,
@@ -385,7 +385,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             SizedBox(
                               width: vww(context, 30),
                               child: ButtonWidget(
-                                btnType: ButtonWidgetType.FollowingText,
+                                btnType: ButtonWidgetType.followingText,
                                 borderColor: kColorStrongGrey,
                                 textColor: kColorWhite,
                                 fullColor: kColorStrongGrey,
@@ -398,7 +398,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             SizedBox(
                               width: vww(context, 30),
                               child: ButtonWidget(
-                                btnType: ButtonWidgetType.SettingText,
+                                btnType: ButtonWidgetType.settingText,
                                 borderColor: kColorStrongGrey,
                                 textColor: kColorWhite,
                                 fullColor: kColorStrongGrey,

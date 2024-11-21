@@ -71,7 +71,7 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
                                 fit: BoxFit.cover,
                               ),
                             )
-                          : const Center(child: Text('No image selected.')),
+                          : const Center(child: Text('No image selected.', style: TextStyle(fontFamily: 'Kadaw'),)),
                     ),
 
                     // Overlay elements on top of the image
@@ -79,12 +79,13 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
                       children: [
                         // Caption text field with padding and blue border
                         Padding(
-                          padding: const EdgeInsets.all(16.0),
+                          padding: const EdgeInsets.all(10.0),
                           child: Container(
                             color: Colors.transparent, // Semi-transparent background
                             child: TextField(
                               decoration: InputDecoration(
                                 hintText: 'Caption...',
+                                hintStyle: const TextStyle(fontFamily: 'Kadaw'),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8.0),
                                   borderSide: const BorderSide(color: Colors.blue, width: 2.0),
@@ -92,6 +93,7 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
                                 filled: true,
                                 fillColor: Colors.white.withOpacity(0.9),
                               ),
+                              style: const TextStyle(fontFamily: 'Kadaw'),
                             ),
                           ),
                         ),
@@ -122,7 +124,7 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
                                         },
                                         activeColor: Colors.blue,
                                       ),
-                                      const Text('hide likes', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),),
+                                      const Text('hide likes', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontFamily: 'Kadaw'),),
                                     ],
                                   ),
                                 ),
@@ -143,7 +145,7 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
                                         },
                                         activeColor: Colors.blue,
                                       ),
-                                      const Text('show likes', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),),
+                                      const Text('show likes', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontFamily: 'Kadaw'),),
                                     ],
                                   ),
                                 ),
@@ -176,7 +178,7 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
                     ),
                     child: const Text(
                       'Select Location',
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(color: Colors.white, fontFamily: 'Kadaw', fontSize: 14),
                     ),
                   ),
                 ),

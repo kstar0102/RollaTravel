@@ -210,7 +210,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                         Container(width: vww(context, 15),),
                       ],
                     ),
-                    const Text(trave_share, style: TextStyle(color: kColorGrey, fontSize: 16),),
+                    const Text(trave_share, style: TextStyle(color: kColorGrey, fontSize: 16, fontFamily: 'Kadaw'),),
                     SizedBox(height: vhh(context, 3),),
                     SizedBox(
                       width: vw(context, 38),
@@ -220,7 +220,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                         keyboardType: TextInputType.name,
                         autocorrect: false,
                         cursorColor: kColorGrey,
-                        style: const TextStyle(color: kColorBlack, fontSize: 14),
+                        style: const TextStyle(color: kColorBlack, fontSize: 14, fontFamily: 'Kadaw'),
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           enabledBorder: const UnderlineInputBorder(
@@ -231,7 +231,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                           ),
                           errorText: userNameError,
                           hintText: "Rolla Username",
-                          hintStyle: const TextStyle(color: kColorGrey, fontSize: 14),
+                          hintStyle: const TextStyle(color: kColorGrey, fontSize: 14, fontFamily: 'Kadaw'),
                           contentPadding: const EdgeInsets.only(
                             top: -8, // Push hint closer to the top
                             bottom: -5, // Reduce space between text and underline
@@ -240,6 +240,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                             color: Colors.red, // Customize error message color
                             fontSize: 12, // Reduce font size of the error message
                             height: 0.5, // Adjust line height for tighter spacing
+                            fontFamily: 'Kadaw'
                           ),
                           counterText: '',
                         ),
@@ -267,7 +268,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                         autocorrect: false,
                         obscureText: true,
                         cursorColor: kColorGrey,
-                        style: const TextStyle(color: kColorBlack, fontSize: 14),
+                        style: const TextStyle(color: kColorBlack, fontSize: 14, fontFamily: 'Kadaw'),
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           enabledBorder: const UnderlineInputBorder(
@@ -278,7 +279,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                           ),
                           errorText: passwordError,
                           hintText: password_title,
-                          hintStyle: const TextStyle(color: kColorGrey, fontSize: 14),
+                          hintStyle: const TextStyle(color: kColorGrey, fontSize: 14, fontFamily: 'Kadaw'),
                           contentPadding: const EdgeInsets.only(
                             top: -8, // Push hint closer to the top
                             bottom: -5, // Reduce space between text and underline
@@ -287,6 +288,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                             color: Colors.red, // Customize error message color
                             fontSize: 12, // Reduce font size of the error message
                             height: 0.5, // Adjust line height for tighter spacing
+                            fontFamily: 'Kadaw'
                           ),
                           counterText: '',
                         ),
@@ -314,7 +316,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                         autocorrect: false,
                         obscureText: true,
                         cursorColor: kColorGrey,
-                        style: const TextStyle(color: kColorBlack, fontSize: 14),
+                        style: const TextStyle(color: kColorBlack, fontSize: 14, fontFamily: 'Kadaw'),
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           enabledBorder: const UnderlineInputBorder(
@@ -325,7 +327,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                           ),
                           errorText: rePasswordError, 
                           hintText: re_enter_password,
-                          hintStyle: const TextStyle(color: kColorGrey, fontSize: 14),
+                          hintStyle: const TextStyle(color: kColorGrey, fontSize: 14, fontFamily: 'Kadaw'),
                           contentPadding: const EdgeInsets.only(
                             top: -8, // Push hint closer to the top
                             bottom: -5, // Reduce space between text and underline
@@ -334,6 +336,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                             color: Colors.red, // Customize error message color
                             fontSize: 12, // Reduce font size of the error message
                             height: 0.5, // Adjust line height for tighter spacing
+                            fontFamily: 'Kadaw'
                           ),
                           counterText: '',
                         ),
@@ -365,7 +368,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                         children: [
                           const Text(
                             how_did_you_hear,
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                            style: TextStyle(fontSize: 14, fontFamily: 'KadawBold'),
                           ),
                           SizedBox(height: vhh(context, 1)),
                           RadioListTile<String>(
@@ -374,7 +377,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                             visualDensity: const VisualDensity(horizontal: -4, vertical: -4), // Adjust density to reduce spacing
                             title: const Padding(
                               padding: EdgeInsets.only(left: 20), // Indent the text by approximately 10 inches
-                              child: Text(i_saw_ad),
+                              child: Text(i_saw_ad, style: TextStyle(fontFamily: 'Kadaw'),),
                             ),
                             value: i_saw_ad,
                             groupValue: _selectedOption,
@@ -390,7 +393,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                             visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
                             title: const Padding(
                               padding: EdgeInsets.only(left: 20), // Indent the text by approximately 10 inches
-                              child: Text(recommendation),
+                              child: Text(recommendation, style: TextStyle(fontFamily: 'Kadaw'),),
                             ),
                             value: recommendation,
                             groupValue: _selectedOption,
@@ -406,7 +409,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                             visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
                             title: const Padding(
                               padding: EdgeInsets.only(left: 20), // Indent the text by approximately 10 inches
-                              child: Text(other),
+                              child: Text(other, style: TextStyle(fontFamily: 'Kadaw'),),
                             ),
                             value: other,
                             groupValue: _selectedOption,
@@ -424,7 +427,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                       : Padding(
                         padding: EdgeInsets.only(left: vww(context, 15), right: vww(context, 15), top: vhh(context, 2)),
                         child: ButtonWidget(
-                          btnType: ButtonWidgetType.CreateAccountTitle,
+                          btnType: ButtonWidgetType.createAccountTitle,
                           borderColor: kColorCreateButton,
                           textColor: kColorWhite,
                           fullColor: kColorCreateButton,

@@ -39,7 +39,6 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
   }
 
   Future<void> _getCurrentLocation() async {
-    logger.i("Larrrived");
     final permissionStatus = await Permission.location.request();
 
     if (permissionStatus.isGranted) {
@@ -125,6 +124,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                             style: TextStyle(
                               color: kColorBlack,
                               fontSize: 14,
+                              fontFamily: 'Kadaw'
                             ),
                           ),
                           Text(
@@ -134,6 +134,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                               fontSize: 14,
                               decoration: TextDecoration.underline,
                               decorationColor: kColorButtonPrimary,
+                              fontFamily: 'Kadaw'
                             ),
                           ),
                         ],
@@ -149,6 +150,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                             style: TextStyle(
                               color: kColorBlack,
                               fontSize: 14,
+                              fontFamily: 'Kadaw'
                             ),
                           ),
                           Text(
@@ -156,6 +158,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                             style: TextStyle(
                               color: kColorBlack,
                               fontSize: 14,
+                              fontFamily: 'Kadaw'
                             ),
                           ),
                         ],
@@ -171,6 +174,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                             style: TextStyle(
                               color: kColorBlack,
                               fontSize: 14,
+                              fontFamily: 'Kadaw'
                             ),
                           ),
                           Text(
@@ -180,6 +184,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                               fontSize: 14,
                               decoration: TextDecoration.underline,
                               decorationColor: kColorButtonPrimary,
+                              fontFamily: 'Kadaw'
                             ),
                           ),
                         ],
@@ -227,6 +232,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                               child: Column(
                                 children: [
                                   FloatingActionButton(
+                                    heroTag: 'zoom_in_button_endtrip',
                                     onPressed: () {
                                       _mapController.move(
                                         _mapController.camera.center,
@@ -238,6 +244,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                                   ),
                                   const SizedBox(height: 8),
                                   FloatingActionButton(
+                                    heroTag: 'zoom_in_button_endtrip',
                                     onPressed: () {
                                       _mapController.move(
                                         _mapController.camera.center,
@@ -258,12 +265,12 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                     // Footer Text
                     const Text(
                       'Travel. Share.',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey),
+                      style: TextStyle(fontSize: 16, fontFamily: 'KadawBold', color: Colors.grey),
                     ),
                     const SizedBox(height: 15),
                     const Text(
                       'the Rolla travel app',
-                      style: TextStyle(fontSize: 14, color: Colors.black),
+                      style: TextStyle(fontSize: 14, color: Colors.black, fontFamily: 'Kadaw'),
                     ),
                     const SizedBox(height: 30),
                   ],
@@ -275,7 +282,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                 children: [
                   const Text(
                     'Share this summary:',
-                    style: TextStyle(fontSize: 16),
+                    style: TextStyle(fontSize: 16,fontFamily: 'Kadaw'),
                   ),
                   GestureDetector(
                     onTap: () {

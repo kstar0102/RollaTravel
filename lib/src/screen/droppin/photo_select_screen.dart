@@ -37,8 +37,8 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('Camera Permission'),
-            content: const Text('Camera permission is required to take photos.'),
+            title: const Text('Camera Permission', style: TextStyle(fontFamily: 'Kadaw'),),
+            content: const Text('Camera permission is required to take photos.', style: TextStyle(fontFamily: 'Kadaw'),),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
@@ -142,6 +142,7 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
                 style: TextStyle(
                   fontSize: 20,
                   color: Colors.black,
+                  fontFamily: 'Kadaw'
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -188,7 +189,7 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: _getImageFromGallery,
-                child: const Text('Photo Library'),
+                child: const Text('Photo Library', style: TextStyle(fontFamily: 'Kadaw'),),
               ),
             ],
           ),

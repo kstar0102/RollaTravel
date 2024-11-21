@@ -82,8 +82,8 @@ class DestinationScreenState extends ConsumerState<DestinationScreen> {
                       child: Text(
                         'Destination',
                         style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 22,
+                          fontFamily: 'KadawBold',
                         ),
                       ),
                     ),
@@ -105,7 +105,7 @@ class DestinationScreenState extends ConsumerState<DestinationScreen> {
                           controller: _searchController,
                           decoration: InputDecoration(
                             hintText: "Search Locations", 
-                            hintStyle: const TextStyle(fontSize: 16), // Set font size for hint text
+                            hintStyle: const TextStyle(fontSize: 16, fontFamily: 'Kadaw'), // Set font size for hint text
                             contentPadding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0), // Set inner padding
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(4.0),
@@ -122,7 +122,7 @@ class DestinationScreenState extends ConsumerState<DestinationScreen> {
                             filled: true,
                             fillColor: Colors.grey[200],
                           ),
-                          style: const TextStyle(fontSize: 16), // Set font size for input text
+                          style: const TextStyle(fontSize: 16, fontFamily: 'Kadaw'), // Set font size for input text
                         ),
                         suggestionsCallback: (pattern) async {
                           return await fetchAddressSuggestions(pattern);

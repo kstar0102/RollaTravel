@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/gestures.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:logger/logger.dart';
 
 class SigninScreen extends ConsumerStatefulWidget {
   const SigninScreen({super.key});
@@ -21,6 +22,7 @@ class SigninScreen extends ConsumerStatefulWidget {
 class _SigninScreenState extends ConsumerState<SigninScreen> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+  final logger = Logger();
   double screenHeight = 0;
   double keyboardHeight = 0;
   final bool _isKeyboardVisible = false;
@@ -53,7 +55,6 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
   void dispose() {
     _usernameController.dispose();
     _passwordController.dispose();
-    // _useremailController.dispose();
     super.dispose();
   }
 
@@ -188,7 +189,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                         'assets/images/icons/logo.png',
                         width: vww(context, 24),
                       ),
-                      const Text(trave_share, style: TextStyle(color: kColorGrey, fontSize: 12),),
+                      const Text(trave_share, style: TextStyle(color: kColorGrey, fontSize: 12, fontFamily: 'Kadaw'),),
                       SizedBox(height: vhh(context, 5),),
                       SizedBox(
                         width: vw(context, 38),
@@ -198,7 +199,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                           keyboardType: TextInputType.name,
                           autocorrect: false,
                           cursorColor: kColorGrey,
-                          style: const TextStyle(color: kColorBlack, fontSize: 16),
+                          style: const TextStyle(color: kColorBlack, fontSize: 16, fontFamily: 'Kadaw'),
                           decoration: InputDecoration(
                             floatingLabelBehavior: FloatingLabelBehavior.always,
                             enabledBorder: const UnderlineInputBorder(
@@ -209,7 +210,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                             ),
                             hintText: user_name,
                             errorText: (usernameError != null && usernameError!.isNotEmpty) ? usernameError : null,
-                            hintStyle: const TextStyle(color: kColorGrey, fontSize: 14),
+                            hintStyle: const TextStyle(color: kColorGrey, fontSize: 14, fontFamily: 'Kadaw'),
                             contentPadding: const EdgeInsets.only(
                               top: -8, // Push hint closer to the top
                               bottom: -5, // Reduce space between text and underline
@@ -218,6 +219,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                               color: Colors.red, // Customize error message color
                               fontSize: 12, // Reduce font size of the error message
                               height: 0.5, // Adjust line height for tighter spacing
+                              fontFamily: 'Kadaw'
                             ),
                             counterText: '',
                           ),
@@ -232,7 +234,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                           autocorrect: false,
                           cursorColor: kColorGrey,
                           obscureText: true,
-                          style: const TextStyle(color: kColorBlack, fontSize: 16),
+                          style: const TextStyle(color: kColorBlack, fontSize: 16, fontFamily: 'Kadaw'),
                           decoration: InputDecoration(
                             floatingLabelBehavior: FloatingLabelBehavior.always,
                             enabledBorder: const UnderlineInputBorder(
@@ -243,7 +245,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                             ),
                             hintText: password_title,
                             errorText: (passwordError != null && passwordError!.isNotEmpty) ? passwordError : null,
-                            hintStyle: const TextStyle(color: kColorGrey, fontSize: 14),
+                            hintStyle: const TextStyle(color: kColorGrey, fontSize: 14, fontFamily: 'Kadaw'),
                             contentPadding: const EdgeInsets.only(
                               top: -8, // Push hint closer to the top
                               bottom: -5, // Reduce space between text and underline
@@ -252,6 +254,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                               color: Colors.red, // Customize error message color
                               fontSize: 12, // Reduce font size of the error message
                               height: 0.5, // Adjust line height for tighter spacing
+                              fontFamily: 'Kadaw'
                             ),
                             counterText: '',
                           ),
@@ -261,7 +264,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                       : Padding(
                           padding: EdgeInsets.only(left: vww(context, 15), right: vww(context, 15), top: vhh(context, 3)),
                           child: ButtonWidget(
-                            btnType: ButtonWidgetType.LoginText,
+                            btnType: ButtonWidgetType.loginText,
                             borderColor: kColorButtonPrimary,
                             textColor: kColorWhite,
                             fullColor: kColorButtonPrimary,
@@ -269,7 +272,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                               if (usernameError == null && passwordError == null) {
                                 _handleLogin();
                               }else {
-                                print("Form validation failed or FormState is null.");
+                                logger.i("Form validation failed or FormState is null.");
                               }
                             },
                           ),
@@ -277,7 +280,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                           
                       
                       SizedBox( height: vhh(context, 3),),
-                      const Text(countryResidence, style: TextStyle(color: kColorBlack, fontSize: 14, fontWeight: FontWeight.bold),),
+                      const Text(countryResidence, style: TextStyle(color: kColorBlack, fontSize: 14, fontFamily: 'KadawBold'),),
                       SizedBox(height: vhh(context, 1)),
                       Padding(
                         padding: EdgeInsets.only(
@@ -292,6 +295,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                                 style: TextStyle(
                                   color: kColorGrey,
                                   fontSize: 14,
+                                  fontFamily: 'Kadaw'
                                 ),
                               ),
                               TextSpan(
@@ -302,6 +306,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                                   fontWeight: FontWeight.bold,
                                   decoration: TextDecoration.underline,
                                   decorationColor: kColorHereButton,
+                                  fontFamily: 'Kadaw'
                                 ),
                                 recognizer: TapGestureRecognizer()..onTap = () {
                                   Navigator.push(context, MaterialPageRoute(
@@ -332,6 +337,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                                 style: TextStyle(
                                   color: kColorGrey,
                                   fontSize: 14,
+                                  fontFamily: 'Kadaw'
                                 ),
                               ),
                               TextSpan(
@@ -342,6 +348,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                                   fontWeight: FontWeight.bold,
                                   decoration: TextDecoration.underline,
                                   decorationColor: kColorHereButton,
+                                  fontFamily: 'Kadaw'
                                 ),
                                 recognizer: TapGestureRecognizer()..onTap = () {
                                 },
@@ -351,6 +358,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                                 style: TextStyle(
                                   color: kColorGrey,
                                   fontSize: 14,
+                                  fontFamily: 'Kadaw'
                                 ),
                               ),
                             ],

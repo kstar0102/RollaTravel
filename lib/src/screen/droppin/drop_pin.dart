@@ -40,14 +40,15 @@ class DropPinScreenState extends ConsumerState<DropPinScreen> {
     return Padding(
       padding: const EdgeInsets.only(left: 16.0, top: 4.0, bottom: 4.0),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.baseline, // Use baseline alignment
+        textBaseline: TextBaseline.alphabetic, // Specify the baseline alignment
         children: [
           Text(
             '$number. ',
             style: TextStyle(
               fontSize: 16,
-              fontWeight: FontWeight.bold,
               color: Colors.grey[600],
+              fontFamily: 'Kadaw'
             ),
           ),
           Expanded(
@@ -72,6 +73,7 @@ class DropPinScreenState extends ConsumerState<DropPinScreen> {
           style: TextStyle(
             fontSize: 16,
             color: Colors.grey[600],
+            fontFamily: 'Kadaw'
           ),
         ));
       }
@@ -124,14 +126,14 @@ class DropPinScreenState extends ConsumerState<DropPinScreen> {
                   textAlign: TextAlign.center,
                   text: TextSpan(
                     style: const TextStyle(
-                      fontSize: 18,
+                      fontSize: 16,
                       fontStyle: FontStyle.italic,
-                      fontWeight: FontWeight.bold,
                       color: Colors.black, // Set the text color
+                      fontFamily: 'KadawBold'
                     ),
                     children: [
                       const TextSpan(
-                        text: 'Note: You must start trip under the ',
+                        text: 'Note: You must start trip under the '
                       ),
                       WidgetSpan(
                         alignment: PlaceholderAlignment.middle,

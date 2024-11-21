@@ -73,7 +73,7 @@ class _LoginUserFlowScreenState extends ConsumerState<LoginUserFlowScreen> {
                         width: vww(context, 25),
                       ),
                       SizedBox(height: vhh(context, 2),),
-                      const Text(how_to_create_post, style: TextStyle(color: kColorGrey, fontSize: 16),),
+                      const Text(how_to_create_post, style: TextStyle(color: kColorGrey, fontSize: 16, fontFamily: 'Kadaw'),),
                       SizedBox(height: vhh(context, 2),),
                       SizedBox(
                         height: vhh(context, 50),
@@ -112,7 +112,7 @@ class _LoginUserFlowScreenState extends ConsumerState<LoginUserFlowScreen> {
                       Padding(
                         padding: EdgeInsets.only(left: vww(context, 15), right: vww(context, 15), top: vhh(context, 3)),
                         child: ButtonWidget(
-                          btnType: ButtonWidgetType.LoginText,
+                          btnType: ButtonWidgetType.loginText,
                           borderColor: kColorButtonPrimary,
                           textColor: kColorWhite,
                           fullColor: kColorButtonPrimary,

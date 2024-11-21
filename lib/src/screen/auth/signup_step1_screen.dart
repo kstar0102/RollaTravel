@@ -199,7 +199,7 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
                         Container(width: vww(context, 15),),
                       ],
                     ),
-                    const Text(trave_share, style: TextStyle(color: kColorGrey, fontSize: 14),),
+                    const Text(trave_share, style: TextStyle(color: kColorGrey, fontSize: 14, fontFamily: 'Kadaw'),),
 
                     SizedBox(height: vhh(context, 5),),
                     SizedBox(
@@ -210,7 +210,7 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
                         keyboardType: TextInputType.name,
                         autocorrect: false,
                         cursorColor: kColorGrey,
-                        style: const TextStyle(color: kColorBlack, fontSize: 16),
+                        style: const TextStyle(color: kColorBlack, fontSize: 16, fontFamily: 'Kadaw'),
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           enabledBorder: const UnderlineInputBorder(
@@ -221,7 +221,7 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
                           ),
                           hintText: "First name",
                           errorText: (firstNameError != null && firstNameError!.isNotEmpty) ? firstNameError : null,
-                          hintStyle: const TextStyle(color: kColorGrey, fontSize: 14),
+                          hintStyle: const TextStyle(color: kColorGrey, fontSize: 14, fontFamily: 'Kadaw'),
                           contentPadding: const EdgeInsets.only(
                             top: -8, // Push hint closer to the top
                             bottom: -5, // Reduce space between text and underline
@@ -230,6 +230,7 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
                             color: Colors.red, // Customize error message color
                             fontSize: 12, // Reduce font size of the error message
                             height: 0.5, // Adjust line height for tighter spacing
+                            fontFamily: 'Kadaw'
                           ),
                           counterText: '',
                         ),
@@ -244,7 +245,7 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
                         keyboardType: TextInputType.name,
                         autocorrect: false,
                         cursorColor: kColorGrey,
-                        style: const TextStyle(color: kColorBlack, fontSize: 16),
+                        style: const TextStyle(color: kColorBlack, fontSize: 16, fontFamily: 'Kadaw'),
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           enabledBorder: const UnderlineInputBorder(
@@ -255,7 +256,7 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
                           ),
                           hintText: "Last name",
                           errorText: (lastNameError != null && lastNameError!.isNotEmpty) ? lastNameError : null,
-                          hintStyle: const TextStyle(color: kColorGrey, fontSize: 14),
+                          hintStyle: const TextStyle(color: kColorGrey, fontSize: 14, fontFamily: 'Kadaw'),
                           contentPadding: const EdgeInsets.only(
                             top: -8, // Push hint closer to the top
                             bottom: -5, // Reduce space between text and underline
@@ -264,6 +265,7 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
                             color: Colors.red, // Customize error message color
                             fontSize: 12, // Reduce font size of the error message
                             height: 0.5, // Adjust line height for tighter spacing
+                            fontFamily: 'Kadaw'
                           ),
                           counterText: '',
                         ),
@@ -278,7 +280,7 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
                         keyboardType: TextInputType.name,
                         autocorrect: false,
                         cursorColor: kColorGrey,
-                        style: const TextStyle(color: kColorBlack, fontSize: 16),
+                        style: const TextStyle(color: kColorBlack, fontSize: 16, fontFamily: 'Kadaw'),
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           enabledBorder: const UnderlineInputBorder(
@@ -289,7 +291,7 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
                           ),
                           hintText: "Email address",
                           errorText: (emailAddressError != null && emailAddressError!.isNotEmpty) ? emailAddressError : null,
-                          hintStyle: const TextStyle(color: kColorGrey, fontSize: 14),
+                          hintStyle: const TextStyle(color: kColorGrey, fontSize: 14, fontFamily: 'Kadaw'),
                           contentPadding: const EdgeInsets.only(
                             top: -8, // Push hint closer to the top
                             bottom: -5, // Reduce space between text and underline
@@ -298,6 +300,7 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
                             color: Colors.red, // Customize error message color
                             fontSize: 12, // Reduce font size of the error message
                             height: 0.5, // Adjust line height for tighter spacing
+                            fontFamily: 'Kadaw'
                           ),
                           counterText: '',
                         ),
@@ -312,7 +315,7 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
                         keyboardType: TextInputType.name,
                         autocorrect: false,
                         cursorColor: kColorGrey,
-                        style: const TextStyle(color: kColorBlack, fontSize: 16),
+                        style: const TextStyle(color: kColorBlack, fontSize: 16, fontFamily: 'Kadaw'),
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           enabledBorder: const UnderlineInputBorder(
@@ -323,7 +326,7 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
                           ),
                           hintText: "Country of residence",
                           errorText: (countryResidenceError != null && countryResidenceError!.isNotEmpty) ? countryResidenceError : null,
-                          hintStyle: const TextStyle(color: kColorGrey, fontSize: 14),
+                          hintStyle: const TextStyle(color: kColorGrey, fontSize: 14, fontFamily: 'Kadaw'),
                           contentPadding: const EdgeInsets.only(
                             top: -8, // Push hint closer to the top
                             bottom: -5, // Reduce space between text and underline
@@ -332,6 +335,7 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
                             color: Colors.red, // Customize error message color
                             fontSize: 12, // Reduce font size of the error message
                             height: 0.5, // Adjust line height for tighter spacing
+                            fontFamily: 'Kadaw'
                           ),
                           counterText: '',
                         ),
@@ -341,7 +345,7 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
                     Padding(
                       padding: EdgeInsets.only(left: vww(context, 15), right: vww(context, 15), top: vhh(context, 5)),
                       child: ButtonWidget(
-                        btnType: ButtonWidgetType.ContinueText,
+                        btnType: ButtonWidgetType.continueText,
                         borderColor: kColorButtonPrimary,
                         textColor: kColorWhite,
                         fullColor: kColorButtonPrimary,

@@ -62,13 +62,14 @@ class SearchScreenState extends ConsumerState<SearchScreen> {
                 ),
               ),
 
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18.0),
+              SizedBox(
+                height: 30,
+                width: vww(context, 90),
                 child: TextField(
                   controller: _searchAccount,
                   decoration: InputDecoration(
                     hintText: 'Search user accounts',
-                    hintStyle: const TextStyle(fontSize: 16), // Set font size for hint text
+                    hintStyle: const TextStyle(fontSize: 15, fontFamily: 'Kadaw',), // Set font size for hint text
                     contentPadding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 16.0), // Reduce inner padding
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(4.0),
@@ -85,17 +86,18 @@ class SearchScreenState extends ConsumerState<SearchScreen> {
                     filled: true,
                     fillColor: Colors.grey[200],
                   ),
-                  style: const TextStyle(fontSize: 14),
+                  style: const TextStyle(fontSize: 15, fontFamily: 'Kadaw',),
                 ),
               ),
               const SizedBox(height: 10),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18.0),
+              SizedBox(
+                height: 30,
+                width: vww(context, 90),
                 child: TextField(
-                  controller: _searchAccount,
+                  controller: _searchDestination,
                   decoration: InputDecoration(
                       hintText: 'Search Destinations',
-                      hintStyle: const TextStyle(fontSize: 16), // Set font size for hint text
+                      hintStyle: const TextStyle(fontSize: 15, fontFamily: 'Kadaw',), // Set font size for hint text
                       contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 16.0), // Set inner padding
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(4.0),
@@ -112,7 +114,7 @@ class SearchScreenState extends ConsumerState<SearchScreen> {
                       filled: true,
                       fillColor: Colors.grey[200],
                     ),
-                    style: const TextStyle(fontSize: 16),
+                    style: const TextStyle(fontSize: 15, fontFamily: 'Kadaw',),
                 ),
               ),
                   

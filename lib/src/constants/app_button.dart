@@ -2,15 +2,13 @@ import 'package:RollaTravel/src/translate/en.dart';
 import 'package:RollaTravel/src/utils/index.dart';
 import 'package:flutter/material.dart';
 
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-
 enum ButtonWidgetType {
-  LoginText,
-  ContinueText,
-  CreateAccountTitle,
-  EditProfileText,
-  SettingText,
-  FollowingText,
+  loginText,
+  continueText,
+  createAccountTitle,
+  editProfileText,
+  settingText,
+  followingText,
   startTripTitle,
   endTripTitle
 }
@@ -23,13 +21,13 @@ class ButtonWidget extends StatefulWidget {
   final Color? fullColor;
 
   const ButtonWidget({
-    Key? key,
+    super.key,
     required this.btnType,
     required this.onPressed,
     required this.borderColor,
     required this.textColor,
     required this.fullColor
-  }) : super(key: key);
+  });
 
   @override
   State<ButtonWidget> createState() => _ButtonWidgetState();
@@ -40,22 +38,22 @@ class _ButtonWidgetState extends State<ButtonWidget> {
   Widget build(BuildContext context) {
     String btnTitle;
     switch (widget.btnType) {
-      case ButtonWidgetType.LoginText:
+      case ButtonWidgetType.loginText:
         btnTitle = login_title;
         break;
-      case ButtonWidgetType.ContinueText:
+      case ButtonWidgetType.continueText:
         btnTitle = continue_text;
         break;
-      case ButtonWidgetType.CreateAccountTitle:
+      case ButtonWidgetType.createAccountTitle:
         btnTitle = create_account;
         break;
-      case ButtonWidgetType.EditProfileText:
+      case ButtonWidgetType.editProfileText:
         btnTitle = edit_profile;
         break;
-      case ButtonWidgetType.FollowingText:
+      case ButtonWidgetType.followingText:
         btnTitle = following;
         break;
-      case ButtonWidgetType.SettingText:
+      case ButtonWidgetType.settingText:
         btnTitle = settings;
         break;
       case ButtonWidgetType.startTripTitle:
@@ -90,17 +88,13 @@ class _ButtonWidgetState extends State<ButtonWidget> {
           child: TextButton(
             style: TextButton.styleFrom(
               foregroundColor: const Color(0XFF000000),
-              textStyle: TextStyle(
-                fontFamily: 'LeyendoDEMO',
-                fontWeight: FontWeight.w500,
-                fontSize: 36.sp,
-              ),
+          
             ),
             onPressed: widget.onPressed,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(btnTitle, style: TextStyle(color:  widget.textColor!),),
+                Text(btnTitle, style: TextStyle(color:  widget.textColor!, fontFamily: 'KadawBold'),),
               ],
             ) 
           ),
