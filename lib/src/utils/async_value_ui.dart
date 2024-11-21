@@ -2,7 +2,7 @@
 
 // import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-// import 'package:RollaStrava/src/exceptions/app_exception.dart';
+// import 'package:RollaTravel/src/exceptions/app_exception.dart';
 
 // extension AsyncValueUI on AsyncValue {
 //   bool showAlertDialogOnError(BuildContext context) {

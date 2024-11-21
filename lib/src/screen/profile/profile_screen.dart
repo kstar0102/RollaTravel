@@ -1,13 +1,15 @@
-import 'package:RollaStrava/src/constants/app_button.dart';
-import 'package:RollaStrava/src/constants/app_styles.dart';
-import 'package:RollaStrava/src/screen/home/home_follower_screen.dart';
-import 'package:RollaStrava/src/screen/profile/edit_profile.dart';
-import 'package:RollaStrava/src/screen/settings/settings_screen.dart';
-import 'package:RollaStrava/src/translate/en.dart';
-import 'package:RollaStrava/src/utils/index.dart';
-import 'package:RollaStrava/src/widget/bottombar.dart';
+import 'package:RollaTravel/src/constants/app_button.dart';
+import 'package:RollaTravel/src/constants/app_styles.dart';
+import 'package:RollaTravel/src/screen/home/home_follower_screen.dart';
+import 'package:RollaTravel/src/screen/profile/edit_profile.dart';
+import 'package:RollaTravel/src/screen/settings/settings_screen.dart';
+import 'package:RollaTravel/src/translate/en.dart';
+import 'package:RollaTravel/src/utils/index.dart';
+import 'package:RollaTravel/src/widget/bottombar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -59,11 +61,36 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
         });
       } 
     });
+    getUserData();
   }
 
   @override
   void dispose() {
     super.dispose();
+  }
+
+  Future<void> getUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // Get the token
+    final String? token = prefs.getString('token');
+
+    // Get the userData and decode it back to a Map
+    final String? userDataString = prefs.getString('userData');
+    final Map<String, dynamic>? userData =
+        userDataString != null ? jsonDecode(userDataString) : null;
+
+    // Debugging: Print the values
+    print('Token: $token');
+    print('User Data: $userData');
+
+    // Example: Access specific fields from userData
+    if (userData != null) {
+      print('User ID: ${userData['id']}');
+      print('First Name: ${userData['first_name']}');
+      print('Email: ${userData['email']}');
+      print('Country: ${userData['country']}');
+    }
   }
 
   Future<bool> _onWillPop() async {
@@ -293,7 +320,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   width: 2,
                                 ),
                                 image: const DecorationImage(
-                                  image: AssetImage("assets/images/background/image2.png"),
+                                  image: AssetImage("assets/images/background/image3.png"),
                                   fit: BoxFit.cover,
                                 ),
                               ),

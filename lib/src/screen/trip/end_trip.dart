@@ -1,15 +1,15 @@
-import 'package:RollaStrava/src/screen/home/home_screen.dart';
+import 'package:RollaTravel/src/screen/home/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:RollaStrava/src/utils/index.dart';
-import 'package:RollaStrava/src/constants/app_styles.dart';
-import 'package:RollaStrava/src/translate/en.dart';
+import 'package:RollaTravel/src/utils/index.dart';
+import 'package:RollaTravel/src/constants/app_styles.dart';
+import 'package:RollaTravel/src/translate/en.dart';
 import 'package:logger/logger.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:RollaStrava/src/widget/bottombar.dart';
+import 'package:RollaTravel/src/widget/bottombar.dart';
 
 class EndTripScreen extends ConsumerStatefulWidget {
   const EndTripScreen({super.key});

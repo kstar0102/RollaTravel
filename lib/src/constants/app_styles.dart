@@ -25,8 +25,6 @@ Color getRandomColor() {
   );
 }
 
-
-
 const kEnableBorder = OutlineInputBorder(
   borderSide: BorderSide(color: kColorGrey, width: 1),
   borderRadius: BorderRadius.all(Radius.circular(15)),
@@ -34,4 +32,10 @@ const kEnableBorder = OutlineInputBorder(
 const kFocusBorder = OutlineInputBorder(
   borderSide: BorderSide(color: kColorBlack, width: 1),
   borderRadius: BorderRadius.all(Radius.circular(15)),
+);
+
+const TextStyle iamgeModalCaptionTextStyle = TextStyle(
+  fontSize: 15,
+  color: Colors.grey,
+  fontFamily: 'KadawBold',
 );

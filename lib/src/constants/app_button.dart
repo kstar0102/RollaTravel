@@ -1,5 +1,5 @@
-import 'package:RollaStrava/src/translate/en.dart';
-import 'package:RollaStrava/src/utils/index.dart';
+import 'package:RollaTravel/src/translate/en.dart';
+import 'package:RollaTravel/src/utils/index.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';

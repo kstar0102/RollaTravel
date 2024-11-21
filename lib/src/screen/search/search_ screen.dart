@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:RollaStrava/src/utils/index.dart';
+import 'package:RollaTravel/src/utils/index.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:RollaStrava/src/widget/bottombar.dart';
+import 'package:RollaTravel/src/widget/bottombar.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});

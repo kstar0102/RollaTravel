@@ -1,11 +1,11 @@
-import 'package:RollaStrava/src/screen/home/home_tag_screen.dart';
-import 'package:RollaStrava/src/screen/home/home_user_screen.dart';
+import 'package:RollaTravel/src/screen/home/home_tag_screen.dart';
+import 'package:RollaTravel/src/screen/home/home_user_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:RollaStrava/src/constants/app_styles.dart';
-import 'package:RollaStrava/src/utils/index.dart';
-import 'package:RollaStrava/src/widget/bottombar.dart';
-import 'package:RollaStrava/src/utils/home_post.dart';
+import 'package:RollaTravel/src/constants/app_styles.dart';
+import 'package:RollaTravel/src/utils/index.dart';
+import 'package:RollaTravel/src/widget/bottombar.dart';
+import 'package:RollaTravel/src/utils/home_post.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
@@ -300,11 +300,7 @@ class PostWidgetState extends State<PostWidget> {
                       children: [
                         Text(
                           caption,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey,
-                          ),
+                          style: iamgeModalCaptionTextStyle,
                         ),
                         IconButton(
                           icon: const Icon(Icons.close, color: Colors.black),
@@ -356,6 +352,7 @@ class PostWidgetState extends State<PostWidget> {
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
+                              fontFamily: 'Kadaw'
                             ),
                           ),
                         ),
@@ -394,14 +391,15 @@ class PostWidgetState extends State<PostWidget> {
                                         style: const TextStyle(
                                           fontWeight: FontWeight.bold, 
                                           color: kColorHereButton,
-                                          fontSize: 13
+                                          fontSize: 13,
+                                          fontFamily: 'Kadaw'
                                         ),
                                       ),
                                       const SizedBox(width: 5),
                                       const Icon(Icons.verified, color: Colors.blue, size: 16),
                                     ],
                                   ),
-                                  const Text("Brain Smith")
+                                  const Text("Brain Smith", style: TextStyle(fontFamily: 'Kadaw'),)
                                 ],
                               ),
                               
@@ -462,7 +460,7 @@ class PostWidgetState extends State<PostWidget> {
               ),
             ),  
             const SizedBox(width: 10),
-            Text(widget.post.username, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(widget.post.username, style: const TextStyle(fontSize: 18, fontFamily: 'KadawBold')),
             const SizedBox(width: 10),
             const Icon(Icons.verified, color: Colors.blue, size: 16),
             const Spacer(),
@@ -477,21 +475,21 @@ class PostWidgetState extends State<PostWidget> {
             const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Destination', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Text('Destination', style: TextStyle(fontSize: 15, fontFamily: 'KadawBold')),
                 SizedBox(height: 3),
-                Text('Miles traveled', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Text('Miles traveled', style: TextStyle(fontSize: 15, fontFamily: 'KadawBold')),
                 SizedBox(height: 3),
-                Text('Soundtrack', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Text('Soundtrack', style: TextStyle(fontSize: 15, fontFamily: 'KadawBold')),
               ],
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(widget.post.destination, style: const TextStyle(fontSize: 16, color: Colors.brown, decoration: TextDecoration.underline)),
+                Text(widget.post.destination, style: const TextStyle(fontSize: 16, color: Colors.brown, decoration: TextDecoration.underline, fontFamily: 'Kadaw')),
                 const SizedBox(height: 3),
-                Text('${widget.post.milesTraveled}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Text('${widget.post.milesTraveled}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'Kadaw')),
                 const SizedBox(height: 3),
-                Text(widget.post.soundtrack, style: const TextStyle(fontSize: 16, color: Colors.brown, decoration: TextDecoration.underline)),
+                Text(widget.post.soundtrack, style: const TextStyle(fontSize: 16, color: Colors.brown, decoration: TextDecoration.underline, fontFamily: 'Kadaw')),
               ],
             ),
           ],
@@ -594,7 +592,7 @@ class PostWidgetState extends State<PostWidget> {
                 child: Column(
                   children: [
                     FloatingActionButton(
-                      heroTag: 'zoom_in_button',
+                      heroTag: 'zoom_in_button_homescreen',
                       onPressed: () {
                         mapController.move(
                           mapController.camera.center,
@@ -606,7 +604,7 @@ class PostWidgetState extends State<PostWidget> {
                     ),
                     const SizedBox(height: 8),
                     FloatingActionButton(
-                      heroTag: 'zoom_out_button',
+                      heroTag: 'zoom_out_button_homescreen',
                       onPressed: () {
                         mapController.move(
                           mapController.camera.center,
@@ -622,6 +620,7 @@ class PostWidgetState extends State<PostWidget> {
             ],
           ),
         ),
+        const SizedBox(height: 5,),
         if(isAddComments)
           TextField(
             controller: _addCommitController,
@@ -630,6 +629,7 @@ class PostWidgetState extends State<PostWidget> {
               hintStyle: TextStyle(
                 color: Colors.grey,
                 fontSize: 15,
+                fontFamily: 'Kadaw'
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(8.0)), // Optional: Add border radius for rounded corners
@@ -657,6 +657,11 @@ class PostWidgetState extends State<PostWidget> {
                 vertical: 5.0, // Adjust vertical padding
               ),
             ),
+            style: const TextStyle(
+              fontFamily: 'Kadaw', // Set your custom font family here
+              fontSize: 15,        // Optional: Adjust font size
+              color: Colors.black, // Optional: Adjust text color
+            ),
           ),
         const SizedBox(height: 10),
         // Likes and Comments Section
@@ -677,7 +682,8 @@ class PostWidgetState extends State<PostWidget> {
                   style: TextStyle(
                     fontWeight: FontWeight.bold, 
                     color: Colors.grey, 
-                    fontSize: 16)
+                    fontSize: 16,
+                    fontFamily: 'Kadaw',)
                   ),
                 ),
                 const Spacer(),
@@ -702,9 +708,9 @@ class PostWidgetState extends State<PostWidget> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(widget.post.username, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                Text(widget.post.username, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15,fontFamily: 'Kadaw',)),
                 const SizedBox(width: 15),
-                Text(widget.post.caption, style: const TextStyle(color: kColorButtonPrimary, fontSize: 16)),
+                Text(widget.post.caption, style: const TextStyle(color: kColorButtonPrimary, fontSize: 15,fontFamily: 'Kadaw',)),
               ],
             ),
             const SizedBox(height: 10),
@@ -719,7 +725,8 @@ class PostWidgetState extends State<PostWidget> {
                   '${widget.post.comments} comments',
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                    fontSize: 15,
+                    fontFamily: 'Kadaw',
                   ),
                 ),
               ),
@@ -752,20 +759,21 @@ class PostWidgetState extends State<PostWidget> {
                           style: const TextStyle(
                             fontWeight: FontWeight.bold, 
                             color: kColorHereButton,
-                            fontSize: 13
+                            fontSize: 13,
+                            fontFamily: 'Kadaw',
                           ),
                         ),
                         const SizedBox(width: 5),
                         const Icon(Icons.verified, color: Colors.blue, size: 16),
                         const SizedBox(width: 8),
-                        Text(comment['comment']!),
+                        Text(comment['comment']!, style: const TextStyle(fontFamily: 'Kadaw', fontSize: 14),),
                       ],
                     ),
                   );
                 }).toList(),
               ),
             const SizedBox(height: 8),
-            Text(widget.post.lastUpdated, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+            Text(widget.post.lastUpdated, style: const TextStyle(color: Colors.grey, fontSize: 12, fontFamily: 'Kadaw')),
           ],
         ),
         const SizedBox(height: 20),

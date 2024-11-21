@@ -1,10 +1,10 @@
-import 'package:RollaStrava/src/constants/app_button.dart';
-import 'package:RollaStrava/src/constants/app_styles.dart';
-import 'package:RollaStrava/src/screen/auth/signup_step1_screen.dart';
-import 'package:RollaStrava/src/screen/profile/profile_screen.dart';
-import 'package:RollaStrava/src/services/api_service.dart';
-import 'package:RollaStrava/src/translate/en.dart';
-import 'package:RollaStrava/src/utils/index.dart';
+import 'package:RollaTravel/src/constants/app_button.dart';
+import 'package:RollaTravel/src/constants/app_styles.dart';
+import 'package:RollaTravel/src/screen/auth/signup_step1_screen.dart';
+import 'package:RollaTravel/src/screen/profile/profile_screen.dart';
+import 'package:RollaTravel/src/services/api_service.dart';
+import 'package:RollaTravel/src/translate/en.dart';
+import 'package:RollaTravel/src/utils/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/gestures.dart';
@@ -231,6 +231,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                           keyboardType: TextInputType.visiblePassword,
                           autocorrect: false,
                           cursorColor: kColorGrey,
+                          obscureText: true,
                           style: const TextStyle(color: kColorBlack, fontSize: 16),
                           decoration: InputDecoration(
                             floatingLabelBehavior: FloatingLabelBehavior.always,

@@ -1,10 +1,12 @@
-import 'package:RollaStrava/src/constants/app_button.dart';
-import 'package:RollaStrava/src/constants/app_styles.dart';
-import 'package:RollaStrava/src/screen/auth/login_userflow.dart';
-import 'package:RollaStrava/src/translate/en.dart';
-import 'package:RollaStrava/src/utils/index.dart';
+import 'package:RollaTravel/src/constants/app_button.dart';
+import 'package:RollaTravel/src/constants/app_styles.dart';
+import 'package:RollaTravel/src/screen/auth/login_userflow.dart';
+import 'package:RollaTravel/src/services/api_service.dart';
+import 'package:RollaTravel/src/translate/en.dart';
+import 'package:RollaTravel/src/utils/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logger/logger.dart';
 
 class SignupStep2Screen extends ConsumerStatefulWidget {
   final String firstName;
@@ -27,6 +29,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
   final _usernameController = TextEditingController();
   final _passwordController= TextEditingController();
   final _rePasswordController = TextEditingController();
+  final logger = Logger();
   // String get userName => _usernameController.text;
   // String get password => _passwordController.text;
   // String get rePassword => _rePasswordController.text;
@@ -34,6 +37,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
   double screenHeight = 0;
   double keyboardHeight = 0;
   final bool _isKeyboardVisible = false;
+  bool _isLoading = false;
   bool isChecked = false;
   String? _selectedOption;
   String? userNameError;
@@ -63,6 +67,97 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
 
   Future<bool> _onWillPop() async {
     return false;
+  }
+
+  void _onCreateAccount() async{
+    if (_usernameController.text.isEmpty) {
+      setState(() {
+        userNameError = "Username is required";
+      });
+      return;
+    } else if (_passwordController.text.isEmpty) {
+      setState(() {
+        passwordError = "Password is required";
+      });
+      return;
+    } else if (_rePasswordController.text.isEmpty) {
+      setState(() {
+        rePasswordError = "Re-enter password is required";
+      });
+      return;
+    } else if (_passwordController.text != _rePasswordController.text) {
+      setState(() {
+        rePasswordError = "Passwords do not match";
+      });
+      return;
+    } else if(_selectedOption == null){
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select how you heard about us.'),
+        ),
+      );
+      return;
+    } else {
+      logger.i(_selectedOption);
+      setState(() {
+        _isLoading = true; // Show loading spinner
+      });
+      final apiService = ApiService();
+      try {
+        final response = await apiService.register(
+          firstName: widget.firstName,
+          lastName: widget.lastName,
+          email: widget.emailAddress,
+          country: widget.countryResidence,
+          password: _passwordController.text,
+          rollaUsername: _usernameController.text,
+          hearRolla: _selectedOption!
+        );
+
+        if (response['success'] == true) {
+          // Navigate to LoginUserFlowScreen on successful registration
+          if (mounted) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const LoginUserFlowScreen(),
+              ),
+            );
+          }
+        } else {
+          // Show error message for failed registration
+          _showErrorDialog(response['message']);
+        }
+      } catch (e) {
+        // Handle unexpected errors
+        _showErrorDialog('An unexpected error occurred. Please try again.');
+      } finally {
+        setState(() {
+          _isLoading = false; // Hide loading spinner
+        });
+      }
+      // Navigator.push(context, MaterialPageRoute(
+      //   builder: (context) => const LoginUserFlowScreen(),
+      // ));
+    }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Error'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
 
@@ -260,7 +355,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                     ),
 
                     SizedBox(
-                      height: vhh(context, 5),
+                      height: vhh(context, 5),                     
                     ),
                     
                     Padding(
@@ -325,20 +420,19 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                       ),
                     ),
 
-                    Padding(
-                      padding: EdgeInsets.only(left: vww(context, 15), right: vww(context, 15), top: vhh(context, 2)),
-                      child: ButtonWidget(
-                        btnType: ButtonWidgetType.CreateAccountTitle,
-                        borderColor: kColorCreateButton,
-                        textColor: kColorWhite,
-                        fullColor: kColorCreateButton,
-                        onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(
-                            builder: (context) => const LoginUserFlowScreen(),
-                          )); 
-                        },
+                    _isLoading ? const CircularProgressIndicator() 
+                      : Padding(
+                        padding: EdgeInsets.only(left: vww(context, 15), right: vww(context, 15), top: vhh(context, 2)),
+                        child: ButtonWidget(
+                          btnType: ButtonWidgetType.CreateAccountTitle,
+                          borderColor: kColorCreateButton,
+                          textColor: kColorWhite,
+                          fullColor: kColorCreateButton,
+                          onPressed: () {
+                            _onCreateAccount();
+                          },
+                        ),
                       ),
-                    ),
                   ],
                 ),
               ),

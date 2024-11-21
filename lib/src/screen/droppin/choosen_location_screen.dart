@@ -1,10 +1,10 @@
-import 'package:RollaStrava/src/screen/trip/start_trip.dart';
+import 'package:RollaTravel/src/screen/trip/start_trip.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
-import 'package:RollaStrava/src/utils/index.dart';
-import 'package:RollaStrava/src/widget/bottombar.dart';
-import 'package:RollaStrava/src/translate/en.dart';
-import 'package:RollaStrava/src/constants/app_styles.dart';
+import 'package:RollaTravel/src/utils/index.dart';
+import 'package:RollaTravel/src/widget/bottombar.dart';
+import 'package:RollaTravel/src/translate/en.dart';
+import 'package:RollaTravel/src/constants/app_styles.dart';
 
 class ChoosenLocationScreen extends ConsumerStatefulWidget{
   const ChoosenLocationScreen({super.key});

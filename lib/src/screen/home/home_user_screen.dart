@@ -1,8 +1,8 @@
-import 'package:RollaStrava/src/constants/app_styles.dart';
-import 'package:RollaStrava/src/screen/home/home_follower_screen.dart';
-import 'package:RollaStrava/src/translate/en.dart';
-import 'package:RollaStrava/src/utils/index.dart';
-import 'package:RollaStrava/src/widget/bottombar.dart';
+import 'package:RollaTravel/src/constants/app_styles.dart';
+import 'package:RollaTravel/src/screen/home/home_follower_screen.dart';
+import 'package:RollaTravel/src/translate/en.dart';
+import 'package:RollaTravel/src/utils/index.dart';
+import 'package:RollaTravel/src/widget/bottombar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -91,11 +91,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                       children: [
                         Text(
                           caption,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey,
-                          ),
+                          style: iamgeModalCaptionTextStyle,
                         ),
                         IconButton(
                           icon: const Icon(Icons.close, color: Colors.black),
@@ -147,6 +143,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
+                              fontFamily: 'Kadaw'
                             ),
                           ),
                         ),
@@ -185,14 +182,15 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                         style: const TextStyle(
                                           fontWeight: FontWeight.bold, 
                                           color: kColorHereButton,
-                                          fontSize: 13
+                                          fontSize: 13,
+                                          fontFamily: 'Kadaw'
                                         ),
                                       ),
                                       const SizedBox(width: 5),
                                       const Icon(Icons.verified, color: Colors.blue, size: 16),
                                     ],
                                   ),
-                                  const Text("Brain Smith")
+                                  const Text("Brain Smith", style: TextStyle(fontFamily: 'Kadaw'),)
                                 ],
                               ),
                               
@@ -248,7 +246,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                 const Text(
                                   "@smith",
                                   style: TextStyle(
-                                      color: kColorBlack, fontSize: 16),
+                                      color: kColorBlack, fontSize: 18, fontFamily: 'KadawBold'),
                                 ),
                                 Image.asset(
                                   'assets/images/icons/verify.png',
@@ -273,9 +271,10 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                 const Text(
                                   "1",
                                   style: TextStyle(
-                                      fontSize: 20,
-                                      color: kColorButtonPrimary,
-                                      fontWeight: FontWeight.bold),
+                                    fontSize: 20,
+                                    color: kColorButtonPrimary,
+                                    fontFamily: 'KadawBold',
+                                  ),
                                 ),
                               ],
                             ),
@@ -307,9 +306,10 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                   child: const Text(
                                     "30",
                                     style: TextStyle(
-                                        fontSize: 20,
-                                        color: kColorButtonPrimary,
-                                        fontWeight: FontWeight.bold),
+                                      fontSize: 20,
+                                      color: kColorButtonPrimary,
+                                      fontFamily: 'KadawBold',
+                                    ),
                                   ),
                                 ),
                               ],
@@ -321,9 +321,10 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                         const Text(
                           "Brian Smith",
                           style: TextStyle(
-                              color: kColorBlack,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold),
+                            color: kColorBlack,
+                            fontSize: 20,
+                            fontFamily: 'KadawBold',
+                          ),
                         ),
                         SizedBox(height: vhh(context, 1)),
                         const Text(
@@ -331,6 +332,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                           style: TextStyle(
                             color: kColorGrey,
                             fontSize: 18,
+                            fontFamily: 'Kadaw',
                           ),
                         ),
                         SizedBox(height: vhh(context, 2)),
@@ -362,7 +364,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                     style: TextStyle(
                                       color: Colors.white, // Text color
                                       fontSize: 16, // Font size
-                                      fontWeight: FontWeight.bold, // Font weight
+                                      fontFamily: 'KadawBold', // Font weight
                                     ),
                                   ),
                                 ),
@@ -400,7 +402,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                         style: TextStyle(
                                           color: Colors.white, // Text color
                                           fontSize: 16, // Font size
-                                          fontWeight: FontWeight.bold, // Font weight
+                                          fontFamily: 'KadawBold', // Font weight
                                         ),
                                       ),
                                     ],
@@ -422,6 +424,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                   style: TextStyle(
                                     color: kColorBlack,
                                     fontSize: 14,
+                                    fontFamily: 'Kadaw',
                                   ),
                                 ),
                                 Text(
@@ -429,6 +432,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                   style: TextStyle(
                                     color: kColorButtonPrimary,
                                     fontSize: 14,
+                                    fontFamily: 'Kadaw',
                                   ),
                                 ),
                               ],
@@ -441,6 +445,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                   style: TextStyle(
                                     color: kColorBlack,
                                     fontSize: 14,
+                                    fontFamily: 'Kadaw',
                                   ),
                                 ),
                                 Text(
@@ -448,6 +453,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                   style: TextStyle(
                                     color: kColorButtonPrimary,
                                     fontSize: 14,
+                                    fontFamily: 'Kadaw',
                                   ),
                                 ),
                               ],
@@ -460,6 +466,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                   style: TextStyle(
                                     color: kColorBlack,
                                     fontSize: 14,
+                                    fontFamily: 'Kadaw',
                                   ),
                                 ),
                                 Text(
@@ -467,6 +474,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                   style: TextStyle(
                                     color: kColorButtonPrimary,
                                     fontSize: 14,
+                                    fontFamily: 'Kadaw',
                                   ),
                                 ),
                               ],
@@ -514,7 +522,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                 child: const Center(
                                   child: Text(
                                     "Map Route Here",
-                                    style: TextStyle(color: Colors.black),
+                                    style: TextStyle(color: Colors.black,fontFamily: 'Kadaw',),
                                   ),
                                 ),
                               ),

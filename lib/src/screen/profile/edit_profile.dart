@@ -1,11 +1,13 @@
-import 'package:RollaStrava/src/constants/app_styles.dart';
-import 'package:RollaStrava/src/translate/en.dart';
-import 'package:RollaStrava/src/utils/index.dart';
-import 'package:RollaStrava/src/widget/bottombar.dart';
+import 'package:RollaTravel/src/constants/app_styles.dart';
+import 'package:RollaTravel/src/translate/en.dart';
+import 'package:RollaTravel/src/utils/index.dart';
+import 'package:RollaTravel/src/widget/bottombar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
@@ -20,11 +22,12 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   final int _currentIndex = 4;
   final ImagePicker _picker = ImagePicker();
   XFile? _selectedImage;
-  String previousUsernameText = '@smith';
-  String previousNameText = 'Brian Smith';
-  String previousBioText = 'Life is good!';
-  String previousGarageText = 'Lixus, BMW';
-  String previousPlaceText = 'Lake Placid, NY';
+  String previousUsernameText = '';
+  String previousNameText = '';
+  String previousBioText = '';
+  String previousGarageText = '';
+  String previousPlaceText = '';
+  bool _isLoading = true;
 
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
@@ -46,18 +49,22 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           this.keyboardHeight = keyboardHeight;
         });
       } 
+      _initializeUserData();
     });
-    usernameController.text = previousUsernameText;
-    nameController.text = previousNameText;
-    bioController.text = previousBioText;
-    garageController.text = previousGarageText;
-    placeController.text = previousPlaceText;
-
+    
+    
     usernameController.addListener(_onTextChanged);
     nameController.addListener(_onTextChanged);
     bioController.addListener(_onTextChanged);
     garageController.addListener(_onTextChanged);
     placeController.addListener(_onTextChanged);
+    
+    
+  }
+
+  Future<void> _initializeUserData() async {
+    await getUserData();
+    
   }
 
   @override
@@ -73,6 +80,45 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     bioController.dispose();
     garageController.dispose();
     placeController.dispose();
+  }
+
+  Future<void> getUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // Get the token
+    final String? token = prefs.getString('token');
+
+    // Get the userData and decode it back to a Map
+    final String? userDataString = prefs.getString('userData');
+    final Map<String, dynamic>? userData =
+        userDataString != null ? jsonDecode(userDataString) : null;
+
+    // Debugging: Print the values
+    print('Token: $token');
+    print('User Data: $userData');
+
+    // Example: Access specific fields from userData
+    if (userData != null) {
+      userData.forEach((key, value) {
+        print('$key: $value');
+      });
+
+      previousUsernameText = userData['rolla_username'] ?? '';
+      previousNameText = userData['first_name'] ?? '';
+      print('Previous Name Text: $previousNameText');
+      previousBioText = userData['bio'] ?? '';
+      previousGarageText = userData['garage'] ?? '';
+      previousPlaceText = userData['happy_place'] ?? '';
+
+      setState(() {
+        usernameController.text = previousUsernameText;
+        nameController.text = previousNameText;
+        bioController.text = previousBioText;
+        garageController.text = previousGarageText;
+        placeController.text = previousPlaceText;
+        _isLoading = false;  
+      });
+    }
   }
 
   void _onTextChanged() {
@@ -149,6 +195,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
     return Scaffold(
       body: WillPopScope(
         onWillPop: _onWillPop,

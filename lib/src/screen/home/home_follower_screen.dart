@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:RollaStrava/src/utils/index.dart';
-import 'package:RollaStrava/src/constants/app_styles.dart';
-import 'package:RollaStrava/src/widget/bottombar.dart';
+import 'package:RollaTravel/src/utils/index.dart';
+import 'package:RollaTravel/src/constants/app_styles.dart';
+import 'package:RollaTravel/src/widget/bottombar.dart';
 
 class HomeFollowScreen extends ConsumerStatefulWidget  {
   const HomeFollowScreen({super.key});
@@ -45,15 +45,16 @@ class HomeFollowScreenState extends ConsumerState<HomeFollowScreen> {
                           Text(
                             'Followers',
                             style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                              fontFamily: 'KadawBold',
                             ),
                           ),
                           Text(
                             'List of the users who follow you',
                             style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey
+                              fontSize: 15,
+                              color: Colors.grey,
+                              fontFamily: 'Kadaw',
                             ),
                           ),
                         ],
@@ -95,7 +96,7 @@ class HomeFollowScreenState extends ConsumerState<HomeFollowScreen> {
                                   Text(
                                     "@smith",
                                     style: TextStyle(
-                                      fontWeight: FontWeight.bold, 
+                                      fontFamily: 'KadawBold',
                                       fontSize: 15
                                     ),
                                   ),
@@ -103,7 +104,7 @@ class HomeFollowScreenState extends ConsumerState<HomeFollowScreen> {
                                   Icon(Icons.verified, color: Colors.blue, size: 16),
                                 ],
                               ),
-                              Text("Brain Smith", style: TextStyle(fontSize: 15, color: Colors.grey),)
+                              Text("Brain Smith", style: TextStyle(fontSize: 15, color: Colors.grey, fontFamily: 'Kadaw',),)
                             ],
                           ),
                           const Spacer(),

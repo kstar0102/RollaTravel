@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:RollaStrava/src/utils/index.dart';
-import 'package:RollaStrava/src/constants/app_styles.dart';
-import 'package:RollaStrava/src/widget/bottombar.dart';
+import 'package:RollaTravel/src/utils/index.dart';
+import 'package:RollaTravel/src/constants/app_styles.dart';
+import 'package:RollaTravel/src/widget/bottombar.dart';
 
 class HomeTagScreen extends ConsumerStatefulWidget  {
   const HomeTagScreen({super.key});
@@ -36,7 +36,7 @@ class HomeTagScreenState extends ConsumerState<HomeTagScreen> {
                           SizedBox(height: vhh(context, 5)),
                           const Text(
                             "Users tagged in this post",
-                            style: TextStyle(color: Colors.grey, fontSize: 15),
+                            style: TextStyle(color: Colors.grey, fontSize: 15,fontFamily: 'Kadaw',),
                           ),
                           Image.asset("assets/images/icons/add_car.png", width: vww(context, 8)),
                          
@@ -90,15 +90,15 @@ class HomeTagScreenState extends ConsumerState<HomeTagScreen> {
                                   Text(
                                     "@smith",
                                     style: const TextStyle(
-                                      fontWeight: FontWeight.bold, 
-                                      fontSize: 15
+                                      fontSize: 15,
+                                      fontFamily: 'KadawBold',
                                     ),
                                   ),
                                   SizedBox(width: 5),
                                   Icon(Icons.verified, color: Colors.blue, size: 16),
                                 ],
                               ),
-                              Text("Brain Smith", style: TextStyle(fontSize: 15, color: Colors.grey),)
+                              Text("Brain Smith", style: TextStyle(fontSize: 15, color: Colors.grey,fontFamily: 'Kadaw',),)
                             ],
                           ),
                           const Spacer(),

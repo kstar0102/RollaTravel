@@ -1,7 +1,7 @@
-import 'package:RollaStrava/src/constants/app_styles.dart';
-import 'package:RollaStrava/src/screen/auth/signin_screen.dart';
-import 'package:RollaStrava/src/translate/en.dart';
-import 'package:RollaStrava/src/utils/index.dart';
+import 'package:RollaTravel/src/constants/app_styles.dart';
+import 'package:RollaTravel/src/screen/auth/signin_screen.dart';
+import 'package:RollaTravel/src/translate/en.dart';
+import 'package:RollaTravel/src/utils/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -59,7 +59,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                   height: vh(context, 5),
                   child: Text(
                     trave_share.toString(),
-                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color:kColorGrey),
+                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color:kColorGrey, fontFamily: 'Kadaw'),
                   ),
                 )
               ],

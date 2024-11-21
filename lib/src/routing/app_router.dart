@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:RollaStrava/src/splash.dart';
+import 'package:RollaTravel/src/splash.dart';
 
 enum AppRoute {
   splashscreen,
