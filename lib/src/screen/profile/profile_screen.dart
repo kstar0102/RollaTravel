@@ -126,6 +126,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: Colors.grey,
+                            fontFamily: 'Kadaw'
                           ),
                         ),
                         IconButton(
@@ -178,6 +179,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
+                              fontFamily: 'Kadaw'
                             ),
                           ),
                         ),
@@ -216,14 +218,15 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                         style: const TextStyle(
                                           fontWeight: FontWeight.bold, 
                                           color: kColorHereButton,
-                                          fontSize: 13
+                                          fontSize: 13,
+                                          fontFamily: 'Kadaw'
                                         ),
                                       ),
                                       const SizedBox(width: 5),
                                       const Icon(Icons.verified, color: Colors.blue, size: 16),
                                     ],
                                   ),
-                                  const Text("Brain Smith")
+                                  const Text("Brain Smith", style: TextStyle(fontFamily: 'Kadaw'),)
                                 ],
                               ),
                               
@@ -279,7 +282,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 const Text(
                                   "@smith",
                                   style: TextStyle(
-                                      color: kColorBlack, fontSize: 16),
+                                      color: kColorBlack, fontSize: 18, fontFamily: 'KadawBold'),
                                 ),
                                 Image.asset(
                                   'assets/images/icons/verify.png',
@@ -306,7 +309,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   style: TextStyle(
                                       fontSize: 20,
                                       color: kColorButtonPrimary,
-                                      fontWeight: FontWeight.bold),
+                                      fontFamily: 'KadawBold'),
                                 ),
                               ],
                             ),
@@ -340,7 +343,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     style: TextStyle(
                                         fontSize: 20,
                                         color: kColorButtonPrimary,
-                                        fontWeight: FontWeight.bold),
+                                        fontFamily: 'KadawBold'),
                                   ),
                                 ),
                               ],
@@ -354,7 +357,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                           style: TextStyle(
                               color: kColorBlack,
                               fontSize: 20,
-                              fontWeight: FontWeight.bold),
+                              fontFamily: 'KadawBold'),
                         ),
                         SizedBox(height: vhh(context, 1)),
                         const Text(
@@ -362,6 +365,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                           style: TextStyle(
                             color: kColorGrey,
                             fontSize: 18,
+                            fontFamily: 'Kadaw'
                           ),
                         ),
                         SizedBox(height: vhh(context, 2)),
@@ -422,6 +426,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   style: TextStyle(
                                     color: kColorBlack,
                                     fontSize: 14,
+                                    fontFamily: 'Kadaw'
                                   ),
                                 ),
                                 Text(
@@ -429,6 +434,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   style: TextStyle(
                                     color: kColorButtonPrimary,
                                     fontSize: 14,
+                                    fontFamily: 'Kadaw'
                                   ),
                                 ),
                               ],
@@ -441,6 +447,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   style: TextStyle(
                                     color: kColorBlack,
                                     fontSize: 14,
+                                    fontFamily: 'Kadaw'
                                   ),
                                 ),
                                 Text(
@@ -448,6 +455,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   style: TextStyle(
                                     color: kColorButtonPrimary,
                                     fontSize: 14,
+                                    fontFamily: 'Kadaw'
                                   ),
                                 ),
                               ],
@@ -460,6 +468,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   style: TextStyle(
                                     color: kColorBlack,
                                     fontSize: 14,
+                                    fontFamily: 'Kadaw'
                                   ),
                                 ),
                                 Text(
@@ -467,6 +476,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   style: TextStyle(
                                     color: kColorButtonPrimary,
                                     fontSize: 14,
+                                    fontFamily: 'Kadaw'
                                   ),
                                 ),
                               ],
@@ -514,7 +524,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 child: const Center(
                                   child: Text(
                                     "Map Route Here",
-                                    style: TextStyle(color: Colors.black),
+                                    style: TextStyle(color: Colors.black, fontFamily: 'Kadaw'),
                                   ),
                                 ),
                               ),

@@ -204,14 +204,16 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen>{
                       children: [
                         const Icon(Icons.search, size: 24, color: Colors.black),
                         const SizedBox(width: 8),
-                        Expanded(
+                        SizedBox(
+                          height: 35,
+                          width: vww(context, 86),
                           child: TypeAheadFormField(
                             textFieldConfiguration: TextFieldConfiguration(
                               controller: _searchController,
                               decoration: InputDecoration(
                                 hintText: "Search Locations", 
-                                hintStyle: const TextStyle(fontSize: 16), // Set font size for hint text
-                                contentPadding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0), // Set inner padding
+                                hintStyle: const TextStyle(fontSize: 16, fontFamily: 'Kadaw'), // Set font size for hint text
+                                contentPadding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 16.0), // Set inner padding
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(4.0),
                                   borderSide: const BorderSide(color: Colors.black, width: 1.0),
@@ -227,7 +229,7 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen>{
                                 filled: true,
                                 fillColor: Colors.grey[200],
                               ),
-                              style: const TextStyle(fontSize: 16), // Set font size for input text
+                              style: const TextStyle(fontSize: 14, fontFamily: 'Kadaw'), // Set font size for input text
                             ),
                             suggestionsCallback: (pattern) async {
                               return await fetchAddressSuggestions(pattern);
@@ -306,7 +308,7 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen>{
                                 child: Column(
                                   children: [
                                     FloatingActionButton(
-                                      heroTag: 'zoom_in_button', // Unique tag for the zoom in button
+                                      heroTag: 'zoom_in_button_otherlocation', // Unique tag for the zoom in button
                                       onPressed: () {
                                         _mapController.move(
                                           _mapController.camera.center,
@@ -318,7 +320,7 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen>{
                                     ),
                                     const SizedBox(height: 8),
                                     FloatingActionButton(
-                                      heroTag: 'zoom_out_button', // Unique tag for the zoom out button
+                                      heroTag: 'zoom_out_button_otherlocation', // Unique tag for the zoom out button
                                       onPressed: () {
                                         _mapController.move(
                                           _mapController.camera.center,
@@ -347,6 +349,7 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen>{
                                         color: Colors.black.withOpacity(0.9),
                                         fontSize: 14,
                                         fontStyle: FontStyle.italic,
+                                        fontFamily: 'Kadaw'
                                       ),
                                       textAlign: TextAlign.center,
                                     ),

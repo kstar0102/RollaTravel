@@ -49,14 +49,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(title),
-          content: Text(message),
+          title: Text(title, style: const TextStyle(fontFamily: 'Kadaw'),),
+          content: Text(message, style: const TextStyle(fontFamily: 'Kadaw'),),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
               },
-              child: const Text("No"),
+              child: const Text("No", style: TextStyle(fontFamily: 'Kadaw'),),
             ),
             TextButton(
               onPressed: () {
@@ -66,7 +66,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const SigninScreen()));
                 }
               },
-              child: const Text("Yes"),
+              child: const Text("Yes", style: TextStyle(fontFamily: 'Kadaw'),),
             ),
           ],
         );
@@ -116,7 +116,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               style: TextStyle(
                                 color: kColorBlack,
                                 fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                                fontFamily: 'KadawBold',
                               ),
                             ),
                             Container(),
@@ -135,7 +135,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 private_account,
                                 style: TextStyle(
                                   fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'KadawBold',
                                 ),
                               ),
                               SizedBox(height: vhh(context, 1)),
@@ -144,6 +144,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: Colors.grey[600],
+                                  fontFamily: 'KadawBold',
                                 ),
                               ),
                               Row(
@@ -169,7 +170,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                           isPrivateAccount = value ?? false;
                                         });
                                       },
-                                      title: const Text(public),
+                                      title: const Text(public, style: TextStyle(fontFamily: 'Kadaw'),),
                                     ),
                                   ),
                                 ],
@@ -185,12 +186,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             style: TextStyle(
                               fontSize: 16,
                               decoration: TextDecoration.underline,
-                              fontWeight: FontWeight.bold,
+                              fontFamily: 'KadawBold',
                             ),
                           ),
                           subtitle: Text(
                             logout_description,
-                            style: TextStyle(color: Colors.grey[600]),
+                            style: TextStyle(color: Colors.grey[600], fontFamily: 'Kadaw'),
                           ),
                           onTap: () {
                             _showConfirmationDialog(title: "Logout", message: "Are you sure you want to logout?");
@@ -202,12 +203,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             style: TextStyle(
                               fontSize: 16,
                               decoration: TextDecoration.underline,
-                              fontWeight: FontWeight.bold,
+                              fontFamily: 'KadawBold',
                             ),
                           ),
                           subtitle: Text(
                             delete_description,
-                            style: TextStyle(color: Colors.grey[600]),
+                            style: TextStyle(color: Colors.grey[600], fontFamily: 'Kadaw'),
                           ),
                           onTap: () {
                             _showConfirmationDialog(title: "Delete Account", message: "Are you sure you want to delete your account?");

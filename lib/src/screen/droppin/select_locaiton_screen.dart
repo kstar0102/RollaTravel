@@ -188,8 +188,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                   'Select Location',
                   style: TextStyle(
                     fontSize: 24,
-                    // fontWeight: FontWeight.bold,
-                    fontFamily: 'Karla',
+                    fontFamily: 'Kadaw',
                     color: Colors.black,
                   ),
                 ),
@@ -253,7 +252,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                           child: Column(
                             children: [
                               FloatingActionButton(
-                                heroTag: 'zoom_in_button', // Unique tag for the zoom in button
+                                heroTag: 'zoom_in_button_droppin', // Unique tag for the zoom in button
                                 onPressed: () {
                                   _mapController.move(
                                     _mapController.camera.center,
@@ -265,7 +264,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                               ),
                               const SizedBox(height: 8),
                               FloatingActionButton(
-                                heroTag: 'zoom_out_button', // Unique tag for the zoom out button
+                                heroTag: 'zoom_out_button_droppin', // Unique tag for the zoom out button
                                 onPressed: () {
                                   _mapController.move(
                                     _mapController.camera.center,
@@ -293,6 +292,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                                   color: Colors.black.withOpacity(0.8),
                                   fontSize: 14,
                                   fontStyle: FontStyle.italic,
+                                  fontFamily: 'Kadaw'
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -322,13 +322,13 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                     ),
                     child: const Text(
                       'Drop pin at location displayed above', 
-                      style: TextStyle(fontSize: 16, color: Colors.white)),
+                      style: TextStyle(fontSize: 16, color: Colors.white, fontFamily: 'Kadaw')),
                   ),
                 ),
               ),
               SizedBox(height: vhh(context, 1),),
               const Center(
-                child: Text("OR", style: TextStyle(color: Colors.grey, fontSize: 16),),
+                child: Text("OR", style: TextStyle(color: Colors.grey, fontSize: 16, fontFamily: 'Kadaw'),),
               ),
               SizedBox(height: vhh(context, 1),),
               //choose another location buttion with underline
@@ -343,6 +343,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                     fontSize: 16,
                     decoration: TextDecoration.underline,
                     decorationColor: Colors.black,
+                    fontFamily: 'Kadaw'
                   ),
                 ),
               ),

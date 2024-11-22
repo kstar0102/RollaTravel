@@ -94,6 +94,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                             style: TextStyle(
                               color: kColorBlack,
                               fontSize: 14,
+                              fontFamily: 'Kadaw'
                             ),
                           ),
                           Text(
@@ -103,6 +104,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                               fontSize: 14,
                               decoration: TextDecoration.underline,
                               decorationColor: kColorButtonPrimary,
+                              fontFamily: 'Kadaw'
                             ),
                           ),
                         ],
@@ -118,6 +120,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                             style: TextStyle(
                               color: kColorBlack,
                               fontSize: 14,
+                              fontFamily: 'Kadaw'
                             ),
                           ),
                           Text(
@@ -125,6 +128,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                             style: TextStyle(
                               color: kColorBlack,
                               fontSize: 14,
+                              fontFamily: 'Kadaw'
                             ),
                           ),
                         ],
@@ -140,6 +144,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                             style: TextStyle(
                               color: kColorBlack,
                               fontSize: 14,
+                              fontFamily: 'Kadaw'
                             ),
                           ),
                           Text(
@@ -149,6 +154,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                               fontSize: 14,
                               decoration: TextDecoration.underline,
                               decorationColor: kColorButtonPrimary,
+                              fontFamily: 'Kadaw'
                             ),
                           ),
                         ],
@@ -179,6 +185,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
                                           color: Colors.grey,
+                                          fontFamily: 'Kadaw'
                                         ),
                                       ),
                                     ),
@@ -201,7 +208,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                                 "the Rolla travel app",
                                 style: TextStyle(
                                   fontSize: 15,
-                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'KadawBold'
                                 ),
                               ),
                             ),
@@ -218,7 +225,8 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                   "Share this summary:",
                   style: TextStyle(
                     fontSize: 16,
-                    fontStyle: FontStyle.italic
+                    fontStyle: FontStyle.italic,
+                    fontFamily: 'Kadaw'
                   ),
                 ),
               ),
