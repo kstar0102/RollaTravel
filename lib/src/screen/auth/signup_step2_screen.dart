@@ -217,7 +217,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                       height: vh(context, 6.5),
                       child: TextField(
                         controller: _usernameController,
-                        keyboardType: TextInputType.name,
+                        keyboardType: TextInputType.emailAddress,
                         autocorrect: false,
                         cursorColor: kColorGrey,
                         style: const TextStyle(color: kColorBlack, fontSize: 14, fontFamily: 'Kadaw'),
@@ -264,7 +264,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                       height: vh(context, 6.5),
                       child: TextField(
                         controller: _passwordController,
-                        keyboardType: TextInputType.visiblePassword,
+                        keyboardType: TextInputType.emailAddress,
                         autocorrect: false,
                         obscureText: true,
                         cursorColor: kColorGrey,
@@ -312,7 +312,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                       height: vh(context, 6.5),
                       child: TextField(
                         controller: _rePasswordController,
-                        keyboardType: TextInputType.visiblePassword,
+                        keyboardType: TextInputType.emailAddress,
                         autocorrect: false,
                         obscureText: true,
                         cursorColor: kColorGrey,
