@@ -1,4 +1,5 @@
 import 'package:RollaTravel/src/constants/app_styles.dart';
+import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/translate/en.dart';
 import 'package:RollaTravel/src/utils/index.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
@@ -9,7 +10,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:logger/logger.dart';
-
+import 'dart:ui';
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
 
@@ -29,7 +30,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   String previousBioText = '';
   String previousGarageText = '';
   String previousPlaceText = '';
+  int? userId;
+  String? _base64Image;
   bool _isLoading = true;
+  
+  String? imageUrl;
 
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
@@ -96,7 +101,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       // userData.forEach((key, value) {
       //   logger.i('$key: $value');
       // });
-
+      userId = userData['id'] ?? '';
       previousUsernameText = userData['rolla_username'] ?? '';
       previousNameText = userData['first_name'] ?? '';
       previousBioText = userData['bio'] ?? '';
@@ -145,6 +150,18 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     return false;
   }
 
+  Future<void> setPhotoUrl() async {
+    setState(() {
+      _isLoading = true;
+    });
+    final apiService = ApiService();
+    imageUrl = await apiService.getImageUrl(_base64Image!);
+    setState(() {
+      _isLoading = false;
+    });
+    
+  }
+
   Future<void> _showPicker(BuildContext context) async {
     showModalBottomSheet(
       context: context,
@@ -163,6 +180,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       _selectedImage = photo;
                       _showSaveButton = true;
                     });
+                    File imageFile = File(photo.path);
+                    List<int> imageBytes = await imageFile.readAsBytes();
+                    String base64String = base64Encode(imageBytes);
+                    setState(() {
+                      _base64Image = base64String;
+                    });
+                    await setPhotoUrl();
                   }
                 },
               ),
@@ -175,7 +199,15 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   if (galleryImage != null) {
                     setState(() {
                       _selectedImage = galleryImage;
+                      _showSaveButton = true;
                     });
+                    File imageFile = File(galleryImage.path);
+                    List<int> imageBytes = await imageFile.readAsBytes();
+                    String base64String = base64Encode(imageBytes);
+                    setState(() {
+                      _base64Image = base64String;
+                    });
+                    await setPhotoUrl();
                   }
                 },
               ),
@@ -186,11 +218,59 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     );
   }
 
+  Future<void> _saveChanges() async {
+    final apiService = ApiService();
+    
+    final updatedName = nameController.text.trim().split(' ');
+    final firstName = updatedName.isNotEmpty ? updatedName.first : '';
+    final lastName = updatedName.length > 1 ? updatedName.last : '';
+
+    setState(() {
+      _isLoading = true;
+    });
+    
+    try {
+      final response = await apiService.updateUser(
+        userId: userId!,
+        firstName: firstName,
+        lastName: lastName,
+        rollaUsername: usernameController.text.trim(),
+        happyPlace: placeController.text.trim(),
+        photo: imageUrl ?? '',
+        bio: bioController.text.trim(),
+        garage: garageController.text.trim(),
+      );
+
+      if (response['success'] != false) {
+        // Save the updated data locally
+        final prefs = await SharedPreferences.getInstance();
+        prefs.setString('userData', jsonEncode(response['data']));
+
+        // Provide success feedback
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profile updated successfully!')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${response['message']}')),
+        );
+      }
+    } catch (e) {
+      logger.e('Error updating user: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('An error occurred while saving changes.')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+        _showSaveButton = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    
     return Scaffold(
       body: WillPopScope(
         onWillPop: _onWillPop,
@@ -275,6 +355,20 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           ),
                         ),
 
+                        if (_isLoading)
+                          BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                            child: const Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  CircularProgressIndicator(),
+                                  SizedBox(height: 16),
+                                  Text('Uploading image to server...'),
+                                ],
+                              ),
+                            ),
+                          ),
                         SizedBox(height: vhh(context, 2),),
 
                         const Divider(color: kColorGrey, thickness: 1),
@@ -476,10 +570,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 padding: const EdgeInsets.only(top: 20),
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    // Handle save logic here
-                                    setState(() {
-                                      _showSaveButton = false; // Hide the button after saving
-                                    });
+                                    _saveChanges();
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.blue, // Customize as needed
@@ -493,6 +584,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                               ),
                           ],
                         ),
+                        
                       ],
                     ),
                   ),
@@ -504,6 +596,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       ),
       bottomNavigationBar: BottomNavBar(currentIndex: _currentIndex),
     );
+    
   }
 
 }

@@ -4,11 +4,13 @@ import 'package:logger/logger.dart';
 
 
 class ApiService {
-  static const String baseUrl = 'http://16.171.153.11/api/auth';
+  // static const String baseUrl = 'http://16.171.153.11/api/auth';
+  static const String baseUrl = 'http://192.168.141.105:8000/api';
+  String apiKey = 'cfdb0e89363c14687341dbc25d1e1d43';
   final logger = Logger();
   /// Function to login
   Future<Map<String, dynamic>> login(String email, String password) async {
-    final url = Uri.parse('$baseUrl/login');
+    final url = Uri.parse('$baseUrl/auth/login');
     try {
       final response = await http.post(
         url,
@@ -34,6 +36,16 @@ class ApiService {
     }
   }
 
+  Future <String> getImageUrl(String base64) async {
+    var url = Uri.parse('https://api.imgbb.com/1/upload');
+    var response = await http.post(url, body: {
+      'key': apiKey,
+      'image': base64,
+    });
+    logger.i(jsonDecode(response.body)['data']['url']);
+    return jsonDecode(response.body)['data']['url'];
+  }
+
   Future<Map<String, dynamic>> register({
     required String firstName,
     required String lastName,
@@ -43,7 +55,7 @@ class ApiService {
     required String rollaUsername,
     required String hearRolla,
   }) async {
-    final url = Uri.parse('$baseUrl/register');
+    final url = Uri.parse('$baseUrl/auth/register');
 
     try {
       final response = await http.post(
@@ -109,4 +121,62 @@ class ApiService {
       };
     }
   }
+
+  Future<Map<String, dynamic>> updateUser({
+    required int userId, 
+    required String firstName, 
+    required String lastName, 
+    required String rollaUsername, 
+    String? happyPlace, 
+    String? photo, 
+    String? bio, 
+    String? garage}) async {
+
+  final url = Uri.parse('$baseUrl/user/update');
+
+  // Prepare the request body
+  final Map<String, dynamic> body = {
+    "user_id": userId,
+    "first_name": firstName,
+    "last_name": lastName,
+    "rolla_username": rollaUsername,
+    if (happyPlace != null) "happy_place": happyPlace,
+    if (photo != null) "photo": photo,
+    if (bio != null) "bio": bio,
+    if (garage != null) "garage": garage,
+  };
+
+  try {
+    final response = await http.put(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: jsonEncode(body),
+    );
+
+    logger.i('Response status: ${response.statusCode}');
+    logger.i('Response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      // Handle errors
+      final errorResponse = jsonDecode(response.body);
+      return {
+        'success': false,
+        'message': errorResponse['message'] ?? 'Unknown error',
+        'statusCode': response.statusCode,
+      };
+    }
+  } catch (e) {
+    // Handle exceptions
+    logger.i('Error: $e');
+    return {
+      'success': false,
+      'message': 'An error occurred. Please try again later.',
+    };
+  }
+}
 }

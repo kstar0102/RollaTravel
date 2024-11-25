@@ -136,9 +136,6 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
           _isLoading = false; // Hide loading spinner
         });
       }
-      // Navigator.push(context, MaterialPageRoute(
-      //   builder: (context) => const LoginUserFlowScreen(),
-      // ));
     }
   }
 
@@ -312,7 +309,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                       height: vh(context, 6.5),
                       child: TextField(
                         controller: _rePasswordController,
-                        keyboardType: TextInputType.visiblePassword,
+                        keyboardType: TextInputType.emailAddress,
                         autocorrect: false,
                         obscureText: true,
                         cursorColor: kColorGrey,
