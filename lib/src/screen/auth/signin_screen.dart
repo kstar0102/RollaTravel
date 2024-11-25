@@ -196,7 +196,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                         height: vh(context, 6.5),
                         child: TextField(
                           controller: _usernameController,
-                          keyboardType: TextInputType.name,
+                          keyboardType: TextInputType.emailAddress,
                           autocorrect: false,
                           cursorColor: kColorGrey,
                           style: const TextStyle(color: kColorBlack, fontSize: 16, fontFamily: 'Kadaw'),
@@ -230,7 +230,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                         height: vh(context, 6.5),
                         child: TextFormField(
                           controller: _passwordController,
-                          keyboardType: TextInputType.visiblePassword,
+                          keyboardType: TextInputType.emailAddress,
                           autocorrect: false,
                           cursorColor: kColorGrey,
                           obscureText: true,

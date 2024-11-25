@@ -277,7 +277,7 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
                       height: vh(context, 6.5),
                       child: TextField(
                         controller: _useremailController,
-                        keyboardType: TextInputType.name,
+                        keyboardType: TextInputType.emailAddress,
                         autocorrect: false,
                         cursorColor: kColorGrey,
                         style: const TextStyle(color: kColorBlack, fontSize: 16, fontFamily: 'Kadaw'),

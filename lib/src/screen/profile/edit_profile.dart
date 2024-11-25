@@ -389,6 +389,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   child: TextField(
                                     controller: usernameController,
                                     textAlign: TextAlign.right,
+                                    keyboardType: TextInputType.emailAddress,
                                     maxLines: 1, // Restrict to a single line
                                     maxLength: 20,
                                     decoration: const InputDecoration(
