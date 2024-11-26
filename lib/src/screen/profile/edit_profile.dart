@@ -30,9 +30,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   String previousBioText = '';
   String previousGarageText = '';
   String previousPlaceText = '';
+  String? imageurl;
   int? userId;
   String? _base64Image;
   bool _isLoading = true;
+  bool _ischangeimage = false;
   
   String? imageUrl;
 
@@ -107,6 +109,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       previousBioText = userData['bio'] ?? '';
       previousGarageText = userData['garage'] ?? '';
       previousPlaceText = userData['happy_place'] ?? '';
+      imageurl = userData['photo'];
 
       setState(() {
         usernameController.text = previousUsernameText;
@@ -152,12 +155,12 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   Future<void> setPhotoUrl() async {
     setState(() {
-      _isLoading = true;
+      _ischangeimage = true;
     });
     final apiService = ApiService();
     imageUrl = await apiService.getImageUrl(_base64Image!);
     setState(() {
-      _isLoading = false;
+      _ischangeimage = false;
     });
     
   }
@@ -241,7 +244,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         garage: garageController.text.trim(),
       );
 
-      if (response['success'] != false) {
+      if (response['statusCode'] != false) {
         // Save the updated data locally
         final prefs = await SharedPreferences.getInstance();
         prefs.setString('userData', jsonEncode(response['data']));
@@ -333,7 +336,12 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                           ),
                                           fit: BoxFit.cover,
                                         )
-                                      : null, 
+                                      : imageurl != null
+                                          ? DecorationImage(
+                                              image: NetworkImage(imageurl!), // Use NetworkImage for URL
+                                              fit: BoxFit.cover,
+                                            )
+                                          : null,
                               ),
                             ),
                           ],
@@ -354,8 +362,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                             ),
                           ),
                         ),
-
-                        if (_isLoading)
+                        if (_ischangeimage)
                           BackdropFilter(
                             filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                             child: const Center(
@@ -364,15 +371,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 children: [
                                   CircularProgressIndicator(),
                                   SizedBox(height: 16),
-                                  Text('Uploading image to server...'),
+                                  Text('Changing user avatar now...'),
                                 ],
                               ),
                             ),
                           ),
                         SizedBox(height: vhh(context, 2),),
-
                         const Divider(color: kColorGrey, thickness: 1),
-
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -566,6 +571,20 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                               ],
                             ),
                             const Divider(color: kColorGrey, thickness: 1),
+                            if (_isLoading)
+                              BackdropFilter(
+                                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                                child: const Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      CircularProgressIndicator(),
+                                      SizedBox(height: 16),
+                                      Text('Updating changed data now...'),
+                                    ],
+                                  ),
+                                ),
+                              ),
                             if (_showSaveButton)
                               Padding(
                                 padding: const EdgeInsets.only(top: 20),
@@ -574,11 +593,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                     _saveChanges();
                                   },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.blue, // Customize as needed
-                                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                                    backgroundColor: kColorHereButton, // Customize as needed
+                                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 5),
                                   ),
                                   child: const Text(
-                                    'Save',
+                                    'Update',
                                     style: TextStyle(color: Colors.white, fontSize: 16, fontFamily: 'Kadaw'),
                                   ),
                                 ),

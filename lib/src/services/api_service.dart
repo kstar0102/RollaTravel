@@ -8,6 +8,7 @@ class ApiService {
   static const String baseUrl = 'http://192.168.141.105:8000/api';
   String apiKey = 'cfdb0e89363c14687341dbc25d1e1d43';
   final logger = Logger();
+  
   /// Function to login
   Future<Map<String, dynamic>> login(String email, String password) async {
     final url = Uri.parse('$baseUrl/auth/login');

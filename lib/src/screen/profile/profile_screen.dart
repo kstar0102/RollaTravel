@@ -4,12 +4,12 @@ import 'package:RollaTravel/src/screen/home/home_follower_screen.dart';
 import 'package:RollaTravel/src/screen/profile/edit_profile.dart';
 import 'package:RollaTravel/src/screen/settings/settings_screen.dart';
 import 'package:RollaTravel/src/translate/en.dart';
+import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:RollaTravel/src/utils/index.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:logger/logger.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -25,24 +25,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   // final bool _isKeyboardVisible = false;
   bool isLiked = false;
   bool showLikesDropdown = false;
+  String? followingCount;
 
-  final List<String> imagePaths = [
-    'assets/images/background/Lake1.png',
-    'assets/images/background/Lake2.png',
-    'assets/images/background/Lake3.png',
-    'assets/images/background/yellowstone1.png',
-    'assets/images/background/yellowstone2.png',
-    'assets/images/background/yellowstone3.png',
-  ];
-
-  final List<String> locationDecription = [
-    "Lake Placid, NY 1",
-    "Lake Placid, NY 2",
-    "Lake Placid, NY 3",
-    "Yellowstone, WY 1",
-    "Yellowstone, WY 2",
-    "Yellowstone, WY 3",
-  ];
+  final logger = Logger();
 
   final List<Map<String, String>> commentsList = [
     {"user": "@User13", "comment": "Example 1 Great place!"},
@@ -61,36 +46,15 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
         });
       } 
     });
-    getUserData();
+    if (GlobalVariables.followingIds != null && GlobalVariables.followingIds!.isNotEmpty) {
+      int count = GlobalVariables.followingIds!.split(',').length;
+      followingCount = count.toString();
+    }
   }
 
   @override
   void dispose() {
     super.dispose();
-  }
-
-  Future<void> getUserData() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    // Get the token
-    final String? token = prefs.getString('token');
-
-    // Get the userData and decode it back to a Map
-    final String? userDataString = prefs.getString('userData');
-    final Map<String, dynamic>? userData =
-        userDataString != null ? jsonDecode(userDataString) : null;
-
-    // Debugging: Print the values
-    print('Token: $token');
-    print('User Data: $userData');
-
-    // Example: Access specific fields from userData
-    if (userData != null) {
-      print('User ID: ${userData['id']}');
-      print('First Name: ${userData['first_name']}');
-      print('Email: ${userData['email']}');
-      print('Country: ${userData['country']}');
-    }
   }
 
   Future<bool> _onWillPop() async {
@@ -101,148 +65,306 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeFollowScreen()));
   }
 
-  void _showImageDialog(String imagePath, String caption, int likes) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return Dialog(
-              insetPadding: const EdgeInsets.symmetric(horizontal: 30), // Adjust padding to match the screenshot
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Caption and Close Icon Row
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          caption,
+  // void _showImageDialog(String imagePath, String caption, int likes) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return StatefulBuilder(
+  //         builder: (BuildContext context, StateSetter setState) {
+  //           return Dialog(
+  //             insetPadding: const EdgeInsets.symmetric(horizontal: 30), // Adjust padding to match the screenshot
+  //             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+  //             child: Column(
+  //               mainAxisSize: MainAxisSize.min,
+  //               crossAxisAlignment: CrossAxisAlignment.start,
+  //               children: [
+  //                 // Caption and Close Icon Row
+  //                 Padding(
+  //                   padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+  //                   child: Row(
+  //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                     children: [
+  //                       Text(
+  //                         caption,
+  //                         style: const TextStyle(
+  //                           fontSize: 16,
+  //                           fontWeight: FontWeight.bold,
+  //                           color: Colors.grey,
+  //                           fontFamily: 'Kadaw'
+  //                         ),
+  //                       ),
+  //                       IconButton(
+  //                         icon: const Icon(Icons.close, color: Colors.black),
+  //                         onPressed: () {
+  //                           Navigator.of(context).pop();
+  //                           setState(() {
+  //                             showLikesDropdown = false; // Hide the likes dropdown when the dialog is closed
+  //                           });
+  //                         }
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ),
+  //                 // Image
+  //                 Image.network(
+  //                   imagePath,
+  //                   fit: BoxFit.cover,
+  //                   width: MediaQuery.of(context).size.width * 0.9, // Replace vww
+  //                   height: MediaQuery.of(context).size.height * 0.5, // Replace vhh
+  //                 ),
+  //                 const Divider(height: 1, color: Colors.grey), // Divider between image and footer
+  //                 // Footer with Like Icon and Likes Count
+  //                 Padding(
+  //                   padding: const EdgeInsets.all(8.0),
+  //                   child: Row(
+  //                     children: [
+  //                       GestureDetector(
+  //                         behavior: HitTestBehavior.opaque,
+  //                         onTap: () {
+  //                           // Update dialog state
+  //                           setState(() {
+  //                             isLiked = !isLiked;
+  //                           });
+  //                         },
+  //                         child: Icon(
+  //                           isLiked ? Icons.favorite : Icons.favorite_border,
+  //                           color: isLiked ? Colors.red : Colors.black,
+  //                         ),
+  //                       ),
+  //                       const SizedBox(width: 4),
+  //                       GestureDetector(
+  //                         onTap: () {
+  //                           setState(() {
+  //                             showLikesDropdown = !showLikesDropdown; // Toggle the visibility of the dropdown
+  //                           });
+  //                         },
+  //                         child: Text(
+  //                           '$likes likes',
+  //                           style: const TextStyle(
+  //                             fontWeight: FontWeight.bold,
+  //                             fontSize: 16,
+  //                             fontFamily: 'Kadaw'
+  //                           ),
+  //                         ),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ),
+  //                 if (showLikesDropdown)
+  //                   Column(
+  //                     children: commentsList.map((comment) {
+  //                       return Padding(
+  //                         padding: const EdgeInsets.symmetric(vertical: 4.0),
+  //                         child: Row(
+  //                           children: [
+  //                             Container(
+  //                               height: vhh(context, 4),
+  //                               width: vhh(context, 4),
+  //                               decoration: BoxDecoration(
+  //                                 borderRadius: BorderRadius.circular(100),
+  //                                 border: Border.all(
+  //                                   color: kColorHereButton,
+  //                                   width: 2,
+  //                                 ),
+  //                                 image: const DecorationImage(
+  //                                   image: AssetImage("assets/images/background/image1.png"),
+  //                                   fit: BoxFit.cover,
+  //                                 ),
+  //                               ),
+  //                             ),
+  //                             const SizedBox(width: 5),
+  //                             Column(
+  //                               children: [
+  //                                 Row(
+  //                                   children: [
+  //                                     Text(
+  //                                       comment['user']!,
+  //                                       style: const TextStyle(
+  //                                         fontWeight: FontWeight.bold, 
+  //                                         color: kColorHereButton,
+  //                                         fontSize: 13,
+  //                                         fontFamily: 'Kadaw'
+  //                                       ),
+  //                                     ),
+  //                                     const SizedBox(width: 5),
+  //                                     const Icon(Icons.verified, color: Colors.blue, size: 16),
+  //                                   ],
+  //                                 ),
+  //                                 const Text("Brain Smith", style: TextStyle(fontFamily: 'Kadaw'),)
+  //                               ],
+  //                             ),
+                              
+  //                           ],
+  //                         ),
+  //                       );
+  //                     }).toList(),
+  //                   ),
+  //               ],
+  //             ),
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
+
+  void _showImageDialog(String imagePath, String caption, int likes, List<dynamic> likedUsers) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return StatefulBuilder(
+        builder: (BuildContext context, StateSetter setState) {
+          return Dialog(
+            insetPadding: const EdgeInsets.symmetric(horizontal: 30),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Caption and Close Icon Row
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        caption,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey,
+                          fontFamily: 'Kadaw',
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Colors.black),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          setState(() {
+                            showLikesDropdown = false; // Hide the dropdown when the dialog is closed
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                // Image
+                Image.network(
+                  imagePath,
+                  fit: BoxFit.cover,
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  height: MediaQuery.of(context).size.height * 0.5,
+                  errorBuilder: (context, error, stackTrace) =>
+                      const Icon(Icons.broken_image, size: 100),
+                ),
+                const Divider(height: 1, color: Colors.grey), // Divider between image and footer
+                // Footer with Like Icon and Likes Count
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    children: [
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () {
+                          setState(() {
+                            isLiked = !isLiked;
+                          });
+                        },
+                        child: Icon(
+                          isLiked ? Icons.favorite : Icons.favorite_border,
+                          color: isLiked ? Colors.red : Colors.black,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            showLikesDropdown = !showLikesDropdown; // Toggle the visibility of the dropdown
+                          });
+                        },
+                        child: Text(
+                          '$likes likes',
                           style: const TextStyle(
-                            fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Colors.grey,
-                            fontFamily: 'Kadaw'
+                            fontSize: 16,
+                            fontFamily: 'Kadaw',
                           ),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.close, color: Colors.black),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                            setState(() {
-                              showLikesDropdown = false; // Hide the likes dropdown when the dialog is closed
-                            });
-                          }
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                  // Image
-                  Image.asset(
-                    imagePath,
-                    fit: BoxFit.cover,
-                    width: MediaQuery.of(context).size.width * 0.9, // Replace vww
-                    height: MediaQuery.of(context).size.height * 0.5, // Replace vhh
-                  ),
-                  const Divider(height: 1, color: Colors.grey), // Divider between image and footer
-                  // Footer with Like Icon and Likes Count
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      children: [
-                        GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () {
-                            // Update dialog state
-                            setState(() {
-                              isLiked = !isLiked;
-                            });
-                          },
-                          child: Icon(
-                            isLiked ? Icons.favorite : Icons.favorite_border,
-                            color: isLiked ? Colors.red : Colors.black,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              showLikesDropdown = !showLikesDropdown; // Toggle the visibility of the dropdown
-                            });
-                          },
-                          child: Text(
-                            '$likes likes',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              fontFamily: 'Kadaw'
+                ),
+                if (showLikesDropdown)
+                  Column(
+                    children: likedUsers.map((user) {
+                      final photo = user['photo'] ?? '';
+                      final firstName = user['first_name'] ?? 'Unknown';
+                      final lastName = user['last_name'] ?? '';
+                      final username = user['rolla_username'] ?? '@unknown';
+
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4.0),
+                        child: Row(
+                          children: [
+                            // User Profile Picture
+                            Container(
+                              height: 40,
+                              width: 40,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(100),
+                                border: Border.all(
+                                  color: Colors.grey,
+                                  width: 2,
+                                ),
+                                image: photo.isNotEmpty
+                                    ? DecorationImage(
+                                        image: NetworkImage(photo),
+                                        fit: BoxFit.cover,
+                                      )
+                                    : null,
+                              ),
+                              child: photo.isEmpty
+                                  ? const Icon(Icons.person, size: 20) // Placeholder icon
+                                  : null,
                             ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (showLikesDropdown)
-                    Column(
-                      children: commentsList.map((comment) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4.0),
-                          child: Row(
-                            children: [
-                              Container(
-                                height: vhh(context, 4),
-                                width: vhh(context, 4),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(100),
-                                  border: Border.all(
-                                    color: kColorHereButton,
-                                    width: 2,
-                                  ),
-                                  image: const DecorationImage(
-                                    image: AssetImage("assets/images/background/image1.png"),
-                                    fit: BoxFit.cover,
+                            const SizedBox(width: 5),
+                            // User Information
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '$firstName $lastName',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                    fontFamily: 'Kadaw',
+                                    color: Colors.black,
                                   ),
                                 ),
-                              ),
-                              const SizedBox(width: 5),
-                              Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        comment['user']!,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold, 
-                                          color: kColorHereButton,
-                                          fontSize: 13,
-                                          fontFamily: 'Kadaw'
-                                        ),
-                                      ),
-                                      const SizedBox(width: 5),
-                                      const Icon(Icons.verified, color: Colors.blue, size: 16),
-                                    ],
+                                Text(
+                                  username,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey,
+                                    fontFamily: 'Kadaw',
                                   ),
-                                  const Text("Brain Smith", style: TextStyle(fontFamily: 'Kadaw'),)
-                                ],
-                              ),
-                              
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+              ],
+            ),
+          );
+        },
+      );
+    },
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -279,9 +401,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                const Text(
-                                  "@smith",
-                                  style: TextStyle(
+                                Text(
+                                  GlobalVariables.userName!,
+                                  style: const TextStyle(
                                       color: kColorBlack, fontSize: 18, fontFamily: 'KadawBold'),
                                 ),
                                 Image.asset(
@@ -304,9 +426,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   'assets/images/icons/trips.png',
                                   width: vww(context, 15),
                                 ),
-                                const Text(
-                                  "1",
-                                  style: TextStyle(
+                                Text(
+                                  GlobalVariables.tripCount != null ? GlobalVariables.tripCount!.toString() : "0",
+                                  style: const TextStyle(
                                       fontSize: 20,
                                       color: kColorButtonPrimary,
                                       fontFamily: 'KadawBold'),
@@ -322,10 +444,11 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   color: kColorHereButton,
                                   width: 2,
                                 ),
-                                image: const DecorationImage(
-                                  image: AssetImage("assets/images/background/image3.png"),
-                                  fit: BoxFit.cover,
-                                ),
+                                image: GlobalVariables.userImageUrl != null ?  
+                                  DecorationImage(
+                                    image: NetworkImage(GlobalVariables.userImageUrl!), // Use NetworkImage for URL
+                                    fit: BoxFit.cover,
+                                  ) : null
                               ),
                             ),
                             Column(
@@ -338,9 +461,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   onTap: () {
                                     _onFollowers();
                                   },
-                                  child: const Text(
-                                    "30",
-                                    style: TextStyle(
+                                  child: Text(
+                                    followingCount != null ? followingCount! : "0",
+                                    style: const TextStyle(
                                         fontSize: 20,
                                         color: kColorButtonPrimary,
                                         fontFamily: 'KadawBold'),
@@ -352,17 +475,18 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                           ],
                         ),
                         SizedBox(height: vhh(context, 1)),
-                        const Text(
-                          "Brian Smith",
-                          style: TextStyle(
+                        Text(
+                          GlobalVariables.realName!,
+                          style: const TextStyle(
                               color: kColorBlack,
                               fontSize: 20,
                               fontFamily: 'KadawBold'),
                         ),
                         SizedBox(height: vhh(context, 1)),
-                        const Text(
-                          "Life is good!",
-                          style: TextStyle(
+                        
+                        Text(
+                          GlobalVariables.bio != null ? GlobalVariables.bio! : " ",
+                          style: const TextStyle(
                             color: kColorGrey,
                             fontSize: 18,
                             fontFamily: 'Kadaw'
@@ -416,12 +540,12 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                           ],
                         ),
                         SizedBox(height: vhh(context, 1)),
-                        const Column(
+                        Column(
                           children: [
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
+                                const Text(
                                   odometer,
                                   style: TextStyle(
                                     color: kColorBlack,
@@ -430,8 +554,10 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   ),
                                 ),
                                 Text(
-                                  "00000314",
-                                  style: TextStyle(
+                                  GlobalVariables.odometer != null
+                                    ? '${GlobalVariables.odometer!} Km'
+                                    : ' ', 
+                                  style: const TextStyle(
                                     color: kColorButtonPrimary,
                                     fontSize: 14,
                                     fontFamily: 'Kadaw'
@@ -442,7 +568,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
+                                const Text(
                                   happy_place,
                                   style: TextStyle(
                                     color: kColorBlack,
@@ -451,8 +577,8 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   ),
                                 ),
                                 Text(
-                                  "Lake Placid, NY",
-                                  style: TextStyle(
+                                  GlobalVariables.happyPlace != null ? GlobalVariables.happyPlace! : " ",
+                                  style: const TextStyle(
                                     color: kColorButtonPrimary,
                                     fontSize: 14,
                                     fontFamily: 'Kadaw'
@@ -463,7 +589,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
+                                const Text(
                                   my_garage,
                                   style: TextStyle(
                                     color: kColorBlack,
@@ -472,8 +598,8 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   ),
                                 ),
                                 Text(
-                                  "Lexus, Toyota",
-                                  style: TextStyle(
+                                  GlobalVariables.garage != null ? GlobalVariables.garage! : " ",
+                                  style: const TextStyle(
                                     color: kColorButtonPrimary,
                                     fontSize: 14,
                                     fontFamily: 'Kadaw'
@@ -486,25 +612,44 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                         SizedBox(height: vhh(context, 1)),
                         SizedBox(
                           height: 100,
-                          child: ListView(
+                          child: ListView.builder(
                             scrollDirection: Axis.horizontal,
-                            children: List.generate(imagePaths.length, (index) {
+                            itemCount: GlobalVariables.dropPinsData?.length ?? 0,
+                            itemBuilder: (context, index) {
+                              final dropPin = GlobalVariables.dropPinsData![index] as Map<String, dynamic>;
+
+                              final String imagePath = dropPin['image_path'] ?? '';
+                              final String caption = dropPin['image_caption'] ?? 'No caption';
+                              final List<dynamic> likedUsers = dropPin['liked_users'] ?? [];
+ 
                               return Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 3),
                                 child: GestureDetector(
                                   onTap: () {
-                                    // Handle the click event here
-                                    _showImageDialog(imagePaths[index], locationDecription[index], 4);
+                                    // Handle the click event
+                                    _showImageDialog(imagePath, caption, dropPin['liked_users'].length, likedUsers);
                                   },
-                                  child: Image.asset(
-                                    imagePaths[index],
-                                    width: 100,
-                                    height: 100,
-                                    fit: BoxFit.cover,
-                                  ),
-                                )
+                                  child: imagePath.isNotEmpty
+                                      ? Container(
+                                          width: 100,
+                                          height: 100,
+                                          decoration: BoxDecoration(
+                                            image: DecorationImage(
+                                              image: NetworkImage(imagePath),
+                                              fit: BoxFit.cover,
+                                            ),
+                                            borderRadius: BorderRadius.circular(8),
+                                            gradient: LinearGradient(
+                                              colors: [Colors.black.withOpacity(0.5), Colors.transparent],
+                                              begin: Alignment.bottomCenter,
+                                              end: Alignment.topCenter,
+                                            ),
+                                          ),
+                                        )
+                                      : const Icon(Icons.image_not_supported, size: 100), // Placeholder if imagePath is empty
+                                ),
                               );
-                            }),
+                            },
                           ),
                         ),
                         SizedBox(height: vhh(context, 1)),

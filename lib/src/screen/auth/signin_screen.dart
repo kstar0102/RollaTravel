@@ -4,12 +4,13 @@ import 'package:RollaTravel/src/screen/auth/signup_step1_screen.dart';
 import 'package:RollaTravel/src/screen/profile/profile_screen.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/translate/en.dart';
+import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:RollaTravel/src/utils/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/gestures.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
+// import 'package:shared_preferences/shared_preferences.dart';
+// import 'dart:convert';
 import 'package:logger/logger.dart';
 
 class SigninScreen extends ConsumerStatefulWidget {
@@ -113,9 +114,31 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
         );
 
         if (response['token'] != null && response['token'].isNotEmpty) {
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setString('token', response['token']);
-          await prefs.setString('userData', jsonEncode(response['userData']));
+          final Map<String, dynamic>? userData = response['userData'] != null
+            ? response['userData'] as Map<String, dynamic>
+            : null;
+
+          final List<dynamic>? dropPinsData = response['droppins'] != null
+              ? response['droppins'] as List<dynamic>
+              : null;
+
+          if (dropPinsData != null) {
+            GlobalVariables.dropPinsData = dropPinsData;
+          }
+          if (userData != null) {
+            // Handle the case where userData is null
+            GlobalVariables.userId = userData['id'];
+            GlobalVariables.userName = userData['rolla_username'];
+            GlobalVariables.realName = '${userData['first_name']} ${userData['last_name']}';
+            GlobalVariables.happyPlace = userData['happy_place'];
+            GlobalVariables.bio = userData['bio'];
+            GlobalVariables.garage = userData['garage'];
+            GlobalVariables.userImageUrl = userData['photo'];
+            GlobalVariables.followingIds = userData['following_user_id'];
+          }
+          
+          GlobalVariables.odometer = response['trip_miles_sum'];
+          GlobalVariables.tripCount = response['total_trips'];
           if (mounted) {
             Navigator.push(
               context,
@@ -125,10 +148,11 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
         } else {
           _showErrorDialog(response['message']);
         }
-      } catch (e) {
-        // Handle unexpected errors
-        _showErrorDialog('An unexpected error occurred. Please try again later.');
-      } finally {
+      } catch (e, stackTrace) {
+          // Log and handle unexpected errors
+          logger.e('Login error: $e\nStack trace: $stackTrace');
+          _showErrorDialog('An unexpected error occurred. Please try again later.');
+        } finally {
         setState(() {
           _isLoading = false;
         });
