@@ -1,6 +1,8 @@
 import 'package:RollaTravel/src/constants/app_styles.dart';
+import 'package:RollaTravel/src/screen/profile/profile_screen.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/translate/en.dart';
+import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:RollaTravel/src/utils/index.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
 import 'package:flutter/material.dart';
@@ -25,15 +27,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   final int _currentIndex = 4;
   final ImagePicker _picker = ImagePicker();
   XFile? _selectedImage;
-  String previousUsernameText = '';
-  String previousNameText = '';
-  String previousBioText = '';
-  String previousGarageText = '';
-  String previousPlaceText = '';
-  String? imageurl;
   int? userId;
   String? _base64Image;
-  bool _isLoading = true;
+  bool _isLoading = false;
   bool _ischangeimage = false;
   
   String? imageUrl;
@@ -59,17 +55,25 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         });
       } 
     });
-    _initializeUserData();
+
+    usernameController.text = GlobalVariables.userName!;
+    nameController.text = GlobalVariables.realName!;
+    if (GlobalVariables.bio != null){
+      bioController.text = GlobalVariables.bio!;
+    } 
+    if (GlobalVariables.garage != null){
+      garageController.text = GlobalVariables.garage!;
+    } 
+    if (GlobalVariables.happyPlace != null){
+      placeController.text = GlobalVariables.happyPlace!;
+    } 
+    
 
     usernameController.addListener(_onTextChanged);
     nameController.addListener(_onTextChanged);
     bioController.addListener(_onTextChanged);
     garageController.addListener(_onTextChanged);
     placeController.addListener(_onTextChanged);
-  }
-
-  Future<void> _initializeUserData() async {
-    await getUserData();
   }
 
   @override
@@ -86,64 +90,29 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     garageController.dispose();
     placeController.dispose();
   }
-
-  Future<void> getUserData() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    // Get the token
-    // final String? token = prefs.getString('token');
-
-    // Get the userData and decode it back to a Map
-    final String? userDataString = prefs.getString('userData');
-    final Map<String, dynamic>? userData =
-        userDataString != null ? jsonDecode(userDataString) : null;
-
-    // Example: Access specific fields from userData
-    if (userData != null) {
-      // userData.forEach((key, value) {
-      //   logger.i('$key: $value');
-      // });
-      userId = userData['id'] ?? '';
-      previousUsernameText = userData['rolla_username'] ?? '';
-      previousNameText = userData['first_name'] ?? '';
-      previousBioText = userData['bio'] ?? '';
-      previousGarageText = userData['garage'] ?? '';
-      previousPlaceText = userData['happy_place'] ?? '';
-      imageurl = userData['photo'];
-
-      setState(() {
-        usernameController.text = previousUsernameText;
-        nameController.text = '${userData['first_name'] ?? ''} ${userData['last_name'] ?? ''}';
-        bioController.text = userData['bio'] ?? '';
-        garageController.text = userData['garage'] ?? '';
-        placeController.text = userData['happy_place'] ?? '';
-        _isLoading = false;  
-      });
-    }
-  }
-
+  
   void _onTextChanged() {
     if (!_showSaveButton) {
       setState(() {
-        if (usernameController.text != previousUsernameText) {
+        if (usernameController.text != GlobalVariables.userName) {
           _showSaveButton = true;
-          previousUsernameText = usernameController.text;
+          GlobalVariables.userName = usernameController.text;
         }
-        if (nameController.text != previousNameText) {
+        if (nameController.text != GlobalVariables.realName) {
           _showSaveButton = true;
-          previousNameText = nameController.text;
+          GlobalVariables.realName = nameController.text;
         }
-        if (bioController.text != previousBioText) {
+        if (bioController.text != GlobalVariables.bio) {
           _showSaveButton = true;
-          previousBioText = bioController.text;
+          GlobalVariables.bio = bioController.text;
         }
-        if (garageController.text != previousGarageText) {
+        if (garageController.text != GlobalVariables.garage) {
           _showSaveButton = true;
-          previousGarageText = garageController.text;
+          GlobalVariables.garage = garageController.text;
         }
-        if (placeController.text != previousPlaceText) {
+        if (placeController.text != GlobalVariables.happyPlace) {
           _showSaveButton = true;
-          previousPlaceText = placeController.text;
+          GlobalVariables.happyPlace = placeController.text;
         }
       });
     }
@@ -234,7 +203,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     
     try {
       final response = await apiService.updateUser(
-        userId: userId!,
+        userId: GlobalVariables.userId!,
         firstName: firstName,
         lastName: lastName,
         rollaUsername: usernameController.text.trim(),
@@ -253,6 +222,16 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Profile updated successfully!')),
         );
+        GlobalVariables.realName = nameController.text.toString();
+        GlobalVariables.userName = usernameController.text.toString();
+        if(imageUrl != null){
+          GlobalVariables.userImageUrl = imageUrl.toString();
+        }
+        
+        GlobalVariables.bio = bioController.text.toString();
+        GlobalVariables.garage = garageController.text.toString();
+        GlobalVariables.happyPlace = placeController.text.toString();
+
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: ${response['message']}')),
@@ -302,7 +281,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           children: [
                             InkWell(
                               onTap: () {
-                                Navigator.pop(context);
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileScreen()));
                               },
                               child: Image.asset(
                                 'assets/images/icons/allow-left.png',
@@ -336,9 +315,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                           ),
                                           fit: BoxFit.cover,
                                         )
-                                      : imageurl != null
+                                      : GlobalVariables.userImageUrl != null
                                           ? DecorationImage(
-                                              image: NetworkImage(imageurl!), // Use NetworkImage for URL
+                                              image: NetworkImage(GlobalVariables.userImageUrl!), // Use NetworkImage for URL
                                               fit: BoxFit.cover,
                                             )
                                           : null,
