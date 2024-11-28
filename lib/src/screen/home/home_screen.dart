@@ -1,5 +1,6 @@
 import 'package:RollaTravel/src/screen/home/home_tag_screen.dart';
 import 'package:RollaTravel/src/screen/home/home_user_screen.dart';
+import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:RollaTravel/src/constants/app_styles.dart';
@@ -28,71 +29,73 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
   double keyboardHeight = 0;
   final int _currentIndex = 0;
   LatLng? _currentLocation;
+  List<Map<String, dynamic>>? trips;
+  final apiService = ApiService();
   final logger = Logger();
   // Sample data for posts
-  final List<Post> posts = [
-    Post(
-      username: "@smith",
-      destination: "Lake Placid, NY",
-      milesTraveled: 247,
-      soundtrack: "Spotify Playlist",
-      caption: "Adventure bound..",
-      comments: 3,
-      lastUpdated: "last updated 3 hrs ago",
-      imagePath: "assets/images/background/image2.png",
-      locations: [
-        const LatLng(44.2937, -73.9916),
-        const LatLng(44.3040, -73.9875),
-        const LatLng(44.3080, -73.9780),
-      ],
-      locationImages: [
-        "assets/images/background/Lake1.png",
-        "assets/images/background/Lake2.png",
-        "assets/images/background/Lake3.png",
-      ],
-      locationDecription: [
-        "Lake Placid, NY 1",
-        "Lake Placid, NY 2",
-        "Lake Placid, NY 3",
-      ],
-      commentsList: [
-        {"user": "@User1", "comment": "Great place!"},
-        {"user": "@User2", "comment": "Looks amazing!"},
-        {"user": "@User3", "comment": "I want to visit!"},
-      ],
-    ),
-    Post(
-      username: "@john",
-      destination: "Yellowstone, WY",
-      milesTraveled: 352,
-      soundtrack: "Road Trip Vibes",
-      caption: "Nature is calling!",
-      comments: 5,
-      lastUpdated: "last updated 2 hrs ago",
-      imagePath: "assets/images/background/image3.png",
-      locations: [
-        const LatLng(44.4279, -110.5885),
-        const LatLng(44.4568, -110.5786),
-        const LatLng(44.4622, -110.5884),
-      ],
-      locationImages: [
-        "assets/images/background/yellowstone1.png",
-        "assets/images/background/yellowstone2.png",
-        "assets/images/background/yellowstone3.png",
-      ],
-      locationDecription: [
-        "Yellowstone, WY 1",
-        "Yellowstone, WY 2",
-        "Yellowstone, WY 3",
-      ],
-      commentsList: [
-        {"user": "@User13", "comment": "Example 1 Great place!"},
-        {"user": "@User23", "comment": "Example 2 Looks amazing!"},
-        {"user": "@User13", "comment": "Example 3 I want to visit!"},
-      ],
-    ),
-    // Add more posts as needed
-  ];
+  // final List<Post> posts = [
+  //   Post(
+  //     username: "@smith",
+  //     destination: "Lake Placid, NY",
+  //     milesTraveled: 247,
+  //     soundtrack: "Spotify Playlist",
+  //     caption: "Adventure bound..",
+  //     comments: 3,
+  //     lastUpdated: "last updated 3 hrs ago",
+  //     imagePath: "assets/images/background/image2.png",
+  //     locations: [
+  //       const LatLng(44.2937, -73.9916),
+  //       const LatLng(44.3040, -73.9875),
+  //       const LatLng(44.3080, -73.9780),
+  //     ],
+  //     locationImages: [
+  //       "assets/images/background/Lake1.png",
+  //       "assets/images/background/Lake2.png",
+  //       "assets/images/background/Lake3.png",
+  //     ],
+  //     locationDecription: [
+  //       "Lake Placid, NY 1",
+  //       "Lake Placid, NY 2",
+  //       "Lake Placid, NY 3",
+  //     ],
+  //     commentsList: [
+  //       {"user": "@User1", "comment": "Great place!"},
+  //       {"user": "@User2", "comment": "Looks amazing!"},
+  //       {"user": "@User3", "comment": "I want to visit!"},
+  //     ],
+  //   ),
+  //   Post(
+  //     username: "@john",
+  //     destination: "Yellowstone, WY",
+  //     milesTraveled: 352,
+  //     soundtrack: "Road Trip Vibes",
+  //     caption: "Nature is calling!",
+  //     comments: 5,
+  //     lastUpdated: "last updated 2 hrs ago",
+  //     imagePath: "assets/images/background/image3.png",
+  //     locations: [
+  //       const LatLng(44.4279, -110.5885),
+  //       const LatLng(44.4568, -110.5786),
+  //       const LatLng(44.4622, -110.5884),
+  //     ],
+  //     locationImages: [
+  //       "assets/images/background/yellowstone1.png",
+  //       "assets/images/background/yellowstone2.png",
+  //       "assets/images/background/yellowstone3.png",
+  //     ],
+  //     locationDecription: [
+  //       "Yellowstone, WY 1",
+  //       "Yellowstone, WY 2",
+  //       "Yellowstone, WY 3",
+  //     ],
+  //     commentsList: [
+  //       {"user": "@User13", "comment": "Example 1 Great place!"},
+  //       {"user": "@User23", "comment": "Example 2 Looks amazing!"},
+  //       {"user": "@User13", "comment": "Example 3 I want to visit!"},
+  //     ],
+  //   ),
+  //   // Add more posts as needed
+  // ];
 
   @override
   void initState() {
@@ -106,6 +109,22 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
       }
     });
     _getCurrentLocation();
+    _loadTrips();
+  }
+
+  Future<void> _loadTrips() async {
+    try {
+      final data = await apiService.fetchAllTrips();
+      setState(() {
+        trips = data;
+        logger.i(trips);
+      });
+    } catch (error) {
+      logger.i('Error fetching trips: $error');
+      setState(() {
+        trips = [];
+      });
+    }
   }
 
   Future<void> _getCurrentLocation() async {
@@ -165,15 +184,31 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
                 child: Divider(),
               ),
               // Make the posts scrollable
-              Expanded(
-                child: ListView.builder(
-                  itemCount: posts.length,
-                  itemBuilder: (context, index) {
-                    final post = posts[index];
-                    return PostWidget( post: post, dropIndex: index,);
-                  },
-                ),
-              ),
+              // Expanded(
+              //   child: ListView.builder(
+              //     itemCount: posts.length,
+              //     itemBuilder: (context, index) {
+              //       final post = posts[index];
+              //       return PostWidget( post: post, dropIndex: index,);
+              //     },
+              //   ),
+              // ),
+              trips == null
+                ? const Center(child: CircularProgressIndicator()) // Show loading indicator
+                : trips!.isEmpty
+                    ? const Center(child: Text('No trips available')) // Show message if no trips
+                    : Expanded(
+                        child: ListView.builder(
+                          itemCount: trips!.length,
+                          itemBuilder: (context, index) {
+                            final trip = trips![index];
+                            return PostWidget(
+                              post: trip,       // Pass trip data to PostWidget
+                              dropIndex: index, // Current index
+                            );
+                          },
+                        ),
+                      ),
             ],
           ),
         ),
@@ -184,7 +219,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
 }
 
 class PostWidget extends StatefulWidget {
-  final Post post;
+  final Map<String, dynamic> post;
   final int dropIndex;
   const PostWidget({super.key, required this.post, required this.dropIndex});
 
@@ -208,12 +243,12 @@ class PostWidgetState extends State<PostWidget> {
     mapController = MapController();
 
     // Use addPostFrameCallback to delay interaction with mapController until after the first frame
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.post.locations.length > 1) {
-        mapController.move(widget.post.locations[0], 15.0);
-        _fetchDrivingRoute(widget.post.locations);
-      }
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   if (widget.post.locations.length > 1) {
+    //     mapController.move(widget.post.locations[0], 15.0);
+    //     _fetchDrivingRoute(widget.post.locations);
+    //   }
+    // });
   }
 
   Future<void> _fetchDrivingRoute(List<LatLng> locations) async {
@@ -279,14 +314,15 @@ class PostWidgetState extends State<PostWidget> {
     return points;
   }
 
-  void _showImageDialog(String imagePath, String caption, int likes) {
+  // void _showImageDialog(String imagePath, String caption, int likes) {
+  void _showImageDialog(String imagePath, String caption, int likes, List<dynamic> likedUsers) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return Dialog(
-              insetPadding: const EdgeInsets.symmetric(horizontal: 30), // Adjust padding to match the screenshot
+              insetPadding: const EdgeInsets.symmetric(horizontal: 30),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -300,26 +336,33 @@ class PostWidgetState extends State<PostWidget> {
                       children: [
                         Text(
                           caption,
-                          style: iamgeModalCaptionTextStyle,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey,
+                            fontFamily: 'Kadaw',
+                          ),
                         ),
                         IconButton(
                           icon: const Icon(Icons.close, color: Colors.black),
                           onPressed: () {
                             Navigator.of(context).pop();
                             setState(() {
-                              showLikesDropdown = false; // Hide the likes dropdown when the dialog is closed
+                              showLikesDropdown = false; // Hide the dropdown when the dialog is closed
                             });
-                          }
+                          },
                         ),
                       ],
                     ),
                   ),
                   // Image
-                  Image.asset(
+                  Image.network(
                     imagePath,
                     fit: BoxFit.cover,
-                    width: MediaQuery.of(context).size.width * 0.9, // Replace vww
-                    height: MediaQuery.of(context).size.height * 0.5, // Replace vhh
+                    width: MediaQuery.of(context).size.width * 0.9,
+                    height: MediaQuery.of(context).size.height * 0.5,
+                    errorBuilder: (context, error, stackTrace) =>
+                        const Icon(Icons.broken_image, size: 100),
                   ),
                   const Divider(height: 1, color: Colors.grey), // Divider between image and footer
                   // Footer with Like Icon and Likes Count
@@ -330,7 +373,6 @@ class PostWidgetState extends State<PostWidget> {
                         GestureDetector(
                           behavior: HitTestBehavior.opaque,
                           onTap: () {
-                            // Update dialog state
                             setState(() {
                               isLiked = !isLiked;
                             });
@@ -352,7 +394,7 @@ class PostWidgetState extends State<PostWidget> {
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
-                              fontFamily: 'Kadaw'
+                              fontFamily: 'Kadaw',
                             ),
                           ),
                         ),
@@ -361,48 +403,61 @@ class PostWidgetState extends State<PostWidget> {
                   ),
                   if (showLikesDropdown)
                     Column(
-                      children: widget.post.commentsList.map((comment) {
+                      children: likedUsers.map((user) {
+                        final photo = user['photo'] ?? '';
+                        final firstName = user['first_name'] ?? 'Unknown';
+                        final lastName = user['last_name'] ?? '';
+                        final username = user['rolla_username'] ?? '@unknown';
+
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 4.0),
                           child: Row(
                             children: [
+                              // User Profile Picture
                               Container(
-                                height: vhh(context, 4),
-                                width: vhh(context, 4),
+                                height: 40,
+                                width: 40,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(100),
                                   border: Border.all(
-                                    color: kColorHereButton,
+                                    color: Colors.grey,
                                     width: 2,
                                   ),
-                                  image: const DecorationImage(
-                                    image: AssetImage("assets/images/background/image1.png"),
-                                    fit: BoxFit.cover,
-                                  ),
+                                  image: photo.isNotEmpty
+                                      ? DecorationImage(
+                                          image: NetworkImage(photo),
+                                          fit: BoxFit.cover,
+                                        )
+                                      : null,
                                 ),
+                                child: photo.isEmpty
+                                    ? const Icon(Icons.person, size: 20) // Placeholder icon
+                                    : null,
                               ),
                               const SizedBox(width: 5),
+                              // User Information
                               Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        comment['user']!,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold, 
-                                          color: kColorHereButton,
-                                          fontSize: 13,
-                                          fontFamily: 'Kadaw'
-                                        ),
-                                      ),
-                                      const SizedBox(width: 5),
-                                      const Icon(Icons.verified, color: Colors.blue, size: 16),
-                                    ],
+                                  Text(
+                                    '$firstName $lastName',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13,
+                                      fontFamily: 'Kadaw',
+                                      color: Colors.black,
+                                    ),
                                   ),
-                                  const Text("Brain Smith", style: TextStyle(fontFamily: 'Kadaw'),)
+                                  Text(
+                                    username,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey,
+                                      fontFamily: 'Kadaw',
+                                    ),
+                                  ),
                                 ],
                               ),
-                              
                             ],
                           ),
                         );
@@ -430,6 +485,7 @@ class PostWidgetState extends State<PostWidget> {
       MaterialPageRoute(builder: (context) => const HomeUserScreen()),
     );
   }
+  
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -452,15 +508,20 @@ class PostWidgetState extends State<PostWidget> {
                     color: kColorHereButton,
                     width: 2,
                   ),
-                  image: DecorationImage(
-                    image: AssetImage(widget.post.imagePath),
-                    fit: BoxFit.cover,
-                  ),
+                  image: widget.post['user']['photo'] != null
+                    ? DecorationImage(
+                        image: NetworkImage(widget.post['user']['photo']),
+                        fit: BoxFit.cover,
+                        onError: (exception, stackTrace) {
+                          // Handle image loading errors
+                        },
+                      )
+                    : null,
                 ),
               ),
             ),  
             const SizedBox(width: 10),
-            Text(widget.post.username, style: const TextStyle(fontSize: 18, fontFamily: 'KadawBold')),
+            Text(widget.post['user']['rolla_username'], style: const TextStyle(fontSize: 18, fontFamily: 'KadawBold')),
             const SizedBox(width: 10),
             const Icon(Icons.verified, color: Colors.blue, size: 16),
             const Spacer(),
@@ -485,11 +546,11 @@ class PostWidgetState extends State<PostWidget> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(widget.post.destination, style: const TextStyle(fontSize: 16, color: Colors.brown, decoration: TextDecoration.underline, fontFamily: 'Kadaw')),
+                Text(widget.post['destination_address'], style: const TextStyle(fontSize: 16, color: Colors.brown, decoration: TextDecoration.underline, fontFamily: 'Kadaw')),
                 const SizedBox(height: 3),
-                Text('${widget.post.milesTraveled}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'Kadaw')),
+                Text('${widget.post['trip_miles']}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'Kadaw')),
                 const SizedBox(height: 3),
-                Text(widget.post.soundtrack, style: const TextStyle(fontSize: 16, color: Colors.brown, decoration: TextDecoration.underline, fontFamily: 'Kadaw')),
+                const Text("Spotify Playlist", style: TextStyle(fontSize: 16, color: Colors.brown, decoration: TextDecoration.underline, fontFamily: 'Kadaw')),
               ],
             ),
           ],
@@ -498,7 +559,7 @@ class PostWidgetState extends State<PostWidget> {
         // Trip Details Circles
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
-          children: List.generate(3, (index) => 
+          children: List.generate(widget.post['droppins'].length, (index) => 
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 6),
               padding: const EdgeInsets.all(2),
@@ -511,7 +572,11 @@ class PostWidgetState extends State<PostWidget> {
               ),
               child: GestureDetector(
                 onTap: () {
-                  _showImageDialog(widget.post.locationImages[index], widget.post.locationDecription[index], index);
+                  _showImageDialog(
+                    widget.post['droppins'][index]['image_path'], 
+                    widget.post['droppins'][index]['image_caption'], 
+                    widget.post['droppins'][index]['liked_users'].length, 
+                    widget.post['droppins'][index]['liked_users']);
                 },
                 child: Container(
                   padding: const EdgeInsets.all(1),
@@ -540,85 +605,85 @@ class PostWidgetState extends State<PostWidget> {
             color: Colors.grey.shade200,
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Stack(
-            children: [
-              // The map
-              FlutterMap(
-                mapController: mapController,
-                options: MapOptions(
-                  initialCenter: widget.post.locations[1],
-                  initialZoom: 15.0,
-                ),
-                children: [
-                  TileLayer(
-                    urlTemplate:
-                        "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw",
-                    additionalOptions: const {
-                      'access_token': 'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw',
-                    },
-                  ),
-                  MarkerLayer(
-                    markers: widget.post.locations.asMap().entries.map((entry) {
-                      int index = entry.key;
-                      LatLng location = entry.value;
-                      return Marker(
-                        width: 60.0,
-                        height: 60.0,
-                        point: location,
-                        child: GestureDetector(
-                          onTap: () => _showImageDialog(widget.post.locationImages[index], widget.post.locationDecription[index], index), // Show image dialog on tap
-                          child: const Icon(Icons.location_on, color: Colors.red, size: 40),
-                        ),
-                      );
-                    }).toList(),
-                  ),
+          // child: Stack(
+          //   children: [
+          //     // The map
+          //     FlutterMap(
+          //       mapController: mapController,
+          //       options: MapOptions(
+          //         initialCenter: widget.post.locations[1],
+          //         initialZoom: 15.0,
+          //       ),
+          //       children: [
+          //         TileLayer(
+          //           urlTemplate:
+          //               "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw",
+          //           additionalOptions: const {
+          //             'access_token': 'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw',
+          //           },
+          //         ),
+          //         MarkerLayer(
+          //           markers: widget.post.locations.asMap().entries.map((entry) {
+          //             int index = entry.key;
+          //             LatLng location = entry.value;
+          //             return Marker(
+          //               width: 60.0,
+          //               height: 60.0,
+          //               point: location,
+          //               child: GestureDetector(
+          //                 // onTap: () => _showImageDialog(widget.post.locationImages[index], widget.post.locationDecription[index], index), // Show image dialog on tap
+          //                 child: const Icon(Icons.location_on, color: Colors.red, size: 40),
+          //               ),
+          //             );
+          //           }).toList(),
+          //         ),
 
-                  // Polyline layer for the route
-                  PolylineLayer(
-                    polylines: [
-                      Polyline(
-                        points: routePoints, // Points defining the route
-                        strokeWidth: 4.0,
-                        color: Colors.blue, // Customize the color as needed
-                      ),
-                    ],
-                  ), 
-                ],
-              ),
-              // Zoom controls
-              Positioned(
-                right: 10,
-                top: 10,
-                child: Column(
-                  children: [
-                    FloatingActionButton(
-                      heroTag: 'zoom_in_button_homescreen',
-                      onPressed: () {
-                        mapController.move(
-                          mapController.camera.center,
-                          mapController.camera.zoom + 1,
-                        );
-                      },
-                      mini: true,
-                      child: const Icon(Icons.zoom_in),
-                    ),
-                    const SizedBox(height: 8),
-                    FloatingActionButton(
-                      heroTag: 'zoom_out_button_homescreen',
-                      onPressed: () {
-                        mapController.move(
-                          mapController.camera.center,
-                          mapController.camera.zoom - 1,
-                        );
-                      },
-                      mini: true,
-                      child: const Icon(Icons.zoom_out),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+          //         // Polyline layer for the route
+          //         PolylineLayer(
+          //           polylines: [
+          //             Polyline(
+          //               points: routePoints, // Points defining the route
+          //               strokeWidth: 4.0,
+          //               color: Colors.blue, // Customize the color as needed
+          //             ),
+          //           ],
+          //         ), 
+          //       ],
+          //     ),
+          //     // Zoom controls
+          //     Positioned(
+          //       right: 10,
+          //       top: 10,
+          //       child: Column(
+          //         children: [
+          //           FloatingActionButton(
+          //             heroTag: 'zoom_in_button_homescreen',
+          //             onPressed: () {
+          //               mapController.move(
+          //                 mapController.camera.center,
+          //                 mapController.camera.zoom + 1,
+          //               );
+          //             },
+          //             mini: true,
+          //             child: const Icon(Icons.zoom_in),
+          //           ),
+          //           const SizedBox(height: 8),
+          //           FloatingActionButton(
+          //             heroTag: 'zoom_out_button_homescreen',
+          //             onPressed: () {
+          //               mapController.move(
+          //                 mapController.camera.center,
+          //                 mapController.camera.zoom - 1,
+          //               );
+          //             },
+          //             mini: true,
+          //             child: const Icon(Icons.zoom_out),
+          //           ),
+          //         ],
+          //       ),
+          //     ),
+          //   ],
+          // ),
         ),
         const SizedBox(height: 5,),
         if(isAddComments)
@@ -672,7 +737,7 @@ class PostWidgetState extends State<PostWidget> {
               children: [
                 GestureDetector(
                   onTap: (){
-                    _showImageDialog(widget.post.locationImages[widget.dropIndex], widget.post.locationDecription[widget.dropIndex], widget.dropIndex);
+                    // _showImageDialog(widget.post.locationImages[widget.dropIndex], widget.post.locationDecription[widget.dropIndex], widget.dropIndex);
                     setState(() {
                       showLikesDropdown = true;
                     });
@@ -708,9 +773,11 @@ class PostWidgetState extends State<PostWidget> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(widget.post.username, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15,fontFamily: 'Kadaw',)),
+                Text(widget.post['user']['rolla_username'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15,fontFamily: 'Kadaw',)),
                 const SizedBox(width: 15),
-                Text(widget.post.caption, style: const TextStyle(color: kColorButtonPrimary, fontSize: 15,fontFamily: 'Kadaw',)),
+                Text(
+                  widget.post['trip_caption'] ?? " ",
+                  style: const TextStyle(color: kColorButtonPrimary, fontSize: 15,fontFamily: 'Kadaw',)),
               ],
             ),
             const SizedBox(height: 10),
@@ -722,7 +789,7 @@ class PostWidgetState extends State<PostWidget> {
                   });
                 },
                 child: Text(
-                  '${widget.post.comments} comments',
+                  '${widget.post["comments"].length} comments',
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
@@ -733,47 +800,62 @@ class PostWidgetState extends State<PostWidget> {
             ),
             if (showComments)
               Column(
-                children: widget.post.commentsList.map((comment) {
+                children: widget.post['comments'].map<Widget>((comment) {
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4.0),
                     child: Row(
                       children: [
+                        // User photo or placeholder
                         Container(
                           height: vhh(context, 3),
                           width: vhh(context, 3),
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(100),
+                            shape: BoxShape.circle,
                             border: Border.all(
                               color: kColorHereButton,
                               width: 2,
                             ),
-                            image: const DecorationImage(
-                              image: AssetImage("assets/images/background/image1.png"),
-                              fit: BoxFit.cover,
-                            ),
+                            image: comment['user']['photo'] != null
+                                ? DecorationImage(
+                                    image: NetworkImage(comment['user']['photo']),
+                                    fit: BoxFit.cover,
+                                  )
+                                :null,
                           ),
                         ),
                         const SizedBox(width: 5),
+                        // Username
                         Text(
-                          comment['user']!,
+                          comment['user']['rolla_username'] ?? 'Unknown User',
                           style: const TextStyle(
-                            fontWeight: FontWeight.bold, 
+                            fontWeight: FontWeight.bold,
                             color: kColorHereButton,
                             fontSize: 13,
                             fontFamily: 'Kadaw',
                           ),
                         ),
                         const SizedBox(width: 5),
-                        const Icon(Icons.verified, color: Colors.blue, size: 16),
+                        // Verified icon (optional)
+                        if (comment['user']['rolla_username'] != null) // Add condition if needed
+                          const Icon(Icons.verified, color: Colors.blue, size: 16),
                         const SizedBox(width: 8),
-                        Text(comment['comment']!, style: const TextStyle(fontFamily: 'Kadaw', fontSize: 14),),
+                        // Comment content
+                        Expanded(
+                          child: Text(
+                            comment['content'] ?? '',
+                            style: const TextStyle(
+                              fontFamily: 'Kadaw',
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   );
                 }).toList(),
               ),
             const SizedBox(height: 8),
-            Text(widget.post.lastUpdated, style: const TextStyle(color: Colors.grey, fontSize: 12, fontFamily: 'Kadaw')),
+            // Text(widget.post.lastUpdated, style: const TextStyle(color: Colors.grey, fontSize: 12, fontFamily: 'Kadaw')),
           ],
         ),
         const SizedBox(height: 20),

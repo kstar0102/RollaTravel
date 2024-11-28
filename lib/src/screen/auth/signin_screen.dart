@@ -122,6 +122,10 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
               ? response['droppins'] as List<dynamic>
               : null;
 
+          final List<dynamic>? garagesData = response['garages'] != null
+            ? response['garages'] as List<dynamic>?
+            : null;
+          logger.i(garagesData);
           if (dropPinsData != null) {
             GlobalVariables.dropPinsData = dropPinsData;
           }
@@ -135,6 +139,10 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
             GlobalVariables.garage = userData['garage'];
             GlobalVariables.userImageUrl = userData['photo'];
             GlobalVariables.followingIds = userData['following_user_id'];
+          }
+
+          if(garagesData != null){
+             GlobalVariables.garageLogoUrl = garagesData[0]['logo_path'];
           }
           
           GlobalVariables.odometer = response['trip_miles_sum'];

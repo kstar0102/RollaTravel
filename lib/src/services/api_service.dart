@@ -8,6 +8,43 @@ class ApiService {
   static const String baseUrl = 'http://192.168.141.105:8000/api';
   String apiKey = 'cfdb0e89363c14687341dbc25d1e1d43';
   final logger = Logger();
+
+  Future<List<Map<String, dynamic>>> fetchAllTrips() async {
+    final url = Uri.parse('$baseUrl/trip/data');
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      if (data['message'] == 'All trips retrieved successfully') {
+        return List<Map<String, dynamic>>.from(data['trips']);
+      } else {
+        throw Exception('Failed to fetch trips: ${data['message']}');
+      }
+    } else {
+      throw Exception('Failed to fetch trips: ${response.statusCode}');
+    }
+  }
+
+  Future<List<dynamic>> fetchCarData() async {
+    final url = Uri.parse('$baseUrl/car_types');
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['data'];
+      } else {
+        throw Exception('Failed to load car data');
+      }
+    } catch (e) {
+      throw Exception('Error fetching car data: $e');
+    }
+  }
   
   /// Function to login
   Future<Map<String, dynamic>> login(String email, String password) async {
@@ -133,51 +170,74 @@ class ApiService {
     String? bio, 
     String? garage}) async {
 
-  final url = Uri.parse('$baseUrl/user/update');
+    final url = Uri.parse('$baseUrl/user/update');
 
-  // Prepare the request body
-  final Map<String, dynamic> body = {
-    "user_id": userId,
-    "first_name": firstName,
-    "last_name": lastName,
-    "rolla_username": rollaUsername,
-    if (happyPlace != null) "happy_place": happyPlace,
-    if (photo != null) "photo": photo,
-    if (bio != null) "bio": bio,
-    if (garage != null) "garage": garage,
-  };
+    // Prepare the request body
+    final Map<String, dynamic> body = {
+      "user_id": userId,
+      "first_name": firstName,
+      "last_name": lastName,
+      "rolla_username": rollaUsername,
+      if (happyPlace != null) "happy_place": happyPlace,
+      if (photo != null) "photo": photo,
+      if (bio != null) "bio": bio,
+      if (garage != null) "garage": garage,
+    };
 
-  try {
-    final response = await http.put(
+    try {
+      final response = await http.put(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode(body),
+      );
+
+      logger.i('Response status: ${response.statusCode}');
+      logger.i('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        // Handle errors
+        final errorResponse = jsonDecode(response.body);
+        return {
+          'success': false,
+          'message': errorResponse['message'] ?? 'Unknown error',
+          'statusCode': response.statusCode,
+        };
+      }
+    } catch (e) {
+      // Handle exceptions
+      logger.i('Error: $e');
+      return {
+        'success': false,
+        'message': 'An error occurred. Please try again later.',
+      };
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchFollowers(int userId) async {
+    // final url = Uri.parse('$baseUrl/user/following_users?user_id=$userId');
+    final url = Uri.parse('$baseUrl/user/following_users?user_id=$userId');
+
+    final response = await http.get(
       url,
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
       },
-      body: jsonEncode(body),
     );
 
-    logger.i('Response status: ${response.statusCode}');
-    logger.i('Response body: ${response.body}');
-
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+    if (response.statusCode == 200) { // Check if the response is successful.
+      final data = json.decode(response.body);
+      if (data['statusCode'] == true) { // Check API's response `statusCode`.
+        return List<Map<String, dynamic>>.from(data['data']);
+      } else {
+        throw Exception('Failed to load followers: ${data['message']}');
+      }
     } else {
-      // Handle errors
-      final errorResponse = jsonDecode(response.body);
-      return {
-        'success': false,
-        'message': errorResponse['message'] ?? 'Unknown error',
-        'statusCode': response.statusCode,
-      };
+      throw Exception('Failed to load followers: ${response.statusCode}');
     }
-  } catch (e) {
-    // Handle exceptions
-    logger.i('Error: $e');
-    return {
-      'success': false,
-      'message': 'An error occurred. Please try again later.',
-    };
   }
-}
 }

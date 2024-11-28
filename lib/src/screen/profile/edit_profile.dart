@@ -1,4 +1,5 @@
 import 'package:RollaTravel/src/constants/app_styles.dart';
+import 'package:RollaTravel/src/screen/profile/garage_screen.dart';
 import 'package:RollaTravel/src/screen/profile/profile_screen.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/translate/en.dart';
@@ -250,6 +251,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     }
   }
 
+  void onGarageClicked(){
+    Navigator.push(context, MaterialPageRoute(builder: (context) => const GarageScreen()));
+  }
+
   @override
   Widget build(BuildContext context) {
     
@@ -468,7 +473,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                               ],
                             ),
 
-                            SizedBox(height: vhh(context, 7)),
+                            SizedBox(height: vhh(context, 5)),
                             const Divider(color: kColorGrey, thickness: 1),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -477,36 +482,18 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   edit_profile_garage,
                                   style: TextStyle(color: kColorGrey, fontSize: 14, fontWeight: FontWeight.w400, fontFamily: 'Kadaw'),
                                 ),
-                                SizedBox(
-                                  width: 200, // Adjust width as needed
-                                  height: 25,
-                                  child: TextField(
-                                    controller: garageController,
-                                    textAlign: TextAlign.right,
-                                    maxLines: 1, // Restrict to a single line
-                                    maxLength: 20,
-                                    decoration: const InputDecoration(
-                                      border: InputBorder.none, // Remove underline
-                                      contentPadding: EdgeInsets.only(bottom: 11),
-                                      hintText: "Your Garage",
-                                      hintStyle: TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        fontFamily: 'Kadaw'
+                                GlobalVariables.garageLogoUrl != null
+                                  ? GestureDetector(
+                                      onTap: () {
+                                        onGarageClicked();
+                                      },
+                                      child: Image.network(
+                                        GlobalVariables.garageLogoUrl!,
+                                        width: 30,
+                                        height: 30,
                                       ),
-                                      counterText: '', // Removes the counter text (10/10)
-                                    ),
-                                    style: const TextStyle(
-                                      color: Colors.black, // Replace with kColorBlack
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      fontFamily: 'Kadaw'
-                                    ),
-                                    textAlignVertical: TextAlignVertical.center,
-                                    textInputAction: TextInputAction.done,
-                                  ),
-                                ),
+                                    )
+                                  : const Text(""),
                               ],
                             ),
                             const Divider(color: kColorGrey, thickness: 1),

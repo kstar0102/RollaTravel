@@ -1,8 +1,10 @@
+import 'package:RollaTravel/src/services/api_service.dart';
+import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:RollaTravel/src/utils/index.dart';
-import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
+import 'package:logger/logger.dart';
 
 class HomeFollowScreen extends ConsumerStatefulWidget  {
   const HomeFollowScreen({super.key});
@@ -13,9 +15,41 @@ class HomeFollowScreen extends ConsumerStatefulWidget  {
 
 class HomeFollowScreenState extends ConsumerState<HomeFollowScreen> {
   final int _currentIndex = 0;
+  double keyboardHeight = 0;
+  List<Map<String, dynamic>> followers = [];
+  final logger = Logger();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+      if (mounted) {
+        setState(() {
+          this.keyboardHeight = keyboardHeight;
+        });
+      }
+    });
+
+    _loadFollowers();
+  }
+
+  Future<void> _loadFollowers() async {
+    try {
+      final apiservice = ApiService();
+      followers = await apiservice.fetchFollowers(GlobalVariables.userId!);
+      logger.i(followers);
+      setState(() {}); // Refresh the UI with the fetched data
+    } catch (e) {
+      // Handle errors here
+      logger.i('Error loading followers: $e');
+    }
+  }
+
   Future<bool> _onWillPop() async {
     return false;
   }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -67,44 +101,53 @@ class HomeFollowScreenState extends ConsumerState<HomeFollowScreen> {
               ),
               Expanded(
                 child: ListView.builder(
-                  itemCount: 5,
+                  itemCount: followers.length,
                   itemBuilder: (context, index) {
+                  final follower = followers[index];
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 20),
                       child: Row(
                         children: [
                           Container(
-                            height: vhh(context, 6),
-                            width: vhh(context, 6),
+                            height: 50, // Adjust the size as needed
+                            width: 50,
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(100),
+                              shape: BoxShape.circle,
                               border: Border.all(
-                                color: kColorHereButton,
+                                color: Colors.grey, // Adjust border color
                                 width: 2,
                               ),
-                              image: const DecorationImage(
-                                image: AssetImage("assets/images/background/image1.png"),
-                                fit: BoxFit.cover,
-                              ),
+                            ),
+                            child: ClipOval(
+                              child: follower['photo'] != null
+                                  ? Image.network(
+                                      follower['photo'],
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
+                                    )
+                                  : const Icon(Icons.person),
                             ),
                           ),
                           const SizedBox(width: 5),
-                          const Column(
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
                                 children: [
                                   Text(
-                                    "@smith",
-                                    style: TextStyle(
+                                    follower['rolla_username'] ?? ' ',
+                                    style: const TextStyle(
                                       fontFamily: 'KadawBold',
                                       fontSize: 15
                                     ),
                                   ),
-                                  SizedBox(width: 5),
-                                  Icon(Icons.verified, color: Colors.blue, size: 16),
+                                  const SizedBox(width: 5),
+                                  const Icon(Icons.verified, color: Colors.blue, size: 16),
                                 ],
                               ),
-                              Text("Brain Smith", style: TextStyle(fontSize: 15, color: Colors.grey, fontFamily: 'Kadaw',),)
+                              Text(
+                                follower['first_name'] + " " + follower['last_name'], 
+                                style: const  TextStyle(fontSize: 15, color: Colors.grey, fontFamily: 'Kadaw',),)
                             ],
                           ),
                           const Spacer(),

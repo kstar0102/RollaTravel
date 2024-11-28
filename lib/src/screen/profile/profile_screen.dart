@@ -59,161 +59,161 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   void _showImageDialog(String imagePath, String caption, int likes, List<dynamic> likedUsers) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return StatefulBuilder(
-        builder: (BuildContext context, StateSetter setState) {
-          return Dialog(
-            insetPadding: const EdgeInsets.symmetric(horizontal: 30),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Caption and Close Icon Row
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        caption,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey,
-                          fontFamily: 'Kadaw',
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close, color: Colors.black),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          setState(() {
-                            showLikesDropdown = false; // Hide the dropdown when the dialog is closed
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                // Image
-                Image.network(
-                  imagePath,
-                  fit: BoxFit.cover,
-                  width: MediaQuery.of(context).size.width * 0.9,
-                  height: MediaQuery.of(context).size.height * 0.5,
-                  errorBuilder: (context, error, stackTrace) =>
-                      const Icon(Icons.broken_image, size: 100),
-                ),
-                const Divider(height: 1, color: Colors.grey), // Divider between image and footer
-                // Footer with Like Icon and Likes Count
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () {
-                          setState(() {
-                            isLiked = !isLiked;
-                          });
-                        },
-                        child: Icon(
-                          isLiked ? Icons.favorite : Icons.favorite_border,
-                          color: isLiked ? Colors.red : Colors.black,
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            showLikesDropdown = !showLikesDropdown; // Toggle the visibility of the dropdown
-                          });
-                        },
-                        child: Text(
-                          '$likes likes',
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Dialog(
+              insetPadding: const EdgeInsets.symmetric(horizontal: 30),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Caption and Close Icon Row
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          caption,
                           style: const TextStyle(
-                            fontWeight: FontWeight.bold,
                             fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey,
                             fontFamily: 'Kadaw',
                           ),
                         ),
-                      ),
-                    ],
+                        IconButton(
+                          icon: const Icon(Icons.close, color: Colors.black),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            setState(() {
+                              showLikesDropdown = false; // Hide the dropdown when the dialog is closed
+                            });
+                          },
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                if (showLikesDropdown)
-                  Column(
-                    children: likedUsers.map((user) {
-                      final photo = user['photo'] ?? '';
-                      final firstName = user['first_name'] ?? 'Unknown';
-                      final lastName = user['last_name'] ?? '';
-                      final username = user['rolla_username'] ?? '@unknown';
+                  // Image
+                  Image.network(
+                    imagePath,
+                    fit: BoxFit.cover,
+                    width: MediaQuery.of(context).size.width * 0.9,
+                    height: MediaQuery.of(context).size.height * 0.5,
+                    errorBuilder: (context, error, stackTrace) =>
+                        const Icon(Icons.broken_image, size: 100),
+                  ),
+                  const Divider(height: 1, color: Colors.grey), // Divider between image and footer
+                  // Footer with Like Icon and Likes Count
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            setState(() {
+                              isLiked = !isLiked;
+                            });
+                          },
+                          child: Icon(
+                            isLiked ? Icons.favorite : Icons.favorite_border,
+                            color: isLiked ? Colors.red : Colors.black,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              showLikesDropdown = !showLikesDropdown; // Toggle the visibility of the dropdown
+                            });
+                          },
+                          child: Text(
+                            '$likes likes',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              fontFamily: 'Kadaw',
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (showLikesDropdown)
+                    Column(
+                      children: likedUsers.map((user) {
+                        final photo = user['photo'] ?? '';
+                        final firstName = user['first_name'] ?? 'Unknown';
+                        final lastName = user['last_name'] ?? '';
+                        final username = user['rolla_username'] ?? '@unknown';
 
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4.0),
-                        child: Row(
-                          children: [
-                            // User Profile Picture
-                            Container(
-                              height: 40,
-                              width: 40,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(100),
-                                border: Border.all(
-                                  color: Colors.grey,
-                                  width: 2,
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4.0),
+                          child: Row(
+                            children: [
+                              // User Profile Picture
+                              Container(
+                                height: 40,
+                                width: 40,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(100),
+                                  border: Border.all(
+                                    color: Colors.grey,
+                                    width: 2,
+                                  ),
+                                  image: photo.isNotEmpty
+                                      ? DecorationImage(
+                                          image: NetworkImage(photo),
+                                          fit: BoxFit.cover,
+                                        )
+                                      : null,
                                 ),
-                                image: photo.isNotEmpty
-                                    ? DecorationImage(
-                                        image: NetworkImage(photo),
-                                        fit: BoxFit.cover,
-                                      )
+                                child: photo.isEmpty
+                                    ? const Icon(Icons.person, size: 20) // Placeholder icon
                                     : null,
                               ),
-                              child: photo.isEmpty
-                                  ? const Icon(Icons.person, size: 20) // Placeholder icon
-                                  : null,
-                            ),
-                            const SizedBox(width: 5),
-                            // User Information
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '$firstName $lastName',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 13,
-                                    fontFamily: 'Kadaw',
-                                    color: Colors.black,
+                              const SizedBox(width: 5),
+                              // User Information
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '$firstName $lastName',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13,
+                                      fontFamily: 'Kadaw',
+                                      color: Colors.black,
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  username,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey,
-                                    fontFamily: 'Kadaw',
+                                  Text(
+                                    username,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey,
+                                      fontFamily: 'Kadaw',
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                  ),
-              ],
-            ),
-          );
-        },
-      );
-    },
-  );
-}
+                                ],
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 
 
   @override
@@ -447,14 +447,11 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     fontFamily: 'Kadaw'
                                   ),
                                 ),
-                                Text(
-                                  GlobalVariables.garage != null ? GlobalVariables.garage! : " ",
-                                  style: const TextStyle(
-                                    color: kColorButtonPrimary,
-                                    fontSize: 14,
-                                    fontFamily: 'Kadaw'
-                                  ),
-                                ),
+                                GlobalVariables.garageLogoUrl != null ? Image.network(
+                                  GlobalVariables.garageLogoUrl!,
+                                  width: 25, // Adjust width as needed
+                                  height: 25, // Adjust height as needed
+                                ) : const Text(""),
                               ],
                             ),
                           ],

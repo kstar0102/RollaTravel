@@ -185,12 +185,25 @@ class BottomNavBar extends ConsumerWidget {
                           ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(50),
-                            child: const Image(
-                              fit: BoxFit.cover,
-                              image: AssetImage("assets/images/background/image3.png"),
-                              width: 45,
-                              height: 45,
-                            ),
+                            child: GlobalVariables.userImageUrl != null
+                                ? Image.network(
+                                    GlobalVariables.userImageUrl!, // Dynamic URL
+                                    width: 45,
+                                    height: 45,
+                                    fit: BoxFit.cover,
+                                    loadingBuilder: (context, child, loadingProgress) {
+                                      if (loadingProgress == null) return child;
+                                      return const SizedBox(
+                                        width: 45,
+                                        height: 45,
+                                        child: Center(child: CircularProgressIndicator()), // Loading indicator
+                                      );
+                                    },
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return const Icon(Icons.person);
+                                    },
+                                  )
+                                : const Icon(Icons.person),
                           ),
                         ),
                       ],

@@ -11,6 +11,7 @@ class GlobalVariables {
   static String? happyPlace;
   static String? odometer;
   static String? garage;
+  static String? garageLogoUrl;
   static String? userImageUrl;
   static int? tripCount;
   static String? followingIds;
