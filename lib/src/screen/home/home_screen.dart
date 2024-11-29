@@ -6,11 +6,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/utils/index.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
-import 'package:RollaTravel/src/utils/home_post.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:permission_handler/permission_handler.dart';
+// import 'package:geolocator/geolocator.dart';
+// import 'package:permission_handler/permission_handler.dart';
 import 'package:logger/logger.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -28,74 +27,10 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
   double screenHeight = 0;
   double keyboardHeight = 0;
   final int _currentIndex = 0;
-  LatLng? _currentLocation;
   List<Map<String, dynamic>>? trips;
   final apiService = ApiService();
   final logger = Logger();
-  // Sample data for posts
-  // final List<Post> posts = [
-  //   Post(
-  //     username: "@smith",
-  //     destination: "Lake Placid, NY",
-  //     milesTraveled: 247,
-  //     soundtrack: "Spotify Playlist",
-  //     caption: "Adventure bound..",
-  //     comments: 3,
-  //     lastUpdated: "last updated 3 hrs ago",
-  //     imagePath: "assets/images/background/image2.png",
-  //     locations: [
-  //       const LatLng(44.2937, -73.9916),
-  //       const LatLng(44.3040, -73.9875),
-  //       const LatLng(44.3080, -73.9780),
-  //     ],
-  //     locationImages: [
-  //       "assets/images/background/Lake1.png",
-  //       "assets/images/background/Lake2.png",
-  //       "assets/images/background/Lake3.png",
-  //     ],
-  //     locationDecription: [
-  //       "Lake Placid, NY 1",
-  //       "Lake Placid, NY 2",
-  //       "Lake Placid, NY 3",
-  //     ],
-  //     commentsList: [
-  //       {"user": "@User1", "comment": "Great place!"},
-  //       {"user": "@User2", "comment": "Looks amazing!"},
-  //       {"user": "@User3", "comment": "I want to visit!"},
-  //     ],
-  //   ),
-  //   Post(
-  //     username: "@john",
-  //     destination: "Yellowstone, WY",
-  //     milesTraveled: 352,
-  //     soundtrack: "Road Trip Vibes",
-  //     caption: "Nature is calling!",
-  //     comments: 5,
-  //     lastUpdated: "last updated 2 hrs ago",
-  //     imagePath: "assets/images/background/image3.png",
-  //     locations: [
-  //       const LatLng(44.4279, -110.5885),
-  //       const LatLng(44.4568, -110.5786),
-  //       const LatLng(44.4622, -110.5884),
-  //     ],
-  //     locationImages: [
-  //       "assets/images/background/yellowstone1.png",
-  //       "assets/images/background/yellowstone2.png",
-  //       "assets/images/background/yellowstone3.png",
-  //     ],
-  //     locationDecription: [
-  //       "Yellowstone, WY 1",
-  //       "Yellowstone, WY 2",
-  //       "Yellowstone, WY 3",
-  //     ],
-  //     commentsList: [
-  //       {"user": "@User13", "comment": "Example 1 Great place!"},
-  //       {"user": "@User23", "comment": "Example 2 Looks amazing!"},
-  //       {"user": "@User13", "comment": "Example 3 I want to visit!"},
-  //     ],
-  //   ),
-  //   // Add more posts as needed
-  // ];
+  
 
   @override
   void initState() {
@@ -108,7 +43,6 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
         });
       }
     });
-    _getCurrentLocation();
     _loadTrips();
   }
 
@@ -117,7 +51,6 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
       final data = await apiService.fetchAllTrips();
       setState(() {
         trips = data;
-        logger.i(trips);
       });
     } catch (error) {
       logger.i('Error fetching trips: $error');
@@ -127,32 +60,24 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
     }
   }
 
-  Future<void> _getCurrentLocation() async {
-    final permissionStatus = await Permission.location.request();
+  // Future<void> _getCurrentLocation() async {
+  //   final permissionStatus = await Permission.location.request();
 
-    if (permissionStatus.isGranted) {
-      Position position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-        ),
-      );
+  //   if (permissionStatus.isGranted) {
+  //     Position position = await Geolocator.getCurrentPosition(
+  //       locationSettings: const LocationSettings(
+  //         accuracy: LocationAccuracy.high,
+  //       ),
+  //     );
 
-      setState(() {
-        _currentLocation = LatLng(position.latitude, position.longitude);
-        logger.i("$_currentLocation");
-      });
-
-      // Wait until the first frame is rendered before moving the map
-      // WidgetsBinding.instance.addPostFrameCallback((_) {
-      //   if (posts[1].locations.isNotEmpty) {
-      //     _mapController.move(posts[1].locations[2], 15.0);
-      //   }
-      // });
-    } else {
-      // Handle the case when location permission is denied.
-      logger.i("Location permission denied");
-    }
-  }
+  //     setState(() {
+  //       _currentLocation = LatLng(position.latitude, position.longitude);
+  //       logger.i("$_currentLocation");
+  //     });
+  //   } else {
+  //     logger.i("Location permission denied");
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -183,16 +108,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
                 padding: EdgeInsets.symmetric(horizontal: 16.0),
                 child: Divider(),
               ),
-              // Make the posts scrollable
-              // Expanded(
-              //   child: ListView.builder(
-              //     itemCount: posts.length,
-              //     itemBuilder: (context, index) {
-              //       final post = posts[index];
-              //       return PostWidget( post: post, dropIndex: index,);
-              //     },
-              //   ),
-              // ),
+              
               trips == null
                 ? const Center(child: CircularProgressIndicator()) // Show loading indicator
                 : trips!.isEmpty
@@ -236,30 +152,88 @@ class PostWidgetState extends State<PostWidget> {
   bool isLiked = false;
   bool showLikesDropdown = false;
   final TextEditingController _addCommitController = TextEditingController();
+  List<String>? stopAddresses;
+  List<LatLng> locations = [];
+  LatLng? startPoint;
+  LatLng? endPoint;
   // bool isLiked = true;
   @override
   void initState() {
     super.initState();
     mapController = MapController();
-
+    _getlocaionts();
     // Use addPostFrameCallback to delay interaction with mapController until after the first frame
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   if (widget.post.locations.length > 1) {
-    //     mapController.move(widget.post.locations[0], 15.0);
-    //     _fetchDrivingRoute(widget.post.locations);
-    //   }
-    // });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (locations.length > 1) {
+        mapController.move(locations[0], 15.0);
+      }
+    });
+    
+  }
+
+   
+  Future<void> _getlocaionts() async{
+    try {
+      final startCoordinates = await getCoordinates(widget.post['start_address']);
+      startPoint = LatLng(startCoordinates['latitude']!, startCoordinates['longitude']!);
+      locations.add(startPoint!);
+    } catch (e) {
+      logger.e('Failed to fetch start address coordinates: $e');
+    }
+
+    if(widget.post['stop_address'] != null){
+      stopAddresses = List<String>.from(jsonDecode(widget.post['stop_address']));
+    
+      for (String address in stopAddresses!) {
+        try {
+          final coordinates = await getCoordinates(address);
+          locations.add(LatLng(coordinates['latitude']!, coordinates['longitude']!));
+        } catch (e) {
+          logger.e('Failed to fetch coordinates for $address: $e');
+        }
+      }
+    }
+
+    // Fetch Destination Address
+    try {
+      final destinationCoordinates = await getCoordinates(widget.post['destination_address']);
+      endPoint = LatLng(destinationCoordinates['latitude']!, destinationCoordinates['longitude']!);
+      locations.add(endPoint!);
+    } catch (e) {
+      logger.e('Failed to fetch destination address coordinates: $e');
+    }
+    
+    _fetchDrivingRoute(locations);
+  }
+  
+  Future<Map<String, double>> getCoordinates(String address) async {
+    String accessToken = 'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw';
+    final url = Uri.parse(
+      'https://api.mapbox.com/geocoding/v5/mapbox.places/${Uri.encodeComponent(address)}.json?access_token=$accessToken',
+    );
+
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final coordinates = data['features'][0]['geometry']['coordinates'];
+      return {'longitude': coordinates[0], 'latitude': coordinates[1]};
+    } else {
+      throw Exception('Failed to fetch coordinates');
+    }
   }
 
   Future<void> _fetchDrivingRoute(List<LatLng> locations) async {
+    
     if (locations.length < 2) return; // Ensure at least two points for a route
 
     // Set start, end, and waypoints for Mapbox API
     final start = locations.first;
     final end = locations.last;
-    final waypoints = locations.sublist(1, locations.length - 1)
-        .map((loc) => '${loc.longitude},${loc.latitude}')
-        .join(';');
+     final waypoints = locations.length > 2
+      ? locations.sublist(1, locations.length - 1)
+          .map((loc) => '${loc.longitude},${loc.latitude}')
+          .join(';')
+      : '';
     final coordinates = '${start.longitude},${start.latitude};$waypoints;${end.longitude},${end.latitude}';
     final url = 'https://api.mapbox.com/directions/v5/mapbox/driving/$coordinates?geometries=polyline&access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw';
 
@@ -546,7 +520,20 @@ class PostWidgetState extends State<PostWidget> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(widget.post['destination_address'], style: const TextStyle(fontSize: 16, color: Colors.brown, decoration: TextDecoration.underline, fontFamily: 'Kadaw')),
+                SizedBox(
+                  width: 250, // Set your desired width
+                  child: Text(
+                    widget.post['destination_address'],
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.brown,
+                      decoration: TextDecoration.underline,
+                      fontFamily: 'Kadaw',
+                    ),
+                    maxLines: 1, // Limit to one line
+                    overflow: TextOverflow.ellipsis, // Add ellipsis if text overflows
+                  ),
+                ),
                 const SizedBox(height: 3),
                 Text('${widget.post['trip_miles']}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'Kadaw')),
                 const SizedBox(height: 3),
@@ -605,85 +592,129 @@ class PostWidgetState extends State<PostWidget> {
             color: Colors.grey.shade200,
             borderRadius: BorderRadius.circular(10),
           ),
-          // child: Stack(
-          //   children: [
-          //     // The map
-          //     FlutterMap(
-          //       mapController: mapController,
-          //       options: MapOptions(
-          //         initialCenter: widget.post.locations[1],
-          //         initialZoom: 15.0,
-          //       ),
-          //       children: [
-          //         TileLayer(
-          //           urlTemplate:
-          //               "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw",
-          //           additionalOptions: const {
-          //             'access_token': 'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw',
-          //           },
-          //         ),
-          //         MarkerLayer(
-          //           markers: widget.post.locations.asMap().entries.map((entry) {
-          //             int index = entry.key;
-          //             LatLng location = entry.value;
-          //             return Marker(
-          //               width: 60.0,
-          //               height: 60.0,
-          //               point: location,
-          //               child: GestureDetector(
-          //                 // onTap: () => _showImageDialog(widget.post.locationImages[index], widget.post.locationDecription[index], index), // Show image dialog on tap
-          //                 child: const Icon(Icons.location_on, color: Colors.red, size: 40),
-          //               ),
-          //             );
-          //           }).toList(),
-          //         ),
+          child: Stack(
+            children: [
+              locations.isNotEmpty
+              ? FlutterMap(
+                  mapController: mapController,
+                  options: MapOptions(
+                    initialCenter: locations[0], // Use the first location
+                    initialZoom: 15.0,
+                  ),
+                  children: [
+                    TileLayer(
+                      urlTemplate:
+                          "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw",
+                      additionalOptions: const {
+                        'access_token':
+                            'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw',
+                      },
+                    ),
+                    MarkerLayer(
+                      markers: locations.asMap().entries.map((entry) {
+                        int index = entry.key;
+                        LatLng location = entry.value;
 
-          //         // Polyline layer for the route
-          //         PolylineLayer(
-          //           polylines: [
-          //             Polyline(
-          //               points: routePoints, // Points defining the route
-          //               strokeWidth: 4.0,
-          //               color: Colors.blue, // Customize the color as needed
-          //             ),
-          //           ],
-          //         ), 
-          //       ],
-          //     ),
-          //     // Zoom controls
-          //     Positioned(
-          //       right: 10,
-          //       top: 10,
-          //       child: Column(
-          //         children: [
-          //           FloatingActionButton(
-          //             heroTag: 'zoom_in_button_homescreen',
-          //             onPressed: () {
-          //               mapController.move(
-          //                 mapController.camera.center,
-          //                 mapController.camera.zoom + 1,
-          //               );
-          //             },
-          //             mini: true,
-          //             child: const Icon(Icons.zoom_in),
-          //           ),
-          //           const SizedBox(height: 8),
-          //           FloatingActionButton(
-          //             heroTag: 'zoom_out_button_homescreen',
-          //             onPressed: () {
-          //               mapController.move(
-          //                 mapController.camera.center,
-          //                 mapController.camera.zoom - 1,
-          //               );
-          //             },
-          //             mini: true,
-          //             child: const Icon(Icons.zoom_out),
-          //           ),
-          //         ],
-          //       ),
-          //     ),
-          //   ],
-          // ),
+                        // Define marker styles
+                        Widget markerIcon;
+                        if (index == 0) {
+                          // Start location
+                          markerIcon = SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: Image.asset(
+                              'assets/images/icons/start_icon.png',
+                              fit: BoxFit.contain, // Ensure the image fits within the specified size
+                            ),
+                          );
+                        } else if (index == locations.length - 1) {
+                          // Destination location
+                          markerIcon = SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: Image.asset(
+                              'assets/images/icons/des_icon.png',
+                              fit: BoxFit.contain, // Ensure the image fits within the specified size
+                            ),
+                          );
+                        } else {
+                          // Waypoints
+                          markerIcon = const Icon(Icons.location_on, color: Colors.blue, size: 40);
+                        }
+
+                        return Marker(
+                          width: 35.0,
+                          height: 35.0,
+                          point: location,
+                          child: GestureDetector(
+                            onTap: () {
+                              // Handle tap logic if needed
+                              if (index > 0 && index < locations.length - 1) {
+                                final droppin = widget.post['droppins'][index - 1];
+                                _showImageDialog(
+                                  droppin['image_path'],
+                                  droppin['image_caption'],
+                                  droppin['liked_users'].length,
+                                  droppin['liked_users'],
+                                );
+                              }
+                              // logger.i(
+                              //     'Marker tapped at: ${location.latitude}, ${location.longitude}');
+                            },
+                            child: markerIcon,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    // Polyline layer for the route
+                    PolylineLayer(
+                      polylines: [
+                        Polyline(
+                          points: routePoints, // Points defining the route
+                          strokeWidth: 4.0,
+                          color: Colors.blue, // Customize the color as needed
+                        ),
+                      ],
+                    ),
+                  ],
+                )
+              : const Center(
+                  child: CircularProgressIndicator(), // Show a loading indicator while waiting for data
+                ),
+              // Zoom controls
+              Positioned(
+                right: 10,
+                top: 10,
+                child: Column(
+                  children: [
+                    FloatingActionButton(
+                      heroTag: 'zoom_in_button_homescreen_1',
+                      onPressed: () {
+                        mapController.move(
+                          mapController.camera.center,
+                          mapController.camera.zoom + 1,
+                        );
+                      },
+                      mini: true,
+                      child: const Icon(Icons.zoom_in),
+                    ),
+                    const SizedBox(height: 8),
+                    FloatingActionButton(
+                      heroTag: 'zoom_out_button_homescreen_2',
+                      onPressed: () {
+                        mapController.move(
+                          mapController.camera.center,
+                          mapController.camera.zoom - 1,
+                        );
+                      },
+                      mini: true,
+                      child: const Icon(Icons.zoom_out),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
         const SizedBox(height: 5,),
         if(isAddComments)
