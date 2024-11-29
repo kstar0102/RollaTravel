@@ -44,7 +44,7 @@ class _GarageScreenState extends ConsumerState<GarageScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 20), // Add spacing at the top
+            const SizedBox(height: 30), // Add spacing at the top
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -109,8 +109,28 @@ class _GarageScreenState extends ConsumerState<GarageScreen> {
                                   car['logo_path'],
                                   width: 40,
                                   height: 40,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      const Icon(Icons.image_not_supported),
+                                  errorBuilder: (context, error, stackTrace) {
+                                    // Display a placeholder icon on error
+                                    return const Icon(
+                                      Icons.image_not_supported,
+                                      color: Colors.grey,
+                                      size: 40,
+                                    );
+                                  },
+                                  loadingBuilder: (context, child, loadingProgress) {
+                                    // Show a progress indicator while the image is loading
+                                    if (loadingProgress == null) {
+                                      return child;
+                                    }
+                                    return const SizedBox(
+                                      width: 40,
+                                      height: 40,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    );
+                                  },
+                                  fit: BoxFit.cover, // Ensures the image fits within the specified size
                                 ),
                                 title: Text(
                                   car['car_type'],

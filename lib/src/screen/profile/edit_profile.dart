@@ -551,7 +551,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   ),
                                 ),
                               ),
-                            if (_showSaveButton)
+                            // if (_showSaveButton)
                               Padding(
                                 padding: const EdgeInsets.only(top: 20),
                                 child: ElevatedButton(
