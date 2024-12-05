@@ -1,6 +1,4 @@
-import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/screen/auth/signin_screen.dart';
-import 'package:RollaTravel/src/translate/en.dart';
 import 'package:RollaTravel/src/utils/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

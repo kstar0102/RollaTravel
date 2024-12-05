@@ -3,6 +3,7 @@ import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/screen/trip/destination_screen.dart';
 import 'package:RollaTravel/src/screen/trip/end_trip.dart';
 import 'package:RollaTravel/src/screen/trip/sound_screen.dart';
+import 'package:RollaTravel/src/screen/trip/trip_settting_screen.dart';
 import 'package:RollaTravel/src/translate/en.dart';
 import 'package:RollaTravel/src/utils/index.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
@@ -60,63 +61,66 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     });
   }
 
-Future<void> _getCurrentLocation() async {
-  logger.i("Checking location permission...");
+  Future<void> _getCurrentLocation() async {
+    logger.i("Checking location permission...");
 
-  final permissionStatus = await Permission.location.request();
+    final permissionStatus = await Permission.location.request();
 
-  if (permissionStatus.isGranted) {
-    // Permission granted, fetch current location
-    Position position = await Geolocator.getCurrentPosition(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.high,
-      ),
-    );
-    setState(() {
-      _currentLocation = LatLng(position.latitude, position.longitude);
-      logger.i("Location: $_currentLocation");
-    });
-    _mapController.move(_currentLocation!, 14.0);
-  } else if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
-    // Permission denied - prompt user to open settings
-    logger.i("Location permission denied. Redirecting to settings.");
-    _showPermissionDeniedDialog();
-  } else {
-    logger.i("Location permission status: $permissionStatus");
-  }
-}
-
-void _showPermissionDeniedDialog() {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text("Location Permission Required"),
-        content: const Text(
-          "To access your location, please enable permissions in System Preferences > Security & Privacy > Privacy > Location Services.",
+    if (permissionStatus.isGranted) {
+      // Permission granted, fetch current location
+      Position position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
         ),
-        actions: [
-          TextButton(
-            child: const Text("Open Settings"),
-            onPressed: () async {
-              await openAppSettings();
-              if (mounted) {
-                Navigator.of(context).pop();
-              }
-            },
-          ),
-          TextButton(
-            child: const Text("Cancel"),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
       );
-    },
-  );
-}
+      setState(() {
+        _currentLocation = LatLng(position.latitude, position.longitude);
+        logger.i("Location: $_currentLocation");
+      });
+      _mapController.move(_currentLocation!, 14.0);
+    } else if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
+      // Permission denied - prompt user to open settings
+      logger.i("Location permission denied. Redirecting to settings.");
+      _showPermissionDeniedDialog();
+    } else {
+      logger.i("Location permission status: $permissionStatus");
+    }
+  }
 
+  void _showPermissionDeniedDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Location Permission Required"),
+          content: const Text(
+            "To access your location, please enable permissions in System Preferences > Security & Privacy > Privacy > Location Services.",
+          ),
+          actions: [
+            TextButton(
+              child: const Text("Open Settings"),
+              onPressed: () async {
+                await openAppSettings();
+                if (mounted) {
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
+            TextButton(
+              child: const Text("Cancel"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _onSettingClicked(){
+    Navigator.push(context, MaterialPageRoute(builder: (context) => const TripSetttingScreen()));
+  }
 
   Future<bool> _onWillPop() async {
     return false;
@@ -151,9 +155,14 @@ void _showPermissionDeniedDialog() {
                             'assets/images/icons/add_car1.png',
                             width: vww(context, 15),
                           ),
-                          Image.asset(
-                            'assets/images/icons/setting.png',
-                            width: vww(context, 15),
+                          GestureDetector(
+                            onTap: () {
+                              _onSettingClicked();
+                            },
+                            child: Image.asset(
+                              'assets/images/icons/setting.png',
+                              width: vww(context, 15),
+                            ),
                           ),
                         ],
                       ),
@@ -397,7 +406,7 @@ void _showPermissionDeniedDialog() {
                           child: Column(
                             children: [
                               FloatingActionButton(
-                                heroTag: 'zoom_in_button_starttrip', // Unique tag for the zoom in button
+                                heroTag: 'zoom_in_button_starttrip_1', // Unique tag for the zoom in button
                                 onPressed: () {
                                   _mapController.move(
                                     _mapController.camera.center,
@@ -409,7 +418,7 @@ void _showPermissionDeniedDialog() {
                               ),
                               const SizedBox(height: 8),
                               FloatingActionButton(
-                                heroTag: 'zoom_out_button_starttrip', // Unique tag for the zoom out button
+                                heroTag: 'zoom_out_button_starttrip_2', // Unique tag for the zoom out button
                                 onPressed: () {
                                   _mapController.move(
                                     _mapController.camera.center,
