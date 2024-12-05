@@ -243,11 +243,11 @@ class PostWidgetState extends State<PostWidget> {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final polyline = data['routes'][0]['geometry'];
-
-        // Decode the polyline to get LatLng points
-        setState(() {
-          routePoints = _decodePolyline(polyline);
-        });
+        if (mounted) {
+          setState(() {
+            routePoints = _decodePolyline(polyline);
+          });
+        }
       } else {
         logger.i('Failed to fetch route: ${response.statusCode}');
       }

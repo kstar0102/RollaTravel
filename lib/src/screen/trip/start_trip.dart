@@ -4,6 +4,7 @@ import 'package:RollaTravel/src/screen/trip/destination_screen.dart';
 import 'package:RollaTravel/src/screen/trip/end_trip.dart';
 import 'package:RollaTravel/src/screen/trip/sound_screen.dart';
 import 'package:RollaTravel/src/screen/trip/trip_settting_screen.dart';
+import 'package:RollaTravel/src/screen/trip/trip_tag_screen.dart';
 import 'package:RollaTravel/src/translate/en.dart';
 import 'package:RollaTravel/src/utils/index.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
@@ -122,6 +123,10 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     Navigator.push(context, MaterialPageRoute(builder: (context) => const TripSetttingScreen()));
   }
 
+  void _onTagClicked(){
+    Navigator.push(context, MaterialPageRoute(builder: (context) => const TripTagSearchScreen()));
+  }
+
   Future<bool> _onWillPop() async {
     return false;
   }
@@ -151,9 +156,14 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Image.asset(
-                            'assets/images/icons/add_car1.png',
-                            width: vww(context, 15),
+                          GestureDetector(
+                            onTap: () {
+                              _onTagClicked();
+                            },
+                            child: Image.asset(
+                              'assets/images/icons/add_car1.png',
+                              width: vww(context, 15),
+                            ),
                           ),
                           GestureDetector(
                             onTap: () {
