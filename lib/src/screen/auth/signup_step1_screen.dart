@@ -1,7 +1,6 @@
 import 'package:RollaTravel/src/constants/app_button.dart';
 import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/screen/auth/signup_step2_screen.dart';
-import 'package:RollaTravel/src/translate/en.dart';
 import 'package:RollaTravel/src/utils/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -26,7 +25,6 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
   String? firstNameError;
   String? lastNameError;
   String? emailAddressError;
-  String? countryResidenceError;
 
   @override
   void initState() {
@@ -51,9 +49,6 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
       _validateEmailAddress(_useremailController.text);
     });
 
-    _countryController.addListener(() {
-      _validateCountryResidence(_countryController.text);
-    });
   }
 
   @override
@@ -99,16 +94,6 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
     });
   }
 
-  void _validateCountryResidence(String value) {
-    setState(() {
-      if (value.isEmpty) {
-        countryResidenceError = 'Country of residence is required';
-      } else {
-        countryResidenceError = null; // No error
-      }
-    });
-  }
-
   void _onPressContinue(){
     setState(() {
       if (_firstNameController.text.isEmpty) {
@@ -128,21 +113,14 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
       } else {
         emailAddressError = null; // No error
       }
-
-      if (_countryController.text.isEmpty) {
-        countryResidenceError = 'Country of residence is required';
-      } else {
-        countryResidenceError = null; // No error
-      }
     });
 
-    if(firstNameError == null && lastNameError == null && emailAddressError == null && countryResidenceError == null){
+    if(firstNameError == null && lastNameError == null && emailAddressError == null){
       Navigator.push(context, MaterialPageRoute(
         builder: (context) => SignupStep2Screen(
           firstName: _firstNameController.text,
           lastName: _lastNameController.text,
           emailAddress: _useremailController.text,
-          countryResidence: _countryController.text,
         ),
       ));
     }
@@ -199,7 +177,6 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
                         Container(width: vww(context, 15),),
                       ],
                     ),
-                    const Text(trave_share, style: TextStyle(color: kColorGrey, fontSize: 14, fontFamily: 'Kadaw'),),
 
                     SizedBox(height: vhh(context, 5),),
                     SizedBox(
@@ -307,41 +284,6 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
                       ),
                     ),
 
-                    SizedBox(
-                      width: vw(context, 38),
-                      height: vh(context, 6.5),
-                      child: TextField(
-                        controller: _countryController,
-                        keyboardType: TextInputType.name,
-                        autocorrect: false,
-                        cursorColor: kColorGrey,
-                        style: const TextStyle(color: kColorBlack, fontSize: 16, fontFamily: 'Kadaw'),
-                        decoration: InputDecoration(
-                          floatingLabelBehavior: FloatingLabelBehavior.always,
-                          enabledBorder: const UnderlineInputBorder(
-                            borderSide: BorderSide(color: kColorGrey, width: 1),
-                          ),
-                          focusedBorder: const UnderlineInputBorder(
-                            borderSide: BorderSide(color: kColorBlack, width: 1.5),
-                          ),
-                          hintText: "Country of residence",
-                          errorText: (countryResidenceError != null && countryResidenceError!.isNotEmpty) ? countryResidenceError : null,
-                          hintStyle: const TextStyle(color: kColorGrey, fontSize: 14, fontFamily: 'Kadaw'),
-                          contentPadding: const EdgeInsets.only(
-                            top: -8, // Push hint closer to the top
-                            bottom: -5, // Reduce space between text and underline
-                          ),
-                          errorStyle: const TextStyle(
-                            color: Colors.red, // Customize error message color
-                            fontSize: 12, // Reduce font size of the error message
-                            height: 0.5, // Adjust line height for tighter spacing
-                            fontFamily: 'Kadaw'
-                          ),
-                          counterText: '',
-                        ),
-                      ),
-                    ),
-
                     Padding(
                       padding: EdgeInsets.only(left: vww(context, 15), right: vww(context, 15), top: vhh(context, 5)),
                       child: ButtonWidget(
@@ -350,7 +292,7 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
                         textColor: kColorWhite,
                         fullColor: kColorButtonPrimary,
                         onPressed: () {
-                          if(firstNameError == null && lastNameError == null && emailAddressError == null && countryResidenceError == null){
+                          if(firstNameError == null && lastNameError == null && emailAddressError == null){
                             _onPressContinue();
                           }
                         },

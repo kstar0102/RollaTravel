@@ -125,6 +125,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
           final List<dynamic>? garagesData = response['garages'] != null
             ? response['garages'] as List<dynamic>?
             : null;
+            
           if (dropPinsData != null) {
             GlobalVariables.dropPinsData = dropPinsData;
           }
@@ -220,7 +221,6 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                         'assets/images/icons/logo.png',
                         width: vww(context, 24),
                       ),
-                      const Text(trave_share, style: TextStyle(color: kColorGrey, fontSize: 12, fontFamily: 'Kadaw'),),
                       SizedBox(height: vhh(context, 5),),
                       SizedBox(
                         width: vw(context, 38),
@@ -311,7 +311,6 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                           
                       
                       SizedBox( height: vhh(context, 3),),
-                      const Text(countryResidence, style: TextStyle(color: kColorBlack, fontSize: 14, fontFamily: 'KadawBold'),),
                       SizedBox(height: vhh(context, 1)),
                       Padding(
                         padding: EdgeInsets.only(
@@ -397,6 +396,8 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                           textAlign: TextAlign.center,
                         ),
                       ),
+                      const SizedBox(height: 5,),
+                      Image.asset("assets/images/icons/us_flag.png",),
                     ],
                   ),
                 )

@@ -477,23 +477,43 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     _showImageDialog(imagePath, caption, dropPin['liked_users'].length, likedUsers);
                                   },
                                   child: imagePath.isNotEmpty
-                                      ? Container(
-                                          width: 100,
-                                          height: 100,
-                                          decoration: BoxDecoration(
-                                            image: DecorationImage(
-                                              image: NetworkImage(imagePath),
-                                              fit: BoxFit.cover,
-                                            ),
-                                            borderRadius: BorderRadius.circular(8),
-                                            gradient: LinearGradient(
-                                              colors: [Colors.black.withOpacity(0.5), Colors.transparent],
-                                              begin: Alignment.bottomCenter,
-                                              end: Alignment.topCenter,
-                                            ),
-                                          ),
-                                        )
-                                      : const Icon(Icons.image_not_supported, size: 100), // Placeholder if imagePath is empty
+                                  ? Container(
+                                      width: 100,
+                                      height: 100,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(8),
+                                        gradient: LinearGradient(
+                                          colors: [Colors.black.withOpacity(0.5), Colors.transparent],
+                                          begin: Alignment.bottomCenter,
+                                          end: Alignment.topCenter,
+                                        ),
+                                      ),
+                                      child: Image.network(
+                                        imagePath,
+                                        fit: BoxFit.cover,
+                                        loadingBuilder: (context, child, loadingProgress) {
+                                          if (loadingProgress == null) {
+                                            // Image has loaded successfully
+                                            return child;
+                                          } else {
+                                            // Display a loading indicator while the image is loading
+                                            return Center(
+                                              child: CircularProgressIndicator(
+                                                value: loadingProgress.expectedTotalBytes != null
+                                                    ? loadingProgress.cumulativeBytesLoaded /
+                                                        (loadingProgress.expectedTotalBytes ?? 1)
+                                                    : null, // Show progress if available
+                                              ),
+                                            );
+                                          }
+                                        },
+                                        errorBuilder: (context, error, stackTrace) {
+                                          // Fallback widget in case of an error
+                                          return const Icon(Icons.broken_image, size: 100);
+                                        },
+                                      ),
+                                    )
+                                  : const Icon(Icons.image_not_supported, size: 100),
                                 ),
                               );
                             },

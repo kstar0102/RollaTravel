@@ -482,18 +482,26 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   edit_profile_garage,
                                   style: TextStyle(color: kColorGrey, fontSize: 14, fontWeight: FontWeight.w400, fontFamily: 'Kadaw'),
                                 ),
-                                GlobalVariables.garageLogoUrl != null
+                                GlobalVariables.garageLogoUrl != null && GlobalVariables.garageLogoUrl!.isNotEmpty
                                   ? GestureDetector(
                                       onTap: () {
-                                        onGarageClicked();
+                                        onGarageClicked(); // This will always work regardless of the logo URL's value
                                       },
-                                      child: Image.network(
-                                        GlobalVariables.garageLogoUrl!,
+                                      child: SizedBox(
                                         width: 30,
                                         height: 30,
+                                        child: Image.network(
+                                          GlobalVariables.garageLogoUrl!,
+                                          fit: BoxFit.cover,
+                                        ),
                                       ),
                                     )
-                                  : const Text(""),
+                                  : GestureDetector(
+                                      onTap: () {
+                                        onGarageClicked(); // Allow onTap to trigger even if no logo is present
+                                      },
+                                      child: const Text("    "),
+                                    ),
                               ],
                             ),
                             const Divider(color: kColorGrey, thickness: 1),

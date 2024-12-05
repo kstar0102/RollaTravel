@@ -12,13 +12,11 @@ class SignupStep2Screen extends ConsumerStatefulWidget {
   final String firstName;
   final String lastName;
   final String emailAddress;
-  final String countryResidence;
   const SignupStep2Screen({
     super.key, 
     required this.firstName,
     required this.lastName,
     required this.emailAddress,
-    required this.countryResidence
   });
 
   @override
@@ -108,7 +106,6 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
           firstName: widget.firstName,
           lastName: widget.lastName,
           email: widget.emailAddress,
-          country: widget.countryResidence,
           password: _passwordController.text,
           rollaUsername: _usernameController.text,
           hearRolla: _selectedOption!
@@ -207,7 +204,6 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                         Container(width: vww(context, 15),),
                       ],
                     ),
-                    const Text(trave_share, style: TextStyle(color: kColorGrey, fontSize: 16, fontFamily: 'Kadaw'),),
                     SizedBox(height: vhh(context, 3),),
                     SizedBox(
                       width: vw(context, 38),

@@ -42,26 +42,18 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         child: FocusScope(
           child: Container(
             decoration: const BoxDecoration(
-              color: kColorWhite
+              color: Colors.black
             ),
             child:  Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                SizedBox(height: vh(context, 25)),
+                SizedBox(height: vh(context, 35)),
                 Image.asset(
-                  'assets/images/icons/logo.png',
+                  'assets/images/icons/rolla_white_icon.png',
                   width: 150.0,
                   height: 150.0,
                 ),
-                Container(
-                  alignment: Alignment.bottomCenter,
-                  height: vh(context, 5),
-                  child: Text(
-                    trave_share.toString(),
-                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color:kColorGrey, fontFamily: 'Kadaw'),
-                  ),
-                )
               ],
             ),
           ),
