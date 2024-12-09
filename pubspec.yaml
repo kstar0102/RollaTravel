@@ -68,7 +68,7 @@ dependencies:
   logger: ^2.0.0
   flutter_typeahead: ^4.0.0
   camera: ^0.9.4+5
-  # flutter_keyboard_visibility: ^5.0.0
+  flutter_polyline_points: ^2.1.0
 
 dev_dependencies:
   flutter_test:

@@ -16,6 +16,11 @@ import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:logger/logger.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+// import 'package:polyline_points/polyline_points.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+
 
 class StartTripScreen extends ConsumerStatefulWidget {
   const StartTripScreen({super.key});
@@ -29,6 +34,8 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   double keyboardHeight = 0;
   final int _currentIndex = 2;
   LatLng? _currentLocation;
+  LatLng? _movingLocation; // Location of the moving marker
+  List<LatLng> _pathCoordinates = []; // List of coordinates for the path
   final MapController _mapController = MapController();
   final logger = Logger();
   final TextEditingController _captionController = TextEditingController();
@@ -52,13 +59,16 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   void toggleTrip() {
     setState(() {
       isTripStarted = !isTripStarted;
-      ref.read(isTripStartedProvider.notifier).state = isTripStarted;
-      if (!isTripStarted) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const EndTripScreen()),
-        );
+      if (isTripStarted) {
+        _startTrackingMovement();
       }
+      // ref.read(isTripStartedProvider.notifier).state = isTripStarted;
+      // if (!isTripStarted) {
+      //   Navigator.push(
+      //     context,
+      //     MaterialPageRoute(builder: (context) => const EndTripScreen()),
+      //   );
+      // }
     });
   }
 
@@ -76,6 +86,8 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
       );
       setState(() {
         _currentLocation = LatLng(position.latitude, position.longitude);
+        // _movingLocation = _currentLocation; // Set moving location to initial position
+        // _pathCoordinates.add(_currentLocation!); // Add the starting location to the path
         logger.i("Location: $_currentLocation");
       });
       _mapController.move(_currentLocation!, 14.0);
@@ -87,6 +99,93 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
       logger.i("Location permission status: $permissionStatus");
     }
   }
+  
+  Future<void> _startTrackingMovement() async {
+    // Stream for location changes
+    Geolocator.getPositionStream(
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 50, // Update every 50 meters
+      ),
+    ).listen((Position position) async {
+      LatLng newLocation = LatLng(position.latitude, position.longitude);
+
+      // ✅ Await inside async callback
+      await _fetchDrivingRoute(_currentLocation!, newLocation);
+
+      setState(() {
+        _movingLocation = newLocation;
+        // _pathCoordinates.add(_movingLocation!);
+        logger.i("Updated Moving Location: $_movingLocation");
+      });
+
+      _mapController.move(_movingLocation!, 14.0); // Move map view to new position
+    });
+  }
+
+  Future<void> _fetchDrivingRoute(LatLng start, LatLng end) async {
+    final url = 'https://api.mapbox.com/directions/v5/mapbox/driving/${start.longitude},${start.latitude};${end.longitude},${end.latitude}?geometries=polyline6&access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw';
+
+    try {
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        final List<dynamic> routes = jsonResponse['routes'];
+
+        if (routes.isNotEmpty) {
+          final String polyline = routes[0]['geometry'];
+
+          // ✅ Decode the polyline using a custom polyline6 decoder
+          final List<LatLng> decodedPolyline = _decodePolyline6(polyline);
+
+          // ✅ Clear previous path coordinates and add the new route
+          setState(() {
+            _pathCoordinates.clear(); // Clear previous path
+            _pathCoordinates.addAll(decodedPolyline);
+          });
+
+        } else {
+          logger.i('No routes found.');
+        }
+      } else {
+        logger.i('Error fetching route: ${response.statusCode}');
+      }
+    } catch (e) {
+      logger.i('Error fetching route: $e');
+    }
+  }
+
+  List<LatLng> _decodePolyline6(String encoded) {
+    List<LatLng> polyline = [];
+    int index = 0, len = encoded.length;
+    int lat = 0, lng = 0;
+
+    while (index < len) {
+      int b, shift = 0, result = 0;
+      do {
+        b = encoded.codeUnitAt(index++) - 63;
+        result |= (b & 0x1f) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+      int deltaLat = (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
+      lat += deltaLat;
+
+      shift = 0;
+      result = 0;
+      do {
+        b = encoded.codeUnitAt(index++) - 63;
+        result |= (b & 0x1f) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+      int deltaLng = (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
+      lng += deltaLng;
+
+      polyline.add(LatLng(lat / 1E6, lng / 1E6));
+    }
+    return polyline;
+  }
+
 
   void _showPermissionDeniedDialog() {
     showDialog(
@@ -338,6 +437,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                   ),
                 ),
                 SizedBox(height: vhh(context, 1),),
+
                 // MapBox integration with a customized size
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: vww(context, 4)),
@@ -367,6 +467,29 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                     height: 80.0,
                                     point: _currentLocation!,
                                     child: const Icon(Icons.location_on, color: Colors.red, size: 40),
+                                  ),
+                                  if (_movingLocation != null)
+                                    Marker(
+                                      width: 40.0,
+                                      height: 40.0,
+                                      point: _movingLocation!,
+                                      child: Image.asset(
+                                        'assets/images/icons/car_icon.png', // Path to your asset image
+                                        width: 40, // You can adjust the size
+                                        height: 35,
+                                        fit: BoxFit.contain, // Ensures the image scales properly
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            
+                            if (_pathCoordinates.isNotEmpty)
+                              PolylineLayer(
+                                polylines: [
+                                  Polyline(
+                                    points: _pathCoordinates, // List of LatLng points for the path
+                                    strokeWidth: 4.0, // Thickness of the line
+                                    color: Colors.blue, // Color of the line
                                   ),
                                 ],
                               ),
@@ -442,7 +565,6 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                           ),
                         ),
                         
-                        
                         // Button overlay
                         Positioned(
                           bottom: 70,
@@ -484,6 +606,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                             ),
                           ),
                         ),
+
                       ],
                     ),
                   ),
