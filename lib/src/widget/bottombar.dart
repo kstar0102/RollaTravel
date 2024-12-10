@@ -53,12 +53,12 @@ class BottomNavBar extends ConsumerWidget {
         if (!isTripStarted) {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => DropPinScreen()),
+            MaterialPageRoute(builder: (context) => const DropPinScreen()),
           );
         } else {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => PhotoSelectScreen()),
+            MaterialPageRoute(builder: (context) => const PhotoSelectScreen()),
           );
         }
         break;

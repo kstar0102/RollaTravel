@@ -1,7 +1,13 @@
-// lib/providers.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:latlong2/latlong.dart';
 
 final isTripStartedProvider = StateProvider<bool>((ref) => false);
+
+final pathCoordinatesProvider = StateProvider<List<LatLng>>((ref) => []);
+
+final staticStartingPointProvider = StateProvider<LatLng?>((ref) => null);
+
+final movingLocationProvider = StateProvider<LatLng?>((ref) => null);
 
 class GlobalVariables {
   static int? userId;
@@ -16,4 +22,6 @@ class GlobalVariables {
   static int? tripCount;
   static String? followingIds;
   static List<dynamic>? dropPinsData;
+
+   static bool isTripStarted = false;
 }

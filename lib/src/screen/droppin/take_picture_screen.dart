@@ -20,13 +20,41 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
   bool showLikes = true;
   final int _currentIndex = 3;
   final LatLng photoLocation = const LatLng (0, 0);
+  final TextEditingController _captionController = TextEditingController();
+
   Future<bool> _onWillPop() async {
-    // Handle back navigation here if needed
-    return true; // Return true to allow back navigation
+    return false;
   }
 
   Future<void> _handleLocationSelection() async {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => SelectLocationScreen(selectedLocation: photoLocation,)));
+    if (_captionController.text.isEmpty) {
+      // Show error dialog if caption is empty
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Warning!'),
+          content: const Text('Please enter a caption before proceeding.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    // Navigate to the next screen with the entered caption
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SelectLocationScreen(
+          selectedLocation: photoLocation,
+          caption: _captionController.text, // Pass the caption to the next screen
+        ),
+      ),
+    );
   }
 
   @override
@@ -83,6 +111,7 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
                           child: Container(
                             color: Colors.transparent, // Semi-transparent background
                             child: TextField(
+                              controller: _captionController,
                               decoration: InputDecoration(
                                 hintText: 'Caption...',
                                 hintStyle: const TextStyle(fontFamily: 'Kadaw'),

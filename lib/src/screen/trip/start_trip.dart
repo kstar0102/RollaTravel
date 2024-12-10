@@ -1,7 +1,7 @@
 import 'package:RollaTravel/src/constants/app_button.dart';
 import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/screen/trip/destination_screen.dart';
-import 'package:RollaTravel/src/screen/trip/end_trip.dart';
+// import 'package:RollaTravel/src/screen/trip/end_trip.dart';
 import 'package:RollaTravel/src/screen/trip/sound_screen.dart';
 import 'package:RollaTravel/src/screen/trip/trip_settting_screen.dart';
 import 'package:RollaTravel/src/screen/trip/trip_tag_screen.dart';
@@ -18,9 +18,7 @@ import 'package:logger/logger.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-// import 'package:polyline_points/polyline_points.dart';
-import 'package:flutter_polyline_points/flutter_polyline_points.dart';
-
+import 'dart:async';
 
 class StartTripScreen extends ConsumerStatefulWidget {
   const StartTripScreen({super.key});
@@ -33,117 +31,101 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   double screenHeight = 0;
   double keyboardHeight = 0;
   final int _currentIndex = 2;
-  LatLng? _currentLocation;
-  LatLng? _movingLocation; // Location of the moving marker
-  List<LatLng> _pathCoordinates = []; // List of coordinates for the path
+  StreamSubscription<Position>? _positionStreamSubscription;
   final MapController _mapController = MapController();
+  bool hasSetStartPoint = false;
   final logger = Logger();
   final TextEditingController _captionController = TextEditingController();
   String editDestination = 'Edit destination';
   String initialSound = "Edit Playlist";
 
-  bool isTripStarted = false;
-
   @override
   void initState() {
     super.initState();
+    _restoreState();
     _getCurrentLocation();
+    _startTrackingMovement();
   }
 
   @override
   void dispose() {
     super.dispose();
     _mapController.dispose();
-  }
-
-  void toggleTrip() {
-    setState(() {
-      isTripStarted = !isTripStarted;
-      if (isTripStarted) {
-        _startTrackingMovement();
-      }
-      // ref.read(isTripStartedProvider.notifier).state = isTripStarted;
-      // if (!isTripStarted) {
-      //   Navigator.push(
-      //     context,
-      //     MaterialPageRoute(builder: (context) => const EndTripScreen()),
-      //   );
-      // }
-    });
+    _positionStreamSubscription?.cancel();
   }
 
   Future<void> _getCurrentLocation() async {
-    logger.i("Checking location permission...");
-
     final permissionStatus = await Permission.location.request();
-
     if (permissionStatus.isGranted) {
-      // Permission granted, fetch current location
       Position position = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.high,
         ),
       );
-      setState(() {
-        _currentLocation = LatLng(position.latitude, position.longitude);
-        // _movingLocation = _currentLocation; // Set moving location to initial position
-        // _pathCoordinates.add(_currentLocation!); // Add the starting location to the path
-        logger.i("Location: $_currentLocation");
-      });
-      _mapController.move(_currentLocation!, 14.0);
+      final currentLocation = LatLng(position.latitude, position.longitude);
+      ref.read(staticStartingPointProvider.notifier).state ??= currentLocation;
+      ref.read(movingLocationProvider.notifier).state ??= currentLocation;
+      _mapController.move(currentLocation, 14.0);
     } else if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
-      // Permission denied - prompt user to open settings
       logger.i("Location permission denied. Redirecting to settings.");
       _showPermissionDeniedDialog();
     } else {
       logger.i("Location permission status: $permissionStatus");
     }
   }
-  
+
   Future<void> _startTrackingMovement() async {
-    // Stream for location changes
-    Geolocator.getPositionStream(
+    if (_positionStreamSubscription != null) return; // Prevent multiple listeners
+
+    _positionStreamSubscription = Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.high,
         distanceFilter: 50, // Update every 50 meters
       ),
     ).listen((Position position) async {
-      LatLng newLocation = LatLng(position.latitude, position.longitude);
+      final LatLng newLocation = LatLng(position.latitude, position.longitude);
 
-      // ✅ Await inside async callback
-      await _fetchDrivingRoute(_currentLocation!, newLocation);
+      if (!GlobalVariables.isTripStarted) {
+        // ✅ Before the trip starts, use moving location for display only
+        ref.read(staticStartingPointProvider.notifier).state = newLocation;
+        return;
+      }else{
+        // ✅ Update current location
+        final previousLocation = ref.read(movingLocationProvider);
+        ref.read(movingLocationProvider.notifier).state = newLocation;
 
-      setState(() {
-        _movingLocation = newLocation;
-        // _pathCoordinates.add(_movingLocation!);
-        logger.i("Updated Moving Location: $_movingLocation");
-      });
-
-      _mapController.move(_movingLocation!, 14.0); // Move map view to new position
+        // ✅ Only fetch route if previous location is available
+        if (previousLocation != null) {
+          await _fetchDrivingRoute(previousLocation, newLocation);
+        }
+      }
+      
+      _mapController.move(newLocation, 14.0);
     });
   }
 
   Future<void> _fetchDrivingRoute(LatLng start, LatLng end) async {
     final url = 'https://api.mapbox.com/directions/v5/mapbox/driving/${start.longitude},${start.latitude};${end.longitude},${end.latitude}?geometries=polyline6&access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw';
-
     try {
       final response = await http.get(Uri.parse(url));
-
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
         final List<dynamic> routes = jsonResponse['routes'];
-
         if (routes.isNotEmpty) {
           final String polyline = routes[0]['geometry'];
-
-          // ✅ Decode the polyline using a custom polyline6 decoder
           final List<LatLng> decodedPolyline = _decodePolyline6(polyline);
+          // ref.read(pathCoordinatesProvider.notifier).state.addAll(decodedPolyline);
 
-          // ✅ Clear previous path coordinates and add the new route
-          setState(() {
-            _pathCoordinates.clear(); // Clear previous path
-            _pathCoordinates.addAll(decodedPolyline);
-          });
+          final currentPath = ref.read(pathCoordinatesProvider);
+          final updatedPath = [...currentPath];
+
+          for (var point in decodedPolyline) {
+            if (!updatedPath.contains(point)) {
+              updatedPath.add(point);
+            }
+          }
+
+          ref.read(pathCoordinatesProvider.notifier).state = updatedPath;
 
         } else {
           logger.i('No routes found.');
@@ -155,6 +137,33 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
       logger.i('Error fetching route: $e');
     }
   }
+
+  void toggleTrip() {
+    GlobalVariables.isTripStarted = true;
+    ref.read(isTripStartedProvider.notifier).state = true;
+    // ✅ Set static starting point when trip starts
+    final currentLocation = ref.read(movingLocationProvider);
+    if (currentLocation != null) {
+      ref.read(staticStartingPointProvider.notifier).state = currentLocation;
+    }
+
+    // ✅ Clear previous path to start a new trip
+    ref.read(pathCoordinatesProvider.notifier).state = [];
+
+    // ✅ Start tracking user movement
+    _startTrackingMovement();
+  }
+
+  void _restoreState() {
+    final movingLocation = ref.read(movingLocationProvider);
+    if (movingLocation != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _mapController.move(movingLocation, 14.0);
+      });
+    }
+  }
+
+  
 
   List<LatLng> _decodePolyline6(String encoded) {
     List<LatLng> polyline = [];
@@ -185,7 +194,6 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     }
     return polyline;
   }
-
 
   void _showPermissionDeniedDialog() {
     showDialog(
@@ -232,6 +240,10 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final pathCoordinates = ref.watch(pathCoordinatesProvider);
+    final movingLocation = ref.watch(movingLocationProvider);
+    final staticStartingPoint = ref.watch(staticStartingPointProvider);
+
     return Scaffold(
       body: WillPopScope(
         onWillPop: _onWillPop,
@@ -283,7 +295,9 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                   padding: EdgeInsets.symmetric(horizontal: vww(context, 4)),
                   child: const Divider(color: kColorGrey, thickness: 1),
                 ),
+
                 SizedBox(height: vhh(context, 1)),
+
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: vww(context, 4)),
                   child: Column(
@@ -394,6 +408,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                     ],
                   ),
                 ),
+                
                 SizedBox(height: vhh(context, 1),),
 
                 Padding(
@@ -436,6 +451,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                     ),
                   ),
                 ),
+                
                 SizedBox(height: vhh(context, 1),),
 
                 // MapBox integration with a customized size
@@ -448,7 +464,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                         FlutterMap(
                           mapController: _mapController, 
                           options: MapOptions(
-                            initialCenter: _currentLocation ?? const LatLng(43.1557, -77.6157),
+                            initialCenter: movingLocation ?? staticStartingPoint ?? const LatLng(43.1557, -77.6157),
                             initialZoom: 13.0,
                           ),
                           children: [
@@ -459,43 +475,36 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                 'access_token': 'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw',
                               },
                             ),
-                            if (_currentLocation != null)
-                              MarkerLayer(
-                                markers: [
+                            
+                            MarkerLayer(
+                              markers: [
+                                if (staticStartingPoint != null)
                                   Marker(
                                     width: 80.0,
                                     height: 80.0,
-                                    point: _currentLocation!,
+                                    point: staticStartingPoint,
                                     child: const Icon(Icons.location_on, color: Colors.red, size: 40),
                                   ),
-                                  if (_movingLocation != null)
-                                    Marker(
-                                      width: 40.0,
-                                      height: 40.0,
-                                      point: _movingLocation!,
-                                      child: Image.asset(
-                                        'assets/images/icons/car_icon.png', // Path to your asset image
-                                        width: 40, // You can adjust the size
-                                        height: 35,
-                                        fit: BoxFit.contain, // Ensures the image scales properly
-                                      ),
+                                if (GlobalVariables.isTripStarted && movingLocation != null)
+                                  Marker(
+                                    width: 40.0,
+                                    height: 40.0,
+                                    point: movingLocation,
+                                    child: Image.asset(
+                                      'assets/images/icons/car_icon.png', // Path to your asset image
+                                      width: 40, // You can adjust the size
+                                      height: 35,
+                                      fit: BoxFit.contain, // Ensures the image scales properly
                                     ),
-                                ],
-                              ),
-                            
-                            if (_pathCoordinates.isNotEmpty)
-                              PolylineLayer(
-                                polylines: [
-                                  Polyline(
-                                    points: _pathCoordinates, // List of LatLng points for the path
-                                    strokeWidth: 4.0, // Thickness of the line
-                                    color: Colors.blue, // Color of the line
                                   ),
-                                ],
-                              ),
+                              ],
+                            ),
+                            
+                            PolylineLayer(polylines: [Polyline(points: pathCoordinates, strokeWidth: 4.0, color: Colors.blue)]),
                           ],
                         ),
-                        isTripStarted? Positioned(
+                        
+                        GlobalVariables.isTripStarted? Positioned(
                           top: 1,
                           left: 0,
                           right: 0,
@@ -574,10 +583,10 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                             child: Padding(
                               padding: EdgeInsets.only(left: vww(context, 15), right: vww(context, 15), top: vhh(context, 3)),
                               child: ButtonWidget(
-                                btnType: isTripStarted ? ButtonWidgetType.endTripTitle : ButtonWidgetType.startTripTitle,
-                                borderColor: isTripStarted ? Colors.red : kColorButtonPrimary,
+                                btnType: GlobalVariables.isTripStarted ? ButtonWidgetType.endTripTitle : ButtonWidgetType.startTripTitle,
+                                borderColor: GlobalVariables.isTripStarted ? Colors.red : kColorButtonPrimary,
                                 textColor: kColorWhite,
-                                fullColor: isTripStarted ? Colors.red : kColorButtonPrimary,
+                                fullColor: GlobalVariables.isTripStarted ? Colors.red : kColorButtonPrimary,
                                 onPressed: toggleTrip,
                               ),
                             ),

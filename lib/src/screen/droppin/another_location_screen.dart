@@ -1,4 +1,4 @@
-import 'package:RollaTravel/src/screen/droppin/select_locaiton_screen.dart';
+// import 'package:RollaTravel/src/screen/droppin/select_locaiton_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
@@ -112,9 +112,9 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen>{
     );
   }
 
-  void _selectMarker(LatLng location){
-    Navigator.push(context, MaterialPageRoute(builder: (context) => SelectLocationScreen(selectedLocation: location,)));
-  }
+  // void _selectMarker(LatLng location){
+  //   Navigator.push(context, MaterialPageRoute(builder: (context) => SelectLocationScreen(selectedLocation: location,)));
+  // }
 
   Future<List<String>> fetchAddressSuggestions(String query) async {
     final response = await http.get(
@@ -283,7 +283,7 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen>{
                                           height: 80.0,
                                           point: _selectedLocation!,
                                           child: GestureDetector(
-                                            onTap: () => _selectMarker(_selectedLocation!), // Show image dialog on tap
+                                            // onTap: () => _selectMarker(_selectedLocation!), 
                                             child: const Icon(Icons.location_on, color: Colors.red, size: 40),
                                           ),
                                         )
@@ -293,7 +293,7 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen>{
                                           height: 80.0,
                                           point: _currentLocation!,
                                           child: GestureDetector(
-                                            onTap: () => _selectMarker(_currentLocation!), // Show image dialog on tap
+                                            // onTap: () => _selectMarker(_currentLocation!), 
                                             child: const Icon(Icons.location_on, color: Colors.red, size: 40),
                                           ),
                                         ),

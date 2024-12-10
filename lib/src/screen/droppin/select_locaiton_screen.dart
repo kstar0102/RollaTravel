@@ -14,7 +14,8 @@ import 'dart:async';
 
 class SelectLocationScreen extends ConsumerStatefulWidget {
   final LatLng? selectedLocation;
-  const SelectLocationScreen({super.key, required this.selectedLocation});
+  final String caption;
+  const SelectLocationScreen({super.key, required this.selectedLocation, required this.caption});
 
   @override
   ConsumerState<SelectLocationScreen> createState() => SelectLocationScreenState();
