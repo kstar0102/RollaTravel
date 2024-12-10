@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:RollaTravel/src/utils/index.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:logger/logger.dart';
 
 class TakePictureScreen extends ConsumerStatefulWidget {
   final String imagePath;
@@ -18,6 +19,7 @@ class TakePictureScreen extends ConsumerStatefulWidget {
 
 class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
   bool showLikes = true;
+  final logger = Logger();
   final int _currentIndex = 3;
   final LatLng photoLocation = const LatLng (0, 0);
   final TextEditingController _captionController = TextEditingController();
@@ -27,6 +29,7 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
   }
 
   Future<void> _handleLocationSelection() async {
+    // logger.i(showLikes);
     if (_captionController.text.isEmpty) {
       // Show error dialog if caption is empty
       showDialog(
@@ -51,7 +54,8 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
       MaterialPageRoute(
         builder: (context) => SelectLocationScreen(
           selectedLocation: photoLocation,
-          caption: _captionController.text, // Pass the caption to the next screen
+          caption: _captionController.text,
+          imagePath: widget.imagePath,
         ),
       ),
     );

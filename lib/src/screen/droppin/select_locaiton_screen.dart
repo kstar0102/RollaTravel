@@ -15,7 +15,8 @@ import 'dart:async';
 class SelectLocationScreen extends ConsumerStatefulWidget {
   final LatLng? selectedLocation;
   final String caption;
-  const SelectLocationScreen({super.key, required this.selectedLocation, required this.caption});
+  final String imagePath;
+  const SelectLocationScreen({super.key, required this.selectedLocation, required this.caption, required this.imagePath});
 
   @override
   ConsumerState<SelectLocationScreen> createState() => SelectLocationScreenState();
@@ -50,8 +51,6 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
     _mapController.dispose();
   }
   Future<void> _getCurrentLocation() async {
-    logger.i("Checking location permission...");
-
     final permissionStatus = await Permission.location.request();
 
     if (permissionStatus.isGranted) {
@@ -149,7 +148,13 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
   }
 
   void _dropPinSelected(){
-    Navigator.push(context, MaterialPageRoute(builder: (context) => const ChoosenLocationScreen()));
+    Navigator.push(
+      context, 
+      MaterialPageRoute(builder: (context) => ChoosenLocationScreen(
+        caption:  widget.caption,
+        imagePath: widget.imagePath,
+        location: _currentLocation,
+      )));
   }
 
   Future<bool> _onWillPop() async {

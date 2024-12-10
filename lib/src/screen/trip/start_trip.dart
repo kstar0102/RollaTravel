@@ -1,12 +1,13 @@
 import 'package:RollaTravel/src/constants/app_button.dart';
 import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/screen/trip/destination_screen.dart';
-// import 'package:RollaTravel/src/screen/trip/end_trip.dart';
+import 'package:RollaTravel/src/screen/trip/end_trip.dart';
 import 'package:RollaTravel/src/screen/trip/sound_screen.dart';
 import 'package:RollaTravel/src/screen/trip/trip_settting_screen.dart';
 import 'package:RollaTravel/src/screen/trip/trip_tag_screen.dart';
 import 'package:RollaTravel/src/translate/en.dart';
 import 'package:RollaTravel/src/utils/index.dart';
+import 'package:RollaTravel/src/utils/stop_marker_provider.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,6 +20,7 @@ import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
+import 'dart:io';
 
 class StartTripScreen extends ConsumerStatefulWidget {
   const StartTripScreen({super.key});
@@ -38,6 +40,8 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   final TextEditingController _captionController = TextEditingController();
   String editDestination = 'Edit destination';
   String initialSound = "Edit Playlist";
+
+  
 
   @override
   void initState() {
@@ -65,7 +69,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
       final currentLocation = LatLng(position.latitude, position.longitude);
       ref.read(staticStartingPointProvider.notifier).state ??= currentLocation;
       ref.read(movingLocationProvider.notifier).state ??= currentLocation;
-      _mapController.move(currentLocation, 14.0);
+      _mapController.move(currentLocation, 15.0);
     } else if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
       logger.i("Location permission denied. Redirecting to settings.");
       _showPermissionDeniedDialog();
@@ -100,7 +104,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
         }
       }
       
-      _mapController.move(newLocation, 14.0);
+      _mapController.move(newLocation, 15.0);
     });
   }
 
@@ -139,19 +143,33 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   }
 
   void toggleTrip() {
-    GlobalVariables.isTripStarted = true;
-    ref.read(isTripStartedProvider.notifier).state = true;
-    // ✅ Set static starting point when trip starts
-    final currentLocation = ref.read(movingLocationProvider);
-    if (currentLocation != null) {
-      ref.read(staticStartingPointProvider.notifier).state = currentLocation;
+    if (GlobalVariables.isTripStarted) {
+      // ✅ End the trip and navigate to the EndTripScreen
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const EndTripScreen()),
+      );
+
+      // Reset the trip state (optional if needed)
+      ref.read(isTripStartedProvider.notifier).state = false;
+      GlobalVariables.isTripStarted = false;
+    } else {
+      // ✅ Start the trip
+      GlobalVariables.isTripStarted = true;
+      ref.read(isTripStartedProvider.notifier).state = true;
+
+      // ✅ Set static starting point when trip starts
+      final currentLocation = ref.read(movingLocationProvider);
+      if (currentLocation != null) {
+        ref.read(staticStartingPointProvider.notifier).state = currentLocation;
+      }
+
+      // ✅ Clear previous path to start a new trip
+      ref.read(pathCoordinatesProvider.notifier).state = [];
+
+      // ✅ Start tracking user movement
+      _startTrackingMovement();
     }
-
-    // ✅ Clear previous path to start a new trip
-    ref.read(pathCoordinatesProvider.notifier).state = [];
-
-    // ✅ Start tracking user movement
-    _startTrackingMovement();
   }
 
   void _restoreState() {
@@ -162,8 +180,6 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
       });
     }
   }
-
-  
 
   List<LatLng> _decodePolyline6(String encoded) {
     List<LatLng> polyline = [];
@@ -465,7 +481,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                           mapController: _mapController, 
                           options: MapOptions(
                             initialCenter: movingLocation ?? staticStartingPoint ?? const LatLng(43.1557, -77.6157),
-                            initialZoom: 13.0,
+                            initialZoom: 15.0,
                           ),
                           children: [
                             TileLayer(
@@ -497,6 +513,64 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                       fit: BoxFit.contain, // Ensures the image scales properly
                                     ),
                                   ),
+
+                                // Markers from markersProvider
+                                ...ref.watch(markersProvider).map((markerData) {
+                                  return Marker(
+                                    width: 80.0,
+                                    height: 80.0,
+                                    point: markerData.location,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        // Display the image in a dialog
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) => AlertDialog(
+                                            content: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Padding(
+                                                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                                                  child: Row(
+                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    children: [
+                                                      Text(
+                                                        markerData.caption,
+                                                        style: const TextStyle(
+                                                          fontSize: 16,
+                                                          fontWeight: FontWeight.bold,
+                                                          color: Colors.grey,
+                                                          fontFamily: 'Kadaw',
+                                                        ),
+                                                      ),
+                                                      IconButton(
+                                                        icon: const Icon(Icons.close, color: Colors.black),
+                                                        onPressed: () {
+                                                          Navigator.of(context).pop();
+                                                        },
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                Image.file(
+                                                  File(markerData.imagePath),
+                                                  fit: BoxFit.cover,
+                                                  width: MediaQuery.of(context).size.width * 0.9,
+                                                  height: MediaQuery.of(context).size.height * 0.5,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: const Icon(
+                                        Icons.location_on,
+                                        color: Colors.blue, // Blue for additional markers
+                                        size: 40,
+                                      ),
+                                    ),
+                                  );
+                                }),
                               ],
                             ),
                             

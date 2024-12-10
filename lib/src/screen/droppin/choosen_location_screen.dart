@@ -1,13 +1,20 @@
 import 'package:RollaTravel/src/screen/trip/start_trip.dart';
+import 'package:RollaTravel/src/utils/stop_marker_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:RollaTravel/src/utils/index.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
 import 'package:RollaTravel/src/translate/en.dart';
 import 'package:RollaTravel/src/constants/app_styles.dart';
+import 'package:latlong2/latlong.dart';
+import 'dart:io';
 
 class ChoosenLocationScreen extends ConsumerStatefulWidget{
-  const ChoosenLocationScreen({super.key});
+  final LatLng? location;
+  final String caption;
+  final String imagePath;
+
+  const ChoosenLocationScreen({super.key, required this.caption, required this.imagePath, required this.location});
 
   @override
   ConsumerState<ChoosenLocationScreen> createState() => ChoosenLocationScreenState();
@@ -30,6 +37,29 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
 
   Future<bool> _onWillPop() async {
     return false;
+  }
+
+  void _onShareClicked(){
+    final markerData = MarkerData(
+      location: widget.location!,
+      imagePath: widget.imagePath,
+      caption: widget.caption
+    );
+
+    // Add the marker to the provider
+    ref.read(markersProvider.notifier).state = [
+      ...ref.read(markersProvider),
+      markerData,
+    ];
+  
+    Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+          pageBuilder: (context, animation1, animation2) => const StartTripScreen(),
+          transitionDuration: Duration.zero,
+          reverseTransitionDuration: Duration.zero,
+      ),
+    );
   }
 
   @override
@@ -175,13 +205,13 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                               ),
                               child: Column(
                                 children: [
-                                  const Align(
+                                  Align(
                                     alignment: Alignment.centerLeft,
                                     child: Padding(
-                                      padding: EdgeInsets.only(left: 10.0, top: 5, bottom: 5),
+                                      padding: const EdgeInsets.only(left: 10.0, top: 5, bottom: 5),
                                         child: Text(
-                                        "Caption",
-                                        style: TextStyle(
+                                        widget.caption,
+                                        style: const TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
                                           color: Colors.grey,
@@ -192,11 +222,12 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                                   ),
                                   // Image
                                   Expanded(
-                                    child: Image.asset(
-                                      "assets/images/background/Lake1.png",
+                                    child: Image.file(
+                                      File(widget.imagePath),
                                       fit: BoxFit.cover,
                                       width: vww(context, 100),
                                     ),
+                                    
                                   ),
                                 ],
                               ),
@@ -232,14 +263,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
               ),
               GestureDetector(
                 onTap: () {
-                  Navigator.pushReplacement(
-                    context,
-                    PageRouteBuilder(
-                        pageBuilder: (context, animation1, animation2) => const StartTripScreen(),
-                        transitionDuration: Duration.zero,
-                        reverseTransitionDuration: Duration.zero,
-                    ),
-                  );
+                  _onShareClicked();
                 },
                 child: Image.asset(
                   "assets/images/icons/share.png",
