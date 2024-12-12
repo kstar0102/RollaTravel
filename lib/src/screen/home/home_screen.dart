@@ -619,27 +619,14 @@ class PostWidgetState extends State<PostWidget> {
                         Widget markerIcon;
                         if (index == 0) {
                           // Start location
-                          markerIcon = SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: Image.asset(
-                              'assets/images/icons/start_icon.png',
-                              fit: BoxFit.contain, // Ensure the image fits within the specified size
-                            ),
-                          );
+                          markerIcon = const Icon(Icons.location_on, color: Colors.red, size: 30);
+                          
                         } else if (index == locations.length - 1) {
                           // Destination location
-                          markerIcon = SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: Image.asset(
-                              'assets/images/icons/des_icon.png',
-                              fit: BoxFit.contain, // Ensure the image fits within the specified size
-                            ),
-                          );
+                          markerIcon = const Icon(Icons.location_on, color: Colors.green, size: 30);
                         } else {
                           // Waypoints
-                          markerIcon = const Icon(Icons.location_on, color: Colors.blue, size: 40);
+                          markerIcon = const Icon(Icons.location_on, color: Colors.blue, size: 30);
                         }
 
                         return Marker(
@@ -681,6 +668,7 @@ class PostWidgetState extends State<PostWidget> {
               : const Center(
                   child: CircularProgressIndicator(), // Show a loading indicator while waiting for data
                 ),
+
               // Zoom controls
               Positioned(
                 right: 10,
@@ -688,7 +676,7 @@ class PostWidgetState extends State<PostWidget> {
                 child: Column(
                   children: [
                     FloatingActionButton(
-                      heroTag: 'zoom_in_button_homescreen_1',
+                      heroTag: 'zoom_in_button_homescreen_tap1_${DateTime.now().millisecondsSinceEpoch}',
                       onPressed: () {
                         mapController.move(
                           mapController.camera.center,
@@ -700,7 +688,7 @@ class PostWidgetState extends State<PostWidget> {
                     ),
                     const SizedBox(height: 8),
                     FloatingActionButton(
-                      heroTag: 'zoom_out_button_homescreen_2',
+                      heroTag: 'zoom_out_button_homescreen_tap2_${DateTime.now().millisecondsSinceEpoch}',
                       onPressed: () {
                         mapController.move(
                           mapController.camera.center,

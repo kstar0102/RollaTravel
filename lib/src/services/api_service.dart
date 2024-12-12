@@ -4,8 +4,8 @@ import 'package:logger/logger.dart';
 
 
 class ApiService {
-  static const String baseUrl = 'http://16.171.153.11/api';
-  // static const String baseUrl = 'http://192.168.141.105:8000/api';
+  // static const String baseUrl = 'http://16.171.153.11/api';
+  static const String baseUrl = 'http://192.168.141.105:8000/api';
   String apiKey = 'cfdb0e89363c14687341dbc25d1e1d43';
   final logger = Logger();
 
@@ -238,4 +238,52 @@ class ApiService {
       throw Exception('Failed to load followers: ${response.statusCode}');
     }
   }
+
+  Future<bool> createTrip({
+    required int userId,
+    required String startAddress,
+    required String stopAddresses,
+    required String destinationAddress,
+    required String tripStartDate,
+    required String tripEndDate,
+    required String tripMiles,
+    required String tripSound,
+    required List<Map<String, dynamic>> droppins,
+  }) async {
+    final url = Uri.parse('$baseUrl/trip/create');
+    final Map<String, dynamic> requestBody = {
+      'user_id': userId,
+      'start_address': startAddress,
+      'stop_address': stopAddresses,
+      'destination_address': destinationAddress,
+      'trip_start_date': tripStartDate,
+      'trip_end_date': tripEndDate,
+      'trip_miles': tripMiles,
+      'trip_sound': tripSound,
+      'droppins': droppins,
+    };
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(requestBody),
+      );
+
+      if (response.statusCode == 201) {
+        final responseData = jsonDecode(response.body);
+        logger.i("Trip created successfully: ${responseData['trip']}");
+        return true; // Indicate success
+      } else {
+        logger.i("Failed to create trip: ${response.statusCode} - ${response.body}");
+        return false; // Indicate failure
+      }
+    } catch (e) {
+      logger.i("Error creating trip: $e");
+      return false; // Indicate failure
+    }
+  }
+
+
+
 }

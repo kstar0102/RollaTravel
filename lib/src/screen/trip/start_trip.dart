@@ -20,7 +20,7 @@ import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
-import 'dart:io';
+import 'package:intl/intl.dart';
 
 class StartTripScreen extends ConsumerStatefulWidget {
   const StartTripScreen({super.key});
@@ -40,7 +40,6 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   final TextEditingController _captionController = TextEditingController();
   String editDestination = 'Edit destination';
   String initialSound = "Edit Playlist";
-
   
 
   @override
@@ -144,19 +143,45 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
 
   void toggleTrip() {
     if (GlobalVariables.isTripStarted) {
-      // ✅ End the trip and navigate to the EndTripScreen
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const EndTripScreen()),
-      );
+      LatLng? startlocation = ref.read(staticStartingPointProvider);
+      LatLng? endlocation = ref.read(movingLocationProvider);
+      List<MarkerData> stopmarkers = ref.read(markersProvider);
 
-      // Reset the trip state (optional if needed)
-      ref.read(isTripStartedProvider.notifier).state = false;
-      GlobalVariables.isTripStarted = false;
+      DateTime now = DateTime.now();
+      String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
+      GlobalVariables.tripEndDate = formattedDate;  
+
+      if(GlobalVariables.tripStartDate != null && GlobalVariables.tripEndDate != null){
+        // ✅ End the trip and navigate to the EndTripScreen
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => EndTripScreen(
+            startLocation: startlocation,
+            endLocation: endlocation,
+            stopMarkers: stopmarkers,
+            tripStartDate: GlobalVariables.tripStartDate!,
+            tripEndDate: GlobalVariables.tripEndDate!,
+          )),
+        );
+        // Reset the trip state (optional if needed)
+        ref.read(isTripStartedProvider.notifier).state = false;
+        GlobalVariables.isTripStarted = false;
+
+        // // ✅ Reset all trip-related data
+        ref.read(pathCoordinatesProvider.notifier).state = [];
+        ref.read(staticStartingPointProvider.notifier).state = null;
+        ref.read(movingLocationProvider.notifier).state = null;
+        ref.read(markersProvider.notifier).state = [];
+      }else{
+        logger.i("tripStartDate is null now ");
+      }
     } else {
       // ✅ Start the trip
       GlobalVariables.isTripStarted = true;
       ref.read(isTripStartedProvider.notifier).state = true;
+      DateTime now = DateTime.now();
+      String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
+      GlobalVariables.tripStartDate = formattedDate;  
 
       // ✅ Set static starting point when trip starts
       final currentLocation = ref.read(movingLocationProvider);
@@ -552,11 +577,29 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                                     ],
                                                   ),
                                                 ),
-                                                Image.file(
-                                                  File(markerData.imagePath),
+                                                Image.network(
+                                                  markerData.imagePath,
                                                   fit: BoxFit.cover,
-                                                  width: MediaQuery.of(context).size.width * 0.9,
-                                                  height: MediaQuery.of(context).size.height * 0.5,
+                                                  loadingBuilder: (context, child, loadingProgress) {
+                                                    if (loadingProgress == null) {
+                                                      // Image has loaded successfully
+                                                      return child;
+                                                    } else {
+                                                      // Display a loading indicator while the image is loading
+                                                      return Center(
+                                                        child: CircularProgressIndicator(
+                                                          value: loadingProgress.expectedTotalBytes != null
+                                                              ? loadingProgress.cumulativeBytesLoaded /
+                                                                  (loadingProgress.expectedTotalBytes ?? 1)
+                                                              : null, // Show progress if available
+                                                        ),
+                                                      );
+                                                    }
+                                                  },
+                                                  errorBuilder: (context, error, stackTrace) {
+                                                    // Fallback widget in case of an error
+                                                    return const Icon(Icons.broken_image, size: 100);
+                                                  },
                                                 ),
                                               ],
                                             ),

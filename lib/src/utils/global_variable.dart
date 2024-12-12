@@ -19,6 +19,8 @@ class GlobalVariables {
   static String? garage;
   static String? garageLogoUrl;
   static String? userImageUrl;
+  static String? tripStartDate;
+  static String? tripEndDate;
   static int? tripCount;
   static String? followingIds;
   static List<dynamic>? dropPinsData;

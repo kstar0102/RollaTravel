@@ -1,4 +1,6 @@
 import 'package:RollaTravel/src/screen/home/home_screen.dart';
+import 'package:RollaTravel/src/screen/trip/start_trip.dart';
+import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:RollaTravel/src/utils/stop_marker_provider.dart';
 import 'package:flutter/material.dart';
@@ -9,15 +11,24 @@ import 'package:RollaTravel/src/translate/en.dart';
 import 'package:logger/logger.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'dart:io';
 
 class EndTripScreen extends ConsumerStatefulWidget {
-  const EndTripScreen({super.key});
+  final LatLng? startLocation;
+  final LatLng? endLocation;
+  final List<MarkerData> stopMarkers;
+  final String tripStartDate;
+  final String tripEndDate;
+  const EndTripScreen({
+    super.key, 
+    required this.startLocation, 
+    required this.endLocation, 
+    required this.stopMarkers,
+    required this.tripStartDate,
+    required this.tripEndDate,
+  });
 
   @override
   ConsumerState<EndTripScreen> createState() => _EndTripScreenState();
@@ -27,16 +38,23 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
   double screenHeight = 0;
   double keyboardHeight = 0;
   final int _currentIndex = 2;
-  LatLng? _currentLocation;
   final Logger logger = Logger();
   final MapController _mapController = MapController();
   List<LatLng> _pathCoordinates = [];
+  double totalDistanceInMeters = 0;
+
+  String? startAddress;
+  String? endAddress;
+  String stopAddressesString = "";
+  List<String> formattedStopAddresses = [];
+  List<Map<String, dynamic>> droppins = [];
 
   @override
   void initState() {
     super.initState();
-    _getCurrentLocation();
+    _fetchAddresses();
     _fetchRoute();
+    _fetchDropPins();
   }
 
   @override
@@ -45,33 +63,84 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
     _mapController.dispose();
   }
 
-  Future<void> _getCurrentLocation() async {
-    final permissionStatus = await Permission.location.request();
+  Future<void> _fetchDropPins() async {
+    // Convert the list of MarkerData to the desired format
+    droppins = widget.stopMarkers.asMap().entries.map((entry) {
+      final int index = entry.key + 1; // stop_index starts from 1
+      final MarkerData marker = entry.value;
 
-    if (permissionStatus.isGranted) {
-      Position position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-        ),
+      return {
+        "stop_index": index,
+        "image_path": marker.imagePath,
+        "image_caption": marker.caption,
+      };
+    }).toList();
+
+    // Log the formatted droppins
+    logger.i("Droppins: $droppins");
+  }
+
+  Future<void> _fetchAddresses() async {
+    if (widget.startLocation != null) {
+      startAddress = await getAddressFromLocation(widget.startLocation!);
+      logger.i("startAddress : $startAddress");
+    }
+
+    if (widget.endLocation != null) {
+      endAddress = await getAddressFromLocation(widget.endLocation!);
+      logger.i("endAddress : $endAddress");
+    }
+
+    if(widget.stopMarkers != []){
+      List<String?> stopMarkerAddresses = await Future.wait(
+        widget.stopMarkers.map((marker) async {
+          try {
+            final address = await getAddressFromLocation(marker.location);
+            return address ?? "";
+          } catch (e) {
+            logger.e("Error fetching address for marker at ${marker.location}: $e");
+            return "";
+          }
+        }),
       );
-      setState(() {
-        _currentLocation = LatLng(position.latitude, position.longitude);
-        logger.i("$_currentLocation");
-      });
-       _mapController.move(_currentLocation!, 15.0);
-    } else {
-      // Handle the case when location permission is denied.
-      logger.i("Location permission denied");
+
+      // Format the list as JSON-like array
+      formattedStopAddresses = stopMarkerAddresses.map((address) => '"$address"').toList();
+      stopAddressesString = '[${formattedStopAddresses.join(', ')}]';
+    }
+
+  }
+
+  Future<String?> getAddressFromLocation(LatLng location) async {
+    const String accessToken = "pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw";
+    final String url =
+        "https://api.mapbox.com/geocoding/v5/mapbox.places/${location.longitude},${location.latitude}.json?access_token=$accessToken";
+
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        if (data['features'].isNotEmpty) {
+          // Return the first result's place name
+          return data['features'][0]['place_name'];
+        } else {
+          return "Address not found";
+        }
+      } else {
+        return "Error: ${response.statusCode}";
+      }
+    } catch (e) {
+      return "Error: $e";
     }
   }
 
   Future<void> _fetchRoute() async {
     // Retrieve starting point and moving location
-    final staticStartingPoint = ref.read(staticStartingPointProvider);
-    final movingLocation = ref.read(movingLocationProvider);
+    final staticStartingPoint = widget.startLocation;
+    final movingLocation = widget.endLocation;
 
     // Retrieve waypoints from markersProvider
-    final markers = ref.read(markersProvider);
+    final markers = widget.stopMarkers;
     final waypoints = markers.map((marker) => marker.location).toList();
 
     if (staticStartingPoint == null || movingLocation == null) {
@@ -92,9 +161,12 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
         if (routes.isNotEmpty) {
           final String polyline = routes[0]['geometry'];
           final List<LatLng> decodedPolyline = _decodePolyline6(polyline);
+          final double distanceInMeters = routes[0]['distance'];
+          final double totalDistanceInMiles = distanceInMeters / 1609.34;
 
           setState(() {
-            _pathCoordinates = decodedPolyline; // Update path coordinates
+            _pathCoordinates = decodedPolyline;
+            totalDistanceInMeters = totalDistanceInMiles;
           });
         } else {
           logger.i("No routes found");
@@ -141,6 +213,55 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
     return false;
   }
 
+  Future<void> sendTripData() async {
+    String tripMiles = "${totalDistanceInMeters.toStringAsFixed(3)} miles";
+    final apiserice = ApiService();
+    final response = await apiserice.createTrip(
+      userId: GlobalVariables.userId!, 
+      startAddress: startAddress!, 
+      stopAddresses: stopAddressesString, 
+      destinationAddress: endAddress!, 
+      tripStartDate: widget.tripStartDate, 
+      tripEndDate: widget.tripEndDate, 
+      tripMiles: tripMiles, 
+      tripSound: "tripSound", 
+      droppins: droppins
+    );
+
+    if (!mounted) return;
+
+     if (response) {
+      // Navigate to the next page
+       Navigator.pushReplacement(
+        context,
+        PageRouteBuilder(
+            pageBuilder: (context, animation1, animation2) => const HomeScreen(),
+            transitionDuration: Duration.zero,
+            reverseTransitionDuration: Duration.zero,
+        ),
+      );
+    } else {
+      // Show an alert dialog
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Error"),
+            content: const Text("Failed to create the trip. Please try again."),
+            actions: [
+              TextButton(
+                child: const Text("OK"),
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -154,18 +275,18 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
               SizedBox(height: vhh(context, 5),),
               Container(
                 decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: Colors.grey, width: 1.5),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.white.withOpacity(0.9),
-                    spreadRadius: -5,
-                    blurRadius: 15,
-                    offset: const Offset(0, 5), // Only apply shadow at the top
-                  ),
-                ],
-              ),
+                  color: Colors.white,
+                  border: Border.all(color: Colors.grey, width: 1.5),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.white.withOpacity(0.9),
+                      spreadRadius: -5,
+                      blurRadius: 15,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
                 child: Column(
                   children: [
                     Stack(
@@ -187,7 +308,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                           child: IconButton(
                             icon: const Icon(Icons.close, color: Colors.black, size: 28),
                             onPressed: () {
-                              Navigator.pop(context); // Close action
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => const StartTripScreen()));
                             },
                           ),
                         ),
@@ -219,12 +340,13 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                         ],
                       ),
                     ),
-                    const Padding(
+                    
+                    Padding(
                       padding: EdgeInsets.symmetric(horizontal: 10.0), // Adjust the value as needed
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
+                          const Text(
                             miles_traveled,
                             style: TextStyle(
                               color: kColorBlack,
@@ -233,8 +355,8 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                             ),
                           ),
                           Text(
-                            "0",
-                            style: TextStyle(
+                            totalDistanceInMeters.toStringAsFixed(3),
+                            style: const TextStyle(
                               color: kColorBlack,
                               fontSize: 14,
                               fontFamily: 'Kadaw'
@@ -243,6 +365,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                         ],
                       ),
                     ),
+                    
                     const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 10.0), // Adjust the value as needed
                       child: Row(
@@ -269,7 +392,9 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                         ],
                       ),
                     ),
+                    
                     const SizedBox(height: 20),
+                    
                     // Map Image
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: vww(context, 4)),
@@ -280,8 +405,8 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                             FlutterMap(
                               mapController: _mapController, 
                               options: MapOptions(
-                                initialCenter: _currentLocation ?? const LatLng(37.7749, -122.4194),
-                                initialZoom: 12.0,
+                                initialCenter: widget.startLocation! ,
+                                initialZoom: 16.0,
                               ),
                               children: [
                                 TileLayer(
@@ -304,73 +429,100 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                                 
                                   MarkerLayer(
                                     markers: [
-                                      if (_currentLocation != null)
+                                      if (widget.startLocation != null)
                                         Marker(
                                           width: 80.0,
                                           height: 80.0,
-                                          point: _currentLocation!,
+                                          point: widget.startLocation!,
                                           child: const Icon(Icons.location_on, color: Colors.red, size: 40),
                                         ),
-                                      ...ref.watch(markersProvider).map((markerData) {
-                                      return Marker(
-                                        width: 80.0,
-                                        height: 80.0,
-                                        point: markerData.location,
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            // Display the image in a dialog
-                                            showDialog(
-                                              context: context,
-                                              builder: (context) => AlertDialog(
-                                                content: Column(
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  children: [
-                                                    Padding(
-                                                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                                                      child: Row(
-                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                        children: [
-                                                          Text(
-                                                            markerData.caption,
-                                                            style: const TextStyle(
-                                                              fontSize: 16,
-                                                              fontWeight: FontWeight.bold,
-                                                              color: Colors.grey,
-                                                              fontFamily: 'Kadaw',
-                                                            ),
-                                                          ),
-                                                          IconButton(
-                                                            icon: const Icon(Icons.close, color: Colors.black),
-                                                            onPressed: () {
-                                                              Navigator.of(context).pop();
-                                                            },
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    Image.file(
-                                                      File(markerData.imagePath),
-                                                      fit: BoxFit.cover,
-                                                      width: MediaQuery.of(context).size.width * 0.9,
-                                                      height: MediaQuery.of(context).size.height * 0.5,
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                          child: const Icon(
-                                            Icons.location_on,
-                                            color: Colors.blue, // Blue for additional markers
-                                            size: 40,
-                                          ),
+                                      if (widget.endLocation != null)
+                                        Marker(
+                                          width: 80.0,
+                                          height: 80.0,
+                                          point: widget.endLocation!,
+                                          child: const Icon(Icons.location_on, color: Colors.green, size: 40),
                                         ),
-                                      );
-                                    }),
+                                      if (widget.stopMarkers.isNotEmpty)
+                                        ...widget.stopMarkers.map((markerData) {
+                                          return Marker(
+                                            width: 80.0,
+                                            height: 80.0,
+                                            point: markerData.location,
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                // Display the image in a dialog
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (context) => AlertDialog(
+                                                    content: Column(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        Padding(
+                                                          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                                                          child: Row(
+                                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                            children: [
+                                                              Text(
+                                                                markerData.caption,
+                                                                style: const TextStyle(
+                                                                  fontSize: 16,
+                                                                  fontWeight: FontWeight.bold,
+                                                                  color: Colors.grey,
+                                                                  fontFamily: 'Kadaw',
+                                                                ),
+                                                              ),
+                                                              IconButton(
+                                                                icon: const Icon(Icons.close, color: Colors.black),
+                                                                onPressed: () {
+                                                                  Navigator.of(context).pop();
+                                                                },
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        Image.network(
+                                                          markerData.imagePath,
+                                                          fit: BoxFit.cover,
+                                                          loadingBuilder: (context, child, loadingProgress) {
+                                                            if (loadingProgress == null) {
+                                                              // Image has loaded successfully
+                                                              return child;
+                                                            } else {
+                                                              // Display a loading indicator while the image is loading
+                                                              return Center(
+                                                                child: CircularProgressIndicator(
+                                                                  value: loadingProgress.expectedTotalBytes != null
+                                                                      ? loadingProgress.cumulativeBytesLoaded /
+                                                                          (loadingProgress.expectedTotalBytes ?? 1)
+                                                                      : null, // Show progress if available
+                                                                ),
+                                                              );
+                                                            }
+                                                          },
+                                                          errorBuilder: (context, error, stackTrace) {
+                                                            // Fallback widget in case of an error
+                                                            return const Icon(Icons.broken_image, size: 100);
+                                                          },
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                              child: const Icon(
+                                                Icons.location_on,
+                                                color: Colors.blue, // Blue for additional markers
+                                                size: 40,
+                                              ),
+                                            ),
+                                          );
+                                        }),
                                     ],
                                   ),
                               ],
                             ),
+
                             // Zoom in/out buttons
                             Positioned(
                               right: 10,
@@ -378,7 +530,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                               child: Column(
                                 children: [
                                   FloatingActionButton(
-                                    heroTag: 'zoom_in_button_endtrip',
+                                    heroTag: 'zoom_in_button_endtrip_1',
                                     onPressed: () {
                                       _mapController.move(
                                         _mapController.camera.center,
@@ -390,7 +542,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                                   ),
                                   const SizedBox(height: 8),
                                   FloatingActionButton(
-                                    heroTag: 'zoom_in_button_endtrip',
+                                    heroTag: 'zoom_in_button_endtrip_2',
                                     onPressed: () {
                                       _mapController.move(
                                         _mapController.camera.center,
@@ -407,6 +559,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                         ),
                       ),
                     ),
+                    
                     const SizedBox(height: 20),
                     // Footer Text
                     const Text(
@@ -422,7 +575,9 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                   ],
                 ),
               ),
+
               const SizedBox(height: 20),
+              
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -432,14 +587,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        PageRouteBuilder(
-                            pageBuilder: (context, animation1, animation2) => const HomeScreen(),
-                            transitionDuration: Duration.zero,
-                            reverseTransitionDuration: Duration.zero,
-                        ),
-                      );
+                      sendTripData();
                     },
                     child: Image.asset(
                       "assets/images/icons/share.png",
