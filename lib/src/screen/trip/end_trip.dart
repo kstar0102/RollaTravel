@@ -22,9 +22,9 @@ class EndTripScreen extends ConsumerStatefulWidget {
   final String tripStartDate;
   final String tripEndDate;
   const EndTripScreen({
-    super.key, 
-    required this.startLocation, 
-    required this.endLocation, 
+    super.key,
+    required this.startLocation,
+    required this.endLocation,
     required this.stopMarkers,
     required this.tripStartDate,
     required this.tripEndDate,
@@ -91,28 +91,30 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
       logger.i("endAddress : $endAddress");
     }
 
-    if(widget.stopMarkers != []){
+    if (widget.stopMarkers != []) {
       List<String?> stopMarkerAddresses = await Future.wait(
         widget.stopMarkers.map((marker) async {
           try {
             final address = await getAddressFromLocation(marker.location);
             return address ?? "";
           } catch (e) {
-            logger.e("Error fetching address for marker at ${marker.location}: $e");
+            logger.e(
+                "Error fetching address for marker at ${marker.location}: $e");
             return "";
           }
         }),
       );
 
       // Format the list as JSON-like array
-      formattedStopAddresses = stopMarkerAddresses.map((address) => '"$address"').toList();
+      formattedStopAddresses =
+          stopMarkerAddresses.map((address) => '"$address"').toList();
       stopAddressesString = '[${formattedStopAddresses.join(', ')}]';
     }
-
   }
 
   Future<String?> getAddressFromLocation(LatLng location) async {
-    const String accessToken = "pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw";
+    const String accessToken =
+        "pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw";
     final String url =
         "https://api.mapbox.com/geocoding/v5/mapbox.places/${location.longitude},${location.latitude}.json?access_token=$accessToken";
 
@@ -149,8 +151,11 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
     }
 
     // Construct waypoints for the Mapbox Directions API
-    final waypointString = waypoints.map((waypoint) => "${waypoint.longitude},${waypoint.latitude}").join(";");
-    final url = 'https://api.mapbox.com/directions/v5/mapbox/driving/${staticStartingPoint.longitude},${staticStartingPoint.latitude};$waypointString;${movingLocation.longitude},${movingLocation.latitude}?geometries=polyline6&access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw';
+    final waypointString = waypoints
+        .map((waypoint) => "${waypoint.longitude},${waypoint.latitude}")
+        .join(";");
+    final url =
+        'https://api.mapbox.com/directions/v5/mapbox/driving/${staticStartingPoint.longitude},${staticStartingPoint.latitude};$waypointString;${movingLocation.longitude},${movingLocation.latitude}?geometries=polyline6&access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw';
 
     try {
       final response = await http.get(Uri.parse(url));
@@ -217,27 +222,26 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
     String tripMiles = "${totalDistanceInMeters.toStringAsFixed(3)} miles";
     final apiserice = ApiService();
     final response = await apiserice.createTrip(
-      userId: GlobalVariables.userId!, 
-      startAddress: startAddress!, 
-      stopAddresses: stopAddressesString, 
-      destinationAddress: endAddress!, 
-      tripStartDate: widget.tripStartDate, 
-      tripEndDate: widget.tripEndDate, 
-      tripMiles: tripMiles, 
-      tripSound: "tripSound", 
-      droppins: droppins
-    );
+        userId: GlobalVariables.userId!,
+        startAddress: startAddress!,
+        stopAddresses: stopAddressesString,
+        destinationAddress: endAddress!,
+        tripStartDate: widget.tripStartDate,
+        tripEndDate: widget.tripEndDate,
+        tripMiles: tripMiles,
+        tripSound: "tripSound",
+        droppins: droppins);
 
     if (!mounted) return;
 
-     if (response) {
+    if (response) {
       // Navigate to the next page
-       Navigator.pushReplacement(
+      Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-            pageBuilder: (context, animation1, animation2) => const HomeScreen(),
-            transitionDuration: Duration.zero,
-            reverseTransitionDuration: Duration.zero,
+          pageBuilder: (context, animation1, animation2) => const HomeScreen(),
+          transitionDuration: Duration.zero,
+          reverseTransitionDuration: Duration.zero,
         ),
       );
     } else {
@@ -265,14 +269,16 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body:WillPopScope(
+      body: WillPopScope(
         onWillPop: _onWillPop,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(height: vhh(context, 5),),
+              SizedBox(
+                height: vhh(context, 5),
+              ),
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -306,106 +312,109 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                           right: 0,
                           top: 10,
                           child: IconButton(
-                            icon: const Icon(Icons.close, color: Colors.black, size: 28),
+                            icon: const Icon(Icons.close,
+                                color: Colors.black, size: 28),
                             onPressed: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => const StartTripScreen()));
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const StartTripScreen()));
                             },
                           ),
                         ),
                       ],
                     ),
                     const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10.0), // Adjust the value as needed
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 10.0), // Adjust the value as needed
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             destination,
                             style: TextStyle(
-                              color: kColorBlack,
-                              fontSize: 14,
-                              fontFamily: 'Kadaw'
-                            ),
+                                color: kColorBlack,
+                                fontSize: 14,
+                                fontFamily: 'Kadaw'),
                           ),
                           Text(
                             edit_destination,
                             style: TextStyle(
-                              color: kColorButtonPrimary,
-                              fontSize: 14,
-                              decoration: TextDecoration.underline,
-                              decorationColor: kColorButtonPrimary,
-                              fontFamily: 'Kadaw'
-                            ),
+                                color: kColorButtonPrimary,
+                                fontSize: 14,
+                                decoration: TextDecoration.underline,
+                                decorationColor: kColorButtonPrimary,
+                                fontFamily: 'Kadaw'),
                           ),
                         ],
                       ),
                     ),
-                    
+
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10.0), // Adjust the value as needed
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10.0), // Adjust the value as needed
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Text(
                             miles_traveled,
                             style: TextStyle(
-                              color: kColorBlack,
-                              fontSize: 14,
-                              fontFamily: 'Kadaw'
-                            ),
+                                color: kColorBlack,
+                                fontSize: 14,
+                                fontFamily: 'Kadaw'),
                           ),
                           Text(
                             totalDistanceInMeters.toStringAsFixed(3),
                             style: const TextStyle(
-                              color: kColorBlack,
-                              fontSize: 14,
-                              fontFamily: 'Kadaw'
-                            ),
+                                color: kColorBlack,
+                                fontSize: 14,
+                                fontFamily: 'Kadaw'),
                           ),
                         ],
                       ),
                     ),
-                    
+
                     const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10.0), // Adjust the value as needed
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 10.0), // Adjust the value as needed
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             soundtrack,
                             style: TextStyle(
-                              color: kColorBlack,
-                              fontSize: 14,
-                              fontFamily: 'Kadaw'
-                            ),
+                                color: kColorBlack,
+                                fontSize: 14,
+                                fontFamily: 'Kadaw'),
                           ),
                           Text(
                             edit_playlist,
                             style: TextStyle(
-                              color: kColorButtonPrimary,
-                              fontSize: 14,
-                              decoration: TextDecoration.underline,
-                              decorationColor: kColorButtonPrimary,
-                              fontFamily: 'Kadaw'
-                            ),
+                                color: kColorButtonPrimary,
+                                fontSize: 14,
+                                decoration: TextDecoration.underline,
+                                decorationColor: kColorButtonPrimary,
+                                fontFamily: 'Kadaw'),
                           ),
                         ],
                       ),
                     ),
-                    
+
                     const SizedBox(height: 20),
-                    
+
                     // Map Image
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: vww(context, 4)),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: vww(context, 4)),
                       child: SizedBox(
                         height: vhh(context, 30),
                         child: Stack(
                           children: [
                             FlutterMap(
-                              mapController: _mapController, 
+                              mapController: _mapController,
                               options: MapOptions(
-                                initialCenter: widget.startLocation! ,
+                                initialCenter: widget.startLocation!,
                                 initialZoom: 16.0,
                               ),
                               children: [
@@ -413,7 +422,8 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                                   urlTemplate:
                                       "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw",
                                   additionalOptions: const {
-                                    'access_token': 'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw',
+                                    'access_token':
+                                        'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw',
                                   },
                                 ),
                                 if (_pathCoordinates.isNotEmpty)
@@ -426,100 +436,133 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                                       ),
                                     ],
                                   ),
-                                
-                                  MarkerLayer(
-                                    markers: [
-                                      if (widget.startLocation != null)
-                                        Marker(
+                                MarkerLayer(
+                                  markers: [
+                                    if (widget.startLocation != null)
+                                      Marker(
+                                        width: 80.0,
+                                        height: 80.0,
+                                        point: widget.startLocation!,
+                                        child: const Icon(Icons.location_on,
+                                            color: Colors.red, size: 40),
+                                      ),
+                                    if (widget.endLocation != null)
+                                      Marker(
+                                        width: 80.0,
+                                        height: 80.0,
+                                        point: widget.endLocation!,
+                                        child: const Icon(Icons.location_on,
+                                            color: Colors.green, size: 40),
+                                      ),
+                                    if (widget.stopMarkers.isNotEmpty)
+                                      ...widget.stopMarkers.map((markerData) {
+                                        return Marker(
                                           width: 80.0,
                                           height: 80.0,
-                                          point: widget.startLocation!,
-                                          child: const Icon(Icons.location_on, color: Colors.red, size: 40),
-                                        ),
-                                      if (widget.endLocation != null)
-                                        Marker(
-                                          width: 80.0,
-                                          height: 80.0,
-                                          point: widget.endLocation!,
-                                          child: const Icon(Icons.location_on, color: Colors.green, size: 40),
-                                        ),
-                                      if (widget.stopMarkers.isNotEmpty)
-                                        ...widget.stopMarkers.map((markerData) {
-                                          return Marker(
-                                            width: 80.0,
-                                            height: 80.0,
-                                            point: markerData.location,
-                                            child: GestureDetector(
-                                              onTap: () {
-                                                // Display the image in a dialog
-                                                showDialog(
-                                                  context: context,
-                                                  builder: (context) => AlertDialog(
-                                                    content: Column(
-                                                      mainAxisSize: MainAxisSize.min,
-                                                      children: [
-                                                        Padding(
-                                                          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                                                          child: Row(
-                                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                            children: [
-                                                              Text(
-                                                                markerData.caption,
-                                                                style: const TextStyle(
-                                                                  fontSize: 16,
-                                                                  fontWeight: FontWeight.bold,
-                                                                  color: Colors.grey,
-                                                                  fontFamily: 'Kadaw',
-                                                                ),
+                                          point: markerData.location,
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              // Display the image in a dialog
+                                              showDialog(
+                                                context: context,
+                                                builder: (context) =>
+                                                    AlertDialog(
+                                                  content: Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                                horizontal: 8.0,
+                                                                vertical: 4.0),
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: [
+                                                            Text(
+                                                              markerData
+                                                                  .caption,
+                                                              style:
+                                                                  const TextStyle(
+                                                                fontSize: 16,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                color:
+                                                                    Colors.grey,
+                                                                fontFamily:
+                                                                    'Kadaw',
                                                               ),
-                                                              IconButton(
-                                                                icon: const Icon(Icons.close, color: Colors.black),
-                                                                onPressed: () {
-                                                                  Navigator.of(context).pop();
-                                                                },
+                                                            ),
+                                                            IconButton(
+                                                              icon: const Icon(
+                                                                  Icons.close,
+                                                                  color: Colors
+                                                                      .black),
+                                                              onPressed: () {
+                                                                Navigator.of(
+                                                                        context)
+                                                                    .pop();
+                                                              },
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      Image.network(
+                                                        markerData.imagePath,
+                                                        fit: BoxFit.cover,
+                                                        loadingBuilder: (context,
+                                                            child,
+                                                            loadingProgress) {
+                                                          if (loadingProgress ==
+                                                              null) {
+                                                            // Image has loaded successfully
+                                                            return child;
+                                                          } else {
+                                                            // Display a loading indicator while the image is loading
+                                                            return Center(
+                                                              child:
+                                                                  CircularProgressIndicator(
+                                                                value: loadingProgress
+                                                                            .expectedTotalBytes !=
+                                                                        null
+                                                                    ? loadingProgress
+                                                                            .cumulativeBytesLoaded /
+                                                                        (loadingProgress.expectedTotalBytes ??
+                                                                            1)
+                                                                    : null, // Show progress if available
                                                               ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        Image.network(
-                                                          markerData.imagePath,
-                                                          fit: BoxFit.cover,
-                                                          loadingBuilder: (context, child, loadingProgress) {
-                                                            if (loadingProgress == null) {
-                                                              // Image has loaded successfully
-                                                              return child;
-                                                            } else {
-                                                              // Display a loading indicator while the image is loading
-                                                              return Center(
-                                                                child: CircularProgressIndicator(
-                                                                  value: loadingProgress.expectedTotalBytes != null
-                                                                      ? loadingProgress.cumulativeBytesLoaded /
-                                                                          (loadingProgress.expectedTotalBytes ?? 1)
-                                                                      : null, // Show progress if available
-                                                                ),
-                                                              );
-                                                            }
-                                                          },
-                                                          errorBuilder: (context, error, stackTrace) {
-                                                            // Fallback widget in case of an error
-                                                            return const Icon(Icons.broken_image, size: 100);
-                                                          },
-                                                        ),
-                                                      ],
-                                                    ),
+                                                            );
+                                                          }
+                                                        },
+                                                        errorBuilder: (context,
+                                                            error, stackTrace) {
+                                                          // Fallback widget in case of an error
+                                                          return const Icon(
+                                                              Icons
+                                                                  .broken_image,
+                                                              size: 100);
+                                                        },
+                                                      ),
+                                                    ],
                                                   ),
-                                                );
-                                              },
-                                              child: const Icon(
-                                                Icons.location_on,
-                                                color: Colors.blue, // Blue for additional markers
-                                                size: 40,
-                                              ),
+                                                ),
+                                              );
+                                            },
+                                            child: const Icon(
+                                              Icons.location_on,
+                                              color: Colors
+                                                  .blue, // Blue for additional markers
+                                              size: 40,
                                             ),
-                                          );
-                                        }),
-                                    ],
-                                  ),
+                                          ),
+                                        );
+                                      }),
+                                  ],
+                                ),
                               ],
                             ),
 
@@ -559,31 +602,35 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                         ),
                       ),
                     ),
-                    
+
                     const SizedBox(height: 20),
                     // Footer Text
                     const Text(
                       'Travel. Share.',
-                      style: TextStyle(fontSize: 16, fontFamily: 'KadawBold', color: Colors.grey),
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontFamily: 'KadawBold',
+                          color: Colors.grey),
                     ),
                     const SizedBox(height: 15),
                     const Text(
                       'the Rolla travel app',
-                      style: TextStyle(fontSize: 14, color: Colors.black, fontFamily: 'Kadaw'),
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.black,
+                          fontFamily: 'Kadaw'),
                     ),
                     const SizedBox(height: 30),
                   ],
                 ),
               ),
-
               const SizedBox(height: 20),
-              
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
                     'Share this summary:',
-                    style: TextStyle(fontSize: 16,fontFamily: 'Kadaw'),
+                    style: TextStyle(fontSize: 16, fontFamily: 'Kadaw'),
                   ),
                   GestureDetector(
                     onTap: () {
@@ -599,7 +646,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
             ],
           ),
         ),
-      ), 
+      ),
       bottomNavigationBar: BottomNavBar(currentIndex: _currentIndex),
     );
   }
