@@ -21,6 +21,7 @@ class EndTripScreen extends ConsumerStatefulWidget {
   final List<MarkerData> stopMarkers;
   final String tripStartDate;
   final String tripEndDate;
+  final String tripDistance;
   const EndTripScreen({
     super.key,
     required this.startLocation,
@@ -28,6 +29,7 @@ class EndTripScreen extends ConsumerStatefulWidget {
     required this.stopMarkers,
     required this.tripStartDate,
     required this.tripEndDate,
+    required this.tripDistance,
   });
 
   @override
@@ -40,7 +42,6 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
   final int _currentIndex = 2;
   final Logger logger = Logger();
   final MapController _mapController = MapController();
-  List<LatLng> _pathCoordinates = [];
   double totalDistanceInMeters = 0;
 
   String? startAddress;
@@ -53,7 +54,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
   void initState() {
     super.initState();
     _fetchAddresses();
-    _fetchRoute();
+    // _fetchRoute();
     _fetchDropPins();
   }
 
@@ -136,83 +137,83 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
     }
   }
 
-  Future<void> _fetchRoute() async {
-    // Retrieve starting point and moving location
-    final staticStartingPoint = widget.startLocation;
-    final movingLocation = widget.endLocation;
+  // Future<void> _fetchRoute() async {
+  //   // Retrieve starting point and moving location
+  //   final staticStartingPoint = widget.startLocation;
+  //   final movingLocation = widget.endLocation;
 
-    // Retrieve waypoints from markersProvider
-    final markers = widget.stopMarkers;
-    final waypoints = markers.map((marker) => marker.location).toList();
+  //   // Retrieve waypoints from markersProvider
+  //   final markers = widget.stopMarkers;
+  //   final waypoints = markers.map((marker) => marker.location).toList();
 
-    if (staticStartingPoint == null || movingLocation == null) {
-      logger.i("Starting point or moving location is missing");
-      return;
-    }
+  //   if (staticStartingPoint == null || movingLocation == null) {
+  //     logger.i("Starting point or moving location is missing");
+  //     return;
+  //   }
 
-    // Construct waypoints for the Mapbox Directions API
-    final waypointString = waypoints
-        .map((waypoint) => "${waypoint.longitude},${waypoint.latitude}")
-        .join(";");
-    final url =
-        'https://api.mapbox.com/directions/v5/mapbox/driving/${staticStartingPoint.longitude},${staticStartingPoint.latitude};$waypointString;${movingLocation.longitude},${movingLocation.latitude}?geometries=polyline6&access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw';
+  //   // Construct waypoints for the Mapbox Directions API
+  //   final waypointString = waypoints
+  //       .map((waypoint) => "${waypoint.longitude},${waypoint.latitude}")
+  //       .join(";");
+  //   final url =
+  //       'https://api.mapbox.com/directions/v5/mapbox/driving/${staticStartingPoint.longitude},${staticStartingPoint.latitude};$waypointString;${movingLocation.longitude},${movingLocation.latitude}?geometries=polyline6&access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw';
 
-    try {
-      final response = await http.get(Uri.parse(url));
-      if (response.statusCode == 200) {
-        final jsonResponse = jsonDecode(response.body);
-        final List<dynamic> routes = jsonResponse['routes'];
+  //   try {
+  //     final response = await http.get(Uri.parse(url));
+  //     if (response.statusCode == 200) {
+  //       final jsonResponse = jsonDecode(response.body);
+  //       final List<dynamic> routes = jsonResponse['routes'];
 
-        if (routes.isNotEmpty) {
-          final String polyline = routes[0]['geometry'];
-          final List<LatLng> decodedPolyline = _decodePolyline6(polyline);
-          final double distanceInMeters = routes[0]['distance'];
-          final double totalDistanceInMiles = distanceInMeters / 1609.34;
+  //       if (routes.isNotEmpty) {
+  //         final String polyline = routes[0]['geometry'];
+  //         final List<LatLng> decodedPolyline = _decodePolyline6(polyline);
+  //         final double distanceInMeters = routes[0]['distance'];
+  //         final double totalDistanceInMiles = distanceInMeters / 1609.34;
 
-          setState(() {
-            _pathCoordinates = decodedPolyline;
-            totalDistanceInMeters = totalDistanceInMiles;
-          });
-        } else {
-          logger.i("No routes found");
-        }
-      } else {
-        logger.i("Error fetching route: ${response.statusCode}");
-      }
-    } catch (e) {
-      logger.i("Error fetching route: $e");
-    }
-  }
+  //         setState(() {
+  //           _pathCoordinates = decodedPolyline;
+  //           totalDistanceInMeters = totalDistanceInMiles;
+  //         });
+  //       } else {
+  //         logger.i("No routes found");
+  //       }
+  //     } else {
+  //       logger.i("Error fetching route: ${response.statusCode}");
+  //     }
+  //   } catch (e) {
+  //     logger.i("Error fetching route: $e");
+  //   }
+  // }
 
-  List<LatLng> _decodePolyline6(String encoded) {
-    List<LatLng> polyline = [];
-    int index = 0, len = encoded.length;
-    int lat = 0, lng = 0;
+  // List<LatLng> _decodePolyline6(String encoded) {
+  //   List<LatLng> polyline = [];
+  //   int index = 0, len = encoded.length;
+  //   int lat = 0, lng = 0;
 
-    while (index < len) {
-      int b, shift = 0, result = 0;
-      do {
-        b = encoded.codeUnitAt(index++) - 63;
-        result |= (b & 0x1f) << shift;
-        shift += 5;
-      } while (b >= 0x20);
-      int deltaLat = (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
-      lat += deltaLat;
+  //   while (index < len) {
+  //     int b, shift = 0, result = 0;
+  //     do {
+  //       b = encoded.codeUnitAt(index++) - 63;
+  //       result |= (b & 0x1f) << shift;
+  //       shift += 5;
+  //     } while (b >= 0x20);
+  //     int deltaLat = (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
+  //     lat += deltaLat;
 
-      shift = 0;
-      result = 0;
-      do {
-        b = encoded.codeUnitAt(index++) - 63;
-        result |= (b & 0x1f) << shift;
-        shift += 5;
-      } while (b >= 0x20);
-      int deltaLng = (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
-      lng += deltaLng;
+  //     shift = 0;
+  //     result = 0;
+  //     do {
+  //       b = encoded.codeUnitAt(index++) - 63;
+  //       result |= (b & 0x1f) << shift;
+  //       shift += 5;
+  //     } while (b >= 0x20);
+  //     int deltaLng = (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
+  //     lng += deltaLng;
 
-      polyline.add(LatLng(lat / 1E6, lng / 1E6));
-    }
-    return polyline;
-  }
+  //     polyline.add(LatLng(lat / 1E6, lng / 1E6));
+  //   }
+  //   return polyline;
+  // }
 
   Future<bool> _onWillPop() async {
     return false;
@@ -244,6 +245,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
           reverseTransitionDuration: Duration.zero,
         ),
       );
+      ref.read(pathCoordinatesProvider.notifier).state = [];
     } else {
       // Show an alert dialog
       showDialog(
@@ -256,6 +258,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
               TextButton(
                 child: const Text("OK"),
                 onPressed: () {
+                  ref.read(pathCoordinatesProvider.notifier).state = [];
                   Navigator.of(context).pop(); // Close the dialog
                 },
               ),
@@ -268,6 +271,9 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Watch the pathCoordinatesProvider to get the path coordinates
+    final pathCoordinates = ref.watch(pathCoordinatesProvider);
+
     return Scaffold(
       body: WillPopScope(
         onWillPop: _onWillPop,
@@ -315,6 +321,8 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                             icon: const Icon(Icons.close,
                                 color: Colors.black, size: 28),
                             onPressed: () {
+                              ref.read(pathCoordinatesProvider.notifier).state =
+                                  [];
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -426,11 +434,11 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                                         'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw',
                                   },
                                 ),
-                                if (_pathCoordinates.isNotEmpty)
+                                if (pathCoordinates.isNotEmpty)
                                   PolylineLayer(
                                     polylines: [
                                       Polyline(
-                                        points: _pathCoordinates,
+                                        points: pathCoordinates,
                                         strokeWidth: 4.0,
                                         color: Colors.blue,
                                       ),

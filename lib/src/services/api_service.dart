@@ -2,10 +2,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 
-
 class ApiService {
-  static const String baseUrl = 'http://16.171.153.11/api';
-  // static const String baseUrl = 'http://192.168.141.105:8000/api';
+  // static const String baseUrl = 'http://16.171.153.11/api';
+  static const String baseUrl = 'http://192.168.141.105:8000/api';
   String apiKey = 'cfdb0e89363c14687341dbc25d1e1d43';
   final logger = Logger();
 
@@ -45,7 +44,7 @@ class ApiService {
       throw Exception('Error fetching car data: $e');
     }
   }
-  
+
   /// Function to login
   Future<Map<String, dynamic>> login(String email, String password) async {
     final url = Uri.parse('$baseUrl/auth/login');
@@ -65,7 +64,7 @@ class ApiService {
           'statusCode': response.statusCode,
         };
       }
-    } catch (e) { 
+    } catch (e) {
       logger.e('Error: $e');
       return {
         'success': false,
@@ -74,7 +73,7 @@ class ApiService {
     }
   }
 
-  Future <String> getImageUrl(String base64) async {
+  Future<String> getImageUrl(String base64) async {
     var url = Uri.parse('https://api.imgbb.com/1/upload');
     var response = await http.post(url, body: {
       'key': apiKey,
@@ -139,9 +138,10 @@ class ApiService {
 
         return {
           'success': false,
-          'message': errors.join('\n'), // Combine all errors into a single string
+          'message':
+              errors.join('\n'), // Combine all errors into a single string
         };
-      }else {
+      } else {
         // Handle error responses
         return {
           'success': false,
@@ -158,16 +158,15 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> updateUser({
-    required int userId, 
-    required String firstName, 
-    required String lastName, 
-    required String rollaUsername, 
-    String? happyPlace, 
-    String? photo, 
-    String? bio, 
-    String? garage}) async {
-
+  Future<Map<String, dynamic>> updateUser(
+      {required int userId,
+      required String firstName,
+      required String lastName,
+      required String rollaUsername,
+      String? happyPlace,
+      String? photo,
+      String? bio,
+      String? garage}) async {
     final url = Uri.parse('$baseUrl/user/update');
 
     // Prepare the request body
@@ -227,9 +226,11 @@ class ApiService {
       },
     );
 
-    if (response.statusCode == 200) { // Check if the response is successful.
+    if (response.statusCode == 200) {
+      // Check if the response is successful.
       final data = json.decode(response.body);
-      if (data['statusCode'] == true) { // Check API's response `statusCode`.
+      if (data['statusCode'] == true) {
+        // Check API's response `statusCode`.
         return List<Map<String, dynamic>>.from(data['data']);
       } else {
         throw Exception('Failed to load followers: ${data['message']}');
@@ -275,7 +276,8 @@ class ApiService {
         logger.i("Trip created successfully: ${responseData['trip']}");
         return true; // Indicate success
       } else {
-        logger.i("Failed to create trip: ${response.statusCode} - ${response.body}");
+        logger.i(
+            "Failed to create trip: ${response.statusCode} - ${response.body}");
         return false; // Indicate failure
       }
     } catch (e) {
@@ -283,7 +285,4 @@ class ApiService {
       return false; // Indicate failure
     }
   }
-
-
-
 }

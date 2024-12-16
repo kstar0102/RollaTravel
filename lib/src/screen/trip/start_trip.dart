@@ -41,6 +41,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   final TextEditingController _captionController = TextEditingController();
   String editDestination = 'Edit destination';
   String initialSound = "Edit Playlist";
+  double totalDistanceInMiles = 0;
 
   @override
   void initState() {
@@ -82,26 +83,21 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     if (_positionStreamSubscription != null) {
       return; // Prevent multiple listeners
     }
-
     _positionStreamSubscription = Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.high,
-        distanceFilter: 50, // Update every 50 meters
+        distanceFilter: 50,
       ),
     ).listen((Position position) async {
       final LatLng newLocation = LatLng(position.latitude, position.longitude);
 
       if (!GlobalVariables.isTripStarted) {
-        // ✅ Update only the moving location for display (not the start marker)
         ref.read(movingLocationProvider.notifier).state = newLocation;
         ref.read(staticStartingPointProvider.notifier).state = newLocation;
       } else {
+        final previousLocation = ref.read(movingLocationProvider);
         ref.read(movingLocationProvider.notifier).state = newLocation;
-        // ✅ Get the previous moving location
-        final previousLocation = ref.read(staticStartingPointProvider);
-        // ref.read(movingLocationProvider.notifier).state = newLocation;
 
-        // ✅ Only fetch route if previous location is available
         if (previousLocation != null) {
           await _fetchDrivingRoute(previousLocation, newLocation);
         }
@@ -154,6 +150,8 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
     GlobalVariables.tripEndDate = formattedDate;
 
+    String tripMiles = "${totalDistanceInMiles.toStringAsFixed(3)} miles";
+
     if (GlobalVariables.tripStartDate != null &&
         GlobalVariables.tripEndDate != null) {
       // ✅ End the trip and navigate to the EndTripScreen
@@ -166,6 +164,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
             stopMarkers: stopMarkers,
             tripStartDate: GlobalVariables.tripStartDate!,
             tripEndDate: GlobalVariables.tripEndDate!,
+            tripDistance: tripMiles,
           ),
         ),
       );
@@ -175,8 +174,8 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
       GlobalVariables.isTripStarted = false;
 
       // ✅ Reset all trip-related data
-      ref.read(pathCoordinatesProvider.notifier).state = [];
-      ref.read(staticStartingPointProvider.notifier).state = currentLocation;
+      ref.read(staticStartingPointProvider.notifier).state =
+          ref.read(movingLocationProvider);
       ref.read(movingLocationProvider.notifier).state = null;
       ref.read(markersProvider.notifier).state = [];
     } else {
@@ -196,16 +195,20 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
           final String polyline = routes[0]['geometry'];
           final List<LatLng> decodedPolyline = _decodePolyline6(polyline);
 
+          final double distanceInMeters = routes[0]['distance'];
+          totalDistanceInMiles = distanceInMeters / 1609.34;
+
           final currentPath = ref.read(pathCoordinatesProvider);
           final updatedPath = [...currentPath];
 
           for (var point in decodedPolyline) {
-            if (!updatedPath.contains(point)) {
+            if (updatedPath.isEmpty || updatedPath.last != point) {
               updatedPath.add(point);
             }
           }
 
           ref.read(pathCoordinatesProvider.notifier).state = updatedPath;
+          logger.i("pathCoordinatesProvider : $updatedPath");
         } else {
           logger.i('No routes found.');
         }
@@ -229,8 +232,10 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
 
     // Redraw the path
     if (pathCoordinates.isNotEmpty) {
-      // Trigger a redraw or update the map with the existing path
-      ref.read(pathCoordinatesProvider.notifier).state = [...pathCoordinates];
+      // Delay the modification to avoid the error
+      Future(() {
+        ref.read(pathCoordinatesProvider.notifier).state = [...pathCoordinates];
+      });
     }
   }
 
