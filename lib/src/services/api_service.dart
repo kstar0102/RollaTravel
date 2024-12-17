@@ -3,8 +3,8 @@ import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 
 class ApiService {
-  // static const String baseUrl = 'http://16.171.153.11/api';
-  static const String baseUrl = 'http://192.168.141.105:8000/api';
+  static const String baseUrl = 'http://16.171.153.11/api';
+  // static const String baseUrl = 'http://192.168.141.105:8000/api';
   String apiKey = 'cfdb0e89363c14687341dbc25d1e1d43';
   final logger = Logger();
 
@@ -249,6 +249,7 @@ class ApiService {
     required String tripEndDate,
     required String tripMiles,
     required String tripSound,
+    required List<Map<String, double>> tripCoordinates,
     required List<Map<String, dynamic>> droppins,
   }) async {
     final url = Uri.parse('$baseUrl/trip/create');
@@ -261,6 +262,7 @@ class ApiService {
       'trip_end_date': tripEndDate,
       'trip_miles': tripMiles,
       'trip_sound': tripSound,
+      'trip_coordinates': tripCoordinates,
       'droppins': droppins,
     };
 

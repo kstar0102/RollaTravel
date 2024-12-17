@@ -195,8 +195,11 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
           final String polyline = routes[0]['geometry'];
           final List<LatLng> decodedPolyline = _decodePolyline6(polyline);
 
-          final double distanceInMeters = routes[0]['distance'];
+          final double distanceInMeters =
+              (routes[0]['distance'] as num).toDouble();
           totalDistanceInMiles = distanceInMeters / 1609.34;
+
+          logger.i("totalDistanceInMiles : $totalDistanceInMiles");
 
           final currentPath = ref.read(pathCoordinatesProvider);
           final updatedPath = [...currentPath];
@@ -217,25 +220,6 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
       }
     } catch (e) {
       logger.i('Error fetching route: $e');
-    }
-  }
-
-  void _restoreState() {
-    final movingLocation = ref.read(movingLocationProvider);
-    final pathCoordinates = ref.read(pathCoordinatesProvider);
-
-    if (movingLocation != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _mapController.move(movingLocation, 14.0);
-      });
-    }
-
-    // Redraw the path
-    if (pathCoordinates.isNotEmpty) {
-      // Delay the modification to avoid the error
-      Future(() {
-        ref.read(pathCoordinatesProvider.notifier).state = [...pathCoordinates];
-      });
     }
   }
 
@@ -267,6 +251,25 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
       polyline.add(LatLng(lat / 1E6, lng / 1E6));
     }
     return polyline;
+  }
+
+  void _restoreState() {
+    final movingLocation = ref.read(movingLocationProvider);
+    final pathCoordinates = ref.read(pathCoordinatesProvider);
+
+    if (movingLocation != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _mapController.move(movingLocation, 14.0);
+      });
+    }
+
+    // Redraw the path
+    if (pathCoordinates.isNotEmpty) {
+      // Delay the modification to avoid the error
+      Future(() {
+        ref.read(pathCoordinatesProvider.notifier).state = [...pathCoordinates];
+      });
+    }
   }
 
   void _showPermissionDeniedDialog() {

@@ -1,4 +1,3 @@
-import 'package:RollaTravel/src/screen/home/home_screen.dart';
 import 'package:RollaTravel/src/screen/trip/start_trip.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
@@ -220,8 +219,19 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
   }
 
   Future<void> sendTripData() async {
-    String tripMiles = "${totalDistanceInMeters.toStringAsFixed(3)} miles";
     final apiserice = ApiService();
+
+    // Convert pathCoordinates to List<Map<String, double>>
+    final tripCoordinates = ref
+        .read(pathCoordinatesProvider)
+        .map((latLng) => {
+              'latitude': latLng.latitude,
+              'longitude': latLng.longitude,
+            })
+        .toList();
+
+    logger.i("tripCoordinates: $tripCoordinates");
+
     final response = await apiserice.createTrip(
         userId: GlobalVariables.userId!,
         startAddress: startAddress!,
@@ -229,8 +239,9 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
         destinationAddress: endAddress!,
         tripStartDate: widget.tripStartDate,
         tripEndDate: widget.tripEndDate,
-        tripMiles: tripMiles,
+        tripMiles: widget.tripDistance,
         tripSound: "tripSound",
+        tripCoordinates: tripCoordinates, // Use the converted list
         droppins: droppins);
 
     if (!mounted) return;
@@ -240,7 +251,8 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => const HomeScreen(),
+          pageBuilder: (context, animation1, animation2) =>
+              const StartTripScreen(),
           transitionDuration: Duration.zero,
           reverseTransitionDuration: Duration.zero,
         ),
@@ -271,7 +283,6 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Watch the pathCoordinatesProvider to get the path coordinates
     final pathCoordinates = ref.watch(pathCoordinatesProvider);
 
     return Scaffold(

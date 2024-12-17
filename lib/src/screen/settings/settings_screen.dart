@@ -24,11 +24,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-      if (this.mounted) {
+      if (mounted) {
         setState(() {
           this.keyboardHeight = keyboardHeight;
         });
-      } 
+      }
     });
   }
 
@@ -49,24 +49,42 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(title, style: const TextStyle(fontFamily: 'Kadaw'),),
-          content: Text(message, style: const TextStyle(fontFamily: 'Kadaw'),),
+          title: Text(
+            title,
+            style: const TextStyle(fontFamily: 'Kadaw'),
+          ),
+          content: Text(
+            message,
+            style: const TextStyle(fontFamily: 'Kadaw'),
+          ),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
               },
-              child: const Text("No", style: TextStyle(fontFamily: 'Kadaw'),),
+              child: const Text(
+                "No",
+                style: TextStyle(fontFamily: 'Kadaw'),
+              ),
             ),
             TextButton(
               onPressed: () {
-                if(title == "Logout"){
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const SigninScreen()));
-                }else {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const SigninScreen()));
+                if (title == "Logout") {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const SigninScreen()));
+                } else {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const SigninScreen()));
                 }
               },
-              child: const Text("Yes", style: TextStyle(fontFamily: 'Kadaw'),),
+              child: const Text(
+                "Yes",
+                style: TextStyle(fontFamily: 'Kadaw'),
+              ),
             ),
           ],
         );
@@ -170,7 +188,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                           isPrivateAccount = value ?? false;
                                         });
                                       },
-                                      title: const Text(public, style: TextStyle(fontFamily: 'Kadaw'),),
+                                      title: const Text(
+                                        public,
+                                        style: TextStyle(fontFamily: 'Kadaw'),
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -179,7 +200,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ),
                         ),
 
-                        SizedBox(height: vhh(context, 6),), 
+                        SizedBox(
+                          height: vhh(context, 6),
+                        ),
                         ListTile(
                           title: const Text(
                             logout,
@@ -191,10 +214,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ),
                           subtitle: Text(
                             logout_description,
-                            style: TextStyle(color: Colors.grey[600], fontFamily: 'Kadaw'),
+                            style: TextStyle(
+                                color: Colors.grey[600], fontFamily: 'Kadaw'),
                           ),
                           onTap: () {
-                            _showConfirmationDialog(title: "Logout", message: "Are you sure you want to logout?");
+                            _showConfirmationDialog(
+                                title: "Logout",
+                                message: "Are you sure you want to logout?");
                           },
                         ),
                         ListTile(
@@ -208,10 +234,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ),
                           subtitle: Text(
                             delete_description,
-                            style: TextStyle(color: Colors.grey[600], fontFamily: 'Kadaw'),
+                            style: TextStyle(
+                                color: Colors.grey[600], fontFamily: 'Kadaw'),
                           ),
                           onTap: () {
-                            _showConfirmationDialog(title: "Delete Account", message: "Are you sure you want to delete your account?");
+                            _showConfirmationDialog(
+                                title: "Delete Account",
+                                message:
+                                    "Are you sure you want to delete your account?");
                           },
                         ),
                       ],

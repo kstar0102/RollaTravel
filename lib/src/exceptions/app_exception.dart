@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'app_exception.freezed.dart';
@@ -26,4 +25,3 @@ class AppExceptionData {
   @override
   String toString() => 'AppExceptionData(code: $code, message: $message)';
 }
-

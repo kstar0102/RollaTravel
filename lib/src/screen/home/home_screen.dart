@@ -8,8 +8,6 @@ import 'package:RollaTravel/src/utils/index.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-// import 'package:geolocator/geolocator.dart';
-// import 'package:permission_handler/permission_handler.dart';
 import 'package:logger/logger.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -30,7 +28,6 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
   List<Map<String, dynamic>>? trips;
   final apiService = ApiService();
   final logger = Logger();
-  
 
   @override
   void initState() {
@@ -60,25 +57,6 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
     }
   }
 
-  // Future<void> _getCurrentLocation() async {
-  //   final permissionStatus = await Permission.location.request();
-
-  //   if (permissionStatus.isGranted) {
-  //     Position position = await Geolocator.getCurrentPosition(
-  //       locationSettings: const LocationSettings(
-  //         accuracy: LocationAccuracy.high,
-  //       ),
-  //     );
-
-  //     setState(() {
-  //       _currentLocation = LatLng(position.latitude, position.longitude);
-  //       logger.i("$_currentLocation");
-  //     });
-  //   } else {
-  //     logger.i("Location permission denied");
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -101,30 +79,35 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
                       width: vww(context, 20),
                     ),
                   ),
-                  Image.asset("assets/images/icons/notification.png", width: vww(context, 4)),
+                  Image.asset("assets/images/icons/notification.png",
+                      width: vww(context, 4)),
                 ],
               ),
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.0),
                 child: Divider(),
               ),
-              
+
               trips == null
-                ? const Center(child: CircularProgressIndicator()) // Show loading indicator
-                : trips!.isEmpty
-                    ? const Center(child: Text('No trips available')) // Show message if no trips
-                    : Expanded(
-                        child: ListView.builder(
-                          itemCount: trips!.length,
-                          itemBuilder: (context, index) {
-                            final trip = trips![index];
-                            return PostWidget(
-                              post: trip,       // Pass trip data to PostWidget
-                              dropIndex: index, // Current index
-                            );
-                          },
+                  ? const Center(
+                      child:
+                          CircularProgressIndicator()) // Show loading indicator
+                  : trips!.isEmpty
+                      ? const Center(
+                          child: Text(
+                              'No trips available')) // Show message if no trips
+                      : Expanded(
+                          child: ListView.builder(
+                            itemCount: trips!.length,
+                            itemBuilder: (context, index) {
+                              final trip = trips![index];
+                              return PostWidget(
+                                post: trip, // Pass trip data to PostWidget
+                                dropIndex: index, // Current index
+                              );
+                            },
+                          ),
                         ),
-                      ),
             ],
           ),
         ),
@@ -141,7 +124,6 @@ class PostWidget extends StatefulWidget {
 
   @override
   PostWidgetState createState() => PostWidgetState();
-
 }
 
 class PostWidgetState extends State<PostWidget> {
@@ -156,38 +138,66 @@ class PostWidgetState extends State<PostWidget> {
   List<LatLng> locations = [];
   LatLng? startPoint;
   LatLng? endPoint;
-  // bool isLiked = true;
+  bool isLoading = true;
+
   @override
   void initState() {
     super.initState();
     mapController = MapController();
-    _getlocaionts();
-    // Use addPostFrameCallback to delay interaction with mapController until after the first frame
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (locations.length > 1) {
-        mapController.move(locations[0], 15.0);
-      }
+    _initializeRoutePoints();
+    _getlocaionts().then((_) {
+      setState(() {
+        isLoading = false; // Data is loaded
+      });
     });
-    
   }
 
-   
-  Future<void> _getlocaionts() async{
+  void _initializeRoutePoints() {
+    if (widget.post['trip_coordinates'] != null) {
+      setState(() {
+        routePoints =
+            List<Map<String, dynamic>>.from(widget.post['trip_coordinates'])
+                .map((coord) {
+                  if (coord['latitude'] is double &&
+                      coord['longitude'] is double) {
+                    return LatLng(coord['latitude'], coord['longitude']);
+                  } else {
+                    logger.e('Invalid coordinate data: $coord');
+                    return null;
+                  }
+                })
+                .where((latLng) => latLng != null)
+                .cast<LatLng>()
+                .toList();
+        logger.i('Route points initialized: $routePoints');
+      });
+    }
+  }
+
+  Future<void> _getlocaionts() async {
+    List<LatLng> tempLocations = []; // Temporary list to batch all locations
+
     try {
-      final startCoordinates = await getCoordinates(widget.post['start_address']);
-      startPoint = LatLng(startCoordinates['latitude']!, startCoordinates['longitude']!);
-      locations.add(startPoint!);
+      // Fetch Start Address
+      final startCoordinates =
+          await getCoordinates(widget.post['start_address']);
+      startPoint =
+          LatLng(startCoordinates['latitude']!, startCoordinates['longitude']!);
+      logger.i('Start point: $startPoint');
     } catch (e) {
       logger.e('Failed to fetch start address coordinates: $e');
     }
 
-    if(widget.post['stop_address'] != null){
-      stopAddresses = List<String>.from(jsonDecode(widget.post['stop_address']));
-    
+    // Fetch Stop Addresses
+    if (widget.post['stop_address'] != null) {
+      stopAddresses =
+          List<String>.from(jsonDecode(widget.post['stop_address']));
       for (String address in stopAddresses!) {
         try {
           final coordinates = await getCoordinates(address);
-          locations.add(LatLng(coordinates['latitude']!, coordinates['longitude']!));
+          tempLocations
+              .add(LatLng(coordinates['latitude']!, coordinates['longitude']!));
+          logger.i('Stop point: $coordinates');
         } catch (e) {
           logger.e('Failed to fetch coordinates for $address: $e');
         }
@@ -196,18 +206,24 @@ class PostWidgetState extends State<PostWidget> {
 
     // Fetch Destination Address
     try {
-      final destinationCoordinates = await getCoordinates(widget.post['destination_address']);
-      endPoint = LatLng(destinationCoordinates['latitude']!, destinationCoordinates['longitude']!);
-      locations.add(endPoint!);
+      final destinationCoordinates =
+          await getCoordinates(widget.post['destination_address']);
+      endPoint = LatLng(destinationCoordinates['latitude']!,
+          destinationCoordinates['longitude']!);
+      logger.i('End point: $endPoint');
     } catch (e) {
       logger.e('Failed to fetch destination address coordinates: $e');
     }
-    
-    _fetchDrivingRoute(locations);
+
+    // Update all locations in one go
+    setState(() {
+      locations = tempLocations;
+    });
   }
-  
+
   Future<Map<String, double>> getCoordinates(String address) async {
-    String accessToken = 'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw';
+    String accessToken =
+        'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw';
     final url = Uri.parse(
       'https://api.mapbox.com/geocoding/v5/mapbox.places/${Uri.encodeComponent(address)}.json?access_token=$accessToken',
     );
@@ -223,19 +239,21 @@ class PostWidgetState extends State<PostWidget> {
   }
 
   Future<void> _fetchDrivingRoute(List<LatLng> locations) async {
-    
     if (locations.length < 2) return; // Ensure at least two points for a route
 
     // Set start, end, and waypoints for Mapbox API
     final start = locations.first;
     final end = locations.last;
-     final waypoints = locations.length > 2
-      ? locations.sublist(1, locations.length - 1)
-          .map((loc) => '${loc.longitude},${loc.latitude}')
-          .join(';')
-      : '';
-    final coordinates = '${start.longitude},${start.latitude};$waypoints;${end.longitude},${end.latitude}';
-    final url = 'https://api.mapbox.com/directions/v5/mapbox/driving/$coordinates?geometries=polyline&access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw';
+    final waypoints = locations.length > 2
+        ? locations
+            .sublist(1, locations.length - 1)
+            .map((loc) => '${loc.longitude},${loc.latitude}')
+            .join(';')
+        : '';
+    final coordinates =
+        '${start.longitude},${start.latitude};$waypoints;${end.longitude},${end.latitude}';
+    final url =
+        'https://api.mapbox.com/directions/v5/mapbox/driving/$coordinates?geometries=polyline&access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw';
 
     try {
       final response = await http.get(Uri.parse(url));
@@ -288,8 +306,8 @@ class PostWidgetState extends State<PostWidget> {
     return points;
   }
 
-  // void _showImageDialog(String imagePath, String caption, int likes) {
-  void _showImageDialog(String imagePath, String caption, int likes, List<dynamic> likedUsers) {
+  void _showImageDialog(
+      String imagePath, String caption, int likes, List<dynamic> likedUsers) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -297,14 +315,16 @@ class PostWidgetState extends State<PostWidget> {
           builder: (BuildContext context, StateSetter setState) {
             return Dialog(
               insetPadding: const EdgeInsets.symmetric(horizontal: 30),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Caption and Close Icon Row
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8.0, vertical: 4.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -322,7 +342,8 @@ class PostWidgetState extends State<PostWidget> {
                           onPressed: () {
                             Navigator.of(context).pop();
                             setState(() {
-                              showLikesDropdown = false; // Hide the dropdown when the dialog is closed
+                              showLikesDropdown =
+                                  false; // Hide the dropdown when the dialog is closed
                             });
                           },
                         ),
@@ -338,7 +359,9 @@ class PostWidgetState extends State<PostWidget> {
                     errorBuilder: (context, error, stackTrace) =>
                         const Icon(Icons.broken_image, size: 100),
                   ),
-                  const Divider(height: 1, color: Colors.grey), // Divider between image and footer
+                  const Divider(
+                      height: 1,
+                      color: Colors.grey), // Divider between image and footer
                   // Footer with Like Icon and Likes Count
                   Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -360,7 +383,8 @@ class PostWidgetState extends State<PostWidget> {
                         GestureDetector(
                           onTap: () {
                             setState(() {
-                              showLikesDropdown = !showLikesDropdown; // Toggle the visibility of the dropdown
+                              showLikesDropdown =
+                                  !showLikesDropdown; // Toggle the visibility of the dropdown
                             });
                           },
                           child: Text(
@@ -405,7 +429,8 @@ class PostWidgetState extends State<PostWidget> {
                                       : null,
                                 ),
                                 child: photo.isEmpty
-                                    ? const Icon(Icons.person, size: 20) // Placeholder icon
+                                    ? const Icon(Icons.person,
+                                        size: 20) // Placeholder icon
                                     : null,
                               ),
                               const SizedBox(width: 5),
@@ -446,20 +471,20 @@ class PostWidgetState extends State<PostWidget> {
     );
   }
 
-  void _goTagScreen(){
+  void _goTagScreen() {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const HomeTagScreen()),
     );
   }
 
-  void _goUserScreen(){
+  void _goUserScreen() {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const HomeUserScreen()),
     );
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -483,19 +508,20 @@ class PostWidgetState extends State<PostWidget> {
                     width: 2,
                   ),
                   image: widget.post['user']['photo'] != null
-                    ? DecorationImage(
-                        image: NetworkImage(widget.post['user']['photo']),
-                        fit: BoxFit.cover,
-                        onError: (exception, stackTrace) {
-                          // Handle image loading errors
-                        },
-                      )
-                    : null,
+                      ? DecorationImage(
+                          image: NetworkImage(widget.post['user']['photo']),
+                          fit: BoxFit.cover,
+                          onError: (exception, stackTrace) {
+                            // Handle image loading errors
+                          },
+                        )
+                      : null,
                 ),
               ),
-            ),  
+            ),
             const SizedBox(width: 10),
-            Text(widget.post['user']['rolla_username'], style: const TextStyle(fontSize: 18, fontFamily: 'KadawBold')),
+            Text(widget.post['user']['rolla_username'],
+                style: const TextStyle(fontSize: 18, fontFamily: 'KadawBold')),
             const SizedBox(width: 10),
             const Icon(Icons.verified, color: Colors.blue, size: 16),
             const Spacer(),
@@ -510,11 +536,14 @@ class PostWidgetState extends State<PostWidget> {
             const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Destination', style: TextStyle(fontSize: 15, fontFamily: 'KadawBold')),
+                Text('Destination',
+                    style: TextStyle(fontSize: 15, fontFamily: 'KadawBold')),
                 SizedBox(height: 3),
-                Text('Miles traveled', style: TextStyle(fontSize: 15, fontFamily: 'KadawBold')),
+                Text('Miles traveled',
+                    style: TextStyle(fontSize: 15, fontFamily: 'KadawBold')),
                 SizedBox(height: 3),
-                Text('Soundtrack', style: TextStyle(fontSize: 15, fontFamily: 'KadawBold')),
+                Text('Soundtrack',
+                    style: TextStyle(fontSize: 15, fontFamily: 'KadawBold')),
               ],
             ),
             Column(
@@ -531,13 +560,23 @@ class PostWidgetState extends State<PostWidget> {
                       fontFamily: 'Kadaw',
                     ),
                     maxLines: 1, // Limit to one line
-                    overflow: TextOverflow.ellipsis, // Add ellipsis if text overflows
+                    overflow:
+                        TextOverflow.ellipsis, // Add ellipsis if text overflows
                   ),
                 ),
                 const SizedBox(height: 3),
-                Text('${widget.post['trip_miles']}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'Kadaw')),
+                Text('${widget.post['trip_miles']}',
+                    style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Kadaw')),
                 const SizedBox(height: 3),
-                const Text("Spotify Playlist", style: TextStyle(fontSize: 16, color: Colors.brown, decoration: TextDecoration.underline, fontFamily: 'Kadaw')),
+                const Text("Spotify Playlist",
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.brown,
+                        decoration: TextDecoration.underline,
+                        fontFamily: 'Kadaw')),
               ],
             ),
           ],
@@ -546,8 +585,9 @@ class PostWidgetState extends State<PostWidget> {
         // Trip Details Circles
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
-          children: List.generate(widget.post['droppins'].length, (index) => 
-            Container(
+          children: List.generate(
+            widget.post['droppins'].length,
+            (index) => Container(
               margin: const EdgeInsets.symmetric(horizontal: 6),
               padding: const EdgeInsets.all(2),
               decoration: BoxDecoration(
@@ -560,10 +600,10 @@ class PostWidgetState extends State<PostWidget> {
               child: GestureDetector(
                 onTap: () {
                   _showImageDialog(
-                    widget.post['droppins'][index]['image_path'], 
-                    widget.post['droppins'][index]['image_caption'], 
-                    widget.post['droppins'][index]['liked_users'].length, 
-                    widget.post['droppins'][index]['liked_users']);
+                      widget.post['droppins'][index]['image_path'],
+                      widget.post['droppins'][index]['image_caption'],
+                      widget.post['droppins'][index]['liked_users'].length,
+                      widget.post['droppins'][index]['liked_users']);
                 },
                 child: Container(
                   padding: const EdgeInsets.all(1),
@@ -577,7 +617,9 @@ class PostWidgetState extends State<PostWidget> {
                   child: CircleAvatar(
                     radius: 10,
                     backgroundColor: Colors.white,
-                    child: Text('${index + 1}', style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                    child: Text('${index + 1}',
+                        style: const TextStyle(
+                            color: Colors.black, fontWeight: FontWeight.bold)),
                   ),
                 ),
               ),
@@ -594,80 +636,83 @@ class PostWidgetState extends State<PostWidget> {
           ),
           child: Stack(
             children: [
-              locations.isNotEmpty
-              ? FlutterMap(
-                  mapController: mapController,
-                  options: MapOptions(
-                    initialCenter: locations[0], // Use the first location
-                    initialZoom: 15.0,
-                  ),
-                  children: [
-                    TileLayer(
-                      urlTemplate:
-                          "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw",
-                      additionalOptions: const {
-                        'access_token':
-                            'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw',
-                      },
-                    ),
-                    MarkerLayer(
-                      markers: locations.asMap().entries.map((entry) {
-                        int index = entry.key;
-                        LatLng location = entry.value;
-
-                        // Define marker styles
-                        Widget markerIcon;
-                        if (index == 0) {
-                          // Start location
-                          markerIcon = const Icon(Icons.location_on, color: Colors.red, size: 30);
-                          
-                        } else if (index == locations.length - 1) {
-                          // Destination location
-                          markerIcon = const Icon(Icons.location_on, color: Colors.green, size: 30);
-                        } else {
-                          // Waypoints
-                          markerIcon = const Icon(Icons.location_on, color: Colors.blue, size: 30);
-                        }
-
-                        return Marker(
-                          width: 35.0,
-                          height: 35.0,
-                          point: location,
-                          child: GestureDetector(
-                            onTap: () {
-                              // Handle tap logic if needed
-                              if (index > 0 && index < locations.length - 1) {
-                                final droppin = widget.post['droppins'][index - 1];
-                                _showImageDialog(
-                                  droppin['image_path'],
-                                  droppin['image_caption'],
-                                  droppin['liked_users'].length,
-                                  droppin['liked_users'],
-                                );
-                              }
-                              // logger.i(
-                              //     'Marker tapped at: ${location.latitude}, ${location.longitude}');
-                            },
-                            child: markerIcon,
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                    // Polyline layer for the route
-                    PolylineLayer(
-                      polylines: [
-                        Polyline(
-                          points: routePoints, // Points defining the route
-                          strokeWidth: 4.0,
-                          color: Colors.blue, // Customize the color as needed
+              isLoading
+                  ? const Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : FlutterMap(
+                      mapController: mapController,
+                      options: MapOptions(
+                        initialCenter: locations.isNotEmpty
+                            ? locations[0]
+                            : const LatLng(0, 0),
+                        initialZoom: 15.0,
+                      ),
+                      children: [
+                        TileLayer(
+                          urlTemplate:
+                              "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw",
+                          additionalOptions: const {
+                            'access_token':
+                                'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw',
+                          },
+                        ),
+                        MarkerLayer(
+                          markers: [
+                            if (startPoint != null)
+                              Marker(
+                                width: 80.0,
+                                height: 80.0,
+                                point: startPoint!,
+                                child: const Icon(Icons.location_on,
+                                    color: Colors.red, size: 40),
+                              ),
+                            if (endPoint != null)
+                              Marker(
+                                width: 80.0,
+                                height: 80.0,
+                                point: endPoint!,
+                                child: const Icon(Icons.location_on,
+                                    color: Colors.green, size: 40),
+                              ),
+                            ...locations
+                                .map((location) {
+                              return Marker(
+                                width: 80.0,
+                                height: 80.0,
+                                point: location,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    // Handle tap logic here
+                                    final index = locations.indexOf(location);
+                                    final droppin =
+                                        widget.post['droppins'][index - 1];
+                                    _showImageDialog(
+                                      droppin['image_path'],
+                                      droppin['image_caption'],
+                                      droppin['liked_users'].length,
+                                      droppin['liked_users'],
+                                    );
+                                  },
+                                  child: const Icon(Icons.location_on,
+                                      color: Colors.blue, size: 40),
+                                ),
+                              );
+                            }),
+                          ],
+                        ),
+                        // Polyline layer for the route
+                        PolylineLayer(
+                          polylines: [
+                            Polyline(
+                              points: routePoints,
+                              strokeWidth: 4.0,
+                              color: Colors.blue,
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
-                )
-              : const Center(
-                  child: CircularProgressIndicator(), // Show a loading indicator while waiting for data
-                ),
 
               // Zoom controls
               Positioned(
@@ -676,7 +721,8 @@ class PostWidgetState extends State<PostWidget> {
                 child: Column(
                   children: [
                     FloatingActionButton(
-                      heroTag: 'zoom_in_button_homescreen_tap1_${DateTime.now().millisecondsSinceEpoch}',
+                      heroTag:
+                          'zoom_in_button_homescreen_tap1_${DateTime.now().millisecondsSinceEpoch}',
                       onPressed: () {
                         mapController.move(
                           mapController.camera.center,
@@ -688,7 +734,8 @@ class PostWidgetState extends State<PostWidget> {
                     ),
                     const SizedBox(height: 8),
                     FloatingActionButton(
-                      heroTag: 'zoom_out_button_homescreen_tap2_${DateTime.now().millisecondsSinceEpoch}',
+                      heroTag:
+                          'zoom_out_button_homescreen_tap2_${DateTime.now().millisecondsSinceEpoch}',
                       onPressed: () {
                         mapController.move(
                           mapController.camera.center,
@@ -704,33 +751,35 @@ class PostWidgetState extends State<PostWidget> {
             ],
           ),
         ),
-        const SizedBox(height: 5,),
-        if(isAddComments)
+        const SizedBox(
+          height: 5,
+        ),
+        if (isAddComments)
           TextField(
             controller: _addCommitController,
             decoration: const InputDecoration(
               hintText: 'add a comment',
               hintStyle: TextStyle(
-                color: Colors.grey,
-                fontSize: 15,
-                fontFamily: 'Kadaw'
-              ),
+                  color: Colors.grey, fontSize: 15, fontFamily: 'Kadaw'),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(8.0)), // Optional: Add border radius for rounded corners
+                borderRadius: BorderRadius.all(Radius.circular(
+                    8.0)), // Optional: Add border radius for rounded corners
                 borderSide: BorderSide(
                   color: Colors.grey, // Set the border color
                   width: 1.0, // Set the border width
                 ),
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(8.0)), // Optional: Add border radius for rounded corners
+                borderRadius: BorderRadius.all(Radius.circular(
+                    8.0)), // Optional: Add border radius for rounded corners
                 borderSide: BorderSide(
                   color: Colors.grey, // Set the border color
                   width: 1.0, // Set the border width
                 ),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(8.0)), // Optional: Add border radius for rounded corners
+                borderRadius: BorderRadius.all(Radius.circular(
+                    8.0)), // Optional: Add border radius for rounded corners
                 borderSide: BorderSide(
                   color: Colors.grey, // Set the border color when focused
                   width: 1.0, // Set the border width when focused
@@ -743,7 +792,7 @@ class PostWidgetState extends State<PostWidget> {
             ),
             style: const TextStyle(
               fontFamily: 'Kadaw', // Set your custom font family here
-              fontSize: 15,        // Optional: Adjust font size
+              fontSize: 15, // Optional: Adjust font size
               color: Colors.black, // Optional: Adjust text color
             ),
           ),
@@ -755,36 +804,38 @@ class PostWidgetState extends State<PostWidget> {
             Row(
               children: [
                 GestureDetector(
-                  onTap: (){
+                  onTap: () {
                     // _showImageDialog(widget.post.locationImages[widget.dropIndex], widget.post.locationDecription[widget.dropIndex], widget.dropIndex);
                     setState(() {
                       showLikesDropdown = true;
                     });
                   },
-                  child: const Text(
-                  '# likes', 
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold, 
-                    color: Colors.grey, 
-                    fontSize: 16,
-                    fontFamily: 'Kadaw',)
-                  ),
+                  child: const Text('# likes',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey,
+                        fontSize: 16,
+                        fontFamily: 'Kadaw',
+                      )),
                 ),
                 const Spacer(),
                 GestureDetector(
                   onTap: () {
                     setState(() {
-                      isAddComments = !isAddComments; // Toggle the visibility of comments
+                      isAddComments =
+                          !isAddComments; // Toggle the visibility of comments
                     });
                   },
-                  child: Image.asset("assets/images/icons/messageicon.png", width: vww(context, 5)),
+                  child: Image.asset("assets/images/icons/messageicon.png",
+                      width: vww(context, 5)),
                 ),
                 const SizedBox(width: 15),
                 GestureDetector(
                   onTap: () {
                     _goTagScreen();
                   },
-                  child: Image.asset("assets/images/icons/add_car.png", width: vww(context, 9)),
+                  child: Image.asset("assets/images/icons/add_car.png",
+                      width: vww(context, 9)),
                 ),
               ],
             ),
@@ -792,11 +843,19 @@ class PostWidgetState extends State<PostWidget> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(widget.post['user']['rolla_username'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15,fontFamily: 'Kadaw',)),
+                Text(widget.post['user']['rolla_username'],
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      fontFamily: 'Kadaw',
+                    )),
                 const SizedBox(width: 15),
-                Text(
-                  widget.post['trip_caption'] ?? " ",
-                  style: const TextStyle(color: kColorButtonPrimary, fontSize: 15,fontFamily: 'Kadaw',)),
+                Text(widget.post['trip_caption'] ?? " ",
+                    style: const TextStyle(
+                      color: kColorButtonPrimary,
+                      fontSize: 15,
+                      fontFamily: 'Kadaw',
+                    )),
               ],
             ),
             const SizedBox(height: 10),
@@ -804,7 +863,8 @@ class PostWidgetState extends State<PostWidget> {
               child: GestureDetector(
                 onTap: () {
                   setState(() {
-                    showComments = !showComments; // Toggle the visibility of comments
+                    showComments =
+                        !showComments; // Toggle the visibility of comments
                   });
                 },
                 child: Text(
@@ -836,10 +896,11 @@ class PostWidgetState extends State<PostWidget> {
                             ),
                             image: comment['user']['photo'] != null
                                 ? DecorationImage(
-                                    image: NetworkImage(comment['user']['photo']),
+                                    image:
+                                        NetworkImage(comment['user']['photo']),
                                     fit: BoxFit.cover,
                                   )
-                                :null,
+                                : null,
                           ),
                         ),
                         const SizedBox(width: 5),
@@ -855,8 +916,10 @@ class PostWidgetState extends State<PostWidget> {
                         ),
                         const SizedBox(width: 5),
                         // Verified icon (optional)
-                        if (comment['user']['rolla_username'] != null) // Add condition if needed
-                          const Icon(Icons.verified, color: Colors.blue, size: 16),
+                        if (comment['user']['rolla_username'] !=
+                            null) // Add condition if needed
+                          const Icon(Icons.verified,
+                              color: Colors.blue, size: 16),
                         const SizedBox(width: 8),
                         // Comment content
                         Expanded(
