@@ -9,6 +9,8 @@ final staticStartingPointProvider = StateProvider<LatLng?>((ref) => null);
 
 final movingLocationProvider = StateProvider<LatLng?>((ref) => null);
 
+final totalDistanceProvider = StateProvider<double>((ref) => 0.0);
+
 class GlobalVariables {
   static int? userId;
   static String? userName;
@@ -22,8 +24,8 @@ class GlobalVariables {
   static String? tripStartDate;
   static String? tripEndDate;
   static int? tripCount;
+  static double totalDistance = 0.0;
   static String? followingIds;
   static List<dynamic>? dropPinsData;
-
-   static bool isTripStarted = false;
+  static bool isTripStarted = false;
 }

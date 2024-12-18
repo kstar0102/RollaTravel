@@ -230,7 +230,14 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
             })
         .toList();
 
-    logger.i("tripCoordinates: $tripCoordinates");
+    final stopLocations = widget.stopMarkers
+        .map((marker) => {
+              'latitude': marker.location.latitude,
+              'longitude': marker.location.longitude,
+            })
+        .toList();
+
+    logger.i("stopLocations: $stopLocations");
 
     final response = await apiserice.createTrip(
         userId: GlobalVariables.userId!,
@@ -241,6 +248,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
         tripEndDate: widget.tripEndDate,
         tripMiles: widget.tripDistance,
         tripSound: "tripSound",
+        stopLocations: stopLocations,
         tripCoordinates: tripCoordinates, // Use the converted list
         droppins: droppins);
 

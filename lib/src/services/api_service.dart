@@ -250,6 +250,7 @@ class ApiService {
     required String tripMiles,
     required String tripSound,
     required List<Map<String, double>> tripCoordinates,
+    required List<Map<String, double>> stopLocations,
     required List<Map<String, dynamic>> droppins,
   }) async {
     final url = Uri.parse('$baseUrl/trip/create');
@@ -263,6 +264,7 @@ class ApiService {
       'trip_miles': tripMiles,
       'trip_sound': tripSound,
       'trip_coordinates': tripCoordinates,
+      'stop_locations': stopLocations,
       'droppins': droppins,
     };
 

@@ -150,7 +150,8 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
     GlobalVariables.tripEndDate = formattedDate;
 
-    String tripMiles = "${totalDistanceInMiles.toStringAsFixed(3)} miles";
+    String tripMiles =
+        "${GlobalVariables.totalDistance.toStringAsFixed(3)} miles";
 
     if (GlobalVariables.tripStartDate != null &&
         GlobalVariables.tripEndDate != null) {
@@ -178,6 +179,8 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
           ref.read(movingLocationProvider);
       ref.read(movingLocationProvider.notifier).state = null;
       ref.read(markersProvider.notifier).state = [];
+      ref.read(totalDistanceProvider.notifier).state = 0.0;
+      GlobalVariables.totalDistance = 0.0;
     } else {
       logger.i("tripStartDate is null.");
     }
@@ -197,7 +200,12 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
 
           final double distanceInMeters =
               (routes[0]['distance'] as num).toDouble();
-          totalDistanceInMiles = distanceInMeters / 1609.34;
+          final double newMiles = distanceInMeters / 1609.34;
+          // Update the cumulative distance
+          final currentTotal = ref.read(totalDistanceProvider);
+          ref.read(totalDistanceProvider.notifier).state =
+              currentTotal + newMiles;
+          GlobalVariables.totalDistance = currentTotal + newMiles;
 
           logger.i("totalDistanceInMiles : $totalDistanceInMiles");
 

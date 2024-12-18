@@ -183,24 +183,23 @@ class PostWidgetState extends State<PostWidget> {
           await getCoordinates(widget.post['start_address']);
       startPoint =
           LatLng(startCoordinates['latitude']!, startCoordinates['longitude']!);
-      logger.i('Start point: $startPoint');
     } catch (e) {
       logger.e('Failed to fetch start address coordinates: $e');
     }
 
-    // Fetch Stop Addresses
-    if (widget.post['stop_address'] != null) {
-      stopAddresses =
-          List<String>.from(jsonDecode(widget.post['stop_address']));
-      for (String address in stopAddresses!) {
-        try {
-          final coordinates = await getCoordinates(address);
-          tempLocations
-              .add(LatLng(coordinates['latitude']!, coordinates['longitude']!));
-          logger.i('Stop point: $coordinates');
-        } catch (e) {
-          logger.e('Failed to fetch coordinates for $address: $e');
+    // Use Stop Locations directly
+    if (widget.post['stop_locations'] != null) {
+      try {
+        final stopLocations =
+            List<Map<String, dynamic>>.from(widget.post['stop_locations']);
+        for (var location in stopLocations) {
+          // Safely convert the values to double
+          final latitude = double.parse(location['latitude'].toString());
+          final longitude = double.parse(location['longitude'].toString());
+          tempLocations.add(LatLng(latitude, longitude));
         }
+      } catch (e) {
+        logger.e('Failed to process stop locations: $e');
       }
     }
 
@@ -210,7 +209,6 @@ class PostWidgetState extends State<PostWidget> {
           await getCoordinates(widget.post['destination_address']);
       endPoint = LatLng(destinationCoordinates['latitude']!,
           destinationCoordinates['longitude']!);
-      logger.i('End point: $endPoint');
     } catch (e) {
       logger.e('Failed to fetch destination address coordinates: $e');
     }
@@ -218,6 +216,7 @@ class PostWidgetState extends State<PostWidget> {
     // Update all locations in one go
     setState(() {
       locations = tempLocations;
+      logger.i('stop Locations: $locations');
     });
   }
 
@@ -643,8 +642,8 @@ class PostWidgetState extends State<PostWidget> {
                   : FlutterMap(
                       mapController: mapController,
                       options: MapOptions(
-                        initialCenter: locations.isNotEmpty
-                            ? locations[0]
+                        initialCenter: startPoint != null
+                            ? startPoint!
                             : const LatLng(0, 0),
                         initialZoom: 15.0,
                       ),
@@ -675,8 +674,7 @@ class PostWidgetState extends State<PostWidget> {
                                 child: const Icon(Icons.location_on,
                                     color: Colors.green, size: 40),
                               ),
-                            ...locations
-                                .map((location) {
+                            ...locations.map((location) {
                               return Marker(
                                 width: 80.0,
                                 height: 80.0,
@@ -686,7 +684,7 @@ class PostWidgetState extends State<PostWidget> {
                                     // Handle tap logic here
                                     final index = locations.indexOf(location);
                                     final droppin =
-                                        widget.post['droppins'][index - 1];
+                                        widget.post['droppins'][index];
                                     _showImageDialog(
                                       droppin['image_path'],
                                       droppin['image_caption'],
