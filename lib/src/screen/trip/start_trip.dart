@@ -21,6 +21,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 import 'package:intl/intl.dart';
+import 'dart:math';
 
 class StartTripScreen extends ConsumerStatefulWidget {
   const StartTripScreen({super.key});
@@ -107,6 +108,95 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     });
   }
 
+  Future<void> _fetchDrivingRoute(LatLng start, LatLng end) async {
+    final url =
+        'https://api.mapbox.com/directions/v5/mapbox/driving/${start.longitude},${start.latitude};${end.longitude},${end.latitude}?geometries=polyline6&overview=full&alternatives=false&steps=true&access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw';
+
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        final List<dynamic> routes = jsonResponse['routes'];
+        if (routes.isNotEmpty) {
+          final String polyline = routes[0]['geometry'];
+          final List<LatLng> decodedPolyline = _decodePolyline6(polyline);
+
+          final double distanceInMeters =
+              (routes[0]['distance'] as num).toDouble();
+          final double newMiles = distanceInMeters / 1609.34;
+
+          final currentTotal = ref.read(totalDistanceProvider);
+          ref.read(totalDistanceProvider.notifier).state =
+              currentTotal + newMiles;
+          GlobalVariables.totalDistance = currentTotal + newMiles;
+
+          // Get current path
+          final currentPath = ref.read(pathCoordinatesProvider);
+
+          if (currentPath.isEmpty) {
+            // First segment of the route
+            ref.read(pathCoordinatesProvider.notifier).state = decodedPolyline;
+          } else {
+            // Find the last point in the current path
+            final lastPoint = currentPath.last;
+
+            // Find where to connect the new segment
+            int connectionIndex = 0;
+            double minDistance = double.infinity;
+
+            // Find the closest point in the new polyline to connect
+            for (int i = 0; i < decodedPolyline.length; i++) {
+              final distance =
+                  _calculateRealDistance(lastPoint, decodedPolyline[i]);
+              if (distance < minDistance) {
+                minDistance = distance;
+                connectionIndex = i;
+              }
+            }
+
+            // Create new path by:
+            // 1. Taking all points from current path
+            // 2. Adding only new points from the new segment
+            final List<LatLng> newPath = [...currentPath];
+
+            // Only add points that are actually new (after the connection point)
+            for (int i = connectionIndex; i < decodedPolyline.length; i++) {
+              final newPoint = decodedPolyline[i];
+              // Check if this point is significantly different from the last added point
+              if (newPath.isEmpty ||
+                  _calculateRealDistance(newPath.last, newPoint) > 10) {
+                // 10 meters threshold
+                newPath.add(newPoint);
+              }
+            }
+
+            // Update the path
+            ref.read(pathCoordinatesProvider.notifier).state = newPath;
+          }
+        }
+      }
+    } catch (e) {
+      logger.e('Error fetching route: $e');
+    }
+  }
+
+  // Helper method to calculate real-world distance
+  double _calculateRealDistance(LatLng point1, LatLng point2) {
+    const double earthRadius = 6371000; // Earth's radius in meters
+
+    final lat1 = point1.latitude * pi / 180;
+    final lat2 = point2.latitude * pi / 180;
+    final dLat = (point2.latitude - point1.latitude) * pi / 180;
+    final dLon = (point2.longitude - point1.longitude) * pi / 180;
+
+    final a = sin(dLat / 2) * sin(dLat / 2) +
+        cos(lat1) * cos(lat2) * sin(dLon / 2) * sin(dLon / 2);
+
+    final c = 2 * atan2(sqrt(a), sqrt(1 - a));
+
+    return earthRadius * c;
+  }
+
   void toggleTrip() {
     if (GlobalVariables.isTripStarted) {
       // ✅ End the trip
@@ -183,51 +273,6 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
       GlobalVariables.totalDistance = 0.0;
     } else {
       logger.i("tripStartDate is null.");
-    }
-  }
-
-  Future<void> _fetchDrivingRoute(LatLng start, LatLng end) async {
-    final url =
-        'https://api.mapbox.com/directions/v5/mapbox/driving/${start.longitude},${start.latitude};${end.longitude},${end.latitude}?geometries=polyline6&access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw';
-    try {
-      final response = await http.get(Uri.parse(url));
-      if (response.statusCode == 200) {
-        final jsonResponse = jsonDecode(response.body);
-        final List<dynamic> routes = jsonResponse['routes'];
-        if (routes.isNotEmpty) {
-          final String polyline = routes[0]['geometry'];
-          final List<LatLng> decodedPolyline = _decodePolyline6(polyline);
-
-          final double distanceInMeters =
-              (routes[0]['distance'] as num).toDouble();
-          final double newMiles = distanceInMeters / 1609.34;
-          // Update the cumulative distance
-          final currentTotal = ref.read(totalDistanceProvider);
-          ref.read(totalDistanceProvider.notifier).state =
-              currentTotal + newMiles;
-          GlobalVariables.totalDistance = currentTotal + newMiles;
-
-          logger.i("totalDistanceInMiles : $totalDistanceInMiles");
-
-          final currentPath = ref.read(pathCoordinatesProvider);
-          final updatedPath = [...currentPath];
-
-          for (var point in decodedPolyline) {
-            if (updatedPath.isEmpty || updatedPath.last != point) {
-              updatedPath.add(point);
-            }
-          }
-
-          ref.read(pathCoordinatesProvider.notifier).state = updatedPath;
-          logger.i("pathCoordinatesProvider : $updatedPath");
-        } else {
-          logger.i('No routes found.');
-        }
-      } else {
-        logger.i('Error fetching route: ${response.statusCode}');
-      }
-    } catch (e) {
-      logger.i('Error fetching route: $e');
     }
   }
 
