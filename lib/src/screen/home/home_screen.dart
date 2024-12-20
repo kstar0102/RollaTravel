@@ -1,6 +1,7 @@
 import 'package:RollaTravel/src/screen/home/home_tag_screen.dart';
 import 'package:RollaTravel/src/screen/home/home_user_screen.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
+import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:RollaTravel/src/constants/app_styles.dart';
@@ -139,6 +140,8 @@ class PostWidgetState extends State<PostWidget> {
   LatLng? startPoint;
   LatLng? endPoint;
   bool isLoading = true;
+  final ApiService apiService = ApiService();
+  int likes = 0;
 
   @override
   void initState() {
@@ -148,6 +151,7 @@ class PostWidgetState extends State<PostWidget> {
     _getlocaionts().then((_) {
       setState(() {
         isLoading = false; // Data is loaded
+        likes = widget.post['droppins'][widget.dropIndex]['liked_users'].length;
       });
     });
   }
@@ -169,7 +173,6 @@ class PostWidgetState extends State<PostWidget> {
                 .where((latLng) => latLng != null)
                 .cast<LatLng>()
                 .toList();
-        logger.i('Route points initialized: $routePoints');
       });
     }
   }
@@ -216,7 +219,6 @@ class PostWidgetState extends State<PostWidget> {
     // Update all locations in one go
     setState(() {
       locations = tempLocations;
-      logger.i('stop Locations: $locations');
     });
   }
 
@@ -368,10 +370,48 @@ class PostWidgetState extends State<PostWidget> {
                       children: [
                         GestureDetector(
                           behavior: HitTestBehavior.opaque,
-                          onTap: () {
-                            setState(() {
-                              isLiked = !isLiked;
-                            });
+                          onTap: () async {
+                            final response = await apiService.toggleDroppinLike(
+                              userId: GlobalVariables.userId!,
+                              droppinId: widget.post['droppins']
+                                  [widget.dropIndex]['id'],
+                              flag: !isLiked,
+                            );
+
+                            if (response != null &&
+                                response['statusCode'] == true) {
+                              setState(() {
+                                isLiked = !isLiked;
+                                if (isLiked) {
+                                  likes++;
+                                  final names =
+                                      GlobalVariables.realName?.split(' ') ??
+                                          ['Unknown', ''];
+                                  final firstName = names[0];
+                                  final lastName =
+                                      names.length > 1 ? names[1] : '';
+
+                                  widget.post['droppins'][widget.dropIndex]
+                                          ['liked_users']
+                                      .add({
+                                    'photo': GlobalVariables.userImageUrl,
+                                    'first_name': firstName,
+                                    'last_name': lastName,
+                                    'rolla_username': GlobalVariables.userName,
+                                  });
+                                } else {
+                                  likes--;
+                                  widget.post['droppins'][widget.dropIndex]
+                                          ['liked_users']
+                                      .removeWhere((user) =>
+                                          user['rolla_username'] ==
+                                          GlobalVariables.userName);
+                                }
+                              });
+                              logger.i(response['message']);
+                            } else {
+                              logger.e('Failed to toggle like');
+                            }
                           },
                           child: Icon(
                             isLiked ? Icons.favorite : Icons.favorite_border,
@@ -481,6 +521,71 @@ class PostWidgetState extends State<PostWidget> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const HomeUserScreen()),
+    );
+  }
+
+  Future<void> _sendComment() async {
+    final commentText = _addCommitController.text;
+    if (commentText.isEmpty) {
+      _showAlert('Error', 'Comment text cannot be blank.');
+      return;
+    }
+
+    setState(() {
+      isAddComments = false;
+      isLoading = true; // Show loading indicator
+    });
+
+    final response = await apiService.sendComment(
+      userId: GlobalVariables.userId!,
+      tripId: widget.post['id'],
+      content: commentText,
+    );
+
+    setState(() {
+      isLoading = false; // Hide loading indicator
+    });
+
+    if (response != null) {
+      _showAlert('Success', 'Comment sent successfully.');
+      logger.i('Comment sent successfully: ${response['comment']}');
+
+      // Update local comments list
+      setState(() {
+        widget.post['comments'].add({
+          'user': {
+            'rolla_username': GlobalVariables.userName,
+            'photo': GlobalVariables.userImageUrl,
+          },
+          'content': commentText,
+        });
+      });
+
+      // Clear the text field
+      _addCommitController.clear();
+    } else {
+      _showAlert('Error', 'Failed to send comment.');
+      logger.e('Failed to send comment');
+    }
+  }
+
+  void _showAlert(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: [
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -753,47 +858,61 @@ class PostWidgetState extends State<PostWidget> {
           height: 5,
         ),
         if (isAddComments)
-          TextField(
-            controller: _addCommitController,
-            decoration: const InputDecoration(
-              hintText: 'add a comment',
-              hintStyle: TextStyle(
-                  color: Colors.grey, fontSize: 15, fontFamily: 'Kadaw'),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(
-                    8.0)), // Optional: Add border radius for rounded corners
-                borderSide: BorderSide(
-                  color: Colors.grey, // Set the border color
-                  width: 1.0, // Set the border width
+          Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 40, // Set your desired height here
+                  child: TextField(
+                    controller: _addCommitController,
+                    decoration: const InputDecoration(
+                      hintText: 'add a comment',
+                      hintStyle: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 15,
+                          fontFamily: 'Kadaw'),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(
+                          color: Colors.grey,
+                          width: 1.0,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(
+                          color: Colors.grey,
+                          width: 1.0,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(
+                          color: Colors.grey,
+                          width: 1.0,
+                        ),
+                      ),
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical:
+                            10.0, // Adjust vertical padding to center text
+                        horizontal: 8.0, // Optional: Adjust horizontal padding
+                      ),
+                    ),
+                    style: const TextStyle(
+                      fontFamily: 'Kadaw',
+                      fontSize: 15,
+                      color: Colors.black,
+                    ),
+                  ),
                 ),
               ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(
-                    8.0)), // Optional: Add border radius for rounded corners
-                borderSide: BorderSide(
-                  color: Colors.grey, // Set the border color
-                  width: 1.0, // Set the border width
-                ),
+              IconButton(
+                icon: const Icon(Icons.send, color: kColorHereButton),
+                onPressed: _sendComment,
               ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(
-                    8.0)), // Optional: Add border radius for rounded corners
-                borderSide: BorderSide(
-                  color: Colors.grey, // Set the border color when focused
-                  width: 1.0, // Set the border width when focused
-                ),
-              ),
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 8.0, // Adjust horizontal padding
-                vertical: 5.0, // Adjust vertical padding
-              ),
-            ),
-            style: const TextStyle(
-              fontFamily: 'Kadaw', // Set your custom font family here
-              fontSize: 15, // Optional: Adjust font size
-              color: Colors.black, // Optional: Adjust text color
-            ),
+            ],
           ),
+
         const SizedBox(height: 10),
         // Likes and Comments Section
         Column(

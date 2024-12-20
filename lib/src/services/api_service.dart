@@ -316,4 +316,53 @@ class ApiService {
       throw Exception('Failed to fetch user trips: $e');
     }
   }
+
+  Future<Map<String, dynamic>?> sendComment({
+    required int userId,
+    required int tripId,
+    required String content,
+  }) async {
+    final url = Uri.parse('$baseUrl/comment/create');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'user_id': userId,
+        'trip_id': tripId,
+        'content': content,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      logger.e('Failed to send comment: ${response.statusCode}');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> toggleDroppinLike({
+    required int userId,
+    required int droppinId,
+    required bool flag,
+  }) async {
+    final url = Uri.parse('$baseUrl/user/droppin_like');
+    // final url = Uri.parse('http://192.168.141.105:8000/api/user/droppin_like');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'user_id': userId,
+        'droppin_id': droppinId,
+        'flag': flag,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      logger.e('Failed to toggle like: ${response.statusCode}');
+      return null;
+    }
+  }
 }
