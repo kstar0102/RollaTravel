@@ -105,6 +105,12 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
                               return PostWidget(
                                 post: trip, // Pass trip data to PostWidget
                                 dropIndex: index, // Current index
+                                onLikesUpdated: (updatedLikes) {
+                                  setState(() {
+                                    trips![index]['totalLikes'] =
+                                        updatedLikes; // Update the likes count
+                                  });
+                                },
                               );
                             },
                           ),
@@ -121,7 +127,14 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
 class PostWidget extends StatefulWidget {
   final Map<String, dynamic> post;
   final int dropIndex;
-  const PostWidget({super.key, required this.post, required this.dropIndex});
+  final Function(int) onLikesUpdated;
+
+  const PostWidget({
+    super.key,
+    required this.post,
+    required this.dropIndex,
+    required this.onLikesUpdated,
+  });
 
   @override
   PostWidgetState createState() => PostWidgetState();
@@ -150,10 +163,18 @@ class PostWidgetState extends State<PostWidget> {
     _initializeRoutePoints();
     _getlocaionts().then((_) {
       setState(() {
-        isLoading = false; // Data is loaded
-        likes = widget.post['droppins'][widget.dropIndex]['liked_users'].length;
+        isLoading = false;
+        likes = _calculateTotalLikes(widget.post['droppins']);
       });
     });
+  }
+
+  // Function to calculate total likes
+  int _calculateTotalLikes(List<dynamic> droppins) {
+    return droppins.fold<int>(
+      0,
+      (sum, droppin) => sum + (droppin['liked_users'].length as int),
+    );
   }
 
   void _initializeRoutePoints() {
@@ -239,76 +260,13 @@ class PostWidgetState extends State<PostWidget> {
     }
   }
 
-  Future<void> _fetchDrivingRoute(List<LatLng> locations) async {
-    if (locations.length < 2) return; // Ensure at least two points for a route
-
-    // Set start, end, and waypoints for Mapbox API
-    final start = locations.first;
-    final end = locations.last;
-    final waypoints = locations.length > 2
-        ? locations
-            .sublist(1, locations.length - 1)
-            .map((loc) => '${loc.longitude},${loc.latitude}')
-            .join(';')
-        : '';
-    final coordinates =
-        '${start.longitude},${start.latitude};$waypoints;${end.longitude},${end.latitude}';
-    final url =
-        'https://api.mapbox.com/directions/v5/mapbox/driving/$coordinates?geometries=polyline&access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw';
-
-    try {
-      final response = await http.get(Uri.parse(url));
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final polyline = data['routes'][0]['geometry'];
-        if (mounted) {
-          setState(() {
-            routePoints = _decodePolyline(polyline);
-          });
-        }
-      } else {
-        logger.i('Failed to fetch route: ${response.statusCode}');
-      }
-    } catch (e) {
-      logger.i('Error fetching route: $e');
+  void _showImageDialog(String imagePath, String caption, int droppinlikes,
+      List<dynamic> likedUsers, int droppinId, int droppinIndex) {
+    if (likedUsers.map((user) => user['id']).contains(GlobalVariables.userId)) {
+      isLiked = true;
+    } else {
+      isLiked = false;
     }
-  }
-
-  // Polyline decoder function for Mapbox-encoded polylines
-  List<LatLng> _decodePolyline(String encoded) {
-    List<LatLng> points = [];
-    int index = 0, len = encoded.length;
-    int lat = 0, lng = 0;
-
-    while (index < len) {
-      int shift = 0, result = 0;
-      int b;
-      do {
-        b = encoded.codeUnitAt(index++) - 63;
-        result |= (b & 0x1F) << shift;
-        shift += 5;
-      } while (b >= 0x20);
-      int dlat = (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
-      lat += dlat;
-
-      shift = 0;
-      result = 0;
-      do {
-        b = encoded.codeUnitAt(index++) - 63;
-        result |= (b & 0x1F) << shift;
-        shift += 5;
-      } while (b >= 0x20);
-      int dlng = (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
-      lng += dlng;
-
-      points.add(LatLng(lat / 1E5, lng / 1E5));
-    }
-    return points;
-  }
-
-  void _showImageDialog(
-      String imagePath, String caption, int likes, List<dynamic> likedUsers) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -360,10 +318,7 @@ class PostWidgetState extends State<PostWidget> {
                     errorBuilder: (context, error, stackTrace) =>
                         const Icon(Icons.broken_image, size: 100),
                   ),
-                  const Divider(
-                      height: 1,
-                      color: Colors.grey), // Divider between image and footer
-                  // Footer with Like Icon and Likes Count
+                  const Divider(height: 1, color: Colors.grey),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Row(
@@ -373,8 +328,7 @@ class PostWidgetState extends State<PostWidget> {
                           onTap: () async {
                             final response = await apiService.toggleDroppinLike(
                               userId: GlobalVariables.userId!,
-                              droppinId: widget.post['droppins']
-                                  [widget.dropIndex]['id'],
+                              droppinId: droppinId,
                               flag: !isLiked,
                             );
 
@@ -383,7 +337,7 @@ class PostWidgetState extends State<PostWidget> {
                               setState(() {
                                 isLiked = !isLiked;
                                 if (isLiked) {
-                                  likes++;
+                                  droppinlikes++;
                                   final names =
                                       GlobalVariables.realName?.split(' ') ??
                                           ['Unknown', ''];
@@ -391,7 +345,7 @@ class PostWidgetState extends State<PostWidget> {
                                   final lastName =
                                       names.length > 1 ? names[1] : '';
 
-                                  widget.post['droppins'][widget.dropIndex]
+                                  widget.post['droppins'][droppinIndex]
                                           ['liked_users']
                                       .add({
                                     'photo': GlobalVariables.userImageUrl,
@@ -400,13 +354,17 @@ class PostWidgetState extends State<PostWidget> {
                                     'rolla_username': GlobalVariables.userName,
                                   });
                                 } else {
-                                  likes--;
-                                  widget.post['droppins'][widget.dropIndex]
+                                  droppinlikes--;
+                                  widget.post['droppins'][droppinIndex]
                                           ['liked_users']
                                       .removeWhere((user) =>
                                           user['rolla_username'] ==
                                           GlobalVariables.userName);
                                 }
+                                setState(() {
+                                  likes = _calculateTotalLikes(
+                                      widget.post['droppins']);
+                                });
                               });
                               logger.i(response['message']);
                             } else {
@@ -427,7 +385,7 @@ class PostWidgetState extends State<PostWidget> {
                             });
                           },
                           child: Text(
-                            '$likes likes',
+                            '$droppinlikes likes',
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
@@ -507,7 +465,10 @@ class PostWidgetState extends State<PostWidget> {
           },
         );
       },
-    );
+    ).then((_) {
+      // Call the callback when the dialog is closed
+      widget.onLikesUpdated(likes);
+    });
   }
 
   void _goTagScreen() {
@@ -520,7 +481,10 @@ class PostWidgetState extends State<PostWidget> {
   void _goUserScreen() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const HomeUserScreen()),
+      MaterialPageRoute(
+          builder: (context) => HomeUserScreen(
+                userId: widget.post['user_id'],
+              )),
     );
   }
 
@@ -707,7 +671,9 @@ class PostWidgetState extends State<PostWidget> {
                       widget.post['droppins'][index]['image_path'],
                       widget.post['droppins'][index]['image_caption'],
                       widget.post['droppins'][index]['liked_users'].length,
-                      widget.post['droppins'][index]['liked_users']);
+                      widget.post['droppins'][index]['liked_users'],
+                      widget.post['droppins'][index]['id'],
+                      index);
                 },
                 child: Container(
                   padding: const EdgeInsets.all(1),
@@ -795,6 +761,8 @@ class PostWidgetState extends State<PostWidget> {
                                       droppin['image_caption'],
                                       droppin['liked_users'].length,
                                       droppin['liked_users'],
+                                      droppin['id'],
+                                      index,
                                     );
                                   },
                                   child: const Icon(Icons.location_on,
@@ -914,6 +882,7 @@ class PostWidgetState extends State<PostWidget> {
           ),
 
         const SizedBox(height: 10),
+
         // Likes and Comments Section
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -922,18 +891,21 @@ class PostWidgetState extends State<PostWidget> {
               children: [
                 GestureDetector(
                   onTap: () {
-                    // _showImageDialog(widget.post.locationImages[widget.dropIndex], widget.post.locationDecription[widget.dropIndex], widget.dropIndex);
                     setState(() {
                       showLikesDropdown = true;
                     });
                   },
-                  child: const Text('# likes',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey,
-                        fontSize: 16,
-                        fontFamily: 'Kadaw',
-                      )),
+                  child: Text(
+                    '$likes likes',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: widget.post['userId'] == GlobalVariables.userId
+                          ? Colors.red
+                          : Colors.grey,
+                      fontSize: 16,
+                      fontFamily: 'Kadaw',
+                    ),
+                  ),
                 ),
                 const Spacer(),
                 GestureDetector(

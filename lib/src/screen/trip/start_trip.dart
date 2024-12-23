@@ -87,7 +87,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     _positionStreamSubscription = Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.high,
-        distanceFilter: 50,
+        distanceFilter: 10,
       ),
     ).listen((Position position) async {
       final LatLng newLocation = LatLng(position.latitude, position.longitude);

@@ -1,5 +1,6 @@
 import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/screen/home/home_follower_screen.dart';
+import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/translate/en.dart';
 import 'package:RollaTravel/src/utils/index.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
@@ -7,7 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class HomeUserScreen extends ConsumerStatefulWidget {
-  const HomeUserScreen({super.key});
+  final int userId;
+  const HomeUserScreen({super.key, required this.userId});
 
   @override
   ConsumerState<HomeUserScreen> createState() => HomeUserScreenState();
@@ -19,6 +21,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
   final int _currentIndex = 1;
   bool isLiked = false;
   bool showLikesDropdown = false;
+  Map<String, dynamic>? userProfile;
 
   final List<String> imagePaths = [
     'assets/images/background/Lake1.png',
@@ -53,8 +56,9 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
         setState(() {
           this.keyboardHeight = keyboardHeight;
         });
-      } 
+      }
     });
+    _fetchUserProfile();
   }
 
   @override
@@ -62,12 +66,22 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
     super.dispose();
   }
 
+  Future<void> _fetchUserProfile() async {
+    final userProfile = await ApiService().fetchUserInfo(widget.userId);
+    if (mounted) {
+      setState(() {
+        this.userProfile = userProfile;
+      });
+    }
+  }
+
   Future<bool> _onWillPop() async {
     return false;
   }
 
-  void _onFollowers(){
-    Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeFollowScreen()));
+  void _onFollowers() {
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => const HomeFollowScreen()));
   }
 
   void _showImageDialog(String imagePath, String caption, int likes) {
@@ -77,15 +91,18 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return Dialog(
-              insetPadding: const EdgeInsets.symmetric(horizontal: 30), // Adjust padding to match the screenshot
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              insetPadding: const EdgeInsets.symmetric(
+                  horizontal: 30), // Adjust padding to match the screenshot
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Caption and Close Icon Row
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8.0, vertical: 4.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -94,14 +111,14 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                           style: iamgeModalCaptionTextStyle,
                         ),
                         IconButton(
-                          icon: const Icon(Icons.close, color: Colors.black),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                            setState(() {
-                              showLikesDropdown = false; // Hide the likes dropdown when the dialog is closed
-                            });
-                          }
-                        ),
+                            icon: const Icon(Icons.close, color: Colors.black),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              setState(() {
+                                showLikesDropdown =
+                                    false; // Hide the likes dropdown when the dialog is closed
+                              });
+                            }),
                       ],
                     ),
                   ),
@@ -109,10 +126,14 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                   Image.asset(
                     imagePath,
                     fit: BoxFit.cover,
-                    width: MediaQuery.of(context).size.width * 0.9, // Replace vww
-                    height: MediaQuery.of(context).size.height * 0.5, // Replace vhh
+                    width:
+                        MediaQuery.of(context).size.width * 0.9, // Replace vww
+                    height:
+                        MediaQuery.of(context).size.height * 0.5, // Replace vhh
                   ),
-                  const Divider(height: 1, color: Colors.grey), // Divider between image and footer
+                  const Divider(
+                      height: 1,
+                      color: Colors.grey), // Divider between image and footer
                   // Footer with Like Icon and Likes Count
                   Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -135,16 +156,16 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                         GestureDetector(
                           onTap: () {
                             setState(() {
-                              showLikesDropdown = !showLikesDropdown; // Toggle the visibility of the dropdown
+                              showLikesDropdown =
+                                  !showLikesDropdown; // Toggle the visibility of the dropdown
                             });
                           },
                           child: Text(
                             '$likes likes',
                             style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              fontFamily: 'Kadaw'
-                            ),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                fontFamily: 'Kadaw'),
                           ),
                         ),
                       ],
@@ -167,7 +188,8 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                     width: 2,
                                   ),
                                   image: const DecorationImage(
-                                    image: AssetImage("assets/images/background/image1.png"),
+                                    image: AssetImage(
+                                        "assets/images/background/image1.png"),
                                     fit: BoxFit.cover,
                                   ),
                                 ),
@@ -180,20 +202,22 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                       Text(
                                         comment['user']!,
                                         style: const TextStyle(
-                                          fontWeight: FontWeight.bold, 
-                                          color: kColorHereButton,
-                                          fontSize: 13,
-                                          fontFamily: 'Kadaw'
-                                        ),
+                                            fontWeight: FontWeight.bold,
+                                            color: kColorHereButton,
+                                            fontSize: 13,
+                                            fontFamily: 'Kadaw'),
                                       ),
                                       const SizedBox(width: 5),
-                                      const Icon(Icons.verified, color: Colors.blue, size: 16),
+                                      const Icon(Icons.verified,
+                                          color: Colors.blue, size: 16),
                                     ],
                                   ),
-                                  const Text("Brain Smith", style: TextStyle(fontFamily: 'Kadaw'),)
+                                  const Text(
+                                    "Brain Smith",
+                                    style: TextStyle(fontFamily: 'Kadaw'),
+                                  )
                                 ],
                               ),
-                              
                             ],
                           ),
                         );
@@ -246,7 +270,9 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                 const Text(
                                   "@smith",
                                   style: TextStyle(
-                                      color: kColorBlack, fontSize: 18, fontFamily: 'KadawBold'),
+                                      color: kColorBlack,
+                                      fontSize: 18,
+                                      fontFamily: 'KadawBold'),
                                 ),
                                 Image.asset(
                                   'assets/images/icons/verify.png',
@@ -288,7 +314,8 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                   width: 2,
                                 ),
                                 image: const DecorationImage(
-                                  image: AssetImage("assets/images/background/image2.png"),
+                                  image: AssetImage(
+                                      "assets/images/background/image2.png"),
                                   fit: BoxFit.cover,
                                 ),
                               ),
@@ -318,26 +345,31 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                           ],
                         ),
                         SizedBox(height: vhh(context, 1)),
-                        const Text(
-                          "Brian Smith",
-                          style: TextStyle(
-                            color: kColorBlack,
-                            fontSize: 20,
-                            fontFamily: 'KadawBold',
+                        if (userProfile != null) ...[
+                          Text(
+                            userProfile!['first_name'] +
+                                ' ' +
+                                userProfile!['last_name'],
+                            style: const TextStyle(
+                              color: kColorBlack,
+                              fontSize: 20,
+                              fontFamily: 'KadawBold',
+                            ),
                           ),
-                        ),
-                        SizedBox(height: vhh(context, 1)),
-                        const Text(
-                          "Life is good!",
-                          style: TextStyle(
-                            color: kColorGrey,
-                            fontSize: 18,
-                            fontFamily: 'Kadaw',
+                          Text(
+                            userProfile!['bio'] ?? '',
+                            style: const TextStyle(
+                              color: kColorGrey,
+                              fontSize: 18,
+                              fontFamily: 'Kadaw',
+                            ),
                           ),
-                        ),
+                          // Add more fields as needed
+                        ],
                         SizedBox(height: vhh(context, 2)),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.center, // Center the buttons
+                          mainAxisAlignment:
+                              MainAxisAlignment.center, // Center the buttons
                           children: [
                             GestureDetector(
                               onTap: () {
@@ -345,20 +377,27 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                               },
                               child: Container(
                                 width: vww(context, 40),
-                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 3),
-                                margin: const EdgeInsets.only(right: 10), // Add spacing between buttons
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 3),
+                                margin: const EdgeInsets.only(
+                                    right: 10), // Add spacing between buttons
                                 decoration: BoxDecoration(
-                                  color: Colors.brown, // Brown color for the Unfollow button
-                                  borderRadius: BorderRadius.circular(20), // Rounded corners
+                                  color: Colors
+                                      .brown, // Brown color for the Unfollow button
+                                  borderRadius: BorderRadius.circular(
+                                      20), // Rounded corners
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.2), // Shadow color
-                                      offset: const Offset(0, 2), // Shadow offset
+                                      color: Colors.black
+                                          .withOpacity(0.2), // Shadow color
+                                      offset:
+                                          const Offset(0, 2), // Shadow offset
                                       blurRadius: 4, // Blur radius for shadow
                                     ),
                                   ],
                                 ),
-                                child: const Center( // Ensures text is centered
+                                child: const Center(
+                                  // Ensures text is centered
                                   child: Text(
                                     'Unfollow',
                                     style: TextStyle(
@@ -376,14 +415,19 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                               },
                               child: Container(
                                 width: vww(context, 40),
-                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 3),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 3),
                                 decoration: BoxDecoration(
-                                  color: Colors.blue, // Blue color for the Send Message button
-                                  borderRadius: BorderRadius.circular(20), // Rounded corners
+                                  color: Colors
+                                      .blue, // Blue color for the Send Message button
+                                  borderRadius: BorderRadius.circular(
+                                      20), // Rounded corners
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.2), // Shadow color
-                                      offset: const Offset(0, 2), // Shadow offset
+                                      color: Colors.black
+                                          .withOpacity(0.2), // Shadow color
+                                      offset:
+                                          const Offset(0, 2), // Shadow offset
                                       blurRadius: 4, // Blur radius for shadow
                                     ),
                                   ],
@@ -396,13 +440,16 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                         color: Colors.white, // Icon color
                                         size: 16, // Icon size
                                       ),
-                                      SizedBox(width: 5), // Spacing between icon and text
+                                      SizedBox(
+                                          width:
+                                              5), // Spacing between icon and text
                                       Text(
                                         'Send Message',
                                         style: TextStyle(
                                           color: Colors.white, // Text color
                                           fontSize: 16, // Font size
-                                          fontFamily: 'KadawBold', // Font weight
+                                          fontFamily:
+                                              'KadawBold', // Font weight
                                         ),
                                       ),
                                     ],
@@ -488,25 +535,26 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                             scrollDirection: Axis.horizontal,
                             children: List.generate(imagePaths.length, (index) {
                               return Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 3),
-                                child: GestureDetector(
-                                  onTap: () {
-                                    // Handle the click event here
-                                    _showImageDialog(imagePaths[index], locationDecription[index], 4);
-                                  },
-                                  child: Image.asset(
-                                    imagePaths[index],
-                                    width: 100,
-                                    height: 100,
-                                    fit: BoxFit.cover,
-                                  ),
-                                )
-                              );
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 3),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      // Handle the click event here
+                                      _showImageDialog(imagePaths[index],
+                                          locationDecription[index], 4);
+                                    },
+                                    child: Image.asset(
+                                      imagePaths[index],
+                                      width: 100,
+                                      height: 100,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ));
                             }),
                           ),
                         ),
                         SizedBox(height: vhh(context, 1)),
-                        
+
                         // Map and Route Section with Dividers
                         Container(
                           padding: const EdgeInsets.symmetric(vertical: 10),
@@ -522,12 +570,15 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                 child: const Center(
                                   child: Text(
                                     "Map Route Here",
-                                    style: TextStyle(color: Colors.black,fontFamily: 'Kadaw',),
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontFamily: 'Kadaw',
+                                    ),
                                   ),
                                 ),
                               ),
                               SizedBox(height: vhh(context, 1)),
-                              
+
                               // Dividers and Sections
                               const Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -541,7 +592,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                       endIndent: 10,
                                     ),
                                   ),
-                                  
+
                                   // Center Vertical Divider
                                   Column(
                                     children: [
@@ -558,7 +609,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                       ),
                                     ],
                                   ),
-                                  
+
                                   // Right Divider
                                   Expanded(
                                     child: Divider(
@@ -573,7 +624,6 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                             ],
                           ),
                         ),
-
                       ],
                     ),
                   ),
@@ -586,5 +636,4 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
       bottomNavigationBar: BottomNavBar(currentIndex: _currentIndex),
     );
   }
-
 }

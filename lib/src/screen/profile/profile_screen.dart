@@ -67,6 +67,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
         userTrips = trips;
         isLoadingTrips = false;
       });
+      logger.i('User trips loaded: $userTrips');
       if (userTrips != null && userTrips!.isNotEmpty) {}
     } catch (error) {
       logger.e('Error fetching user trips: $error');
@@ -713,9 +714,11 @@ class _TripMapWidgetState extends State<TripMapWidget> {
     mapController = MapController();
     _initializeRoutePoints();
     _getLocations().then((_) {
-      setState(() {
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     });
   }
 
@@ -804,7 +807,6 @@ class _TripMapWidgetState extends State<TripMapWidget> {
 
     setState(() {
       locations = tempLocations;
-      logger.i('stop Locations: $locations');
     });
   }
 

@@ -365,4 +365,29 @@ class ApiService {
       return null;
     }
   }
+
+  Future<Map<String, dynamic>?> fetchUserInfo(int userId) async {
+    final url = Uri.parse('$baseUrl/user/info?user_id=$userId');
+    try {
+      final response = await http.get(url, headers: {
+        'Content-Type': 'application/json',
+      });
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['statusCode'] == true) {
+          return data['data'];
+        } else {
+          logger.e('Failed to fetch user info: ${data['message']}');
+          return null;
+        }
+      } else {
+        logger.e('Failed to fetch user info: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      logger.e('Error fetching user info: $e');
+      return null;
+    }
+  }
 }
