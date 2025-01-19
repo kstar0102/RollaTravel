@@ -81,13 +81,13 @@ class BottomNavBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return SafeArea(
       child : SizedBox(
-        height: 100,
+        height: 110,
         child: BottomAppBar(
           color: Colors.white,
           child: Container(
             decoration: const BoxDecoration(
               border: Border(
-                top: BorderSide(color: kColorBlack, width: 2), // Black line at the very top
+                top: BorderSide(color: kColorBlack, width: 1.5), // Black line at the very top
               ),
             ),
             child: Row(
@@ -103,7 +103,8 @@ class BottomNavBar extends ConsumerWidget {
                           bottom_home,
                           style: TextStyle(
                             color: currentIndex == 0 ? kColorButtonPrimary :  kColorBlack,
-                            fontFamily: 'KadawBold'
+                            fontFamily: 'Kadaw',
+                            fontSize: 17
                           ),
                         ),
                       ],
@@ -120,7 +121,8 @@ class BottomNavBar extends ConsumerWidget {
                           bottom_search,
                           style: TextStyle(
                             color: currentIndex == 1 ? kColorButtonPrimary :  kColorBlack,
-                            fontFamily: 'KadawBold'
+                            fontFamily: 'Kadaw',
+                            fontSize: 17
                           ),
                         ),
                       ],
@@ -134,15 +136,15 @@ class BottomNavBar extends ConsumerWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         SizedBox(
-                          width: 65,
-                          height: 65,
+                          width: 70,
+                          height: 77,
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(50),
                             child: const Image(
                               fit: BoxFit.cover,
                               image: AssetImage("assets/images/icons/home.png"),
-                              width: 60,
-                              height: 60,
+                              width: 70,
+                              height: 70,
                             ),
                           ),
                         ),
@@ -155,12 +157,15 @@ class BottomNavBar extends ConsumerWidget {
                     onTap: () => onTabTapped(context, ref, 3),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
                           bottom_drop_pin,
+                          textAlign: TextAlign.center,
                           style: TextStyle(
                             color: currentIndex == 3 ? kColorButtonPrimary :  kColorBlack,
-                            fontFamily: 'KadawBold'
+                            fontFamily: 'Kadaw',
+                            fontSize: 17
                           ),
                         ),
                       ],
@@ -174,8 +179,8 @@ class BottomNavBar extends ConsumerWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Container(
-                          width: 40,
-                          height: 40,
+                          width: 45,
+                          height: 45,
                           decoration: BoxDecoration(
                             border: Border.all(
                               color: currentIndex == 4 ? Colors.blue : Colors.grey,

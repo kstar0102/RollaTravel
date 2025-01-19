@@ -1,6 +1,6 @@
 import 'package:RollaTravel/src/constants/app_button.dart';
 import 'package:RollaTravel/src/constants/app_styles.dart';
-import 'package:RollaTravel/src/screen/auth/login_userflow.dart';
+import 'package:RollaTravel/src/screen/auth/signin_screen.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/translate/en.dart';
 import 'package:RollaTravel/src/utils/index.dart';
@@ -28,9 +28,6 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
   final _passwordController= TextEditingController();
   final _rePasswordController = TextEditingController();
   final logger = Logger();
-  // String get userName => _usernameController.text;
-  // String get password => _passwordController.text;
-  // String get rePassword => _rePasswordController.text;
   bool isPasswordVisible = false;
   double screenHeight = 0;
   double keyboardHeight = 0;
@@ -117,7 +114,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const LoginUserFlowScreen(),
+                builder: (context) => const SigninScreen(),
               ),
             );
           }

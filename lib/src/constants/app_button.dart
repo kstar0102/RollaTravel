@@ -88,13 +88,13 @@ class _ButtonWidgetState extends State<ButtonWidget> {
           child: TextButton(
             style: TextButton.styleFrom(
               foregroundColor: const Color(0XFF000000),
-          
+              padding: EdgeInsets.zero
             ),
             onPressed: widget.onPressed,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(btnTitle, style: TextStyle(color:  widget.textColor!, fontFamily: 'KadawBold'),),
+                Text(btnTitle, style: TextStyle(color:  widget.textColor!, fontSize: 13, fontFamily: 'KadawBold'),),
               ],
             ) 
           ),

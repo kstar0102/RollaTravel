@@ -3,8 +3,8 @@ import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 
 class ApiService {
-  // static const String baseUrl = 'http://16.171.153.11/api';
-  static const String baseUrl = 'http://192.168.141.105:8000/api';
+  static const String baseUrl = 'http://16.171.153.11/api';
+  // static const String baseUrl = 'http://192.168.141.105:8000/api';
   String apiKey = 'cfdb0e89363c14687341dbc25d1e1d43';
   final logger = Logger();
 

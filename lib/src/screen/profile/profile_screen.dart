@@ -1,4 +1,3 @@
-import 'package:RollaTravel/src/constants/app_button.dart';
 import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/screen/home/home_follower_screen.dart';
 import 'package:RollaTravel/src/screen/profile/edit_profile.dart';
@@ -90,6 +89,16 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   void _onFollowers() {
     Navigator.push(context,
         MaterialPageRoute(builder: (context) => const HomeFollowScreen()));
+  }
+
+  void _onSettingButtonClicked() {
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => const SettingsScreen()));
+  }
+
+  void _onEditButtonClicked() {
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => const EditProfileScreen()));
   }
 
   void _showImageDialog(
@@ -260,6 +269,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: kColorWhite,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
@@ -270,7 +280,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                SizedBox(height: vhh(context, 5)),
+                SizedBox(height: vhh(context, 1)),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -279,26 +289,26 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                       'assets/images/icons/logo.png',
                       width: vww(context, 20),
                     ),
-                    SizedBox(width: vww(context, 20)),
+                    SizedBox(width: vww(context, 18)),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                          GlobalVariables.userName!,
+                          '@${GlobalVariables.userName}',
                           style: const TextStyle(
                               color: kColorBlack,
                               fontSize: 18,
-                              fontFamily: 'KadawBold'),
+                              fontFamily: 'Kadaw'),
                         ),
                         Image.asset(
                           'assets/images/icons/verify.png',
-                          width: vww(context, 10),
+                          width: vww(context, 5),
+                          height: 20,
                         ),
                       ],
                     ),
                   ],
                 ),
-                SizedBox(height: vhh(context, 1)),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -308,7 +318,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                       children: [
                         Image.asset(
                           'assets/images/icons/trips.png',
-                          width: vww(context, 15),
+                          width: vww(context, 19),
                         ),
                         Text(
                           GlobalVariables.tripCount != null
@@ -342,7 +352,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                       children: [
                         Image.asset(
                           'assets/images/icons/followers.png',
-                          width: vww(context, 15),
+                          width: vww(context, 19),
                         ),
                         GestureDetector(
                           onTap: () {
@@ -367,7 +377,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                   style: const TextStyle(
                       color: kColorBlack,
                       fontSize: 20,
-                      fontFamily: 'KadawBold'),
+                      fontFamily: 'Kadaw'),
                 ),
                 SizedBox(height: vhh(context, 1)),
 
@@ -381,48 +391,86 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                   children: [
                     SizedBox(
                       width: vww(context, 30),
-                      child: ButtonWidget(
-                        btnType: ButtonWidgetType.editProfileText,
-                        borderColor: kColorStrongGrey,
-                        textColor: kColorWhite,
-                        fullColor: kColorStrongGrey,
+                      height: 28,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: kColorStrongGrey, // Button background color
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30), // Rounded corners
+                          ),
+                          shadowColor: Colors.black.withOpacity(0.9), // Shadow color
+                          elevation: 6, // Elevation to create the shadow effect
+                        ),
                         onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const EditProfileScreen(),
-                              ));
+                          _onEditButtonClicked();
                         },
+                        child: const Text("Edit Profile",
+                            style: TextStyle(
+                                color: kColorWhite,
+                                fontSize: 13,
+                                fontFamily: 'Kadaw')
+                        ),
                       ),
                     ),
                     SizedBox(width: vww(context, 1)),
                     SizedBox(
                       width: vww(context, 30),
-                      child: ButtonWidget(
-                        btnType: ButtonWidgetType.followingText,
-                        borderColor: kColorStrongGrey,
-                        textColor: kColorWhite,
-                        fullColor: kColorStrongGrey,
+                      height: 28,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: kColorStrongGrey, // Button background color
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30), // Rounded corners
+                          ),
+                          shadowColor: Colors.black.withOpacity(0.9), // Shadow color
+                          elevation: 6, // Elevation to create the shadow effect
+                        ),
                         onPressed: () {
                           _onFollowers();
                         },
+                        child: const Text("Following",
+                            style: TextStyle(
+                                color: kColorWhite,
+                                fontSize: 13,
+                                fontFamily: 'Kadaw')
+                        ),
                       ),
                     ),
                     SizedBox(width: vww(context, 1)),
                     SizedBox(
                       width: vww(context, 30),
-                      child: ButtonWidget(
-                        btnType: ButtonWidgetType.settingText,
-                        borderColor: kColorStrongGrey,
-                        textColor: kColorWhite,
-                        fullColor: kColorStrongGrey,
+                      height: 28,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: kColorStrongGrey, // Button background color
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30), // Rounded corners
+                          ),
+                          shadowColor: Colors.black.withOpacity(0.9), // Shadow color
+                          elevation: 6, // Elevation to create the shadow effect
+                        ),
                         onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const SettingsScreen(),
-                              ));
+                          _onSettingButtonClicked();
                         },
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.settings, // Settings icon
+                              size: 16,
+                              color: kColorWhite,
+                            ),
+                            SizedBox(width: 2), // Spacing between icon and text
+                            Text(
+                              'Settings',
+                              style: TextStyle(
+                                color: kColorWhite, // Matches the text color to the button theme
+                                fontSize: 13, 
+                                fontFamily: 'Kadaw'      // Customize font size
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -440,14 +488,34 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                               fontSize: 14,
                               fontFamily: 'Kadaw'),
                         ),
-                        Text(
-                          GlobalVariables.odometer != null
-                              ? '${GlobalVariables.odometer!} Km'
-                              : ' ',
-                          style: const TextStyle(
+                        // Text(
+                        //   GlobalVariables.odometer != null
+                        //       ? '${GlobalVariables.odometer!} Km'
+                        //       : ' ',
+                        //   style: const TextStyle(
+                        //       color: kColorButtonPrimary,
+                        //       fontSize: 14,
+                        //       fontFamily: 'Kadaw'),
+                        // ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0), // Adjust padding for inner spacing
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: kColorButtonPrimary, // Border color
+                              width: 1.5, // Border width
+                            ),
+                            borderRadius: BorderRadius.circular(8), // Rounded corners
+                          ),
+                          child: Text(
+                            GlobalVariables.odometer != null
+                                ? '${GlobalVariables.odometer!} Km'
+                                : ' ',
+                            style: const TextStyle(
                               color: kColorButtonPrimary,
                               fontSize: 14,
-                              fontFamily: 'Kadaw'),
+                              fontFamily: 'Kadaw',
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -575,6 +643,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                 // Map and Route Section with Dividers
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 10),
+                  color: kColorWhite,
                   child: Column(
                     children: [
                       const Divider(
