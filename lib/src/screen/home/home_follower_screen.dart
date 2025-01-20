@@ -1,3 +1,4 @@
+import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:flutter/material.dart';
@@ -55,10 +56,11 @@ class HomeFollowScreenState extends ConsumerState<HomeFollowScreen> {
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
+        backgroundColor: kColorWhite,
         body: Center(
           child: Column(
             children: [
-              SizedBox(height: vhh(context, 5),),
+              SizedBox(height: vhh(context, 6),),
               Row(
                 children: [
                   const SizedBox(width: 16),

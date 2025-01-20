@@ -97,8 +97,22 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   void _onEditButtonClicked() {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => const EditProfileScreen()));
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => const EditProfileScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0); // Start from the right
+          const end = Offset.zero; // End at the current position
+          const curve = Curves.easeInOut;
+
+          var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          var offsetAnimation = animation.drive(tween);
+
+          return SlideTransition(position: offsetAnimation, child: child);
+        },
+      ),
+    );
   }
 
   void _showImageDialog(

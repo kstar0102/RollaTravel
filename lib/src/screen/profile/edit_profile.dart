@@ -220,9 +220,12 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         prefs.setString('userData', jsonEncode(response['data']));
 
         // Provide success feedback
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile updated successfully!')),
-        );
+        if(mounted){
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Profile updated successfully!')),
+          );
+        }
+        
         GlobalVariables.realName = nameController.text.toString();
         GlobalVariables.userName = usernameController.text.toString();
         if(imageUrl != null){
@@ -234,15 +237,19 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         GlobalVariables.happyPlace = placeController.text.toString();
 
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${response['message']}')),
-        );
+        if(mounted){
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: ${response['message']}')),
+          );
+        }
       }
     } catch (e) {
       logger.e('Error updating user: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('An error occurred while saving changes.')),
-      );
+      if (mounted){
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('An error occurred while saving changes.')),
+        );
+      }
     } finally {
       setState(() {
         _isLoading = false;
@@ -253,6 +260,25 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   void onGarageClicked(){
     Navigator.push(context, MaterialPageRoute(builder: (context) => const GarageScreen()));
+  }
+
+  void _onBackPressed() {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => const ProfileScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(-1.0, 0.0); // Start from the left
+          const end = Offset.zero; // End at the current position
+          const curve = Curves.easeInOut;
+
+          var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          var offsetAnimation = animation.drive(tween);
+
+          return SlideTransition(position: offsetAnimation, child: child);
+        },
+      ),
+    );
   }
 
   @override
@@ -280,24 +306,25 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
-                        SizedBox(height: vhh(context, 10)),
+                        SizedBox(height: vhh(context, 6)),
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             InkWell(
                               onTap: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileScreen()));
+                                _onBackPressed();
                               },
                               child: Image.asset(
                                 'assets/images/icons/allow-left.png',
-                                width: vww(context, 5),
+                                width: vww(context, 3),
                               ),
                             ),
-                            
-                            const Text(edit_profile, style: TextStyle(color: kColorBlack, fontSize: 18, fontFamily: 'KadawBold'),),
-
-                            Container(),
+                            const Text(
+                              edit_profile, 
+                              style: TextStyle(color: kColorBlack, fontSize: 20, fontFamily: 'Kadaw'),
+                            ),
+                            SizedBox(width: vww(context, 7)),
                           ],
                         ),
 
@@ -561,19 +588,28 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 ),
                               ),
                             // if (_showSaveButton)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 20),
+                              
+                              SizedBox(height: vhh(context, 5)),
+                              SizedBox(
+                                width: vww(context, 30),
+                                height: 28,
                                 child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: kColorHereButton, // Button background color
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30), // Rounded corners
+                                    ),
+                                    shadowColor: Colors.black.withOpacity(0.9), // Shadow color
+                                    elevation: 6, // Elevation to create the shadow effect
+                                  ),
                                   onPressed: () {
                                     _saveChanges();
                                   },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: kColorHereButton, // Customize as needed
-                                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 5),
-                                  ),
-                                  child: const Text(
-                                    'Update',
-                                    style: TextStyle(color: Colors.white, fontSize: 16, fontFamily: 'Kadaw'),
+                                  child: const Text("Edit Profile",
+                                      style: TextStyle(
+                                          color: kColorWhite,
+                                          fontSize: 13,
+                                          fontFamily: 'Kadaw')
                                   ),
                                 ),
                               ),

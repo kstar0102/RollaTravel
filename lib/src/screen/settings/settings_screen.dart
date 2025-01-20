@@ -98,6 +98,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       body: WillPopScope(
         onWillPop: _onWillPop,
         child: Scaffold(
+          backgroundColor: kColorWhite  ,
           resizeToAvoidBottomInset: true,
           body: SingleChildScrollView(
             child: FocusScope(
@@ -115,7 +116,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
-                        SizedBox(height: vhh(context, 10)),
+                        SizedBox(height: vhh(context, 6)),
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -126,18 +127,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               },
                               child: Image.asset(
                                 'assets/images/icons/allow-left.png',
-                                width: vww(context, 5),
+                                width: vww(context, 3),
                               ),
                             ),
                             const Text(
                               settings,
                               style: TextStyle(
                                 color: kColorBlack,
-                                fontSize: 18,
-                                fontFamily: 'KadawBold',
+                                fontSize: 21,
+                                fontFamily: 'Kadaw',
                               ),
                             ),
-                            Container(),
+                            SizedBox(width: vww(context, 3)),
                           ],
                         ),
                         SizedBox(height: vhh(context, 1)),
@@ -152,56 +153,72 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               const Text(
                                 private_account,
                                 style: TextStyle(
-                                  fontSize: 16,
-                                  fontFamily: 'KadawBold',
+                                  fontSize: 18,
+                                  fontFamily: 'Kadaw',
                                 ),
                               ),
                               SizedBox(height: vhh(context, 1)),
                               Text(
                                 private_account_descrition,
+                                textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 13,
                                   color: Colors.grey[600],
-                                  fontFamily: 'KadawBold',
+                                  fontFamily: 'Kadaw',
+                                  fontStyle: FontStyle.italic,
                                 ),
                               ),
+                              SizedBox(height: vhh(context, 2)),
                               Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Ensures equal spacing between items
                                 children: [
-                                  Expanded(
-                                    child: RadioListTile(
-                                      value: true,
-                                      groupValue: isPrivateAccount,
-                                      onChanged: (bool? value) {
-                                        setState(() {
-                                          isPrivateAccount = value ?? true;
-                                        });
-                                      },
-                                      title: const Text(private),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: RadioListTile(
-                                      value: false,
-                                      groupValue: isPrivateAccount,
-                                      onChanged: (bool? value) {
-                                        setState(() {
-                                          isPrivateAccount = value ?? false;
-                                        });
-                                      },
-                                      title: const Text(
-                                        public,
-                                        style: TextStyle(fontFamily: 'Kadaw'),
+                                  Column(
+                                    children: [
+                                      const Text(
+                                        "Private\naccount", // Line break for multi-line text
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(fontFamily: 'Kadaw', fontWeight: FontWeight.bold),
                                       ),
-                                    ),
+                                      Radio<bool>(
+                                        value: true,
+                                        groupValue: isPrivateAccount,
+                                        activeColor: Colors.blue,
+                                        onChanged: (bool? value) {
+                                          setState(() {
+                                            isPrivateAccount = value ?? true;
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                      const Text(
+                                        "Public\naccount", // Line break for multi-line text
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(fontFamily: 'Kadaw', fontWeight: FontWeight.bold),
+                                      ),
+                                      Radio<bool>(
+                                        value: false,
+                                        groupValue: isPrivateAccount,
+                                        activeColor: Colors.blue,
+                                        onChanged: (bool? value) {
+                                          setState(() {
+                                            isPrivateAccount = value ?? false;
+                                          });
+                                        },
+                                      ),
+                                    ],
                                   ),
                                 ],
-                              ),
+                              ),      
+
                             ],
                           ),
                         ),
 
                         SizedBox(
-                          height: vhh(context, 6),
+                          height: vhh(context, 10),
                         ),
                         ListTile(
                           title: const Text(
@@ -214,8 +231,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ),
                           subtitle: Text(
                             logout_description,
+                            textAlign: TextAlign.center,
                             style: TextStyle(
-                                color: Colors.grey[600], fontFamily: 'Kadaw'),
+                                color: Colors.grey[600], 
+                                fontFamily: 'Kadaw', 
+                                fontStyle: FontStyle.italic, 
+                                fontSize: 13),
                           ),
                           onTap: () {
                             _showConfirmationDialog(
@@ -234,8 +255,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ),
                           subtitle: Text(
                             delete_description,
+                            textAlign: TextAlign.center,
                             style: TextStyle(
-                                color: Colors.grey[600], fontFamily: 'Kadaw'),
+                                color: Colors.grey[600], 
+                                fontSize: 13,
+                                fontFamily: 'Kadaw', fontStyle: FontStyle.italic),
                           ),
                           onTap: () {
                             _showConfirmationDialog(

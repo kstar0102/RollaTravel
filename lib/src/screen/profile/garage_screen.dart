@@ -1,3 +1,4 @@
+import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/screen/profile/edit_profile.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
@@ -39,6 +40,7 @@ class _GarageScreenState extends ConsumerState<GarageScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: kColorWhite,
       body: Padding(
         padding: const EdgeInsets.all(16.0), // Add padding for proper spacing
         child: Column(
