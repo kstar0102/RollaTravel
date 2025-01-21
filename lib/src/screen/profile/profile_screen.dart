@@ -100,13 +100,15 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     Navigator.push(
       context,
       PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const EditProfileScreen(),
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const EditProfileScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(1.0, 0.0); // Start from the right
           const end = Offset.zero; // End at the current position
           const curve = Curves.easeInOut;
 
-          var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          var tween =
+              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
           var offsetAnimation = animation.drive(tween);
 
           return SlideTransition(position: offsetAnimation, child: child);
@@ -389,9 +391,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                 Text(
                   GlobalVariables.realName!,
                   style: const TextStyle(
-                      color: kColorBlack,
-                      fontSize: 20,
-                      fontFamily: 'Kadaw'),
+                      color: kColorBlack, fontSize: 20, fontFamily: 'Kadaw'),
                 ),
                 SizedBox(height: vhh(context, 1)),
 
@@ -408,12 +408,16 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                       height: 28,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: kColorStrongGrey, // Button background color
+                          backgroundColor:
+                              kColorStrongGrey, // Button background color
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30), // Rounded corners
+                            borderRadius:
+                                BorderRadius.circular(30), // Rounded corners
                           ),
-                          shadowColor: Colors.black.withOpacity(0.9), // Shadow color
-                          elevation: 6, // Elevation to create the shadow effect
+                          shadowColor:
+                              Colors.black.withOpacity(0.9), // Shadow color
+                          elevation: 6, 
+                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
                         ),
                         onPressed: () {
                           _onEditButtonClicked();
@@ -422,8 +426,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             style: TextStyle(
                                 color: kColorWhite,
                                 fontSize: 13,
-                                fontFamily: 'Kadaw')
-                        ),
+                                fontFamily: 'Kadaw')),
                       ),
                     ),
                     SizedBox(width: vww(context, 1)),
@@ -432,12 +435,16 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                       height: 28,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: kColorStrongGrey, // Button background color
+                          backgroundColor:
+                              kColorStrongGrey, // Button background color
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30), // Rounded corners
+                            borderRadius:
+                                BorderRadius.circular(30), // Rounded corners
                           ),
-                          shadowColor: Colors.black.withOpacity(0.9), // Shadow color
-                          elevation: 6, // Elevation to create the shadow effect
+                          shadowColor:
+                              Colors.black.withOpacity(0.9), // Shadow color
+                          elevation: 6, 
+                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
                         ),
                         onPressed: () {
                           _onFollowers();
@@ -446,8 +453,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             style: TextStyle(
                                 color: kColorWhite,
                                 fontSize: 13,
-                                fontFamily: 'Kadaw')
-                        ),
+                                fontFamily: 'Kadaw')),
                       ),
                     ),
                     SizedBox(width: vww(context, 1)),
@@ -456,12 +462,16 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                       height: 28,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: kColorStrongGrey, // Button background color
+                          backgroundColor:
+                              kColorStrongGrey, // Button background color
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30), // Rounded corners
+                            borderRadius:
+                                BorderRadius.circular(30), // Rounded corners
                           ),
-                          shadowColor: Colors.black.withOpacity(0.9), // Shadow color
-                          elevation: 6, // Elevation to create the shadow effect
+                          shadowColor:
+                              Colors.black.withOpacity(0.9), // Shadow color
+                          elevation: 6,
+                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
                         ),
                         onPressed: () {
                           _onSettingButtonClicked();
@@ -478,10 +488,11 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             Text(
                               'Settings',
                               style: TextStyle(
-                                color: kColorWhite, // Matches the text color to the button theme
-                                fontSize: 13, 
-                                fontFamily: 'Kadaw'      // Customize font size
-                              ),
+                                  color:
+                                      kColorWhite, // Matches the text color to the button theme
+                                  fontSize: 13,
+                                  fontFamily: 'Kadaw' // Customize font size
+                                  ),
                             ),
                           ],
                         ),
@@ -512,13 +523,16 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                         //       fontFamily: 'Kadaw'),
                         // ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0), // Adjust padding for inner spacing
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 4,
+                              vertical: 0), // Adjust padding for inner spacing
                           decoration: BoxDecoration(
                             border: Border.all(
                               color: kColorButtonPrimary, // Border color
                               width: 1.5, // Border width
                             ),
-                            borderRadius: BorderRadius.circular(8), // Rounded corners
+                            borderRadius:
+                                BorderRadius.circular(8), // Rounded corners
                           ),
                           child: Text(
                             GlobalVariables.odometer != null

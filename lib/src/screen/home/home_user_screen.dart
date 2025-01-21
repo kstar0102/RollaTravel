@@ -378,9 +378,9 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                               child: Container(
                                 width: vww(context, 40),
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 3),
+                                    horizontal: 10, vertical: 3),
                                 margin: const EdgeInsets.only(
-                                    right: 10), // Add spacing between buttons
+                                    right: 5), // Add spacing between buttons
                                 decoration: BoxDecoration(
                                   color: Colors
                                       .brown, // Brown color for the Unfollow button
@@ -402,7 +402,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                     'Unfollow',
                                     style: TextStyle(
                                       color: Colors.white, // Text color
-                                      fontSize: 16, // Font size
+                                      fontSize: 14, // Font size
                                       fontFamily: 'KadawBold', // Font weight
                                     ),
                                   ),
@@ -416,7 +416,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                               child: Container(
                                 width: vww(context, 40),
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 3),
+                                    horizontal: 10, vertical: 3),
                                 decoration: BoxDecoration(
                                   color: Colors
                                       .blue, // Blue color for the Send Message button
@@ -434,6 +434,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                 ),
                                 child: const Center(
                                   child: Row(
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Icon(
                                         Icons.message_sharp, // Add an icon
@@ -442,12 +443,12 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                       ),
                                       SizedBox(
                                           width:
-                                              5), // Spacing between icon and text
+                                              2), // Spacing between icon and text
                                       Text(
                                         'Send Message',
                                         style: TextStyle(
                                           color: Colors.white, // Text color
-                                          fontSize: 16, // Font size
+                                          fontSize: 14, // Font size
                                           fontFamily:
                                               'KadawBold', // Font weight
                                         ),

@@ -854,7 +854,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                         ),
 
                         Positioned(
-                          bottom: 5,
+                          bottom: 13,
                           left: 0,
                           right: 0,
                           child: Padding(

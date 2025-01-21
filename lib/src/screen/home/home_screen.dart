@@ -61,6 +61,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: kColorWhite,
       body: WillPopScope(
         onWillPop: () async => false,
         child: Padding(

@@ -111,21 +111,40 @@ class BottomNavBar extends ConsumerWidget {
                     ),
                   ),
                 ),
+                // Expanded(
+                //   child: InkWell(
+                //     onTap: () => onTabTapped(context, ref, 1),
+                //     child: Column(
+                //       mainAxisSize: MainAxisSize.min,
+                //       mainAxisAlignment: MainAxisAlignment.center,
+                //       children: [
+                //         Text(
+                //           bottom_search,
+                //           style: TextStyle(
+                //             color: currentIndex == 1 ? kColorButtonPrimary :  kColorBlack,
+                //             fontFamily: 'Kadaw',
+                //             fontSize: 17
+                //           ),
+                //         ),
+                //       ],
+                //     ),
+                //   ),
+                // ),
                 Expanded(
                   child: InkWell(
                     onTap: () => onTabTapped(context, ref, 1),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          bottom_search,
-                          style: TextStyle(
-                            color: currentIndex == 1 ? kColorButtonPrimary :  kColorBlack,
-                            fontFamily: 'Kadaw',
-                            fontSize: 17
-                          ),
+                    child: Center( // Ensures the content is vertically and horizontally centered
+                      child: Text(
+                        bottom_search,
+                        style: TextStyle(
+                          color: currentIndex == 1 ? kColorButtonPrimary : kColorBlack, // Highlighted when active
+                          fontFamily: 'Kadaw',
+                          fontSize: 16, // Slightly adjusted font size for better fit
+                          fontWeight: FontWeight.w500, // Added weight for better visibility
+                          letterSpacing: 0.5, // Improved spacing for a clean look
                         ),
-                      ],
+                        textAlign: TextAlign.center, // Ensures text is centered
+                      ),
                     ),
                   ),
                 ),
@@ -137,7 +156,7 @@ class BottomNavBar extends ConsumerWidget {
                       children: [
                         SizedBox(
                           width: 70,
-                          height: 77,
+                          height: 75,
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(50),
                             child: const Image(
