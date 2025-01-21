@@ -377,6 +377,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     final staticStartingPoint = ref.watch(staticStartingPointProvider);
 
     return Scaffold(
+      backgroundColor: kColorWhite,
       body: WillPopScope(
         onWillPop: _onWillPop,
         child: Scaffold(

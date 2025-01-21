@@ -601,11 +601,12 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                     ),
                                     shadowColor: Colors.black.withOpacity(0.9), // Shadow color
                                     elevation: 6, // Elevation to create the shadow effect
+                                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
                                   ),
                                   onPressed: () {
                                     _saveChanges();
                                   },
-                                  child: const Text("Edit Profile",
+                                  child: const Text("Save Profile",
                                       style: TextStyle(
                                           color: kColorWhite,
                                           fontSize: 13,

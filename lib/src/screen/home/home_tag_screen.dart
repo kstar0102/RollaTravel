@@ -22,6 +22,7 @@ class HomeTagScreenState extends ConsumerState<HomeTagScreen> {
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
+        backgroundColor: kColorWhite,
         body: Center(
           child: Column(
             children: [

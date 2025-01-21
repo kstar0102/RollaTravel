@@ -70,6 +70,7 @@ class TripSetttingScreenState extends State<TripSetttingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: kColorWhite,
       body: WillPopScope(
         onWillPop: _onWillPop,
         child: Padding(

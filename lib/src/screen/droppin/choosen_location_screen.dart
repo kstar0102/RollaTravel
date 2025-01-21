@@ -91,6 +91,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: kColorWhite,
       body: WillPopScope(
         onWillPop: _onWillPop,
         child: Stack(

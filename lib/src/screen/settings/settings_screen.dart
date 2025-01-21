@@ -98,7 +98,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       body: WillPopScope(
         onWillPop: _onWillPop,
         child: Scaffold(
-          backgroundColor: kColorWhite  ,
+          backgroundColor: kColorWhite,
           resizeToAvoidBottomInset: true,
           body: SingleChildScrollView(
             child: FocusScope(

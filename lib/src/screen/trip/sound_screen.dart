@@ -40,6 +40,7 @@ class SoundScreenState extends ConsumerState<SoundScreen> {
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
+        backgroundColor: Colors.white,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,

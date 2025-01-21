@@ -294,6 +294,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
     final pathCoordinates = ref.watch(pathCoordinatesProvider);
 
     return Scaffold(
+      backgroundColor: kColorWhite,
       body: WillPopScope(
         onWillPop: _onWillPop,
         child: Padding(

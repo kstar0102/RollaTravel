@@ -125,6 +125,7 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: WillPopScope(
         onWillPop: _onWillPop,
         child: Padding(

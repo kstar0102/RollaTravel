@@ -238,6 +238,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
       body: WillPopScope(
         onWillPop: _onWillPop,
         child: Scaffold(
+          backgroundColor: kColorWhite,
           resizeToAvoidBottomInset: true,
           body: SingleChildScrollView(
             child: FocusScope(

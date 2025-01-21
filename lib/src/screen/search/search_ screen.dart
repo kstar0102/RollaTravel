@@ -39,6 +39,7 @@ class SearchScreenState extends ConsumerState<SearchScreen> {
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
+        backgroundColor: Colors.white,
         body: Center(
           child: Column(
               mainAxisAlignment: MainAxisAlignment.start,

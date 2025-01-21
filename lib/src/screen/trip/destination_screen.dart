@@ -54,6 +54,7 @@ class DestinationScreenState extends ConsumerState<DestinationScreen> {
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
+        backgroundColor: Colors.white,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,

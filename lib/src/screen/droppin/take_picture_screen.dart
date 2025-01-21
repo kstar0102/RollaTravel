@@ -66,6 +66,7 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
+        backgroundColor: kColorWhite,
         body: Center(
           child: Column(
             children: [

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:RollaTravel/src/utils/index.dart';
-
+import 'package:RollaTravel/src/constants/app_styles.dart';
 class TripTagSearchScreen extends StatefulWidget {
   const TripTagSearchScreen({super.key});
 
@@ -18,6 +18,7 @@ class TripTagSettingScreenState extends State<TripTagSearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: WillPopScope(
         onWillPop: _onWillPop,
         child: Center(
