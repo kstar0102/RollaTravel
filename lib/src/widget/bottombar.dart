@@ -1,3 +1,4 @@
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/screen/droppin/drop_pin.dart';
 import 'package:RollaTravel/src/screen/droppin/photo_select_screen.dart';
@@ -104,32 +105,13 @@ class BottomNavBar extends ConsumerWidget {
                           style: TextStyle(
                             color: currentIndex == 0 ? kColorButtonPrimary :  kColorBlack,
                             fontFamily: 'Kadaw',
-                            fontSize: 17
+                            fontSize: 38.sp
                           ),
                         ),
                       ],
                     ),
                   ),
                 ),
-                // Expanded(
-                //   child: InkWell(
-                //     onTap: () => onTabTapped(context, ref, 1),
-                //     child: Column(
-                //       mainAxisSize: MainAxisSize.min,
-                //       mainAxisAlignment: MainAxisAlignment.center,
-                //       children: [
-                //         Text(
-                //           bottom_search,
-                //           style: TextStyle(
-                //             color: currentIndex == 1 ? kColorButtonPrimary :  kColorBlack,
-                //             fontFamily: 'Kadaw',
-                //             fontSize: 17
-                //           ),
-                //         ),
-                //       ],
-                //     ),
-                //   ),
-                // ),
                 Expanded(
                   child: InkWell(
                     onTap: () => onTabTapped(context, ref, 1),
@@ -139,7 +121,7 @@ class BottomNavBar extends ConsumerWidget {
                         style: TextStyle(
                           color: currentIndex == 1 ? kColorButtonPrimary : kColorBlack, // Highlighted when active
                           fontFamily: 'Kadaw',
-                          fontSize: 16, // Slightly adjusted font size for better fit
+                          fontSize: 38.sp,
                           fontWeight: FontWeight.w500, // Added weight for better visibility
                           letterSpacing: 0.5, // Improved spacing for a clean look
                         ),
@@ -184,7 +166,7 @@ class BottomNavBar extends ConsumerWidget {
                           style: TextStyle(
                             color: currentIndex == 3 ? kColorButtonPrimary :  kColorBlack,
                             fontFamily: 'Kadaw',
-                            fontSize: 17
+                            fontSize: 39.sp
                           ),
                         ),
                       ],

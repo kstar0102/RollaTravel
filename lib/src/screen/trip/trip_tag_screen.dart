@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:RollaTravel/src/utils/index.dart';
-import 'package:RollaTravel/src/constants/app_styles.dart';
 class TripTagSearchScreen extends StatefulWidget {
   const TripTagSearchScreen({super.key});
 

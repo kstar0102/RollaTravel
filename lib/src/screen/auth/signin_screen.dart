@@ -9,7 +9,7 @@ import 'package:RollaTravel/src/utils/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/gestures.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 // import 'dart:convert';
 import 'package:logger/logger.dart';
 
@@ -113,7 +113,13 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
           _passwordController.text,
         );
 
+        final prefs = await SharedPreferences.getInstance();
+
         if (response['token'] != null && response['token'].isNotEmpty) {
+          
+          await prefs.setString('username', _usernameController.text);
+          await prefs.setString('password', _passwordController.text);
+
           final Map<String, dynamic>? userData = response['userData'] != null
             ? response['userData'] as Map<String, dynamic>
             : null;
@@ -147,6 +153,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
           
           GlobalVariables.odometer = response['trip_miles_sum'];
           GlobalVariables.tripCount = response['total_trips'];
+
           if (mounted) {
             Navigator.push(
               context,

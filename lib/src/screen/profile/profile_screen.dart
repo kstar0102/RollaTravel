@@ -1,5 +1,6 @@
 import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/screen/home/home_follower_screen.dart';
+import 'package:RollaTravel/src/screen/home/home_screen.dart';
 import 'package:RollaTravel/src/screen/profile/edit_profile.dart';
 import 'package:RollaTravel/src/screen/settings/settings_screen.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
@@ -14,6 +15,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -417,15 +419,15 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                           shadowColor:
                               Colors.black.withOpacity(0.9), // Shadow color
                           elevation: 6, 
-                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                          padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
                         ),
                         onPressed: () {
                           _onEditButtonClicked();
                         },
-                        child: const Text("Edit Profile",
+                        child: Text("Edit Profile",
                             style: TextStyle(
                                 color: kColorWhite,
-                                fontSize: 13,
+                                fontSize: 34.sp,
                                 fontFamily: 'Kadaw')),
                       ),
                     ),
@@ -444,15 +446,15 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                           shadowColor:
                               Colors.black.withOpacity(0.9), // Shadow color
                           elevation: 6, 
-                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                          padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
                         ),
                         onPressed: () {
                           _onFollowers();
                         },
-                        child: const Text("Following",
+                        child: Text("Following",
                             style: TextStyle(
                                 color: kColorWhite,
-                                fontSize: 13,
+                                fontSize: 34.sp,
                                 fontFamily: 'Kadaw')),
                       ),
                     ),
@@ -471,26 +473,26 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                           shadowColor:
                               Colors.black.withOpacity(0.9), // Shadow color
                           elevation: 6,
-                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                          padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
                         ),
                         onPressed: () {
                           _onSettingButtonClicked();
                         },
-                        child: const Row(
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.settings, // Settings icon
                               size: 16,
                               color: kColorWhite,
                             ),
-                            SizedBox(width: 2), // Spacing between icon and text
+                            const SizedBox(width: 2), // Spacing between icon and text
                             Text(
                               'Settings',
                               style: TextStyle(
                                   color:
                                       kColorWhite, // Matches the text color to the button theme
-                                  fontSize: 13,
+                                  fontSize: 34.sp,
                                   fontFamily: 'Kadaw' // Customize font size
                                   ),
                             ),
@@ -907,6 +909,15 @@ class _TripMapWidgetState extends State<TripMapWidget> {
     });
   }
 
+  void _onMapTap() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const HomeScreen(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -921,7 +932,11 @@ class _TripMapWidgetState extends State<TripMapWidget> {
                   options: MapOptions(
                     initialCenter:
                         startPoint != null ? startPoint! : const LatLng(0, 0),
-                    initialZoom: 14.0,
+                    initialZoom: 11.5,
+                    onTap: (_, LatLng position) {
+                      _onMapTap();
+                      logger.i('Map tapped at: $position');
+                    },
                   ),
                   children: [
                     TileLayer(
@@ -936,27 +951,27 @@ class _TripMapWidgetState extends State<TripMapWidget> {
                       markers: [
                         if (startPoint != null)
                           Marker(
-                            width: 80.0,
-                            height: 80.0,
+                            width: 80,
+                            height: 80,
                             point: startPoint!,
-                            child: const Icon(Icons.location_on,
-                                color: Colors.red, size: 40),
+                            child: Icon(Icons.location_on,
+                                color: Colors.red, size: 60.sp),
                           ),
                         if (endPoint != null)
                           Marker(
                             width: 80.0,
                             height: 80.0,
                             point: endPoint!,
-                            child: const Icon(Icons.location_on,
-                                color: Colors.green, size: 40),
+                            child: Icon(Icons.location_on,
+                                color: Colors.green, size: 60.sp),
                           ),
                         ...locations.map((location) {
                           return Marker(
                             width: 80.0,
                             height: 80.0,
                             point: location,
-                            child: const Icon(Icons.location_on,
-                                color: Colors.blue, size: 40),
+                            child: Icon(Icons.location_on,
+                                color: Colors.blue, size: 60.sp),
                           );
                         }),
                       ],

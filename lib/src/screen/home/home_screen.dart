@@ -12,6 +12,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:logger/logger.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 final logger = Logger();
 
@@ -619,7 +620,7 @@ class PostWidgetState extends State<PostWidget> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 SizedBox(
-                  width: 250, // Set your desired width
+                  width: 210, // Set your desired width
                   child: Text(
                     widget.post['destination_address'],
                     style: const TextStyle(
@@ -717,7 +718,7 @@ class PostWidgetState extends State<PostWidget> {
                         initialCenter: startPoint != null
                             ? startPoint!
                             : const LatLng(0, 0),
-                        initialZoom: 15.0,
+                        initialZoom: 11.5,
                       ),
                       children: [
                         TileLayer(
@@ -735,16 +736,16 @@ class PostWidgetState extends State<PostWidget> {
                                 width: 80.0,
                                 height: 80.0,
                                 point: startPoint!,
-                                child: const Icon(Icons.location_on,
-                                    color: Colors.red, size: 40),
+                                child: Icon(Icons.location_on,
+                                    color: Colors.red, size: 60.sp),
                               ),
                             if (endPoint != null)
                               Marker(
                                 width: 80.0,
                                 height: 80.0,
                                 point: endPoint!,
-                                child: const Icon(Icons.location_on,
-                                    color: Colors.green, size: 40),
+                                child: Icon(Icons.location_on,
+                                    color: Colors.green, size: 60.sp),
                               ),
                             ...locations.map((location) {
                               return Marker(
@@ -766,8 +767,8 @@ class PostWidgetState extends State<PostWidget> {
                                       index,
                                     );
                                   },
-                                  child: const Icon(Icons.location_on,
-                                      color: Colors.blue, size: 40),
+                                  child: Icon(Icons.location_on,
+                                      color: Colors.blue, size: 60.sp),
                                 ),
                               );
                             }),

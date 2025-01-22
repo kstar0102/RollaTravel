@@ -381,6 +381,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
       body: WillPopScope(
         onWillPop: _onWillPop,
         child: Scaffold(
+          backgroundColor: Colors.white,
           resizeToAvoidBottomInset: true,
           body: SingleChildScrollView(
             child: Column(
@@ -434,6 +435,9 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
 
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: vww(context, 4)),
+                  // child: Container(
+
+                  // )
                   child: Column(
                     children: [
                       Row(
