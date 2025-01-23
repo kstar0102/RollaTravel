@@ -44,8 +44,9 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   String initialSound = "Edit Playlist";
   double totalDistanceInMiles = 0;
   List<LatLng> pathCoordinates = [];
-  
-  static const String mapboxAccessToken = "pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw";
+
+  static const String mapboxAccessToken =
+      "pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw";
 
   @override
   void initState() {
@@ -83,106 +84,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     }
   }
 
-  // Future<void> _startTrackingMovement() async {
-  //   if (_positionStreamSubscription != null) {
-  //     return; // Prevent multiple listeners
-  //   }
-  //   _positionStreamSubscription = Geolocator.getPositionStream(
-  //     locationSettings: const LocationSettings(
-  //       accuracy: LocationAccuracy.bestForNavigation,
-  //       distanceFilter: 5,
-  //     ),
-  //   ).listen((Position position) async {
-  //     final LatLng newLocation = LatLng(position.latitude, position.longitude);
-
-  //     if (!GlobalVariables.isTripStarted) {
-  //       ref.read(movingLocationProvider.notifier).state = newLocation;
-  //       ref.read(staticStartingPointProvider.notifier).state = newLocation;
-  //     } else {
-  //       final previousLocation = ref.read(movingLocationProvider);
-  //       ref.read(movingLocationProvider.notifier).state = newLocation;
-
-  //       if (previousLocation != null) {
-  //         await _fetchDrivingRoute(previousLocation, newLocation);
-  //       }
-  //     }
-
-  //     _mapController.move(newLocation, 15.0);
-  //   });
-  // }
-
-  // Future<void> _fetchDrivingRoute(LatLng start, LatLng end) async {
-  //   final url =
-  //       'https://api.mapbox.com/directions/v5/mapbox/driving/${start.longitude},${start.latitude};${end.longitude},${end.latitude}?geometries=polyline6&overview=full&alternatives=false&steps=true&access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw';
-
-  //   try {
-  //     final response = await http.get(Uri.parse(url));
-  //     if (response.statusCode == 200) {
-  //       final jsonResponse = jsonDecode(response.body);
-  //       final List<dynamic> routes = jsonResponse['routes'];
-  //       if (routes.isNotEmpty) {
-  //         final String polyline = routes[0]['geometry'];
-  //         final List<LatLng> decodedPolyline = _decodePolyline6(polyline);
-
-  //         final double distanceInMeters =
-  //             (routes[0]['distance'] as num).toDouble();
-  //         final double newMiles = distanceInMeters / 1609.34;
-
-  //         final currentTotal = ref.read(totalDistanceProvider);
-  //         ref.read(totalDistanceProvider.notifier).state =
-  //             currentTotal + newMiles;
-  //         GlobalVariables.totalDistance = currentTotal + newMiles;
-
-  //         // Get current path
-  //         final currentPath = ref.read(pathCoordinatesProvider);
-
-  //         if (currentPath.isEmpty) {
-  //           // First segment of the route
-  //           ref.read(pathCoordinatesProvider.notifier).state = decodedPolyline;
-  //         } else {
-  //           // Find the last point in the current path
-  //           final lastPoint = currentPath.last;
-
-  //           // Find where to connect the new segment
-  //           int connectionIndex = 0;
-  //           double minDistance = double.infinity;
-
-  //           // Find the closest point in the new polyline to connect
-  //           for (int i = 0; i < decodedPolyline.length; i++) {
-  //             final distance =
-  //                 _calculateRealDistance(lastPoint, decodedPolyline[i]);
-  //             if (distance < minDistance) {
-  //               minDistance = distance;
-  //               connectionIndex = i;
-  //             }
-  //           }
-
-  //           // Create new path by:
-  //           // 1. Taking all points from current path
-  //           // 2. Adding only new points from the new segment
-  //           final List<LatLng> newPath = [...currentPath];
-
-  //           // Only add points that are actually new (after the connection point)
-  //           for (int i = connectionIndex; i < decodedPolyline.length; i++) {
-  //             final newPoint = decodedPolyline[i];
-  //             // Check if this point is significantly different from the last added point
-  //             if (newPath.isEmpty ||
-  //                 _calculateRealDistance(newPath.last, newPoint) > 10) {
-  //               // 10 meters threshold
-  //               newPath.add(newPoint);
-  //             }
-  //           }
-
-  //           // Update the path
-  //           ref.read(pathCoordinatesProvider.notifier).state = newPath;
-  //         }
-  //       }
-  //     }
-  //   } catch (e) {
-  //     logger.e('Error fetching route: $e');
-  //   }
-  // }
-Future<void> _startTrackingMovement() async {
+  Future<void> _startTrackingMovement() async {
     if (_positionStreamSubscription != null) {
       return; // Prevent multiple listeners
     }
@@ -194,14 +96,20 @@ Future<void> _startTrackingMovement() async {
     ).listen((Position position) async {
       final LatLng newLocation = LatLng(position.latitude, position.longitude);
 
+      // Update moving location
+      ref.read(movingLocationProvider.notifier).state = newLocation;
+
       if (!GlobalVariables.isTripStarted) {
-        ref.read(movingLocationProvider.notifier).state = newLocation;
         ref.read(staticStartingPointProvider.notifier).state = newLocation;
       } else {
         pathCoordinates.add(newLocation);
         await _fetchSnappedRoute();
       }
 
+      // Update pathCoordinates regardless of trip state
+      ref.read(pathCoordinatesProvider.notifier).state = [...pathCoordinates];
+
+      // Move the map to the new location
       _mapController.move(newLocation, 15.0);
     });
   }
@@ -220,12 +128,14 @@ Future<void> _startTrackingMovement() async {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final List<dynamic> matchedPoints = data['matchings'][0]['geometry']['coordinates'];
+        final List<dynamic> matchedPoints =
+            data['matchings'][0]['geometry']['coordinates'];
 
         setState(() {
           pathCoordinates = matchedPoints
               .map((coord) => LatLng(coord[1], coord[0]))
               .toList(); // Update with matched points
+          ref.read(pathCoordinatesProvider.notifier).state = pathCoordinates;
         });
       } else {
         logger.e("Failed to fetch snapped route: ${response.statusCode}");
@@ -234,22 +144,6 @@ Future<void> _startTrackingMovement() async {
       logger.e("Error fetching snapped route: $e");
     }
   }
-  // Helper method to calculate real-world distance
-  // double _calculateRealDistance(LatLng point1, LatLng point2) {
-  //   const double earthRadius = 6371000; // Earth's radius in meters
-
-  //   final lat1 = point1.latitude * pi / 180;
-  //   final lat2 = point2.latitude * pi / 180;
-  //   final dLat = (point2.latitude - point1.latitude) * pi / 180;
-  //   final dLon = (point2.longitude - point1.longitude) * pi / 180;
-
-  //   final a = sin(dLat / 2) * sin(dLat / 2) +
-  //       cos(lat1) * cos(lat2) * sin(dLon / 2) * sin(dLon / 2);
-
-  //   final c = 2 * atan2(sqrt(a), sqrt(1 - a));
-
-  //   return earthRadius * c;
-  // }
 
   void toggleTrip() {
     if (GlobalVariables.isTripStarted) {
@@ -284,10 +178,35 @@ Future<void> _startTrackingMovement() async {
     _startTrackingMovement();
   }
 
+  // void _endTrip() {
+
   void _endTrip() {
     LatLng? startLocation = ref.read(staticStartingPointProvider);
     LatLng? endLocation = ref.read(movingLocationProvider);
     List<MarkerData> stopMarkers = ref.read(markersProvider);
+
+    // Check if there are no stop markers
+    if (stopMarkers.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Warning"),
+            content: const Text(
+                "You need to add at least one stop marker (drop pin) before ending the trip."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+                child: const Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
+      return; // Prevent further execution
+    }
 
     // ✅ Record trip end time
     DateTime now = DateTime.now();
@@ -310,6 +229,7 @@ Future<void> _startTrackingMovement() async {
             tripStartDate: GlobalVariables.tripStartDate!,
             tripEndDate: GlobalVariables.tripEndDate!,
             tripDistance: tripMiles,
+            endDestination: editDestination,
           ),
         ),
       );
@@ -348,38 +268,6 @@ Future<void> _startTrackingMovement() async {
       });
     }
   }
-
-  // List<LatLng> _decodePolyline6(String encoded) {
-  //   List<LatLng> polyline = [];
-  //   int index = 0, len = encoded.length;
-  //   int lat = 0, lng = 0;
-
-  //   while (index < len) {
-  //     int b, shift = 0, result = 0;
-  //     do {
-  //       b = encoded.codeUnitAt(index++) - 63;
-  //       result |= (b & 0x1f) << shift;
-  //       shift += 5;
-  //     } while (b >= 0x20);
-  //     int deltaLat = (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
-  //     lat += deltaLat;
-
-  //     shift = 0;
-  //     result = 0;
-  //     do {
-  //       b = encoded.codeUnitAt(index++) - 63;
-  //       result |= (b & 0x1f) << shift;
-  //       shift += 5;
-  //     } while (b >= 0x20);
-  //     int deltaLng = (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
-  //     lng += deltaLng;
-
-  //     polyline.add(LatLng(lat / 1E6, lng / 1E6));
-  //   }
-  //   return polyline;
-  // }
-
-  
 
   void _showPermissionDeniedDialog() {
     showDialog(
@@ -424,6 +312,23 @@ Future<void> _startTrackingMovement() async {
 
   Future<bool> _onWillPop() async {
     return false;
+  }
+
+  Future<void> _onDestintionClick() async {
+    final result = await Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation1, animation2) =>
+            DestinationScreen(initialDestination: editDestination),
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
+      ),
+    );
+    if (result != null) {
+      setState(() {
+        editDestination = result;
+      });
+    }
   }
 
   @override
@@ -507,23 +412,8 @@ Future<void> _startTrackingMovement() async {
                                 fontFamily: 'Kadaw'),
                           ),
                           GestureDetector(
-                            onTap: () async {
-                              final result = await Navigator.push(
-                                context,
-                                PageRouteBuilder(
-                                  pageBuilder: (context, animation1,
-                                          animation2) =>
-                                      DestinationScreen(
-                                          initialDestination: editDestination),
-                                  transitionDuration: Duration.zero,
-                                  reverseTransitionDuration: Duration.zero,
-                                ),
-                              );
-                              if (result != null) {
-                                setState(() {
-                                  editDestination = result;
-                                });
-                              }
+                            onTap: () {
+                              _onDestintionClick();
                             },
                             child: Text(
                               editDestination.length > 30
@@ -700,11 +590,11 @@ Future<void> _startTrackingMovement() async {
                                   ),
                                 if (staticStartingPoint != null)
                                   Marker(
-                                    width: 80.0,
-                                    height: 80.0,
+                                    width: 50.0,
+                                    height: 50.0,
                                     point: staticStartingPoint,
                                     child: const Icon(Icons.location_on,
-                                        color: Colors.red, size: 40),
+                                        color: Colors.red, size: 30),
                                   ),
                                 // Markers from markersProvider
                                 ...ref.watch(markersProvider).map((markerData) {

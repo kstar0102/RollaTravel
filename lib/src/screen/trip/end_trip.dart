@@ -21,15 +21,17 @@ class EndTripScreen extends ConsumerStatefulWidget {
   final String tripStartDate;
   final String tripEndDate;
   final String tripDistance;
-  const EndTripScreen({
-    super.key,
-    required this.startLocation,
-    required this.endLocation,
-    required this.stopMarkers,
-    required this.tripStartDate,
-    required this.tripEndDate,
-    required this.tripDistance,
-  });
+  final String endDestination;
+
+  const EndTripScreen(
+      {super.key,
+      required this.startLocation,
+      required this.endLocation,
+      required this.stopMarkers,
+      required this.tripStartDate,
+      required this.tripEndDate,
+      required this.tripDistance,
+      required this.endDestination});
 
   @override
   ConsumerState<EndTripScreen> createState() => _EndTripScreenState();
@@ -239,6 +241,10 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
 
     logger.i("stopLocations: $stopLocations");
 
+    if (widget.endDestination == "Edit destination") {
+      stopAddressesString = " ";
+    }
+
     final response = await apiserice.createTrip(
         userId: GlobalVariables.userId!,
         startAddress: startAddress!,
@@ -353,13 +359,13 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                         ),
                       ],
                     ),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
                           horizontal: 10.0), // Adjust the value as needed
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
+                          const Text(
                             destination,
                             style: TextStyle(
                                 color: kColorBlack,
@@ -367,8 +373,8 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                                 fontFamily: 'Kadaw'),
                           ),
                           Text(
-                            edit_destination,
-                            style: TextStyle(
+                            widget.endDestination,
+                            style: const TextStyle(
                                 color: kColorButtonPrimary,
                                 fontSize: 14,
                                 decoration: TextDecoration.underline,
@@ -648,7 +654,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                           color: Colors.black,
                           fontFamily: 'Kadaw'),
                     ),
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 10),
                   ],
                 ),
               ),

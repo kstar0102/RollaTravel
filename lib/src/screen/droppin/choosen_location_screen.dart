@@ -12,15 +12,20 @@ import 'dart:io';
 import 'dart:convert';
 import 'dart:ui';
 
-class ChoosenLocationScreen extends ConsumerStatefulWidget{
+class ChoosenLocationScreen extends ConsumerStatefulWidget {
   final LatLng? location;
   final String caption;
   final String imagePath;
 
-  const ChoosenLocationScreen({super.key, required this.caption, required this.imagePath, required this.location});
+  const ChoosenLocationScreen(
+      {super.key,
+      required this.caption,
+      required this.imagePath,
+      required this.location});
 
   @override
-  ConsumerState<ChoosenLocationScreen> createState() => ChoosenLocationScreenState();
+  ConsumerState<ChoosenLocationScreen> createState() =>
+      ChoosenLocationScreenState();
 }
 
 class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
@@ -36,7 +41,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
 
   @override
   void dispose() {
-    super.dispose();               
+    super.dispose();
   }
 
   Future<bool> _onWillPop() async {
@@ -53,11 +58,11 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
     final apiService = ApiService();
     String imageUrl = await apiService.getImageUrl(base64String);
 
-    if(imageUrl.isNotEmpty){
+    if (imageUrl.isNotEmpty) {
       setState(() {
         isuploadingImage = false;
       });
-    } else{
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Failed upload image....'),
@@ -67,23 +72,23 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
     }
 
     final markerData = MarkerData(
-      location: widget.location!,
-      imagePath: imageUrl,
-      caption: widget.caption
-    );
+        location: widget.location!,
+        imagePath: imageUrl,
+        caption: widget.caption);
 
     // Add the marker to the provider
     ref.read(markersProvider.notifier).state = [
       ...ref.read(markersProvider),
       markerData,
     ];
-  
+
     Navigator.pushReplacement(
       context,
       PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => const StartTripScreen(),
-          transitionDuration: Duration.zero,
-          reverseTransitionDuration: Duration.zero,
+        pageBuilder: (context, animation1, animation2) =>
+            const StartTripScreen(),
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
       ),
     );
   }
@@ -137,7 +142,8 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                               right: 0,
                               top: 10,
                               child: IconButton(
-                                icon: const Icon(Icons.close, color: Colors.black, size: 28),
+                                icon: const Icon(Icons.close,
+                                    color: Colors.black, size: 28),
                                 onPressed: () {
                                   Navigator.pop(context); // Close action
                                 },
@@ -174,118 +180,116 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                           ),
                         ),
                         const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10.0), // Adjust the value as needed
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 10.0), // Adjust the value as needed
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
                                 miles_traveled,
                                 style: TextStyle(
-                                  color: kColorBlack,
-                                  fontSize: 14,
-                                  fontFamily: 'Kadaw'
-                                ),
+                                    color: kColorBlack,
+                                    fontSize: 14,
+                                    fontFamily: 'Kadaw'),
                               ),
                               Text(
                                 "0",
                                 style: TextStyle(
-                                  color: kColorBlack,
-                                  fontSize: 14,
-                                  fontFamily: 'Kadaw'
-                                ),
+                                    color: kColorBlack,
+                                    fontSize: 14,
+                                    fontFamily: 'Kadaw'),
                               ),
                             ],
                           ),
                         ),
                         const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10.0), // Adjust the value as needed
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 10.0), // Adjust the value as needed
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
                                 soundtrack,
                                 style: TextStyle(
-                                  color: kColorBlack,
-                                  fontSize: 14,
-                                  fontFamily: 'Kadaw'
-                                ),
+                                    color: kColorBlack,
+                                    fontSize: 14,
+                                    fontFamily: 'Kadaw'),
                               ),
                               Text(
                                 edit_playlist,
                                 style: TextStyle(
-                                  color: kColorButtonPrimary,
-                                  fontSize: 14,
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: kColorButtonPrimary,
-                                  fontFamily: 'Kadaw'
-                                ),
+                                    color: kColorButtonPrimary,
+                                    fontSize: 14,
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: kColorButtonPrimary,
+                                    fontFamily: 'Kadaw'),
                               ),
                             ],
                           ),
                         ),
                         const SizedBox(height: 20),
-                          Center(
-                            child: SizedBox(
-                              width: vww(context, 60),
-                              height: vhh(context, 45),
-                              child: Column(
-                                children: [
-                                  Container(
-                                    height: vhh(context, 38),
-                                    decoration: BoxDecoration(
-                                      border: Border.all(color: Colors.grey, width: 1.0), // Set border color and width
-                                      borderRadius: BorderRadius.circular(8.0), // Optional: Add border radius for rounded corners
-                                    ),
-                                    child: Column(
-                                      children: [
-                                        Align(
-                                          alignment: Alignment.centerLeft,
-                                          child: Padding(
-                                            padding: const EdgeInsets.only(left: 10.0, top: 5, bottom: 5),
-                                              child: Text(
-                                              widget.caption,
-                                              style: const TextStyle(
+                        Center(
+                          child: SizedBox(
+                            width: vww(context, 60),
+                            height: vhh(context, 45),
+                            child: Column(
+                              children: [
+                                Container(
+                                  height: vhh(context, 38),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                        color: Colors.grey,
+                                        width:
+                                            1.0), // Set border color and width
+                                    borderRadius: BorderRadius.circular(
+                                        8.0), // Optional: Add border radius for rounded corners
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(
+                                              left: 10.0, top: 5, bottom: 5),
+                                          child: Text(
+                                            widget.caption,
+                                            style: const TextStyle(
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.bold,
                                                 color: Colors.grey,
-                                                fontFamily: 'Kadaw'
-                                              ),
-                                            ),
+                                                fontFamily: 'Kadaw'),
                                           ),
                                         ),
-                                        // Image
-                                        Expanded(
-                                          child: Image.file(
-                                            File(widget.imagePath),
-                                            fit: BoxFit.cover,
-                                            width: vww(context, 100),
-                                          ),
-                                          
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  SizedBox(height: vhh(context, 0.5)),
-                                  const Padding(
-                                    padding: EdgeInsets.only(top: 8.0),
-                                    child: Text(
-                                      "the Rolla travel app",
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        fontFamily: 'KadawBold'
                                       ),
-                                    ),
+                                      // Image
+                                      Expanded(
+                                        child: Image.file(
+                                          File(widget.imagePath),
+                                          fit: BoxFit.cover,
+                                          width: vww(context, 100),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
+                                ),
+                                SizedBox(height: vhh(context, 0.5)),
+                                const Padding(
+                                  padding: EdgeInsets.only(top: 8.0),
+                                  child: Text(
+                                    "the Rolla travel app",
+                                    style: TextStyle(
+                                        fontSize: 15, fontFamily: 'KadawBold'),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
+                        ),
                       ],
                     ),
                   ),
-
                   const Padding(
-                    padding: EdgeInsets.only(top: 8.0),
+                    padding: EdgeInsets.only(top: 5.0),
                     child: Text(
                       "Share this summary:",
                       style: TextStyle(
@@ -313,7 +317,8 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
               BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                 child: Container(
-                  color: Colors.black.withOpacity(0.3), // Semi-transparent overlay
+                  color:
+                      Colors.black.withOpacity(0.3), // Semi-transparent overlay
                   child: const Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -335,5 +340,4 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
       bottomNavigationBar: BottomNavBar(currentIndex: _currentIndex),
     );
   }
-
 }
