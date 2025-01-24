@@ -14,6 +14,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:logger/logger.dart';
 import 'dart:ui';
+
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
 
@@ -32,7 +33,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   String? _base64Image;
   bool _isLoading = false;
   bool _ischangeimage = false;
-  
+
   String? imageUrl;
 
   final TextEditingController usernameController = TextEditingController();
@@ -40,8 +41,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   final TextEditingController bioController = TextEditingController();
   final TextEditingController garageController = TextEditingController();
   final TextEditingController placeController = TextEditingController();
-
-  
 
   bool _showSaveButton = false;
 
@@ -54,21 +53,20 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         setState(() {
           this.keyboardHeight = keyboardHeight;
         });
-      } 
+      }
     });
 
     usernameController.text = GlobalVariables.userName!;
     nameController.text = GlobalVariables.realName!;
-    if (GlobalVariables.bio != null){
+    if (GlobalVariables.bio != null) {
       bioController.text = GlobalVariables.bio!;
-    } 
-    if (GlobalVariables.garage != null){
+    }
+    if (GlobalVariables.garage != null) {
       garageController.text = GlobalVariables.garage!;
-    } 
-    if (GlobalVariables.happyPlace != null){
+    }
+    if (GlobalVariables.happyPlace != null) {
       placeController.text = GlobalVariables.happyPlace!;
-    } 
-    
+    }
 
     usernameController.addListener(_onTextChanged);
     nameController.addListener(_onTextChanged);
@@ -91,7 +89,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     garageController.dispose();
     placeController.dispose();
   }
-  
+
   void _onTextChanged() {
     if (!_showSaveButton) {
       setState(() {
@@ -132,7 +130,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     setState(() {
       _ischangeimage = false;
     });
-    
   }
 
   Future<void> _showPicker(BuildContext context) async {
@@ -144,10 +141,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             children: <Widget>[
               ListTile(
                 leading: const Icon(Icons.camera_alt),
-                title: const Text('Take a Photo', style: TextStyle(fontFamily: 'Kadaw'),),
+                title: const Text(
+                  'Take a Photo',
+                  style: TextStyle(fontFamily: 'Kadaw'),
+                ),
                 onTap: () async {
                   Navigator.of(context).pop();
-                  final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
+                  final XFile? photo =
+                      await _picker.pickImage(source: ImageSource.camera);
                   if (photo != null) {
                     setState(() {
                       _selectedImage = photo;
@@ -165,10 +166,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.photo),
-                title: const Text('Choose from Gallery', style: TextStyle(fontFamily: 'Kadaw'),),
+                title: const Text(
+                  'Choose from Gallery',
+                  style: TextStyle(fontFamily: 'Kadaw'),
+                ),
                 onTap: () async {
                   Navigator.of(context).pop();
-                  final XFile? galleryImage = await _picker.pickImage(source: ImageSource.gallery);
+                  final XFile? galleryImage =
+                      await _picker.pickImage(source: ImageSource.gallery);
                   if (galleryImage != null) {
                     setState(() {
                       _selectedImage = galleryImage;
@@ -193,7 +198,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   Future<void> _saveChanges() async {
     final apiService = ApiService();
-    
+
     final updatedName = nameController.text.trim().split(' ');
     final firstName = updatedName.isNotEmpty ? updatedName.first : '';
     final lastName = updatedName.length > 1 ? updatedName.last : '';
@@ -201,7 +206,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     setState(() {
       _isLoading = true;
     });
-    
+
     try {
       final response = await apiService.updateUser(
         userId: GlobalVariables.userId!,
@@ -220,24 +225,23 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         prefs.setString('userData', jsonEncode(response['data']));
 
         // Provide success feedback
-        if(mounted){
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Profile updated successfully!')),
           );
         }
-        
+
         GlobalVariables.realName = nameController.text.toString();
         GlobalVariables.userName = usernameController.text.toString();
-        if(imageUrl != null){
+        if (imageUrl != null) {
           GlobalVariables.userImageUrl = imageUrl.toString();
         }
-        
+
         GlobalVariables.bio = bioController.text.toString();
         GlobalVariables.garage = garageController.text.toString();
         GlobalVariables.happyPlace = placeController.text.toString();
-
       } else {
-        if(mounted){
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Error: ${response['message']}')),
           );
@@ -245,9 +249,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       }
     } catch (e) {
       logger.e('Error updating user: $e');
-      if (mounted){
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('An error occurred while saving changes.')),
+          const SnackBar(
+              content: Text('An error occurred while saving changes.')),
         );
       }
     } finally {
@@ -258,21 +263,24 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     }
   }
 
-  void onGarageClicked(){
-    Navigator.push(context, MaterialPageRoute(builder: (context) => const GarageScreen()));
+  void onGarageClicked() {
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => const GarageScreen()));
   }
 
   void _onBackPressed() {
     Navigator.push(
       context,
       PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const ProfileScreen(),
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const ProfileScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(-1.0, 0.0); // Start from the left
           const end = Offset.zero; // End at the current position
           const curve = Curves.easeInOut;
 
-          var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          var tween =
+              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
           var offsetAnimation = animation.drive(tween);
 
           return SlideTransition(position: offsetAnimation, child: child);
@@ -283,7 +291,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
       backgroundColor: kColorWhite,
       body: WillPopScope(
@@ -321,13 +328,15 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                               ),
                             ),
                             const Text(
-                              edit_profile, 
-                              style: TextStyle(color: kColorBlack, fontSize: 20, fontFamily: 'Kadaw'),
+                              edit_profile,
+                              style: TextStyle(
+                                  color: kColorBlack,
+                                  fontSize: 20,
+                                  fontFamily: 'Kadaw'),
                             ),
                             SizedBox(width: vww(context, 7)),
                           ],
                         ),
-
                         SizedBox(height: vhh(context, 1)),
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -341,19 +350,20 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 borderRadius: BorderRadius.circular(200),
                                 border: Border.all(
                                     color: kColorHereButton, width: 2),
-                                    image: _selectedImage != null
-                                      ? DecorationImage(
-                                          image: FileImage(
-                                            File(_selectedImage!.path),
-                                          ),
-                                          fit: BoxFit.cover,
-                                        )
-                                      : GlobalVariables.userImageUrl != null
-                                          ? DecorationImage(
-                                              image: NetworkImage(GlobalVariables.userImageUrl!), // Use NetworkImage for URL
-                                              fit: BoxFit.cover,
-                                            )
-                                          : null,
+                                image: _selectedImage != null
+                                    ? DecorationImage(
+                                        image: FileImage(
+                                          File(_selectedImage!.path),
+                                        ),
+                                        fit: BoxFit.cover,
+                                      )
+                                    : GlobalVariables.userImageUrl != null
+                                        ? DecorationImage(
+                                            image: NetworkImage(GlobalVariables
+                                                .userImageUrl!), // Use NetworkImage for URL
+                                            fit: BoxFit.cover,
+                                          )
+                                        : null,
                               ),
                             ),
                           ],
@@ -366,12 +376,12 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           child: const Text(
                             'Change Profile Photo',
                             style: TextStyle(
-                              color: Colors.black, // Replace with `kColorBlack` if defined
-                              fontSize: 18,
-                              decoration: TextDecoration.underline,
-                              fontWeight: FontWeight.w500,
-                              fontFamily: 'Kadaw'
-                            ),
+                                color: Colors
+                                    .black, // Replace with `kColorBlack` if defined
+                                fontSize: 18,
+                                decoration: TextDecoration.underline,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: 'Kadaw'),
                           ),
                         ),
                         if (_ischangeimage)
@@ -388,7 +398,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                               ),
                             ),
                           ),
-                        SizedBox(height: vhh(context, 2),),
+                        SizedBox(
+                          height: vhh(context, 2),
+                        ),
                         const Divider(color: kColorGrey, thickness: 1),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -398,7 +410,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                               children: [
                                 const Text(
                                   edit_profile_username,
-                                  style: TextStyle(color: kColorGrey, fontSize: 14, fontWeight: FontWeight.w400, fontFamily: 'Kadaw'),
+                                  style: TextStyle(
+                                      color: kColorGrey,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w400,
+                                      fontFamily: 'Kadaw'),
                                 ),
                                 SizedBox(
                                   width: 200, // Adjust width as needed
@@ -410,16 +426,19 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                     maxLines: 1, // Restrict to a single line
                                     maxLength: 20,
                                     decoration: const InputDecoration(
-                                      border: InputBorder.none, // Remove underline
-                                      contentPadding: EdgeInsets.only(bottom: 14),
-                                      counterText: '', // Removes the counter text (10/10)
+                                      border:
+                                          InputBorder.none, // Remove underline
+                                      contentPadding:
+                                          EdgeInsets.only(bottom: 14),
+                                      counterText:
+                                          '', // Removes the counter text (10/10)
                                     ),
                                     style: const TextStyle(
-                                      color: Colors.black, // Replace with kColorBlack
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w500,
-                                      fontFamily: 'Kadaw'
-                                    ),
+                                        color: Colors
+                                            .black, // Replace with kColorBlack
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w500,
+                                        fontFamily: 'Kadaw'),
                                     textAlignVertical: TextAlignVertical.center,
                                     textInputAction: TextInputAction.done,
                                   ),
@@ -432,7 +451,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                               children: [
                                 const Text(
                                   edit_profile_name,
-                                  style: TextStyle(color: kColorGrey, fontSize: 14, fontWeight: FontWeight.w400, fontFamily: 'Kadaw'),
+                                  style: TextStyle(
+                                      color: kColorGrey,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w400,
+                                      fontFamily: 'Kadaw'),
                                 ),
                                 SizedBox(
                                   width: 200, // Adjust width as needed
@@ -443,16 +466,19 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                     maxLines: 1, // Restrict to a single line
                                     maxLength: 20,
                                     decoration: const InputDecoration(
-                                      border: InputBorder.none, // Remove underline
-                                      contentPadding: EdgeInsets.only(bottom: 14),
-                                      counterText: '', // Removes the counter text (10/10)
+                                      border:
+                                          InputBorder.none, // Remove underline
+                                      contentPadding:
+                                          EdgeInsets.only(bottom: 14),
+                                      counterText:
+                                          '', // Removes the counter text (10/10)
                                     ),
                                     style: const TextStyle(
-                                      color: Colors.black, // Replace with kColorBlack
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      fontFamily: 'Kadaw'
-                                    ),
+                                        color: Colors
+                                            .black, // Replace with kColorBlack
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        fontFamily: 'Kadaw'),
                                     textAlignVertical: TextAlignVertical.center,
                                     textInputAction: TextInputAction.done,
                                   ),
@@ -466,7 +492,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                               children: [
                                 const Text(
                                   edit_profile_bio,
-                                  style: TextStyle(color: kColorGrey, fontSize: 14, fontWeight: FontWeight.w400, fontFamily: 'Kadaw'),
+                                  style: TextStyle(
+                                      color: kColorGrey,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w400,
+                                      fontFamily: 'Kadaw'),
                                 ),
                                 SizedBox(
                                   width: 200, // Adjust width as needed
@@ -477,23 +507,26 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                     maxLines: 1, // Restrict to a single line
                                     maxLength: 20,
                                     decoration: const InputDecoration(
-                                      border: InputBorder.none, // Remove underline
-                                      contentPadding: EdgeInsets.only(bottom: 11,),
+                                      border:
+                                          InputBorder.none, // Remove underline
+                                      contentPadding: EdgeInsets.only(
+                                        bottom: 11,
+                                      ),
                                       hintText: "Your Bio",
                                       hintStyle: TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        fontFamily: 'Kadaw'
-                                      ),
-                                      counterText: '', // Removes the counter text (10/10)
+                                          color: Colors.grey,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          fontFamily: 'Kadaw'),
+                                      counterText:
+                                          '', // Removes the counter text (10/10)
                                     ),
                                     style: const TextStyle(
-                                      color: Colors.black, // Replace with kColorBlack
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w500,
-                                      fontFamily: 'Kadaw'
-                                    ),
+                                        color: Colors
+                                            .black, // Replace with kColorBlack
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w500,
+                                        fontFamily: 'Kadaw'),
                                     textAlignVertical: TextAlignVertical.center,
                                     textInputAction: TextInputAction.done,
                                   ),
@@ -508,28 +541,34 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                               children: [
                                 const Text(
                                   edit_profile_garage,
-                                  style: TextStyle(color: kColorGrey, fontSize: 14, fontWeight: FontWeight.w400, fontFamily: 'Kadaw'),
+                                  style: TextStyle(
+                                      color: kColorGrey,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w400,
+                                      fontFamily: 'Kadaw'),
                                 ),
-                                GlobalVariables.garageLogoUrl != null && GlobalVariables.garageLogoUrl!.isNotEmpty
-                                  ? GestureDetector(
-                                      onTap: () {
-                                        onGarageClicked(); // This will always work regardless of the logo URL's value
-                                      },
-                                      child: SizedBox(
-                                        width: 30,
-                                        height: 30,
-                                        child: Image.network(
-                                          GlobalVariables.garageLogoUrl!,
-                                          fit: BoxFit.cover,
+                                GlobalVariables.garageLogoUrl != null &&
+                                        GlobalVariables
+                                            .garageLogoUrl!.isNotEmpty
+                                    ? GestureDetector(
+                                        onTap: () {
+                                          onGarageClicked(); // This will always work regardless of the logo URL's value
+                                        },
+                                        child: SizedBox(
+                                          width: 30,
+                                          height: 30,
+                                          child: Image.network(
+                                            GlobalVariables.garageLogoUrl!,
+                                            fit: BoxFit.cover,
+                                          ),
                                         ),
+                                      )
+                                    : GestureDetector(
+                                        onTap: () {
+                                          onGarageClicked(); // Allow onTap to trigger even if no logo is present
+                                        },
+                                        child: const Text("                 "),
                                       ),
-                                    )
-                                  : GestureDetector(
-                                      onTap: () {
-                                        onGarageClicked(); // Allow onTap to trigger even if no logo is present
-                                      },
-                                      child: const Text("    "),
-                                    ),
                               ],
                             ),
                             const Divider(color: kColorGrey, thickness: 1),
@@ -538,7 +577,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                               children: [
                                 const Text(
                                   edit_profile_happy_place,
-                                  style: TextStyle(color: kColorGrey, fontSize: 14, fontWeight: FontWeight.w400, fontFamily: 'Kadaw'),
+                                  style: TextStyle(
+                                      color: kColorGrey,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w400,
+                                      fontFamily: 'Kadaw'),
                                 ),
                                 SizedBox(
                                   width: 200, // Adjust width as needed
@@ -549,23 +592,25 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                     maxLines: 1, // Restrict to a single line
                                     maxLength: 20,
                                     decoration: const InputDecoration(
-                                      border: InputBorder.none, // Remove underline
-                                      contentPadding: EdgeInsets.only(bottom: 11),
-                                      counterText: '', // Removes the counter text (10/10)
+                                      border:
+                                          InputBorder.none, // Remove underline
+                                      contentPadding:
+                                          EdgeInsets.only(bottom: 11),
+                                      counterText:
+                                          '', // Removes the counter text (10/10)
                                       hintText: "Your Happy Place",
                                       hintStyle: TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        fontFamily: 'Kadaw'
-                                      ),
+                                          color: Colors.grey,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          fontFamily: 'Kadaw'),
                                     ),
                                     style: const TextStyle(
-                                      color: Colors.black, // Replace with kColorBlack
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      fontFamily: 'Kadaw'
-                                    ),
+                                        color: Colors
+                                            .black, // Replace with kColorBlack
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        fontFamily: 'Kadaw'),
                                     textAlignVertical: TextAlignVertical.center,
                                     textInputAction: TextInputAction.done,
                                   ),
@@ -588,35 +633,38 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 ),
                               ),
                             // if (_showSaveButton)
-                              
-                              SizedBox(height: vhh(context, 5)),
-                              SizedBox(
-                                width: vww(context, 30),
-                                height: 28,
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: kColorHereButton, // Button background color
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30), // Rounded corners
-                                    ),
-                                    shadowColor: Colors.black.withOpacity(0.9), // Shadow color
-                                    elevation: 6, // Elevation to create the shadow effect
-                                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+
+                            SizedBox(height: vhh(context, 5)),
+                            SizedBox(
+                              width: vww(context, 30),
+                              height: 28,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      kColorHereButton, // Button background color
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                        30), // Rounded corners
                                   ),
-                                  onPressed: () {
-                                    _saveChanges();
-                                  },
-                                  child: const Text("Save Profile",
-                                      style: TextStyle(
-                                          color: kColorWhite,
-                                          fontSize: 13,
-                                          fontFamily: 'Kadaw')
-                                  ),
+                                  shadowColor: Colors.black
+                                      .withOpacity(0.9), // Shadow color
+                                  elevation:
+                                      6, // Elevation to create the shadow effect
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 5, vertical: 5),
                                 ),
+                                onPressed: () {
+                                  _saveChanges();
+                                },
+                                child: const Text("Save Profile",
+                                    style: TextStyle(
+                                        color: kColorWhite,
+                                        fontSize: 13,
+                                        fontFamily: 'Kadaw')),
                               ),
+                            ),
                           ],
                         ),
-                        
                       ],
                     ),
                   ),
@@ -628,7 +676,5 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       ),
       bottomNavigationBar: BottomNavBar(currentIndex: _currentIndex),
     );
-    
   }
-
 }

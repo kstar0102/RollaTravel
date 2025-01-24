@@ -241,15 +241,16 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
 
     logger.i("stopLocations: $stopLocations");
 
-    if (widget.endDestination == "Edit destination") {
-      stopAddressesString = " ";
-    }
+    // if (widget.endDestination == "Edit destination") {
+    //   endAddress = "null";
+    // }
 
     final response = await apiserice.createTrip(
         userId: GlobalVariables.userId!,
         startAddress: startAddress!,
         stopAddresses: stopAddressesString,
         destinationAddress: endAddress!,
+        destinationTextAddress: widget.endDestination,
         tripStartDate: widget.tripStartDate,
         tripEndDate: widget.tripEndDate,
         tripMiles: widget.tripDistance,

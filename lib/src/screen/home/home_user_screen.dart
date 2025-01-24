@@ -6,6 +6,7 @@ import 'package:RollaTravel/src/utils/index.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logger/logger.dart';
 
 class HomeUserScreen extends ConsumerStatefulWidget {
   final int userId;
@@ -22,6 +23,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
   bool isLiked = false;
   bool showLikesDropdown = false;
   Map<String, dynamic>? userProfile;
+  final logger = Logger();
 
   final List<String> imagePaths = [
     'assets/images/background/Lake1.png',
@@ -68,6 +70,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
 
   Future<void> _fetchUserProfile() async {
     final userProfile = await ApiService().fetchUserInfo(widget.userId);
+    logger.i(userProfile);
     if (mounted) {
       setState(() {
         this.userProfile = userProfile;
@@ -305,21 +308,38 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                 ),
                               ],
                             ),
+                            // Container(
+                            //   height: vhh(context, 15),
+                            //   width: vhh(context, 15),
+                            //   decoration: BoxDecoration(
+                            //     borderRadius: BorderRadius.circular(100),
+                            //     border: Border.all(
+                            //       color: kColorHereButton,
+                            //       width: 2,
+                            //     ),
+                            //     image: const DecorationImage(
+                            //       image: AssetImage(
+                            //           "assets/images/background/image2.png"),
+                            //       fit: BoxFit.cover,
+                            //     ),
+                            //   ),
+                            // ),
                             Container(
                               height: vhh(context, 15),
                               width: vhh(context, 15),
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(100),
-                                border: Border.all(
-                                  color: kColorHereButton,
-                                  width: 2,
-                                ),
-                                image: const DecorationImage(
-                                  image: AssetImage(
-                                      "assets/images/background/image2.png"),
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
+                                  borderRadius: BorderRadius.circular(100),
+                                  border: Border.all(
+                                    color: kColorHereButton,
+                                    width: 2,
+                                  ),
+                                  image: userProfile!['photo'] != null
+                                      ? DecorationImage(
+                                          image: NetworkImage(userProfile![
+                                              'photo']), // Use NetworkImage for URL
+                                          fit: BoxFit.cover,
+                                        )
+                                      : null),
                             ),
                             Column(
                               children: [

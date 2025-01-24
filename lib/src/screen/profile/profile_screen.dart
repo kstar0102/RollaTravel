@@ -84,9 +84,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     super.dispose();
   }
 
-  Future<bool> _onWillPop() async {
-    return false;
-  }
+  // Future<bool> _onWillPop() async {
+  //   return false;
+  // }
 
   void _onFollowers() {
     Navigator.push(context,
@@ -418,8 +418,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                           ),
                           shadowColor:
                               Colors.black.withOpacity(0.9), // Shadow color
-                          elevation: 6, 
-                          padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+                          elevation: 6,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 2, vertical: 2),
                         ),
                         onPressed: () {
                           _onEditButtonClicked();
@@ -445,8 +446,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                           ),
                           shadowColor:
                               Colors.black.withOpacity(0.9), // Shadow color
-                          elevation: 6, 
-                          padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+                          elevation: 6,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 2, vertical: 2),
                         ),
                         onPressed: () {
                           _onFollowers();
@@ -473,7 +475,8 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                           shadowColor:
                               Colors.black.withOpacity(0.9), // Shadow color
                           elevation: 6,
-                          padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 2, vertical: 2),
                         ),
                         onPressed: () {
                           _onSettingButtonClicked();
@@ -486,7 +489,8 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                               size: 16,
                               color: kColorWhite,
                             ),
-                            const SizedBox(width: 2), // Spacing between icon and text
+                            const SizedBox(
+                                width: 2), // Spacing between icon and text
                             Text(
                               'Settings',
                               style: TextStyle(
@@ -838,7 +842,6 @@ class _TripMapWidgetState extends State<TripMapWidget> {
                 .where((latLng) => latLng != null)
                 .cast<LatLng>()
                 .toList();
-        logger.i('Route points initialized: $routePoints');
       });
     }
   }

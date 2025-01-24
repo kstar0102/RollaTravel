@@ -102,18 +102,96 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
       if (!GlobalVariables.isTripStarted) {
         ref.read(staticStartingPointProvider.notifier).state = newLocation;
       } else {
+        // Calculate the distance from the last point
+        if (pathCoordinates.isNotEmpty) {
+          final lastLocation = pathCoordinates.last;
+          final distance = Geolocator.distanceBetween(
+            lastLocation.latitude,
+            lastLocation.longitude,
+            newLocation.latitude,
+            newLocation.longitude,
+          );
+
+          // Update total distance
+          GlobalVariables.totalDistance +=
+              distance / 1609.34; // Convert to miles
+          ref.read(totalDistanceProvider.notifier).state =
+              GlobalVariables.totalDistance;
+        }
+
+        // Add the new location to the path
         pathCoordinates.add(newLocation);
         await _fetchSnappedRoute();
       }
 
-      // Update pathCoordinates regardless of trip state
+      // Always update pathCoordinates state
       ref.read(pathCoordinatesProvider.notifier).state = [...pathCoordinates];
 
-      // Move the map to the new location
+      // Smoothly move the map to the new location
       _mapController.move(newLocation, 15.0);
     });
   }
 
+  // Future<void> _startTrackingMovement() async {
+  //   if (_positionStreamSubscription != null) {
+  //     return; // Prevent multiple listeners
+  //   }
+  //   _positionStreamSubscription = Geolocator.getPositionStream(
+  //     locationSettings: const LocationSettings(
+  //       accuracy: LocationAccuracy.bestForNavigation,
+  //       distanceFilter: 5,
+  //     ),
+  //   ).listen((Position position) async {
+  //     final LatLng newLocation = LatLng(position.latitude, position.longitude);
+
+  //     // Update moving location
+  //     ref.read(movingLocationProvider.notifier).state = newLocation;
+
+  //     if (!GlobalVariables.isTripStarted) {
+  //       ref.read(staticStartingPointProvider.notifier).state = newLocation;
+  //     } else {
+  //       pathCoordinates.add(newLocation);
+  //       await _fetchSnappedRoute();
+  //     }
+
+  //     // Update pathCoordinates regardless of trip state
+  //     ref.read(pathCoordinatesProvider.notifier).state = [...pathCoordinates];
+
+  //     // Move the map to the new location
+  //     _mapController.move(newLocation, 15.0);
+  //   });
+  // }
+
+  // Future<void> _fetchSnappedRoute() async {
+  //   if (pathCoordinates.length < 2) return;
+
+  //   final coordinates = pathCoordinates
+  //       .map((point) => "${point.longitude},${point.latitude}")
+  //       .join(";");
+
+  //   final url =
+  //       "https://api.mapbox.com/matching/v5/mapbox/driving/$coordinates?access_token=$mapboxAccessToken&geometries=geojson&steps=false&overview=full";
+
+  //   try {
+  //     final response = await http.get(Uri.parse(url));
+  //     if (response.statusCode == 200) {
+  //       final data = jsonDecode(response.body);
+  //       final List<dynamic> matchedPoints =
+  //           data['matchings'][0]['geometry']['coordinates'];
+
+  //       setState(() {
+  //         pathCoordinates = matchedPoints
+  //             .map((coord) => LatLng(coord[1], coord[0]))
+  //             .toList(); // Update with matched points
+  //         ref.read(pathCoordinatesProvider.notifier).state = pathCoordinates;
+  //       });
+  //     } else {
+  //       logger.e("Failed to fetch snapped route: ${response.statusCode}");
+  //     }
+  //   } catch (e) {
+  //     logger.e("Error fetching snapped route: $e");
+  //   }
+  // }
   Future<void> _fetchSnappedRoute() async {
     if (pathCoordinates.length < 2) return;
 
@@ -131,12 +209,13 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
         final List<dynamic> matchedPoints =
             data['matchings'][0]['geometry']['coordinates'];
 
-        setState(() {
-          pathCoordinates = matchedPoints
-              .map((coord) => LatLng(coord[1], coord[0]))
-              .toList(); // Update with matched points
-          ref.read(pathCoordinatesProvider.notifier).state = pathCoordinates;
-        });
+        // Update pathCoordinates with matched points
+        final updatedPath =
+            matchedPoints.map((coord) => LatLng(coord[1], coord[0])).toList();
+
+        ref.read(pathCoordinatesProvider.notifier).state = updatedPath;
+        pathCoordinates =
+            updatedPath; // Sync local variable with provider state
       } else {
         logger.e("Failed to fetch snapped route: ${response.statusCode}");
       }
@@ -250,9 +329,27 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     }
   }
 
+  // void _restoreState() {
+  //   final movingLocation = ref.read(movingLocationProvider);
+  //   final pathCoordinates = ref.read(pathCoordinatesProvider);
+
+  //   if (movingLocation != null) {
+  //     WidgetsBinding.instance.addPostFrameCallback((_) {
+  //       _mapController.move(movingLocation, 14.0);
+  //     });
+  //   }
+
+  //   // Redraw the path
+  //   if (pathCoordinates.isNotEmpty) {
+  //     // Delay the modification to avoid the error
+  //     Future(() {
+  //       ref.read(pathCoordinatesProvider.notifier).state = [...pathCoordinates];
+  //     });
+  //   }
+  // }
   void _restoreState() {
     final movingLocation = ref.read(movingLocationProvider);
-    final pathCoordinates = ref.read(pathCoordinatesProvider);
+    final restoredPath = ref.read(pathCoordinatesProvider);
 
     if (movingLocation != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -260,11 +357,10 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
       });
     }
 
-    // Redraw the path
-    if (pathCoordinates.isNotEmpty) {
-      // Delay the modification to avoid the error
+    // Restore pathCoordinates state after a short delay to avoid errors
+    if (restoredPath.isNotEmpty) {
       Future(() {
-        ref.read(pathCoordinatesProvider.notifier).state = [...pathCoordinates];
+        ref.read(pathCoordinatesProvider.notifier).state = [...restoredPath];
       });
     }
   }
@@ -688,7 +784,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                         Icons.location_on,
                                         color: Colors
                                             .blue, // Blue for additional markers
-                                        size: 40,
+                                        size: 30,
                                       ),
                                     ),
                                   );
