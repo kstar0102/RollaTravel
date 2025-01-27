@@ -240,7 +240,7 @@ class ApiService {
     }
   }
 
-  Future<bool> createTrip({
+  Future<Map<String, dynamic>> createTrip({
     required int userId,
     required String startAddress,
     required String stopAddresses,
@@ -280,15 +280,16 @@ class ApiService {
       if (response.statusCode == 201) {
         final responseData = jsonDecode(response.body);
         logger.i("Trip created successfully: ${responseData['trip']}");
-        return true; // Indicate success
+        return {'success': true};
       } else {
-        logger.i(
-            "Failed to create trip: ${response.statusCode} - ${response.body}");
-        return false; // Indicate failure
+        final responseData = jsonDecode(response.body);
+        String error = responseData['error'] ?? 'An unknown error occurred.';
+        logger.i("Failed to create trip: ${response.statusCode} - $error");
+        return {'success': false, 'error': error};
       }
     } catch (e) {
       logger.i("Error creating trip: $e");
-      return false; // Indicate failure
+      return {'success': false, 'error': 'Network error: $e'};
     }
   }
 

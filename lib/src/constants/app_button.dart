@@ -20,14 +20,13 @@ class ButtonWidget extends StatefulWidget {
   final Color? textColor;
   final Color? fullColor;
 
-  const ButtonWidget({
-    super.key,
-    required this.btnType,
-    required this.onPressed,
-    required this.borderColor,
-    required this.textColor,
-    required this.fullColor
-  });
+  const ButtonWidget(
+      {super.key,
+      required this.btnType,
+      required this.onPressed,
+      required this.borderColor,
+      required this.textColor,
+      required this.fullColor});
 
   @override
   State<ButtonWidget> createState() => _ButtonWidgetState();
@@ -62,8 +61,8 @@ class _ButtonWidgetState extends State<ButtonWidget> {
       case ButtonWidgetType.endTripTitle:
         btnTitle = end_trip;
         break;
-      default:
-        btnTitle = "unknow";
+      // default:
+      //   btnTitle = "unknow";
     }
     return Stack(
       alignment: Alignment.center,
@@ -77,27 +76,30 @@ class _ButtonWidgetState extends State<ButtonWidget> {
             height: vh(context, 5),
             child: Container(
               decoration: BoxDecoration(
-                color:  widget.fullColor ,
-                border: Border.all(color: widget.borderColor!),
-                borderRadius: BorderRadius.circular(15)
-              ),
+                  color: widget.fullColor,
+                  border: Border.all(color: widget.borderColor!),
+                  borderRadius: BorderRadius.circular(15)),
             ),
           ),
         ),
         Positioned.fill(
           child: TextButton(
-            style: TextButton.styleFrom(
-              foregroundColor: const Color(0XFF000000),
-              padding: EdgeInsets.zero
-            ),
-            onPressed: widget.onPressed,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(btnTitle, style: TextStyle(color:  widget.textColor!, fontSize: 13, fontFamily: 'KadawBold'),),
-              ],
-            ) 
-          ),
+              style: TextButton.styleFrom(
+                  foregroundColor: const Color(0XFF000000),
+                  padding: EdgeInsets.zero),
+              onPressed: widget.onPressed,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    btnTitle,
+                    style: TextStyle(
+                        color: widget.textColor!,
+                        fontSize: 13,
+                        fontFamily: 'KadawBold'),
+                  ),
+                ],
+              )),
         ),
       ],
     );
