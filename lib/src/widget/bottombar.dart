@@ -24,7 +24,8 @@ class BottomNavBar extends ConsumerWidget {
         Navigator.pushReplacement(
           context,
           PageRouteBuilder(
-            pageBuilder: (context, animation1, animation2) => const HomeScreen(),
+            pageBuilder: (context, animation1, animation2) =>
+                const HomeScreen(),
             transitionDuration: Duration.zero,
             reverseTransitionDuration: Duration.zero,
           ),
@@ -34,7 +35,8 @@ class BottomNavBar extends ConsumerWidget {
         Navigator.pushReplacement(
           context,
           PageRouteBuilder(
-            pageBuilder: (context, animation1, animation2) => const SearchScreen(),
+            pageBuilder: (context, animation1, animation2) =>
+                const SearchScreen(),
             transitionDuration: Duration.zero,
             reverseTransitionDuration: Duration.zero,
           ),
@@ -44,7 +46,8 @@ class BottomNavBar extends ConsumerWidget {
         Navigator.pushReplacement(
           context,
           PageRouteBuilder(
-            pageBuilder: (context, animation1, animation2) => const StartTripScreen(),
+            pageBuilder: (context, animation1, animation2) =>
+                const StartTripScreen(),
             transitionDuration: Duration.zero,
             reverseTransitionDuration: Duration.zero,
           ),
@@ -67,7 +70,8 @@ class BottomNavBar extends ConsumerWidget {
         Navigator.pushReplacement(
           context,
           PageRouteBuilder(
-            pageBuilder: (context, animation1, animation2) => const ProfileScreen(),
+            pageBuilder: (context, animation1, animation2) =>
+                const ProfileScreen(),
             transitionDuration: Duration.zero,
             reverseTransitionDuration: Duration.zero,
           ),
@@ -81,14 +85,16 @@ class BottomNavBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return SafeArea(
-      child : SizedBox(
+      child: SizedBox(
         height: 110,
         child: BottomAppBar(
           color: Colors.white,
           child: Container(
             decoration: const BoxDecoration(
               border: Border(
-                top: BorderSide(color: kColorBlack, width: 1.5), // Black line at the very top
+                top: BorderSide(
+                    color: kColorBlack,
+                    width: 1.5), // Black line at the very top
               ),
             ),
             child: Row(
@@ -103,10 +109,13 @@ class BottomNavBar extends ConsumerWidget {
                         Text(
                           bottom_home,
                           style: TextStyle(
-                            color: currentIndex == 0 ? kColorButtonPrimary :  kColorBlack,
-                            fontFamily: 'Kadaw',
-                            fontSize: 38.sp
-                          ),
+                              color: currentIndex == 0
+                                  ? kColorButtonPrimary
+                                  : kColorBlack,
+                              fontFamily: 'Kadaw',
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0.1,
+                              fontSize: 38.sp),
                         ),
                       ],
                     ),
@@ -115,17 +124,19 @@ class BottomNavBar extends ConsumerWidget {
                 Expanded(
                   child: InkWell(
                     onTap: () => onTabTapped(context, ref, 1),
-                    child: Center( // Ensures the content is vertically and horizontally centered
+                    child: Center(
                       child: Text(
                         bottom_search,
                         style: TextStyle(
-                          color: currentIndex == 1 ? kColorButtonPrimary : kColorBlack, // Highlighted when active
+                          color: currentIndex == 1
+                              ? kColorButtonPrimary
+                              : kColorBlack,
                           fontFamily: 'Kadaw',
                           fontSize: 38.sp,
-                          fontWeight: FontWeight.w500, // Added weight for better visibility
-                          letterSpacing: 0.5, // Improved spacing for a clean look
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 0.1,
                         ),
-                        textAlign: TextAlign.center, // Ensures text is centered
+                        textAlign: TextAlign.center,
                       ),
                     ),
                   ),
@@ -136,16 +147,23 @@ class BottomNavBar extends ConsumerWidget {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        SizedBox(
-                          width: 70,
+                        Container(
+                          width: 75,
                           height: 75,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: currentIndex == 2
+                                  ? Colors.blue
+                                  : Colors.transparent,
+                              width: 0,
+                            ),
+                          ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(50),
                             child: const Image(
                               fit: BoxFit.cover,
                               image: AssetImage("assets/images/icons/home.png"),
-                              width: 70,
-                              height: 70,
                             ),
                           ),
                         ),
@@ -164,10 +182,11 @@ class BottomNavBar extends ConsumerWidget {
                           bottom_drop_pin,
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: currentIndex == 3 ? kColorButtonPrimary :  kColorBlack,
-                            fontFamily: 'Kadaw',
-                            fontSize: 39.sp
-                          ),
+                              color: currentIndex == 3
+                                  ? kColorButtonPrimary
+                                  : kColorBlack,
+                              fontFamily: 'Kadaw',
+                              fontSize: 39.sp),
                         ),
                       ],
                     ),
@@ -184,7 +203,8 @@ class BottomNavBar extends ConsumerWidget {
                           height: 45,
                           decoration: BoxDecoration(
                             border: Border.all(
-                              color: currentIndex == 4 ? Colors.blue : Colors.grey,
+                              color:
+                                  currentIndex == 4 ? Colors.blue : Colors.grey,
                               width: 2.0,
                             ),
                             borderRadius: BorderRadius.circular(50),
@@ -193,16 +213,20 @@ class BottomNavBar extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(50),
                             child: GlobalVariables.userImageUrl != null
                                 ? Image.network(
-                                    GlobalVariables.userImageUrl!, // Dynamic URL
+                                    GlobalVariables
+                                        .userImageUrl!, // Dynamic URL
                                     width: 45,
                                     height: 45,
                                     fit: BoxFit.cover,
-                                    loadingBuilder: (context, child, loadingProgress) {
+                                    loadingBuilder:
+                                        (context, child, loadingProgress) {
                                       if (loadingProgress == null) return child;
                                       return const SizedBox(
                                         width: 45,
                                         height: 45,
-                                        child: Center(child: CircularProgressIndicator()), // Loading indicator
+                                        child: Center(
+                                            child:
+                                                CircularProgressIndicator()), // Loading indicator
                                       );
                                     },
                                     errorBuilder: (context, error, stackTrace) {

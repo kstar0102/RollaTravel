@@ -84,6 +84,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
 
   Future<void> _fetchAddresses() async {
     if (widget.startLocation != null) {
+      logger.i('start location : $widget.startLocation');
       startAddress = await getAddressFromLocation(widget.startLocation!);
       logger.i("startAddress : $startAddress");
     }
@@ -239,61 +240,6 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
             })
         .toList();
 
-    logger.i("stopLocations: $stopLocations");
-
-    // if (widget.endDestination == "Edit destination") {
-    //   endAddress = "null";
-    // }
-
-    // final response = await apiserice.createTrip(
-    //     userId: GlobalVariables.userId!,
-    //     startAddress: startAddress!,
-    //     stopAddresses: stopAddressesString,
-    //     destinationAddress: endAddress!,
-    //     destinationTextAddress: widget.endDestination,
-    //     tripStartDate: widget.tripStartDate,
-    //     tripEndDate: widget.tripEndDate,
-    //     tripMiles: widget.tripDistance,
-    //     tripSound: "tripSound",
-    //     stopLocations: stopLocations,
-    //     tripCoordinates: tripCoordinates, // Use the converted list
-    //     droppins: droppins);
-
-    // if (!mounted) return;
-
-    // if (response) {
-    //   // Navigate to the next page
-    //   Navigator.pushReplacement(
-    //     context,
-    //     PageRouteBuilder(
-    //       pageBuilder: (context, animation1, animation2) =>
-    //           const StartTripScreen(),
-    //       transitionDuration: Duration.zero,
-    //       reverseTransitionDuration: Duration.zero,
-    //     ),
-    //   );
-    //   ref.read(pathCoordinatesProvider.notifier).state = [];
-    // } else {
-    //   // Show an alert dialog
-    //   showDialog(
-    //     context: context,
-    //     builder: (BuildContext context) {
-    //       return AlertDialog(
-    //         title: const Text("Error"),
-    //         content: const Text("Failed to create the trip. Please try again."),
-    //         actions: [
-    //           TextButton(
-    //             child: const Text("OK"),
-    //             onPressed: () {
-    //               ref.read(pathCoordinatesProvider.notifier).state = [];
-    //               Navigator.of(context).pop(); // Close the dialog
-    //             },
-    //           ),
-    //         ],
-    //       );
-    //     },
-    //   );
-    // }
     final response = await apiserice.createTrip(
       userId: GlobalVariables.userId!,
       startAddress: startAddress!,

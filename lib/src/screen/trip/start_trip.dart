@@ -44,6 +44,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   String initialSound = "Edit Playlist";
   double totalDistanceInMiles = 0;
   List<LatLng> pathCoordinates = [];
+  bool isStateRestored = false;
 
   static const String mapboxAccessToken =
       "pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw";
@@ -54,6 +55,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     _restoreState();
     _getCurrentLocation();
     _startTrackingMovement();
+    _checkLocationServices();
   }
 
   @override
@@ -61,6 +63,73 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     super.dispose();
     _mapController.dispose();
     _positionStreamSubscription?.cancel();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _restoreState(); // Restore map and path state
+  }
+
+  Future<void> _checkLocationServices() async {
+    bool isLocationEnabled = await Geolocator.isLocationServiceEnabled();
+    LocationPermission permission = await Geolocator.checkPermission();
+
+    // ✅ If location services are OFF, show a notification dialog
+    if (!isLocationEnabled) {
+      logger.e("Location services are disabled!");
+      _showLocationDisabledDialog();
+      return;
+    }
+
+    // ✅ If permission is denied, request it
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        logger.e("Location permission denied!");
+        _showPermissionDeniedDialog();
+        return;
+      }
+    }
+
+    // ✅ If permission is permanently denied, open settings
+    if (permission == LocationPermission.deniedForever) {
+      logger.e("Location permission permanently denied!");
+      _showPermissionDeniedDialog();
+      return;
+    }
+
+    // ✅ If everything is enabled, log success
+    logger.i("Location services and permissions are enabled.");
+  }
+
+  void _showLocationDisabledDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Location Services Disabled"),
+          content: const Text(
+            "Please enable location services to track your movement.",
+          ),
+          actions: [
+            TextButton(
+              child: const Text("Open Settings"),
+              onPressed: () async {
+                await Geolocator.openLocationSettings(); // ✅ Opens GPS settings
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text("Cancel"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> _getCurrentLocation() async {
@@ -132,66 +201,6 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     });
   }
 
-  // Future<void> _startTrackingMovement() async {
-  //   if (_positionStreamSubscription != null) {
-  //     return; // Prevent multiple listeners
-  //   }
-  //   _positionStreamSubscription = Geolocator.getPositionStream(
-  //     locationSettings: const LocationSettings(
-  //       accuracy: LocationAccuracy.bestForNavigation,
-  //       distanceFilter: 5,
-  //     ),
-  //   ).listen((Position position) async {
-  //     final LatLng newLocation = LatLng(position.latitude, position.longitude);
-
-  //     // Update moving location
-  //     ref.read(movingLocationProvider.notifier).state = newLocation;
-
-  //     if (!GlobalVariables.isTripStarted) {
-  //       ref.read(staticStartingPointProvider.notifier).state = newLocation;
-  //     } else {
-  //       pathCoordinates.add(newLocation);
-  //       await _fetchSnappedRoute();
-  //     }
-
-  //     // Update pathCoordinates regardless of trip state
-  //     ref.read(pathCoordinatesProvider.notifier).state = [...pathCoordinates];
-
-  //     // Move the map to the new location
-  //     _mapController.move(newLocation, 15.0);
-  //   });
-  // }
-
-  // Future<void> _fetchSnappedRoute() async {
-  //   if (pathCoordinates.length < 2) return;
-
-  //   final coordinates = pathCoordinates
-  //       .map((point) => "${point.longitude},${point.latitude}")
-  //       .join(";");
-
-  //   final url =
-  //       "https://api.mapbox.com/matching/v5/mapbox/driving/$coordinates?access_token=$mapboxAccessToken&geometries=geojson&steps=false&overview=full";
-
-  //   try {
-  //     final response = await http.get(Uri.parse(url));
-  //     if (response.statusCode == 200) {
-  //       final data = jsonDecode(response.body);
-  //       final List<dynamic> matchedPoints =
-  //           data['matchings'][0]['geometry']['coordinates'];
-
-  //       setState(() {
-  //         pathCoordinates = matchedPoints
-  //             .map((coord) => LatLng(coord[1], coord[0]))
-  //             .toList(); // Update with matched points
-  //         ref.read(pathCoordinatesProvider.notifier).state = pathCoordinates;
-  //       });
-  //     } else {
-  //       logger.e("Failed to fetch snapped route: ${response.statusCode}");
-  //     }
-  //   } catch (e) {
-  //     logger.e("Error fetching snapped route: $e");
-  //   }
-  // }
   Future<void> _fetchSnappedRoute() async {
     if (pathCoordinates.length < 2) return;
 
@@ -212,6 +221,10 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
         // Update pathCoordinates with matched points
         final updatedPath =
             matchedPoints.map((coord) => LatLng(coord[1], coord[0])).toList();
+
+        if (pathCoordinates.isNotEmpty) {
+          updatedPath.insert(0, pathCoordinates.first);
+        }
 
         ref.read(pathCoordinatesProvider.notifier).state = updatedPath;
         pathCoordinates =
@@ -236,7 +249,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
 
   void _startTrip() {
     GlobalVariables.isTripStarted = true;
-    ref.read(isTripStartedProvider.notifier).state = true;
+    // ref.read(isTripStartedProvider.notifier).state = true;
 
     // ✅ Record trip start time
     DateTime now = DateTime.now();
@@ -248,16 +261,46 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     if (currentLocation != null) {
       // ✅ Set this location as the starting point for the trip
       ref.read(staticStartingPointProvider.notifier).state = currentLocation;
-    }
 
-    // ✅ Clear previous path to start a new trip
-    ref.read(pathCoordinatesProvider.notifier).state = [];
+      // Add starting location to pathCoordinates
+      pathCoordinates = [currentLocation];
+      ref.read(pathCoordinatesProvider.notifier).state = [...pathCoordinates];
+    }
 
     // ✅ Start tracking user movement
     _startTrackingMovement();
   }
 
-  // void _endTrip() {
+  void _restoreState() {
+    final movingLocation = ref.read(movingLocationProvider);
+    final staticStartingPoint = ref.read(staticStartingPointProvider);
+    final restoredPath = ref.read(pathCoordinatesProvider);
+    // pathCoordinates = restoredPath;
+    // logger.i("Static Starting Point: $staticStartingPoint");
+    // logger.i("Restored Path: $restoredPath");
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (staticStartingPoint != null) {
+        // Center the map at the static starting point
+        _mapController.move(staticStartingPoint, 15.0);
+      } else if (movingLocation != null) {
+        // Center the map at the moving location
+        _mapController.move(movingLocation, 14.0);
+      }
+    });
+
+    // Restore pathCoordinates state
+    if (restoredPath.isNotEmpty) {
+      Future.microtask(() {
+        ref.read(pathCoordinatesProvider.notifier).state = [...restoredPath];
+      });
+    }
+
+    // Mark state as restored and force rebuild
+    setState(() {
+      isStateRestored = true;
+    });
+  }
 
   void _endTrip() {
     LatLng? startLocation = ref.read(staticStartingPointProvider);
@@ -314,7 +357,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
       );
 
       // ✅ Reset the trip state
-      ref.read(isTripStartedProvider.notifier).state = false;
+      // ref.read(isTripStartedProvider.notifier).state = false;
       GlobalVariables.isTripStarted = false;
 
       // ✅ Reset all trip-related data
@@ -326,42 +369,6 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
       GlobalVariables.totalDistance = 0.0;
     } else {
       logger.i("tripStartDate is null.");
-    }
-  }
-
-  // void _restoreState() {
-  //   final movingLocation = ref.read(movingLocationProvider);
-  //   final pathCoordinates = ref.read(pathCoordinatesProvider);
-
-  //   if (movingLocation != null) {
-  //     WidgetsBinding.instance.addPostFrameCallback((_) {
-  //       _mapController.move(movingLocation, 14.0);
-  //     });
-  //   }
-
-  //   // Redraw the path
-  //   if (pathCoordinates.isNotEmpty) {
-  //     // Delay the modification to avoid the error
-  //     Future(() {
-  //       ref.read(pathCoordinatesProvider.notifier).state = [...pathCoordinates];
-  //     });
-  //   }
-  // }
-  void _restoreState() {
-    final movingLocation = ref.read(movingLocationProvider);
-    final restoredPath = ref.read(pathCoordinatesProvider);
-
-    if (movingLocation != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _mapController.move(movingLocation, 14.0);
-      });
-    }
-
-    // Restore pathCoordinates state after a short delay to avoid errors
-    if (restoredPath.isNotEmpty) {
-      Future(() {
-        ref.read(pathCoordinatesProvider.notifier).state = [...restoredPath];
-      });
     }
   }
 
@@ -432,6 +439,12 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     final pathCoordinates = ref.watch(pathCoordinatesProvider);
     final movingLocation = ref.watch(movingLocationProvider);
     final staticStartingPoint = ref.watch(staticStartingPointProvider);
+
+    // if (restoredPath.isNotEmpty) {
+    //   pathCoordinates = restoredPath;
+    // }
+
+    // logger.i(pathCoordinates);
 
     return Scaffold(
       backgroundColor: kColorWhite,
@@ -646,288 +659,304 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                 ),
 
                 // MapBox integration with a customized size
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: vww(context, 4)),
-                  child: SizedBox(
-                    height: vhh(context, 55),
-                    child: Stack(
-                      children: [
-                        FlutterMap(
-                          mapController: _mapController,
-                          options: MapOptions(
-                            initialCenter: movingLocation ??
-                                staticStartingPoint ??
-                                const LatLng(43.1557, -77.6157),
-                            initialZoom: 15.0,
-                          ),
-                          children: [
-                            TileLayer(
-                              urlTemplate:
-                                  "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=$mapboxAccessToken",
-                              additionalOptions: const {
-                                'access_token':
-                                    'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw',
-                              },
-                            ),
-                            MarkerLayer(
-                              markers: [
-                                if (movingLocation != null &&
-                                    GlobalVariables.isTripStarted)
-                                  Marker(
-                                    width: 40.0,
-                                    height: 40.0,
-                                    point: movingLocation,
-                                    child: Image.asset(
-                                      'assets/images/icons/car_icon.png',
-                                      width: 40,
-                                      height: 35,
-                                      fit: BoxFit.contain,
-                                    ),
+                !isStateRestored
+                    ? const Center(child: CircularProgressIndicator())
+                    : Padding(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: vww(context, 4)),
+                        child: SizedBox(
+                          height: vhh(context, 55),
+                          child: Stack(
+                            children: [
+                              FlutterMap(
+                                mapController: _mapController,
+                                options: MapOptions(
+                                  initialCenter: movingLocation ??
+                                      staticStartingPoint ??
+                                      const LatLng(43.1557, -77.6157),
+                                  initialZoom: 15.0,
+                                ),
+                                children: [
+                                  TileLayer(
+                                    urlTemplate:
+                                        "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=$mapboxAccessToken",
+                                    additionalOptions: const {
+                                      'access_token':
+                                          'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw',
+                                    },
                                   ),
-                                if (staticStartingPoint != null)
-                                  Marker(
-                                    width: 50.0,
-                                    height: 50.0,
-                                    point: staticStartingPoint,
-                                    child: const Icon(Icons.location_on,
-                                        color: Colors.red, size: 30),
-                                  ),
-                                // Markers from markersProvider
-                                ...ref.watch(markersProvider).map((markerData) {
-                                  return Marker(
-                                    width: 80.0,
-                                    height: 80.0,
-                                    point: markerData.location,
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        // Display the image in a dialog
-                                        showDialog(
-                                          context: context,
-                                          builder: (context) => AlertDialog(
-                                            content: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Padding(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                      horizontal: 8.0,
-                                                      vertical: 4.0),
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
+                                  MarkerLayer(
+                                    markers: [
+                                      if (movingLocation != null &&
+                                          GlobalVariables.isTripStarted)
+                                        Marker(
+                                          width: 40.0,
+                                          height: 40.0,
+                                          point: movingLocation,
+                                          child: Image.asset(
+                                            'assets/images/icons/car_icon.png',
+                                            width: 40,
+                                            height: 35,
+                                            fit: BoxFit.contain,
+                                          ),
+                                        ),
+                                      if (staticStartingPoint != null)
+                                        Marker(
+                                          width: 80.0,
+                                          height: 80.0,
+                                          point: staticStartingPoint,
+                                          child: const Icon(Icons.location_on,
+                                              color: Colors.red, size: 30),
+                                        ),
+                                      // Markers from markersProvider
+                                      ...ref
+                                          .watch(markersProvider)
+                                          .map((markerData) {
+                                        return Marker(
+                                          width: 80.0,
+                                          height: 80.0,
+                                          point: markerData.location,
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              // Display the image in a dialog
+                                              showDialog(
+                                                context: context,
+                                                builder: (context) =>
+                                                    AlertDialog(
+                                                  content: Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
                                                     children: [
-                                                      Text(
-                                                        markerData.caption,
-                                                        style: const TextStyle(
-                                                          fontSize: 16,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          color: Colors.grey,
-                                                          fontFamily: 'Kadaw',
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                                horizontal: 8.0,
+                                                                vertical: 4.0),
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: [
+                                                            Text(
+                                                              markerData
+                                                                  .caption,
+                                                              style:
+                                                                  const TextStyle(
+                                                                fontSize: 16,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                color:
+                                                                    Colors.grey,
+                                                                fontFamily:
+                                                                    'Kadaw',
+                                                              ),
+                                                            ),
+                                                            IconButton(
+                                                              icon: const Icon(
+                                                                  Icons.close,
+                                                                  color: Colors
+                                                                      .black),
+                                                              onPressed: () {
+                                                                Navigator.of(
+                                                                        context)
+                                                                    .pop();
+                                                              },
+                                                            ),
+                                                          ],
                                                         ),
                                                       ),
-                                                      IconButton(
-                                                        icon: const Icon(
-                                                            Icons.close,
-                                                            color:
-                                                                Colors.black),
-                                                        onPressed: () {
-                                                          Navigator.of(context)
-                                                              .pop();
+                                                      Image.network(
+                                                        markerData.imagePath,
+                                                        fit: BoxFit.cover,
+                                                        loadingBuilder: (context,
+                                                            child,
+                                                            loadingProgress) {
+                                                          if (loadingProgress ==
+                                                              null) {
+                                                            // Image has loaded successfully
+                                                            return child;
+                                                          } else {
+                                                            // Display a loading indicator while the image is loading
+                                                            return Center(
+                                                              child:
+                                                                  CircularProgressIndicator(
+                                                                value: loadingProgress
+                                                                            .expectedTotalBytes !=
+                                                                        null
+                                                                    ? loadingProgress
+                                                                            .cumulativeBytesLoaded /
+                                                                        (loadingProgress.expectedTotalBytes ??
+                                                                            1)
+                                                                    : null, // Show progress if available
+                                                              ),
+                                                            );
+                                                          }
+                                                        },
+                                                        errorBuilder: (context,
+                                                            error, stackTrace) {
+                                                          // Fallback widget in case of an error
+                                                          return const Icon(
+                                                              Icons
+                                                                  .broken_image,
+                                                              size: 100);
                                                         },
                                                       ),
                                                     ],
                                                   ),
                                                 ),
-                                                Image.network(
-                                                  markerData.imagePath,
-                                                  fit: BoxFit.cover,
-                                                  loadingBuilder: (context,
-                                                      child, loadingProgress) {
-                                                    if (loadingProgress ==
-                                                        null) {
-                                                      // Image has loaded successfully
-                                                      return child;
-                                                    } else {
-                                                      // Display a loading indicator while the image is loading
-                                                      return Center(
-                                                        child:
-                                                            CircularProgressIndicator(
-                                                          value: loadingProgress
-                                                                      .expectedTotalBytes !=
-                                                                  null
-                                                              ? loadingProgress
-                                                                      .cumulativeBytesLoaded /
-                                                                  (loadingProgress
-                                                                          .expectedTotalBytes ??
-                                                                      1)
-                                                              : null, // Show progress if available
-                                                        ),
-                                                      );
-                                                    }
-                                                  },
-                                                  errorBuilder: (context, error,
-                                                      stackTrace) {
-                                                    // Fallback widget in case of an error
-                                                    return const Icon(
-                                                        Icons.broken_image,
-                                                        size: 100);
-                                                  },
-                                                ),
-                                              ],
+                                              );
+                                            },
+                                            child: const Icon(
+                                              Icons.location_on,
+                                              color: Colors
+                                                  .blue, // Blue for additional markers
+                                              size: 30,
                                             ),
                                           ),
                                         );
-                                      },
-                                      child: const Icon(
-                                        Icons.location_on,
-                                        color: Colors
-                                            .blue, // Blue for additional markers
-                                        size: 30,
-                                      ),
-                                    ),
-                                  );
-                                }),
-                              ],
-                            ),
-                            PolylineLayer(polylines: [
-                              Polyline(
-                                  points: pathCoordinates,
-                                  strokeWidth: 4.0,
-                                  color: Colors.blue)
-                            ]),
-                          ],
-                        ),
+                                      }),
+                                    ],
+                                  ),
+                                  PolylineLayer(polylines: [
+                                    Polyline(
+                                        points: pathCoordinates,
+                                        strokeWidth: 4.0,
+                                        color: Colors.blue)
+                                  ]),
+                                ],
+                              ),
 
-                        GlobalVariables.isTripStarted
-                            ? Positioned(
-                                top: 1,
+                              GlobalVariables.isTripStarted
+                                  ? Positioned(
+                                      top: 1,
+                                      left: 0,
+                                      right: 0,
+                                      child: Padding(
+                                        padding:
+                                            EdgeInsets.zero, // Adjust for width
+                                        child: Container(
+                                          padding: const EdgeInsets.all(3.0),
+                                          color: Colors.white.withOpacity(0.5),
+                                          child: const Column(
+                                            children: [
+                                              Text(
+                                                'Trip in progress',
+                                                style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: 14,
+                                                    fontStyle: FontStyle.italic,
+                                                    fontFamily: 'KadawBold'),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                              Text(
+                                                'Drop a pin to post your map',
+                                                style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: 14,
+                                                    fontStyle: FontStyle.italic,
+                                                    fontFamily: 'Kadaw'),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  : const SizedBox(),
+
+                              // Zoom in/out buttons
+                              Positioned(
+                                right: 10,
+                                top: 70,
+                                child: Column(
+                                  children: [
+                                    FloatingActionButton(
+                                      heroTag:
+                                          'zoom_in_button_starttrip_1', // Unique tag for the zoom in button
+                                      onPressed: () {
+                                        _mapController.move(
+                                          _mapController.camera.center,
+                                          _mapController.camera.zoom + 1,
+                                        );
+                                      },
+                                      mini: true,
+                                      child: const Icon(Icons.zoom_in),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    FloatingActionButton(
+                                      heroTag:
+                                          'zoom_out_button_starttrip_2', // Unique tag for the zoom out button
+                                      onPressed: () {
+                                        _mapController.move(
+                                          _mapController.camera.center,
+                                          _mapController.camera.zoom - 1,
+                                        );
+                                      },
+                                      mini: true,
+                                      child: const Icon(Icons.zoom_out),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              // Button overlay
+                              Positioned(
+                                bottom: 70,
+                                left: 0,
+                                right: 0,
+                                child: Center(
+                                  child: Padding(
+                                    padding: EdgeInsets.only(
+                                        left: vww(context, 15),
+                                        right: vww(context, 15),
+                                        top: vhh(context, 3)),
+                                    child: ButtonWidget(
+                                      btnType: GlobalVariables.isTripStarted
+                                          ? ButtonWidgetType.endTripTitle
+                                          : ButtonWidgetType.startTripTitle,
+                                      borderColor: GlobalVariables.isTripStarted
+                                          ? Colors.red
+                                          : kColorButtonPrimary,
+                                      textColor: kColorWhite,
+                                      fullColor: GlobalVariables.isTripStarted
+                                          ? Colors.red
+                                          : kColorButtonPrimary,
+                                      onPressed: toggleTrip,
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              Positioned(
+                                bottom: 13,
                                 left: 0,
                                 right: 0,
                                 child: Padding(
                                   padding: EdgeInsets.zero, // Adjust for width
                                   child: Container(
-                                    padding: const EdgeInsets.all(3.0),
-                                    color: Colors.white.withOpacity(0.5),
-                                    child: const Column(
-                                      children: [
-                                        Text(
-                                          'Trip in progress',
-                                          style: TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 14,
-                                              fontStyle: FontStyle.italic,
-                                              fontFamily: 'KadawBold'),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                        Text(
-                                          'Drop a pin to post your map',
-                                          style: TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 14,
-                                              fontStyle: FontStyle.italic,
-                                              fontFamily: 'Kadaw'),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ],
+                                    padding: const EdgeInsets.all(
+                                        3.0), // Inner padding for spacing around text
+                                    color: Colors.white.withOpacity(
+                                        0.5), // Background color with slight transparency
+                                    child: const Text(
+                                      'Note: Start trip, then drop a pin to make\nyour post visible to your followers',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 14,
+                                        fontStyle: FontStyle.italic,
+                                        fontFamily: 'Kadaw',
+                                      ),
+                                      textAlign: TextAlign.center,
                                     ),
                                   ),
                                 ),
-                              )
-                            : const SizedBox(),
-
-                        // Zoom in/out buttons
-                        Positioned(
-                          right: 10,
-                          top: 70,
-                          child: Column(
-                            children: [
-                              FloatingActionButton(
-                                heroTag:
-                                    'zoom_in_button_starttrip_1', // Unique tag for the zoom in button
-                                onPressed: () {
-                                  _mapController.move(
-                                    _mapController.camera.center,
-                                    _mapController.camera.zoom + 1,
-                                  );
-                                },
-                                mini: true,
-                                child: const Icon(Icons.zoom_in),
-                              ),
-                              const SizedBox(height: 8),
-                              FloatingActionButton(
-                                heroTag:
-                                    'zoom_out_button_starttrip_2', // Unique tag for the zoom out button
-                                onPressed: () {
-                                  _mapController.move(
-                                    _mapController.camera.center,
-                                    _mapController.camera.zoom - 1,
-                                  );
-                                },
-                                mini: true,
-                                child: const Icon(Icons.zoom_out),
                               ),
                             ],
                           ),
                         ),
-
-                        // Button overlay
-                        Positioned(
-                          bottom: 70,
-                          left: 0,
-                          right: 0,
-                          child: Center(
-                            child: Padding(
-                              padding: EdgeInsets.only(
-                                  left: vww(context, 15),
-                                  right: vww(context, 15),
-                                  top: vhh(context, 3)),
-                              child: ButtonWidget(
-                                btnType: GlobalVariables.isTripStarted
-                                    ? ButtonWidgetType.endTripTitle
-                                    : ButtonWidgetType.startTripTitle,
-                                borderColor: GlobalVariables.isTripStarted
-                                    ? Colors.red
-                                    : kColorButtonPrimary,
-                                textColor: kColorWhite,
-                                fullColor: GlobalVariables.isTripStarted
-                                    ? Colors.red
-                                    : kColorButtonPrimary,
-                                onPressed: toggleTrip,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        Positioned(
-                          bottom: 13,
-                          left: 0,
-                          right: 0,
-                          child: Padding(
-                            padding: EdgeInsets.zero, // Adjust for width
-                            child: Container(
-                              padding: const EdgeInsets.all(
-                                  3.0), // Inner padding for spacing around text
-                              color: Colors.white.withOpacity(
-                                  0.5), // Background color with slight transparency
-                              child: const Text(
-                                'Note: Start trip, then drop a pin to make\nyour post visible to your followers',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 14,
-                                  fontStyle: FontStyle.italic,
-                                  fontFamily: 'Kadaw',
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                      ),
               ],
             ),
           ),
