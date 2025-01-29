@@ -160,7 +160,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     _positionStreamSubscription = Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.bestForNavigation,
-        distanceFilter: 5,
+        distanceFilter: 10,
       ),
     ).listen((Position position) async {
       final LatLng newLocation = LatLng(position.latitude, position.longitude);
@@ -202,7 +202,10 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   }
 
   Future<void> _fetchSnappedRoute() async {
-    if (pathCoordinates.length < 2) return;
+    if (pathCoordinates.length < 2) {
+      logger.i("Not enough coordinates for route snapping");
+      return;
+    }
 
     final coordinates = pathCoordinates
         .map((point) => "${point.longitude},${point.latitude}")
@@ -213,6 +216,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
 
     try {
       final response = await http.get(Uri.parse(url));
+      // logger.i("Response from Mapbox: ${response.body}");
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final List<dynamic> matchedPoints =
@@ -227,8 +231,9 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
         }
 
         ref.read(pathCoordinatesProvider.notifier).state = updatedPath;
-        pathCoordinates =
-            updatedPath; // Sync local variable with provider state
+        setState(() {
+          pathCoordinates = updatedPath;
+        });
       } else {
         logger.e("Failed to fetch snapped route: ${response.statusCode}");
       }
@@ -249,7 +254,8 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
 
   void _startTrip() {
     GlobalVariables.isTripStarted = true;
-    // ref.read(isTripStartedProvider.notifier).state = true;
+    ref.read(isTripStartedProvider.notifier).state = true;
+    ref.read(pathCoordinatesProvider.notifier).state = [];
 
     // ✅ Record trip start time
     DateTime now = DateTime.now();
@@ -357,7 +363,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
       );
 
       // ✅ Reset the trip state
-      // ref.read(isTripStartedProvider.notifier).state = false;
+      ref.read(isTripStartedProvider.notifier).state = false;
       GlobalVariables.isTripStarted = false;
 
       // ✅ Reset all trip-related data
@@ -439,12 +445,6 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     final pathCoordinates = ref.watch(pathCoordinatesProvider);
     final movingLocation = ref.watch(movingLocationProvider);
     final staticStartingPoint = ref.watch(staticStartingPointProvider);
-
-    // if (restoredPath.isNotEmpty) {
-    //   pathCoordinates = restoredPath;
-    // }
-
-    // logger.i(pathCoordinates);
 
     return Scaffold(
       backgroundColor: kColorWhite,

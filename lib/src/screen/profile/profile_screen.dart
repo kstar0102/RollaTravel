@@ -825,6 +825,12 @@ class _TripMapWidgetState extends State<TripMapWidget> {
     });
   }
 
+  @override
+  void dispose() {
+    mapController.dispose(); // If applicable
+    super.dispose();
+  }
+
   void _initializeRoutePoints() {
     if (widget.trip['trip_coordinates'] != null) {
       setState(() {
