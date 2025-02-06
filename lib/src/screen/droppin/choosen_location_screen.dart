@@ -142,44 +142,25 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
               'longitude': marker.location.longitude,
             })
         .toList();
-    List<Map<String, dynamic>> droppinsarray = [];
-    if (droppinsJson != null) {
-      List<dynamic> droppinsList = jsonDecode(droppinsJson!);
-      droppinsarray = List<Map<String, dynamic>>.from(droppinsList);
-
-      logger.i("Droppins Array: $droppinsarray");
-    }
-
-    // droppins = stopMarkers.asMap().entries.map((entry) {
-    //   final int index = entry.key + 1; // stop_index starts from 1
-    //   final MarkerData marker = entry.value;
-
-    //   return {
-    //     "stop_index": index,
-    //     "image_path": marker.imagePath,
-    //     "image_caption": marker.caption,
-    //   };
-    // }).toList();
-
+    int? dropPinId;
     droppins = stopMarkers.asMap().entries.map((entry) {
       final int index = entry.key + 1; // stop_index starts from 1
       final MarkerData marker = entry.value;
-
-      // Find if there's a matching stop_index in droppinsarray
-      Map<String, dynamic>? matchingDroppin = droppinsarray.firstWhere(
-        (droppin) => droppin["stop_index"] == index,
-        orElse: () => {},
-      );
-
-      // Construct new droppin object
+      int? dropId = prefs.getInt("droppinId");
+      if (index == 1) {
+        dropPinId = dropId;
+      } else {
+        dropPinId = dropId! + index - 1;
+      }
       return {
+        "id": dropPinId,
         "stop_index": index,
         "image_path": marker.imagePath,
         "image_caption": marker.caption,
-        if (matchingDroppin.isNotEmpty && matchingDroppin.containsKey("id"))
-          "id": matchingDroppin["id"], // Add id if a match is found
       };
     }).toList();
+
+    logger.i("droppins : $droppins");
 
     String formattedDestination = '["${GlobalVariables.editDestination}"]';
     int? tripId = prefs.getInt("tripId");
@@ -260,11 +241,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
 
       if (response['success'] == true) {
         await prefs.setInt("tripId", response['trip']['id']);
-        droppinsJson = jsonEncode(response['trip']["droppins"]);
-        if (droppinsJson != null) {
-          await prefs.setString("droppins", droppinsJson!);
-        }
-
+        await prefs.setInt("droppinId", response['trip']['droppins']['id']);
         // Navigate to the next page
         Navigator.pushReplacement(
           // ignore: use_build_context_synchronously

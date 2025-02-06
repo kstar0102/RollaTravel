@@ -68,7 +68,6 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
         userTrips = trips;
         isLoadingTrips = false;
       });
-      logger.i('User trips loaded: $userTrips');
       if (userTrips != null && userTrips!.isNotEmpty) {}
     } catch (error) {
       logger.e('Error fetching user trips: $error');

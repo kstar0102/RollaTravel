@@ -336,7 +336,6 @@ class ApiService {
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
-        logger.i("Trip updated successfully: ${responseData['trip']}");
         return {'success': true, 'trip': responseData['trip']};
       } else {
         final responseData = jsonDecode(response.body);
