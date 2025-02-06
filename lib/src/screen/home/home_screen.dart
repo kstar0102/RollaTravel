@@ -48,7 +48,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
   Future<void> _loadTrips() async {
     try {
       final data = await apiService.fetchAllTrips();
-      logger.i(data);
+      // logger.i(data);
       setState(() {
         trips = data;
       });
@@ -64,6 +64,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kColorWhite,
+      // ignore: deprecated_member_use
       body: WillPopScope(
         onWillPop: () async => false,
         child: Padding(
@@ -232,10 +233,15 @@ class PostWidgetState extends State<PostWidget> {
 
     // Fetch Destination Address
     try {
-      final destinationCoordinates =
-          await getCoordinates(widget.post['destination_address']);
-      endPoint = LatLng(destinationCoordinates['latitude']!,
-          destinationCoordinates['longitude']!);
+      if (widget.post['destination_address'] ==
+          "Destination address for DropPin") {
+        endPoint = null;
+      } else {
+        final destinationCoordinates =
+            await getCoordinates(widget.post['destination_address']);
+        endPoint = LatLng(destinationCoordinates['latitude']!,
+            destinationCoordinates['longitude']!);
+      }
     } catch (e) {
       logger.e('Failed to fetch destination address coordinates: $e');
     }
@@ -590,35 +596,6 @@ class PostWidgetState extends State<PostWidget> {
                 ),
               ),
             ),
-            // GestureDetector(
-            //   onTap: () {
-            //     _goUserScreen();
-            //   },
-            //   child: Container(
-            //     height: vhh(context, 7),
-            //     width: vhh(context, 7),
-            //     decoration: BoxDecoration(
-            //       borderRadius: BorderRadius.circular(100),
-            //       border: Border.all(
-            //         color: kColorHereButton,
-            //         width: 2,
-            //       ),
-            //       image: widget.post['user']['photo'] != null
-            //           ? DecorationImage(
-            //               image: NetworkImage(widget.post['user']['photo']),
-            //               fit: BoxFit.cover,
-            //             )
-            //           : null,
-            //     ),
-            //     child: widget.post['user']['photo'] == null
-            //         ? Icon(
-            //             Icons.person, // Fallback icon if no image is provided
-            //             color: Colors.grey,
-            //             size: vhh(context, 4),
-            //           )
-            //         : null,
-            //   ),
-            // ),
             const SizedBox(width: 10),
             Text(widget.post['user']['rolla_username'],
                 style: const TextStyle(fontSize: 18, fontFamily: 'KadawBold')),
@@ -653,7 +630,7 @@ class PostWidgetState extends State<PostWidget> {
                   width: 210, // Set your desired width
                   child: Text(
                     widget.post['destination_text_address'] ==
-                            "Edit destination"
+                            "[\"Edit destination\"]"
                         ? " "
                         : widget.post['destination_text_address'],
                     style: const TextStyle(

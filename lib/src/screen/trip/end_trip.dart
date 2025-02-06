@@ -1,5 +1,6 @@
 import 'package:RollaTravel/src/screen/trip/start_trip.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
+import 'package:RollaTravel/src/utils/common.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:RollaTravel/src/utils/stop_marker_provider.dart';
 import 'package:flutter/material.dart';
@@ -11,8 +12,7 @@ import 'package:logger/logger.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EndTripScreen extends ConsumerStatefulWidget {
   final LatLng? startLocation;
@@ -79,26 +79,27 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
     }).toList();
 
     // Log the formatted droppins
-    logger.i("Droppins: $droppins");
+    // logger.i("Droppins: $droppins");
   }
 
   Future<void> _fetchAddresses() async {
     if (widget.startLocation != null) {
-      logger.i('start location : $widget.startLocation');
-      startAddress = await getAddressFromLocation(widget.startLocation!);
-      logger.i("startAddress : $startAddress");
+      // logger.i('start location : $widget.startLocation');
+      startAddress = await Common.getAddressFromLocation(widget.startLocation!);
+      // logger.i("startAddress : $startAddress");
     }
 
     if (widget.endLocation != null) {
-      endAddress = await getAddressFromLocation(widget.endLocation!);
-      logger.i("endAddress : $endAddress");
+      endAddress = await Common.getAddressFromLocation(widget.endLocation!);
+      // logger.i("endAddress : $endAddress");
     }
 
     if (widget.stopMarkers != []) {
       List<String?> stopMarkerAddresses = await Future.wait(
         widget.stopMarkers.map((marker) async {
           try {
-            final address = await getAddressFromLocation(marker.location);
+            final address =
+                await Common.getAddressFromLocation(marker.location);
             return address ?? "";
           } catch (e) {
             logger.e(
@@ -114,108 +115,6 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
       stopAddressesString = '[${formattedStopAddresses.join(', ')}]';
     }
   }
-
-  Future<String?> getAddressFromLocation(LatLng location) async {
-    const String accessToken =
-        "pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw";
-    final String url =
-        "https://api.mapbox.com/geocoding/v5/mapbox.places/${location.longitude},${location.latitude}.json?access_token=$accessToken";
-
-    try {
-      final response = await http.get(Uri.parse(url));
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
-        if (data['features'].isNotEmpty) {
-          // Return the first result's place name
-          return data['features'][0]['place_name'];
-        } else {
-          return "Address not found";
-        }
-      } else {
-        return "Error: ${response.statusCode}";
-      }
-    } catch (e) {
-      return "Error: $e";
-    }
-  }
-
-  // Future<void> _fetchRoute() async {
-  //   // Retrieve starting point and moving location
-  //   final staticStartingPoint = widget.startLocation;
-  //   final movingLocation = widget.endLocation;
-
-  //   // Retrieve waypoints from markersProvider
-  //   final markers = widget.stopMarkers;
-  //   final waypoints = markers.map((marker) => marker.location).toList();
-
-  //   if (staticStartingPoint == null || movingLocation == null) {
-  //     logger.i("Starting point or moving location is missing");
-  //     return;
-  //   }
-
-  //   // Construct waypoints for the Mapbox Directions API
-  //   final waypointString = waypoints
-  //       .map((waypoint) => "${waypoint.longitude},${waypoint.latitude}")
-  //       .join(";");
-  //   final url =
-  //       'https://api.mapbox.com/directions/v5/mapbox/driving/${staticStartingPoint.longitude},${staticStartingPoint.latitude};$waypointString;${movingLocation.longitude},${movingLocation.latitude}?geometries=polyline6&access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw';
-
-  //   try {
-  //     final response = await http.get(Uri.parse(url));
-  //     if (response.statusCode == 200) {
-  //       final jsonResponse = jsonDecode(response.body);
-  //       final List<dynamic> routes = jsonResponse['routes'];
-
-  //       if (routes.isNotEmpty) {
-  //         final String polyline = routes[0]['geometry'];
-  //         final List<LatLng> decodedPolyline = _decodePolyline6(polyline);
-  //         final double distanceInMeters = routes[0]['distance'];
-  //         final double totalDistanceInMiles = distanceInMeters / 1609.34;
-
-  //         setState(() {
-  //           _pathCoordinates = decodedPolyline;
-  //           totalDistanceInMeters = totalDistanceInMiles;
-  //         });
-  //       } else {
-  //         logger.i("No routes found");
-  //       }
-  //     } else {
-  //       logger.i("Error fetching route: ${response.statusCode}");
-  //     }
-  //   } catch (e) {
-  //     logger.i("Error fetching route: $e");
-  //   }
-  // }
-
-  // List<LatLng> _decodePolyline6(String encoded) {
-  //   List<LatLng> polyline = [];
-  //   int index = 0, len = encoded.length;
-  //   int lat = 0, lng = 0;
-
-  //   while (index < len) {
-  //     int b, shift = 0, result = 0;
-  //     do {
-  //       b = encoded.codeUnitAt(index++) - 63;
-  //       result |= (b & 0x1f) << shift;
-  //       shift += 5;
-  //     } while (b >= 0x20);
-  //     int deltaLat = (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
-  //     lat += deltaLat;
-
-  //     shift = 0;
-  //     result = 0;
-  //     do {
-  //       b = encoded.codeUnitAt(index++) - 63;
-  //       result |= (b & 0x1f) << shift;
-  //       shift += 5;
-  //     } while (b >= 0x20);
-  //     int deltaLng = (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
-  //     lng += deltaLng;
-
-  //     polyline.add(LatLng(lat / 1E6, lng / 1E6));
-  //   }
-  //   return polyline;
-  // }
 
   Future<bool> _onWillPop() async {
     return false;
@@ -240,34 +139,43 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
             })
         .toList();
 
-    final response = await apiserice.createTrip(
+    String formattedDestination = '["${GlobalVariables.editDestination}"]';
+
+    final prefs = await SharedPreferences.getInstance();
+    int? tripId = prefs.getInt("tripId");
+
+    final response = await apiserice.updateTrip(
+      tripId: tripId!,
       userId: GlobalVariables.userId!,
       startAddress: startAddress!,
       stopAddresses: stopAddressesString,
       destinationAddress: endAddress!,
-      destinationTextAddress: widget.endDestination,
+      destinationTextAddress: formattedDestination,
       tripStartDate: widget.tripStartDate,
       tripEndDate: widget.tripEndDate,
       tripMiles: widget.tripDistance,
       tripSound: "tripSound",
       stopLocations: stopLocations,
-      tripCoordinates: tripCoordinates, // Use the converted list
+      tripCoordinates: tripCoordinates,
       droppins: droppins,
     );
 
     if (!mounted) return;
 
     if (response['success'] == true) {
+      await prefs.remove("tripId");
       // Navigate to the next page
-      Navigator.pushReplacement(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) =>
-              const StartTripScreen(),
-          transitionDuration: Duration.zero,
-          reverseTransitionDuration: Duration.zero,
-        ),
-      );
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation1, animation2) =>
+                const StartTripScreen(),
+            transitionDuration: Duration.zero,
+            reverseTransitionDuration: Duration.zero,
+          ),
+        );
+      }
       ref.read(pathCoordinatesProvider.notifier).state = [];
     } else {
       // Extract error message from the API response
@@ -302,6 +210,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
 
     return Scaffold(
       backgroundColor: kColorWhite,
+      // ignore: deprecated_member_use
       body: WillPopScope(
         onWillPop: _onWillPop,
         child: Padding(
@@ -319,6 +228,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
+                      // ignore: deprecated_member_use
                       color: Colors.white.withOpacity(0.9),
                       spreadRadius: -5,
                       blurRadius: 15,

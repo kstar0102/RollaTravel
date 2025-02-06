@@ -1,5 +1,7 @@
 import 'package:RollaTravel/src/screen/trip/start_trip.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
+import 'package:RollaTravel/src/utils/common.dart';
+import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:RollaTravel/src/utils/stop_marker_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
@@ -7,10 +9,13 @@ import 'package:RollaTravel/src/utils/index.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
 import 'package:RollaTravel/src/translate/en.dart';
 import 'package:RollaTravel/src/constants/app_styles.dart';
+import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'dart:ui';
+import 'package:logger/logger.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ChoosenLocationScreen extends ConsumerStatefulWidget {
   final LatLng? location;
@@ -33,7 +38,13 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
   double keyboardHeight = 0;
   final int _currentIndex = 3;
   bool isuploadingImage = false;
-
+  String? startAddress;
+  String stopAddressesString = "";
+  String? tripMiles;
+  List<String> formattedStopAddresses = [];
+  List<Map<String, dynamic>> droppins = [];
+  String? droppinsJson;
+  final logger = Logger();
   @override
   void initState() {
     super.initState();
@@ -49,6 +60,9 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
   }
 
   Future<void> _onShareClicked() async {
+    final apiserice = ApiService();
+    final prefs = await SharedPreferences.getInstance();
+
     setState(() {
       isuploadingImage = true;
     });
@@ -63,6 +77,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
         isuploadingImage = false;
       });
     } else {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Failed upload image....'),
@@ -82,21 +97,218 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
       markerData,
     ];
 
-    Navigator.pushReplacement(
-      context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation1, animation2) =>
-            const StartTripScreen(),
-        transitionDuration: Duration.zero,
-        reverseTransitionDuration: Duration.zero,
-      ),
-    );
+    LatLng? startLocation = ref.read(staticStartingPointProvider);
+    List<MarkerData> stopMarkers = ref.read(markersProvider);
+    tripMiles = "${GlobalVariables.totalDistance.toStringAsFixed(3)} miles";
+    if (startLocation != null) {
+      startAddress = await Common.getAddressFromLocation(startLocation);
+    }
+
+    if (stopMarkers != []) {
+      List<String?> stopMarkerAddresses = await Future.wait(
+        stopMarkers.map((marker) async {
+          try {
+            final address =
+                await Common.getAddressFromLocation(marker.location);
+            return address ?? "";
+          } catch (e) {
+            logger.e(
+                "Error fetching address for marker at ${marker.location}: $e");
+            return "";
+          }
+        }),
+      );
+
+      // Format the list as JSON-like array
+      formattedStopAddresses =
+          stopMarkerAddresses.map((address) => '"$address"').toList();
+      stopAddressesString = '[${formattedStopAddresses.join(', ')}]';
+    }
+
+    DateTime now = DateTime.now();
+    String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
+
+    final tripCoordinates = ref
+        .read(pathCoordinatesProvider)
+        .map((latLng) => {
+              'latitude': latLng.latitude,
+              'longitude': latLng.longitude,
+            })
+        .toList();
+
+    final stopLocations = stopMarkers
+        .map((marker) => {
+              'latitude': marker.location.latitude,
+              'longitude': marker.location.longitude,
+            })
+        .toList();
+    List<Map<String, dynamic>> droppinsarray = [];
+    if (droppinsJson != null) {
+      List<dynamic> droppinsList = jsonDecode(droppinsJson!);
+      droppinsarray = List<Map<String, dynamic>>.from(droppinsList);
+
+      logger.i("Droppins Array: $droppinsarray");
+    }
+
+    // droppins = stopMarkers.asMap().entries.map((entry) {
+    //   final int index = entry.key + 1; // stop_index starts from 1
+    //   final MarkerData marker = entry.value;
+
+    //   return {
+    //     "stop_index": index,
+    //     "image_path": marker.imagePath,
+    //     "image_caption": marker.caption,
+    //   };
+    // }).toList();
+
+    droppins = stopMarkers.asMap().entries.map((entry) {
+      final int index = entry.key + 1; // stop_index starts from 1
+      final MarkerData marker = entry.value;
+
+      // Find if there's a matching stop_index in droppinsarray
+      Map<String, dynamic>? matchingDroppin = droppinsarray.firstWhere(
+        (droppin) => droppin["stop_index"] == index,
+        orElse: () => {},
+      );
+
+      // Construct new droppin object
+      return {
+        "stop_index": index,
+        "image_path": marker.imagePath,
+        "image_caption": marker.caption,
+        if (matchingDroppin.isNotEmpty && matchingDroppin.containsKey("id"))
+          "id": matchingDroppin["id"], // Add id if a match is found
+      };
+    }).toList();
+
+    String formattedDestination = '["${GlobalVariables.editDestination}"]';
+    int? tripId = prefs.getInt("tripId");
+    logger.i("tripId : $tripId");
+    final Map<String, dynamic> response;
+
+    if (tripId != null) {
+      response = await apiserice.updateTrip(
+        tripId: tripId,
+        userId: GlobalVariables.userId!,
+        startAddress: startAddress!,
+        stopAddresses: stopAddressesString,
+        destinationAddress: "Destination address for DropPin",
+        destinationTextAddress: formattedDestination,
+        tripStartDate: GlobalVariables.tripStartDate!,
+        tripEndDate: formattedDate,
+        tripMiles: tripMiles!,
+        tripSound: "tripSound",
+        stopLocations: stopLocations,
+        tripCoordinates: tripCoordinates,
+        droppins: droppins,
+      );
+
+      if (response['success'] == true) {
+        await prefs.setInt("tripId", response['trip']['id']);
+        // Navigate to the next page
+        Navigator.pushReplacement(
+          // ignore: use_build_context_synchronously
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation1, animation2) =>
+                const StartTripScreen(),
+            transitionDuration: Duration.zero,
+            reverseTransitionDuration: Duration.zero,
+          ),
+        );
+      } else {
+        // Extract error message from the API response
+        String errorMessage =
+            response['error'] ?? 'Failed to create the trip. Please try again.';
+
+        // Show an alert dialog with the error message
+        showDialog(
+          // ignore: use_build_context_synchronously
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text("Error"),
+              content: Text(errorMessage),
+              actions: [
+                TextButton(
+                  child: const Text("OK"),
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } else {
+      response = await apiserice.createTrip(
+        userId: GlobalVariables.userId!,
+        startAddress: startAddress!,
+        stopAddresses: stopAddressesString,
+        destinationAddress: "Destination address for DropPin",
+        destinationTextAddress: formattedDestination,
+        tripStartDate: GlobalVariables.tripStartDate!,
+        tripEndDate: formattedDate,
+        tripMiles: tripMiles!,
+        tripSound: "tripSound",
+        stopLocations: stopLocations,
+        tripCoordinates: tripCoordinates,
+        droppins: droppins,
+      );
+      logger.i(response);
+
+      if (response['success'] == true) {
+        await prefs.setInt("tripId", response['trip']['id']);
+        droppinsJson = jsonEncode(response['trip']["droppins"]);
+        if (droppinsJson != null) {
+          await prefs.setString("droppins", droppinsJson!);
+        }
+
+        // Navigate to the next page
+        Navigator.pushReplacement(
+          // ignore: use_build_context_synchronously
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation1, animation2) =>
+                const StartTripScreen(),
+            transitionDuration: Duration.zero,
+            reverseTransitionDuration: Duration.zero,
+          ),
+        );
+      } else {
+        // Extract error message from the API response
+        String errorMessage =
+            response['error'] ?? 'Failed to create the trip. Please try again.';
+
+        // Show an alert dialog with the error message
+        showDialog(
+          // ignore: use_build_context_synchronously
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text("Error"),
+              content: Text(errorMessage),
+              actions: [
+                TextButton(
+                  child: const Text("OK"),
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kColorWhite,
+      // ignore: deprecated_member_use
       body: WillPopScope(
         onWillPop: _onWillPop,
         child: Stack(
@@ -115,6 +327,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
+                          // ignore: deprecated_member_use
                           color: Colors.white.withOpacity(0.9),
                           spreadRadius: -5,
                           blurRadius: 15,

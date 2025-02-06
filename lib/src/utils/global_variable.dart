@@ -23,6 +23,7 @@ class GlobalVariables {
   static String? userImageUrl;
   static String? tripStartDate;
   static String? tripEndDate;
+  static String editDestination = 'Edit destination';
   static int? tripCount;
   static double totalDistance = 0.0;
   static String? followingIds;

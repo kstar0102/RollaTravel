@@ -40,7 +40,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   final logger = Logger();
   LatLng? currentLocation;
   final TextEditingController _captionController = TextEditingController();
-  String editDestination = 'Edit destination';
+  // String editDestination = 'Edit destination';
   String initialSound = "Edit Playlist";
   double totalDistanceInMiles = 0;
   List<LatLng> pathCoordinates = [];
@@ -357,7 +357,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
             tripStartDate: GlobalVariables.tripStartDate!,
             tripEndDate: GlobalVariables.tripEndDate!,
             tripDistance: tripMiles,
-            endDestination: editDestination,
+            endDestination: GlobalVariables.editDestination,
           ),
         ),
       );
@@ -427,16 +427,17 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     final result = await Navigator.push(
       context,
       PageRouteBuilder(
-        pageBuilder: (context, animation1, animation2) =>
-            DestinationScreen(initialDestination: editDestination),
+        pageBuilder: (context, animation1, animation2) => DestinationScreen(
+            initialDestination: GlobalVariables.editDestination),
         transitionDuration: Duration.zero,
         reverseTransitionDuration: Duration.zero,
       ),
     );
     if (result != null) {
       setState(() {
-        editDestination = result;
+        GlobalVariables.editDestination = result;
       });
+      logger.i(GlobalVariables.editDestination);
     }
   }
 
@@ -448,6 +449,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
 
     return Scaffold(
       backgroundColor: kColorWhite,
+      // ignore: deprecated_member_use
       body: WillPopScope(
         onWillPop: _onWillPop,
         child: Scaffold(
@@ -525,9 +527,9 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                               _onDestintionClick();
                             },
                             child: Text(
-                              editDestination.length > 30
-                                  ? '${editDestination.substring(0, 30)}...'
-                                  : editDestination,
+                              GlobalVariables.editDestination.length > 30
+                                  ? '${GlobalVariables.editDestination.substring(0, 30)}...'
+                                  : GlobalVariables.editDestination,
                               style: const TextStyle(
                                 color: kColorButtonPrimary,
                                 fontSize: 14,
