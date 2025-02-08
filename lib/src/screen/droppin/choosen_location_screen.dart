@@ -98,6 +98,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
     ];
 
     LatLng? startLocation = ref.read(staticStartingPointProvider);
+    logger.i("startLocation : $startLocation");
     List<MarkerData> stopMarkers = ref.read(markersProvider);
     tripMiles = "${GlobalVariables.totalDistance.toStringAsFixed(3)} miles";
     if (startLocation != null) {
@@ -142,32 +143,42 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
               'longitude': marker.location.longitude,
             })
         .toList();
-    int? dropPinId;
-    droppins = stopMarkers.asMap().entries.map((entry) {
-      final int index = entry.key + 1; // stop_index starts from 1
-      final MarkerData marker = entry.value;
-      int? dropId = prefs.getInt("droppinId");
-      if (index == 1) {
-        dropPinId = dropId;
-      } else {
-        dropPinId = dropId! + index - 1;
-      }
-      return {
-        "id": dropPinId,
-        "stop_index": index,
-        "image_path": marker.imagePath,
-        "image_caption": marker.caption,
-      };
-    }).toList();
-
-    logger.i("droppins : $droppins");
 
     String formattedDestination = '["${GlobalVariables.editDestination}"]';
     int? tripId = prefs.getInt("tripId");
     logger.i("tripId : $tripId");
+
     final Map<String, dynamic> response;
 
     if (tripId != null) {
+      int? dropPinId = prefs.getInt("droppinId"); // Initial droppinId
+      int? dropcount = prefs.getInt("dropcount"); // Get dropcount
+      int currentDropId = dropPinId ?? 0; // Use 0 if droppinId is null
+
+      droppins = stopMarkers.asMap().entries.map((entry) {
+        final int index = entry.key + 1; // stop_index starts from 1
+        final MarkerData marker = entry.value;
+
+        // Check if we are within the range of dropcount
+        if (dropPinId != null && entry.key < dropcount!) {
+          final mapData = {
+            "id": currentDropId, // Use the current drop ID
+            "stop_index": index,
+            "image_path": marker.imagePath,
+            "image_caption": marker.caption,
+          };
+          currentDropId++; // Increment dropPinId for the next iteration
+          return mapData;
+        } else {
+          // After dropcount, do not include droppinId
+          return {
+            "stop_index": index,
+            "image_path": marker.imagePath,
+            "image_caption": marker.caption,
+          };
+        }
+      }).toList();
+
       response = await apiserice.updateTrip(
         tripId: tripId,
         userId: GlobalVariables.userId!,
@@ -186,6 +197,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
 
       if (response['success'] == true) {
         await prefs.setInt("tripId", response['trip']['id']);
+        await prefs.setInt("dropcount", response['trip']['droppins'].length);
         // Navigate to the next page
         Navigator.pushReplacement(
           // ignore: use_build_context_synchronously
@@ -223,6 +235,15 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
         );
       }
     } else {
+      droppins = stopMarkers.asMap().entries.map((entry) {
+        final int index = entry.key + 1; // stop_index starts from 1
+        final MarkerData marker = entry.value;
+        return {
+          "stop_index": index,
+          "image_path": marker.imagePath,
+          "image_caption": marker.caption,
+        };
+      }).toList();
       response = await apiserice.createTrip(
         userId: GlobalVariables.userId!,
         startAddress: startAddress!,
@@ -241,7 +262,9 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
 
       if (response['success'] == true) {
         await prefs.setInt("tripId", response['trip']['id']);
-        await prefs.setInt("droppinId", response['trip']['droppins']['id']);
+        logger.i(response['trip']['droppins'][0]['id']);
+        await prefs.setInt("droppinId", response['trip']['droppins'][0]['id']);
+        await prefs.setInt("dropcount", response['trip']['droppins'].length);
         // Navigate to the next page
         Navigator.pushReplacement(
           // ignore: use_build_context_synchronously

@@ -267,6 +267,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     if (currentLocation != null) {
       // ✅ Set this location as the starting point for the trip
       ref.read(staticStartingPointProvider.notifier).state = currentLocation;
+      logger.i("currentLocation : $currentLocation");
 
       // Add starting location to pathCoordinates
       pathCoordinates = [currentLocation];

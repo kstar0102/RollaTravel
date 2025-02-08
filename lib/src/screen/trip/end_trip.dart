@@ -157,13 +157,14 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
       tripSound: "tripSound",
       stopLocations: stopLocations,
       tripCoordinates: tripCoordinates,
-      droppins: droppins,
+      droppins: [],
     );
 
     if (!mounted) return;
 
     if (response['success'] == true) {
       await prefs.remove("tripId");
+      await prefs.remove("dropcount");
       // Navigate to the next page
       if (mounted) {
         Navigator.pushReplacement(
