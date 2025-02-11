@@ -25,6 +25,7 @@ class GlobalVariables {
   static String? tripEndDate;
   static String editDestination = 'Edit destination';
   static int? tripCount;
+  static int? homeTripID;
   static double totalDistance = 0.0;
   static String? followingIds;
   static List<dynamic>? dropPinsData;

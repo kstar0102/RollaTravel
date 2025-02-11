@@ -30,10 +30,13 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
   List<Map<String, dynamic>>? trips;
   final apiService = ApiService();
   final logger = Logger();
+  final ScrollController _scrollController =
+      ScrollController(); // Add ScrollController
 
   @override
   void initState() {
     super.initState();
+    logger.i(GlobalVariables.homeTripID);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
       if (mounted) {
@@ -48,10 +51,16 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
   Future<void> _loadTrips() async {
     try {
       final data = await apiService.fetchAllTrips();
-      // logger.i(data);
       setState(() {
         trips = data;
       });
+
+      // Scroll to the correct index if homeTripID is set
+      if (GlobalVariables.homeTripID != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _scrollToTrip(GlobalVariables.homeTripID!);
+        });
+      }
     } catch (error) {
       logger.i('Error fetching trips: $error');
       setState(() {
@@ -60,8 +69,44 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
     }
   }
 
+  void _scrollToTrip(int tripId) {
+    if (trips != null) {
+      int index = trips!.indexWhere((trip) => trip['id'] == tripId);
+      if (index != -1) {
+        _scrollController.animateTo(
+          index * 520.0, // Approximate height per item, adjust as needed
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+
+        // Reset GlobalVariables.homeTripID to null after focusing
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          setState(() {
+            GlobalVariables.homeTripID = null;
+          });
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Check if homeTripID is set and filter the trips accordingly
+    final isSpecificTrip = GlobalVariables.homeTripID != null;
+    final filteredTrips = trips != null && isSpecificTrip
+        ? trips!
+            .where((trip) => trip['id'] == GlobalVariables.homeTripID)
+            .toList()
+        : trips;
+
+    // Once filtered and displayed, reset the homeTripID
+    if (isSpecificTrip && filteredTrips != null && filteredTrips.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() {
+          GlobalVariables.homeTripID = null;
+        });
+      });
+    }
     return Scaffold(
       backgroundColor: kColorWhite,
       // ignore: deprecated_member_use
@@ -103,16 +148,17 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
                               'No trips available')) // Show message if no trips
                       : Expanded(
                           child: ListView.builder(
+                            controller:
+                                _scrollController, // Attach ScrollController
                             itemCount: trips!.length,
                             itemBuilder: (context, index) {
                               final trip = trips![index];
                               return PostWidget(
-                                post: trip, // Pass trip data to PostWidget
+                                post: trip, // Pass trip data
                                 dropIndex: index, // Current index
                                 onLikesUpdated: (updatedLikes) {
                                   setState(() {
-                                    trips![index]['totalLikes'] =
-                                        updatedLikes; // Update the likes count
+                                    trips![index]['totalLikes'] = updatedLikes;
                                   });
                                 },
                               );

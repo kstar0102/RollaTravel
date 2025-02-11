@@ -416,6 +416,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 BorderRadius.circular(30), // Rounded corners
                           ),
                           shadowColor:
+                              // ignore: deprecated_member_use
                               Colors.black.withOpacity(0.9), // Shadow color
                           elevation: 6,
                           padding: const EdgeInsets.symmetric(
@@ -444,6 +445,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 BorderRadius.circular(30), // Rounded corners
                           ),
                           shadowColor:
+                              // ignore: deprecated_member_use
                               Colors.black.withOpacity(0.9), // Shadow color
                           elevation: 6,
                           padding: const EdgeInsets.symmetric(
@@ -472,6 +474,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 BorderRadius.circular(30), // Rounded corners
                           ),
                           shadowColor:
+                              // ignore: deprecated_member_use
                               Colors.black.withOpacity(0.9), // Shadow color
                           elevation: 6,
                           padding: const EdgeInsets.symmetric(
@@ -626,6 +629,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     borderRadius: BorderRadius.circular(8),
                                     gradient: LinearGradient(
                                       colors: [
+                                        // ignore: deprecated_member_use
                                         Colors.black.withOpacity(0.5),
                                         Colors.transparent
                                       ],
@@ -814,6 +818,7 @@ class _TripMapWidgetState extends State<TripMapWidget> {
   void initState() {
     super.initState();
     mapController = MapController();
+    logger.i(widget.trip['id']);
     _initializeRoutePoints();
     _getLocations().then((_) {
       if (mounted) {
@@ -918,6 +923,7 @@ class _TripMapWidgetState extends State<TripMapWidget> {
   }
 
   void _onMapTap() {
+    GlobalVariables.homeTripID = widget.trip['id'];
     Navigator.push(
       context,
       MaterialPageRoute(
