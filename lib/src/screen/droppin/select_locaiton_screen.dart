@@ -456,210 +456,221 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
       backgroundColor: kColorWhite,
       // ignore: deprecated_member_use
       body: WillPopScope(
-        onWillPop: _onWillPop,
-        child: Padding(
-          padding: const EdgeInsets.only(top: 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+          onWillPop: _onWillPop,
+          child: Stack(
             children: [
-              // Logo and close button aligned at the top
               Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                padding: const EdgeInsets.only(top: 16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Image.asset('assets/images/icons/logo.png',
-                        height: vhh(context, 12)),
-                    IconButton(
-                      icon: const Icon(Icons.close, size: 30),
-                      onPressed: () {
-                        Navigator.of(context).pop(); // Close the screen
-                      },
-                    ),
-                  ],
-                ),
-              ),
-
-              //title
-              const Center(
-                child: Text(
-                  'Select Location',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontFamily: 'Kadaw',
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-
-              // set map
-              Center(
-                child: SizedBox(
-                  height: vhh(context, 36),
-                  width: vww(context, 96),
-                  child: Center(
-                      child: Stack(
-                    children: [
-                      FlutterMap(
-                        mapController: _mapController,
-                        options: MapOptions(
-                          initialCenter: _currentLocation ??
-                              const LatLng(37.7749, -122.4194),
-                          initialZoom: 12.0,
-                          onMapReady: () {
-                            _mapReadyCompleter.complete();
-                          },
-                        ),
+                    // Logo and close button aligned at the top
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          TileLayer(
-                            urlTemplate:
-                                "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw",
-                            additionalOptions: const {
-                              'access_token':
-                                  'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw',
+                          Image.asset('assets/images/icons/logo.png',
+                              height: vhh(context, 12)),
+                          IconButton(
+                            icon: const Icon(Icons.close, size: 30),
+                            onPressed: () {
+                              Navigator.of(context).pop(); // Close the screen
                             },
                           ),
-                          MarkerLayer(markers: [
-                            if (widget.selectedLocation == const LatLng(0, 0))
-                              Marker(
-                                width: 80.0,
-                                height: 80.0,
-                                point: _currentLocation ??
-                                    const LatLng(43.1557, -77.6157),
-                                child: GestureDetector(
-                                  onTap: () => _showImageDialog(),
-                                  child: const Icon(Icons.location_on,
-                                      color: Colors.red, size: 40),
-                                ),
-                              )
-                            else if (widget.selectedLocation !=
-                                const LatLng(0, 0))
-                              Marker(
-                                width: 80.0,
-                                height: 80.0,
-                                point: widget.selectedLocation ??
-                                    const LatLng(43.1557, -77.6157),
-                                child: GestureDetector(
-                                  onTap: () => _showImageDialog(),
-                                  child: const Icon(Icons.location_on,
-                                      color: Colors.red, size: 40),
-                                ),
-                              )
-                          ]),
                         ],
                       ),
-                      Positioned(
-                        right: 10,
-                        top: 70,
-                        child: Column(
-                          children: [
-                            FloatingActionButton(
-                              heroTag:
-                                  'zoom_in_button_droppin', // Unique tag for the zoom in button
-                              onPressed: () {
-                                _mapController.move(
-                                  _mapController.camera.center,
-                                  _mapController.camera.zoom + 1,
-                                );
-                              },
-                              mini: true,
-                              child: const Icon(Icons.zoom_in),
-                            ),
-                            const SizedBox(height: 8),
-                            FloatingActionButton(
-                              heroTag:
-                                  'zoom_out_button_droppin', // Unique tag for the zoom out button
-                              onPressed: () {
-                                _mapController.move(
-                                  _mapController.camera.center,
-                                  _mapController.camera.zoom - 1,
-                                );
-                              },
-                              mini: true,
-                              child: const Icon(Icons.zoom_out),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Positioned(
-                        top: 5,
-                        left: 0,
-                        right: 0,
-                        child: Padding(
-                          padding: EdgeInsets.zero, // Adjust for width
-                          child: Container(
-                            padding: const EdgeInsets.all(
-                                5.0), // Inner padding for spacing around text
-                            child: Text(
-                              'Tap the pin to see your photo',
-                              style: TextStyle(
-                                  color: Colors.black.withOpacity(0.8),
-                                  fontSize: 14,
-                                  fontStyle: FontStyle.italic,
-                                  fontFamily: 'Kadaw'),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  )),
-                ),
-              ),
-              SizedBox(
-                height: vhh(context, 5),
-              ),
+                    ),
 
-              // drop button
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: ElevatedButton(
-                    onPressed: _dropPinButtonSelected,
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      backgroundColor: kColorHereButton,
-                      minimumSize:
-                          const Size(350, 30), // Set button width and height
-                      shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(10), // Rounded corners
+                    //title
+                    const Center(
+                      child: Text(
+                        'Select Location',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontFamily: 'Kadaw',
+                          color: Colors.black,
+                        ),
                       ),
                     ),
-                    child: const Text('Drop pin at location displayed above',
+
+                    // set map
+                    Center(
+                      child: SizedBox(
+                        height: vhh(context, 36),
+                        width: vww(context, 96),
+                        child: Center(
+                            child: Stack(
+                          children: [
+                            FlutterMap(
+                              mapController: _mapController,
+                              options: MapOptions(
+                                initialCenter: _currentLocation ??
+                                    const LatLng(37.7749, -122.4194),
+                                initialZoom: 12.0,
+                                onMapReady: () {
+                                  _mapReadyCompleter.complete();
+                                },
+                              ),
+                              children: [
+                                TileLayer(
+                                  urlTemplate:
+                                      "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw",
+                                  additionalOptions: const {
+                                    'access_token':
+                                        'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw',
+                                  },
+                                ),
+                                MarkerLayer(markers: [
+                                  if (widget.selectedLocation ==
+                                      const LatLng(0, 0))
+                                    Marker(
+                                      width: 80.0,
+                                      height: 80.0,
+                                      point: _currentLocation ??
+                                          const LatLng(43.1557, -77.6157),
+                                      child: GestureDetector(
+                                        onTap: () => _showImageDialog(),
+                                        child: const Icon(Icons.location_on,
+                                            color: Colors.red, size: 40),
+                                      ),
+                                    )
+                                  else if (widget.selectedLocation !=
+                                      const LatLng(0, 0))
+                                    Marker(
+                                      width: 80.0,
+                                      height: 80.0,
+                                      point: widget.selectedLocation ??
+                                          const LatLng(43.1557, -77.6157),
+                                      child: GestureDetector(
+                                        onTap: () => _showImageDialog(),
+                                        child: const Icon(Icons.location_on,
+                                            color: Colors.red, size: 40),
+                                      ),
+                                    )
+                                ]),
+                              ],
+                            ),
+                            Positioned(
+                              right: 10,
+                              top: 70,
+                              child: Column(
+                                children: [
+                                  FloatingActionButton(
+                                    heroTag:
+                                        'zoom_in_button_droppin', // Unique tag for the zoom in button
+                                    onPressed: () {
+                                      _mapController.move(
+                                        _mapController.camera.center,
+                                        _mapController.camera.zoom + 1,
+                                      );
+                                    },
+                                    mini: true,
+                                    child: const Icon(Icons.zoom_in),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  FloatingActionButton(
+                                    heroTag:
+                                        'zoom_out_button_droppin', // Unique tag for the zoom out button
+                                    onPressed: () {
+                                      _mapController.move(
+                                        _mapController.camera.center,
+                                        _mapController.camera.zoom - 1,
+                                      );
+                                    },
+                                    mini: true,
+                                    child: const Icon(Icons.zoom_out),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Positioned(
+                              top: 5,
+                              left: 0,
+                              right: 0,
+                              child: Padding(
+                                padding: EdgeInsets.zero, // Adjust for width
+                                child: Container(
+                                  padding: const EdgeInsets.all(
+                                      5.0), // Inner padding for spacing around text
+                                  child: Text(
+                                    'Tap the pin to see your photo',
+                                    style: TextStyle(
+                                        // ignore: deprecated_member_use
+                                        color: Colors.black.withOpacity(0.8),
+                                        fontSize: 14,
+                                        fontStyle: FontStyle.italic,
+                                        fontFamily: 'Kadaw'),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        )),
+                      ),
+                    ),
+                    SizedBox(
+                      height: vhh(context, 5),
+                    ),
+
+                    // drop button
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: ElevatedButton(
+                          onPressed: _dropPinButtonSelected,
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            backgroundColor: kColorHereButton,
+                            minimumSize: const Size(
+                                350, 30), // Set button width and height
+                            shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.circular(10), // Rounded corners
+                            ),
+                          ),
+                          child: const Text(
+                              'Drop pin at location displayed above',
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.white,
+                                  fontFamily: 'Kadaw')),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: vhh(context, 1),
+                    ),
+                    const Center(
+                      child: Text(
+                        "OR",
                         style: TextStyle(
+                            color: Colors.grey,
                             fontSize: 16,
-                            color: Colors.white,
-                            fontFamily: 'Kadaw')),
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: vhh(context, 1),
-              ),
-              const Center(
-                child: Text(
-                  "OR",
-                  style: TextStyle(
-                      color: Colors.grey, fontSize: 16, fontFamily: 'Kadaw'),
-                ),
-              ),
-              SizedBox(
-                height: vhh(context, 1),
-              ),
-              //choose another location buttion with underline
-              GestureDetector(
-                onTap: () {
-                  _onOtherLocationButtonSelected();
-                },
-                child: const Text(
-                  "Choose another location",
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 16,
-                      decoration: TextDecoration.underline,
-                      decorationColor: Colors.black,
-                      fontFamily: 'Kadaw'),
+                            fontFamily: 'Kadaw'),
+                      ),
+                    ),
+                    SizedBox(
+                      height: vhh(context, 1),
+                    ),
+                    //choose another location buttion with underline
+                    GestureDetector(
+                      onTap: () {
+                        _onOtherLocationButtonSelected();
+                      },
+                      child: const Text(
+                        "Choose another location",
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 16,
+                            decoration: TextDecoration.underline,
+                            decorationColor: Colors.black,
+                            fontFamily: 'Kadaw'),
+                      ),
+                    ),
+                    // BackdropFilter for uploading state
+                  ],
                 ),
               ),
               // BackdropFilter for uploading state
@@ -688,9 +699,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                   ),
                 ),
             ],
-          ),
-        ),
-      ),
+          )),
 
       bottomNavigationBar: BottomNavBar(currentIndex: _currentIndex),
     );

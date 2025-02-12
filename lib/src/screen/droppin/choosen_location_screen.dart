@@ -53,6 +53,11 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
     return false;
   }
 
+  void _onCloseClicked() {
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => const StartTripScreen()));
+  }
+
   Future<void> _onShareClicked() async {
     try {
       final imagePath = widget.imagePath;
@@ -67,24 +72,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
 
       XFile file = XFile(imagePath);
 
-      await Share.shareXFiles([file], text: caption).then((_) {
-        // This executes AFTER the share action is completed
-        // ignore: use_build_context_synchronously
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Shared successfully!')),
-        );
-        // Navigate to the next page
-        Navigator.pushReplacement(
-          // ignore: use_build_context_synchronously
-          context,
-          PageRouteBuilder(
-            pageBuilder: (context, animation1, animation2) =>
-                const StartTripScreen(),
-            transitionDuration: Duration.zero,
-            reverseTransitionDuration: Duration.zero,
-          ),
-        );
-      });
+      await Share.shareXFiles([file], text: caption);
     } catch (e) {
       // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
@@ -146,9 +134,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                               child: IconButton(
                                 icon: const Icon(Icons.close,
                                     color: Colors.black, size: 28),
-                                onPressed: () {
-                                  Navigator.pop(context); // Close action
-                                },
+                                onPressed: _onCloseClicked,
                               ),
                             ),
                           ],
