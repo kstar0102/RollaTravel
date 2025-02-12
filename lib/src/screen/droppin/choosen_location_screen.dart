@@ -1,21 +1,15 @@
 import 'package:RollaTravel/src/screen/trip/start_trip.dart';
-import 'package:RollaTravel/src/services/api_service.dart';
-import 'package:RollaTravel/src/utils/common.dart';
-import 'package:RollaTravel/src/utils/global_variable.dart';
-import 'package:RollaTravel/src/utils/stop_marker_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:RollaTravel/src/utils/index.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
 import 'package:RollaTravel/src/translate/en.dart';
 import 'package:RollaTravel/src/constants/app_styles.dart';
-import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import 'dart:io';
-import 'dart:convert';
 import 'dart:ui';
 import 'package:logger/logger.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:share_plus/share_plus.dart';
 
 class ChoosenLocationScreen extends ConsumerStatefulWidget {
   final LatLng? location;
@@ -60,247 +54,42 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
   }
 
   Future<void> _onShareClicked() async {
-    final apiserice = ApiService();
-    final prefs = await SharedPreferences.getInstance();
+    try {
+      final imagePath = widget.imagePath;
+      final caption = widget.caption;
 
-    setState(() {
-      isuploadingImage = true;
-    });
-    File imageFile = File(widget.imagePath);
-    List<int> imageBytes = await imageFile.readAsBytes();
-    String base64String = base64Encode(imageBytes);
-    final apiService = ApiService();
-    String imageUrl = await apiService.getImageUrl(base64String);
+      if (imagePath.isEmpty || !File(imagePath).existsSync()) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Image not found!')),
+        );
+        return;
+      }
 
-    if (imageUrl.isNotEmpty) {
-      setState(() {
-        isuploadingImage = false;
+      XFile file = XFile(imagePath);
+
+      await Share.shareXFiles([file], text: caption).then((_) {
+        // This executes AFTER the share action is completed
+        // ignore: use_build_context_synchronously
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Shared successfully!')),
+        );
+        // Navigate to the next page
+        Navigator.pushReplacement(
+          // ignore: use_build_context_synchronously
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation1, animation2) =>
+                const StartTripScreen(),
+            transitionDuration: Duration.zero,
+            reverseTransitionDuration: Duration.zero,
+          ),
+        );
       });
-    } else {
+    } catch (e) {
       // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed upload image....'),
-        ),
+        SnackBar(content: Text('Failed to share: $e')),
       );
-      return;
-    }
-
-    final markerData = MarkerData(
-        location: widget.location!,
-        imagePath: imageUrl,
-        caption: widget.caption);
-
-    // Add the marker to the provider
-    ref.read(markersProvider.notifier).state = [
-      ...ref.read(markersProvider),
-      markerData,
-    ];
-
-    LatLng? startLocation = ref.read(staticStartingPointProvider);
-    logger.i("startLocation : $startLocation");
-    List<MarkerData> stopMarkers = ref.read(markersProvider);
-    tripMiles = "${GlobalVariables.totalDistance.toStringAsFixed(3)} miles";
-    if (startLocation != null) {
-      startAddress = await Common.getAddressFromLocation(startLocation);
-    }
-
-    if (stopMarkers != []) {
-      List<String?> stopMarkerAddresses = await Future.wait(
-        stopMarkers.map((marker) async {
-          try {
-            final address =
-                await Common.getAddressFromLocation(marker.location);
-            return address ?? "";
-          } catch (e) {
-            logger.e(
-                "Error fetching address for marker at ${marker.location}: $e");
-            return "";
-          }
-        }),
-      );
-
-      // Format the list as JSON-like array
-      formattedStopAddresses =
-          stopMarkerAddresses.map((address) => '"$address"').toList();
-      stopAddressesString = '[${formattedStopAddresses.join(', ')}]';
-    }
-
-    DateTime now = DateTime.now();
-    String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
-
-    final tripCoordinates = ref
-        .read(pathCoordinatesProvider)
-        .map((latLng) => {
-              'latitude': latLng.latitude,
-              'longitude': latLng.longitude,
-            })
-        .toList();
-
-    final stopLocations = stopMarkers
-        .map((marker) => {
-              'latitude': marker.location.latitude,
-              'longitude': marker.location.longitude,
-            })
-        .toList();
-
-    String formattedDestination = '["${GlobalVariables.editDestination}"]';
-    int? tripId = prefs.getInt("tripId");
-    logger.i("tripId : $tripId");
-
-    final Map<String, dynamic> response;
-
-    if (tripId != null) {
-      int? dropPinId = prefs.getInt("droppinId"); // Initial droppinId
-      int? dropcount = prefs.getInt("dropcount"); // Get dropcount
-      int currentDropId = dropPinId ?? 0; // Use 0 if droppinId is null
-
-      droppins = stopMarkers.asMap().entries.map((entry) {
-        final int index = entry.key + 1; // stop_index starts from 1
-        final MarkerData marker = entry.value;
-
-        // Check if we are within the range of dropcount
-        if (dropPinId != null && entry.key < dropcount!) {
-          final mapData = {
-            "id": currentDropId, // Use the current drop ID
-            "stop_index": index,
-            "image_path": marker.imagePath,
-            "image_caption": marker.caption,
-          };
-          currentDropId++; // Increment dropPinId for the next iteration
-          return mapData;
-        } else {
-          // After dropcount, do not include droppinId
-          return {
-            "stop_index": index,
-            "image_path": marker.imagePath,
-            "image_caption": marker.caption,
-          };
-        }
-      }).toList();
-
-      response = await apiserice.updateTrip(
-        tripId: tripId,
-        userId: GlobalVariables.userId!,
-        startAddress: startAddress!,
-        stopAddresses: stopAddressesString,
-        destinationAddress: "Destination address for DropPin",
-        destinationTextAddress: formattedDestination,
-        tripStartDate: GlobalVariables.tripStartDate!,
-        tripEndDate: formattedDate,
-        tripMiles: tripMiles!,
-        tripSound: "tripSound",
-        stopLocations: stopLocations,
-        tripCoordinates: tripCoordinates,
-        droppins: droppins,
-      );
-
-      if (response['success'] == true) {
-        await prefs.setInt("tripId", response['trip']['id']);
-        await prefs.setInt("dropcount", response['trip']['droppins'].length);
-        // Navigate to the next page
-        Navigator.pushReplacement(
-          // ignore: use_build_context_synchronously
-          context,
-          PageRouteBuilder(
-            pageBuilder: (context, animation1, animation2) =>
-                const StartTripScreen(),
-            transitionDuration: Duration.zero,
-            reverseTransitionDuration: Duration.zero,
-          ),
-        );
-      } else {
-        // Extract error message from the API response
-        String errorMessage =
-            response['error'] ?? 'Failed to create the trip. Please try again.';
-
-        // Show an alert dialog with the error message
-        showDialog(
-          // ignore: use_build_context_synchronously
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text("Error"),
-              content: Text(errorMessage),
-              actions: [
-                TextButton(
-                  child: const Text("OK"),
-                  onPressed: () {
-                    Navigator.of(context).pop(); // Close the dialog
-                  },
-                ),
-              ],
-            );
-          },
-        );
-      }
-    } else {
-      droppins = stopMarkers.asMap().entries.map((entry) {
-        final int index = entry.key + 1; // stop_index starts from 1
-        final MarkerData marker = entry.value;
-        return {
-          "stop_index": index,
-          "image_path": marker.imagePath,
-          "image_caption": marker.caption,
-        };
-      }).toList();
-      response = await apiserice.createTrip(
-        userId: GlobalVariables.userId!,
-        startAddress: startAddress!,
-        stopAddresses: stopAddressesString,
-        destinationAddress: "Destination address for DropPin",
-        destinationTextAddress: formattedDestination,
-        tripStartDate: GlobalVariables.tripStartDate!,
-        tripEndDate: formattedDate,
-        tripMiles: tripMiles!,
-        tripSound: "tripSound",
-        stopLocations: stopLocations,
-        tripCoordinates: tripCoordinates,
-        droppins: droppins,
-      );
-      logger.i(response);
-
-      if (response['success'] == true) {
-        await prefs.setInt("tripId", response['trip']['id']);
-        logger.i(response['trip']['droppins'][0]['id']);
-        await prefs.setInt("droppinId", response['trip']['droppins'][0]['id']);
-        await prefs.setInt("dropcount", response['trip']['droppins'].length);
-        // Navigate to the next page
-        Navigator.pushReplacement(
-          // ignore: use_build_context_synchronously
-          context,
-          PageRouteBuilder(
-            pageBuilder: (context, animation1, animation2) =>
-                const StartTripScreen(),
-            transitionDuration: Duration.zero,
-            reverseTransitionDuration: Duration.zero,
-          ),
-        );
-      } else {
-        // Extract error message from the API response
-        String errorMessage =
-            response['error'] ?? 'Failed to create the trip. Please try again.';
-
-        // Show an alert dialog with the error message
-        showDialog(
-          // ignore: use_build_context_synchronously
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text("Error"),
-              content: Text(errorMessage),
-              actions: [
-                TextButton(
-                  child: const Text("OK"),
-                  onPressed: () {
-                    Navigator.of(context).pop(); // Close the dialog
-                  },
-                ),
-              ],
-            );
-          },
-        );
-      }
     }
   }
 
@@ -531,6 +320,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                 filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                 child: Container(
                   color:
+                      // ignore: deprecated_member_use
                       Colors.black.withOpacity(0.3), // Semi-transparent overlay
                   child: const Center(
                     child: Column(
