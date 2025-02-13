@@ -7,6 +7,7 @@ import 'package:RollaTravel/src/screen/trip/trip_settting_screen.dart';
 import 'package:RollaTravel/src/screen/trip/trip_tag_screen.dart';
 import 'package:RollaTravel/src/translate/en.dart';
 import 'package:RollaTravel/src/utils/index.dart';
+import 'package:RollaTravel/src/utils/location.permission.dart';
 import 'package:RollaTravel/src/utils/stop_marker_provider.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:logger/logger.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:http/http.dart' as http;
@@ -53,7 +53,9 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   void initState() {
     super.initState();
     _restoreState();
-    _getCurrentLocation();
+    if (PermissionService().hasLocationPermission) {
+      _getCurrentLocation(); // ✅ It will not request permission again
+    }
     _startTrackingMovement();
     _checkLocationServices();
   }
@@ -133,23 +135,36 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   }
 
   Future<void> _getCurrentLocation() async {
-    final permissionStatus = await Permission.location.request();
-    if (permissionStatus.isGranted) {
+    LocationPermission permission = await Geolocator.checkPermission();
+
+    // ✅ If permission is already granted, use the current location
+    if (permission == LocationPermission.whileInUse ||
+        permission == LocationPermission.always) {
       Position position = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.high,
         ),
       );
       currentLocation = LatLng(position.latitude, position.longitude);
-      // ✅ Update only the moving location (for display purposes)
       ref.read(movingLocationProvider.notifier).state ??= currentLocation;
       _mapController.move(currentLocation!, 15.0);
-    } else if (permissionStatus.isDenied ||
-        permissionStatus.isPermanentlyDenied) {
-      logger.i("Location permission denied. Redirecting to settings.");
+      return;
+    }
+
+    // 🛑 If permission is denied, only ask ONCE
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        logger.i("Location permission denied.");
+        _showPermissionDeniedDialog();
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      logger.i("Location permission permanently denied.");
       _showPermissionDeniedDialog();
-    } else {
-      logger.i("Location permission status: $permissionStatus");
+      return;
     }
   }
 
@@ -386,14 +401,15 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
         return AlertDialog(
           title: const Text("Location Permission Required"),
           content: const Text(
-            "To access your location, please enable permissions in System Preferences > Security & Privacy > Privacy > Location Services.",
+            "To access your location, please enable permissions in Settings > Privacy & Security > Location Services.",
           ),
           actions: [
             TextButton(
               child: const Text("Open Settings"),
               onPressed: () async {
-                await openAppSettings();
+                await Geolocator.openAppSettings(); // Open settings for iOS
                 if (mounted) {
+                  // ignore: use_build_context_synchronously
                   Navigator.of(context).pop();
                 }
               },
