@@ -20,6 +20,7 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
   Future<void>? _initializeControllerFuture;
   final logger = Logger();
   final ImagePicker _picker = ImagePicker();
+  bool _isCapturing = false; 
 
   @override
   void initState() {
@@ -56,14 +57,14 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
     try {
       final cameras = await availableCameras();
       if (cameras.isNotEmpty) {
-        final firstCamera = cameras.first;
-
-        _cameraController = CameraController(
-          firstCamera,
-          ResolutionPreset.medium,
+       _cameraController = CameraController(
+          cameras.first,
+          ResolutionPreset.low, // Reduce memory issues
+          enableAudio: false,
         );
 
         _initializeControllerFuture = _cameraController!.initialize();
+         await _initializeControllerFuture;
         setState(() {}); // Trigger a rebuild to ensure the FutureBuilder gets the updated future
       } else {
         logger.i('No cameras available');
@@ -79,12 +80,53 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
     super.dispose();
   }
 
+  // Future<void> _getImageFromCamera() async {
+  //   try {
+  //     await _initializeControllerFuture;
+  //     final image = await _cameraController!.takePicture();
+  //     // Handle the captured image
+  //     logger.i('Image captured at: ${image.path}');
+  //     if (mounted) {
+  //       Navigator.push(
+  //         context,
+  //         MaterialPageRoute(
+  //           builder: (context) => TakePictureScreen(imagePath: image.path),
+  //         ),
+  //       );
+  //     }
+  //   } catch (e) {
+  //     logger.i(e);
+  //   }
+  // }
+
+  /// **Capture Image from Camera**
   Future<void> _getImageFromCamera() async {
+    if (_isCapturing || _cameraController == null || !_cameraController!.value.isInitialized) {
+       logger.e("Camera not ready");
+      return; // Prevent multiple captures & check if the camera is ready
+    }
+
+    setState(() => _isCapturing = true); // Prevent multiple captures
+
     try {
-      await _initializeControllerFuture;
+      await _initializeControllerFuture; // Ensure camera is initialized
+
+      await _cameraController!.setFocusMode(FocusMode.auto);
+      await _cameraController!.setExposureMode(ExposureMode.auto);
+      await Future.delayed(const Duration(milliseconds: 1500)); // Increased delay
+
+      // **Wait for focus & exposure to lock before capture**
+      if (_cameraController!.value.focusMode != FocusMode.locked) {
+        await _cameraController!.setFocusMode(FocusMode.locked);
+      }
+      if (_cameraController!.value.exposureMode != ExposureMode.locked) {
+        await _cameraController!.setExposureMode(ExposureMode.locked);
+      }
+
+      // **Take Picture**
       final image = await _cameraController!.takePicture();
-      // Handle the captured image
-      logger.i('Image captured at: ${image.path}');
+      logger.i('📸 Image captured at: ${image.path}');
+
       if (mounted) {
         Navigator.push(
           context,
@@ -94,9 +136,14 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
         );
       }
     } catch (e) {
-      logger.i(e);
+      logger.e('🚨 Error capturing image: $e');
+       _initializeCamera();
+    } finally {
+      setState(() => _isCapturing = false); // Reset capturing state
     }
   }
+
+
 
   Future<void> _getImageFromGallery() async {
     try {
@@ -180,7 +227,9 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
                             padding: const EdgeInsets.all(20), // Adjust button size
                             backgroundColor: Colors.white, // Set button color if desired
                           ),
-                          child: const Icon(Icons.camera_alt, size: 30, color: Colors.black),
+                          child: _isCapturing
+                            ? const CircularProgressIndicator() // Show loader if capturing
+                            : const Icon(Icons.camera_alt, size: 30, color: Colors.black),
                         ),
                       ),
                     ],
