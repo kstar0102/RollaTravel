@@ -36,18 +36,49 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
     if (status.isGranted) {
       logger.i("Camera permission already granted");
       await _initializeCamera(); // ✅ Initialize camera immediately
-    } else if (status.isDenied) {
-      status = await Permission.camera.request();
-      if (status.isGranted) {
-        logger.i("Camera permission granted after request");
-        await _initializeCamera();
-      } else {
-        _showCameraPermissionDialog(); // 🚨 Show dialog if denied
+    } else {
+      // ✅ Show explanation dialog before requesting permission on iOS
+      bool userAgreed = await _showPermissionExplanationDialog();
+
+      if (userAgreed) {
+        status = await Permission.camera.request();
+        if (status.isGranted) {
+          logger.i("Camera permission granted after request");
+          await _initializeCamera();
+        } else if (status.isPermanentlyDenied) {
+          _showCameraPermissionDialog(); // 🚨 Open settings dialog
+        }
       }
-    } else if (status.isPermanentlyDenied) {
-      logger.i("Camera permission permanently denied");
-      _showCameraPermissionDialog(); // 🚨 Open settings dialog
     }
+  }
+
+  Future<bool> _showPermissionExplanationDialog() async {
+    return await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text("Camera Access Required"),
+              content: const Text(
+                  "This app needs access to your camera to take photos for your profile and posts. Please allow camera access."),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context)
+                        .pop(false); // ❌ User denies permission
+                  },
+                  child: const Text("Cancel"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(true); // ✅ User agrees
+                  },
+                  child: const Text("Allow"),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false;
   }
 
   void _showCameraPermissionDialog() {
@@ -55,25 +86,24 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Camera Permission"),
+          title: const Text("Camera Permission Needed"),
           content: const Text(
-              "Camera permission is required to take photos. Please enable it in Settings."),
+              "You have permanently denied camera access. Please enable it in Settings to use this feature."),
           actions: [
             TextButton(
-              child: const Text("Open Settings"),
               onPressed: () async {
                 await openAppSettings(); // ✅ Open settings
                 if (mounted) {
-                  // ignore: use_build_context_synchronously
                   Navigator.of(context).pop();
                 }
               },
+              child: const Text("Open Settings"),
             ),
             TextButton(
-              child: const Text("Cancel"),
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(); // ❌ Cancel
               },
+              child: const Text("Cancel"),
             ),
           ],
         );
@@ -108,25 +138,6 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
     _cameraController?.dispose();
     super.dispose();
   }
-
-  // Future<void> _getImageFromCamera() async {
-  //   try {
-  //     await _initializeControllerFuture;
-  //     final image = await _cameraController!.takePicture();
-  //     // Handle the captured image
-  //     logger.i('Image captured at: ${image.path}');
-  //     if (mounted) {
-  //       Navigator.push(
-  //         context,
-  //         MaterialPageRoute(
-  //           builder: (context) => TakePictureScreen(imagePath: image.path),
-  //         ),
-  //       );
-  //     }
-  //   } catch (e) {
-  //     logger.i(e);
-  //   }
-  // }
 
   /// **Capture Image from Camera**
   Future<void> _getImageFromCamera() async {
