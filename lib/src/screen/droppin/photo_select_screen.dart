@@ -21,6 +21,7 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
   final logger = Logger();
   final ImagePicker _picker = ImagePicker();
   bool _isCapturing = false;
+  bool _isCameraInitialized = false;
 
   @override
   void initState() {
@@ -30,57 +31,19 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
     });
   }
 
+  /// **Requests camera permission and initializes camera**
   Future<void> _requestCameraPermission() async {
-    PermissionStatus status = await Permission.camera.status;
+    PermissionStatus status = await Permission.camera.request();
 
     if (status.isGranted) {
-      logger.i("Camera permission already granted");
-      await _initializeCamera(); // ✅ Initialize camera immediately
-    } else {
-      // ✅ Show explanation dialog before requesting permission on iOS
-      bool userAgreed = await _showPermissionExplanationDialog();
-
-      if (userAgreed) {
-        status = await Permission.camera.request();
-        if (status.isGranted) {
-          logger.i("Camera permission granted after request");
-          await _initializeCamera();
-        } else if (status.isPermanentlyDenied) {
-          _showCameraPermissionDialog(); // 🚨 Open settings dialog
-        }
-      }
+      logger.i("✅ Camera permission granted");
+      await _initializeCamera();
+    } else if (status.isPermanentlyDenied) {
+      _showCameraPermissionDialog(); // 🚨 Open settings dialog if permanently denied
     }
   }
 
-  Future<bool> _showPermissionExplanationDialog() async {
-    return await showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text("Camera Access Required"),
-              content: const Text(
-                  "This app needs access to your camera to take photos for your profile and posts. Please allow camera access."),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context)
-                        .pop(false); // ❌ User denies permission
-                  },
-                  child: const Text("Cancel"),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(true); // ✅ User agrees
-                  },
-                  child: const Text("Allow"),
-                ),
-              ],
-            );
-          },
-        ) ??
-        false;
-  }
-
+  /// **Show a settings dialog if the user permanently denies camera access**
   void _showCameraPermissionDialog() {
     showDialog(
       context: context,
@@ -88,7 +51,7 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
         return AlertDialog(
           title: const Text("Camera Permission Needed"),
           content: const Text(
-              "You have permanently denied camera access. Please enable it in Settings to use this feature."),
+              "You have denied camera access. Please enable it in Settings to take a photo."),
           actions: [
             TextButton(
               onPressed: () async {
@@ -111,25 +74,31 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
     );
   }
 
+  /// **Initializes the camera safely**
   Future<void> _initializeCamera() async {
     try {
       final cameras = await availableCameras();
       if (cameras.isNotEmpty) {
         _cameraController = CameraController(
           cameras.first,
-          ResolutionPreset.low, // Reduce memory issues
+          ResolutionPreset
+              .medium, // Better quality while avoiding performance issues
           enableAudio: false,
         );
 
         _initializeControllerFuture = _cameraController!.initialize();
         await _initializeControllerFuture;
-        setState(
-            () {}); // Trigger a rebuild to ensure the FutureBuilder gets the updated future
+
+        setState(() {
+          _isCameraInitialized = true;
+        });
+
+        logger.i("📷 Camera initialized successfully");
       } else {
-        logger.i('No cameras available');
+        logger.e("🚨 No cameras available");
       }
     } catch (e) {
-      logger.i('Error initializing camera: $e');
+      logger.e("❌ Error initializing camera: $e");
     }
   }
 
@@ -140,12 +109,12 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
   }
 
   /// **Capture Image from Camera**
-  Future<void> _getImageFromCamera() async {
+  Future<void> _capturePhoto() async {
     if (_isCapturing ||
         _cameraController == null ||
         !_cameraController!.value.isInitialized) {
-      logger.e("Camera not ready");
-      return; // Prevent multiple captures & check if the camera is ready
+      logger.e("🚨 Camera not ready");
+      return; // Prevent multiple captures
     }
 
     setState(() => _isCapturing = true); // Prevent multiple captures
@@ -153,20 +122,11 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
     try {
       await _initializeControllerFuture; // Ensure camera is initialized
 
-      await _cameraController!.setFocusMode(FocusMode.auto);
-      await _cameraController!.setExposureMode(ExposureMode.auto);
-      await Future.delayed(
-          const Duration(milliseconds: 1500)); // Increased delay
+      // Wait for focus & exposure before capturing
+      await _cameraController!.setFocusMode(FocusMode.locked);
+      await _cameraController!.setExposureMode(ExposureMode.locked);
 
-      // **Wait for focus & exposure to lock before capture**
-      if (_cameraController!.value.focusMode != FocusMode.locked) {
-        await _cameraController!.setFocusMode(FocusMode.locked);
-      }
-      if (_cameraController!.value.exposureMode != ExposureMode.locked) {
-        await _cameraController!.setExposureMode(ExposureMode.locked);
-      }
-
-      // **Take Picture**
+      // Capture image
       final image = await _cameraController!.takePicture();
       logger.i('📸 Image captured at: ${image.path}');
 
@@ -182,16 +142,16 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
       logger.e('🚨 Error capturing image: $e');
       _initializeCamera();
     } finally {
-      setState(() => _isCapturing = false); // Reset capturing state
+      setState(() => _isCapturing = false);
     }
   }
 
-  Future<void> _getImageFromGallery() async {
+  /// **Pick Image from Gallery**
+  Future<void> _pickImageFromGallery() async {
     try {
       final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
       if (pickedFile != null) {
-        // Handle the selected image
-        logger.i('Image selected from gallery: ${pickedFile.path}');
+        logger.i('📷 Image selected from gallery: ${pickedFile.path}');
         if (mounted) {
           Navigator.push(
             context,
@@ -203,12 +163,8 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
         }
       }
     } catch (e) {
-      logger.i(e);
+      logger.e("❌ Error selecting image: $e");
     }
-  }
-
-  Future<bool> _onWillPop() async {
-    return false;
   }
 
   @override
@@ -216,7 +172,7 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: WillPopScope(
-        onWillPop: _onWillPop,
+        onWillPop: () async => false,
         child: Padding(
           padding: const EdgeInsets.all(10.0),
           child: Column(
@@ -238,43 +194,33 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
                   width: double.infinity,
                   height: vhh(context, 50),
                   child: Stack(
-                    alignment: Alignment.center, // Center contents in the stack
+                    alignment: Alignment.center,
                     children: [
+                      // Gray placeholder if camera is not initialized
                       Container(
-                        color: Colors.grey[
-                            300], // Set the background to a light gray color
+                        color: Colors.grey[300],
                         width: double.infinity,
                         height: double.infinity,
                       ),
-                      FutureBuilder<void>(
-                        future: _initializeControllerFuture,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.done) {
-                            return CameraPreview(_cameraController!);
-                          } else if (snapshot.hasError) {
-                            return Center(
-                                child: Text('Error: ${snapshot.error}'));
-                          } else {
-                            return const Center(
-                                child: CircularProgressIndicator());
-                          }
-                        },
-                      ),
+                      // Camera preview
+                      if (_isCameraInitialized)
+                        CameraPreview(_cameraController!)
+                      else
+                        const Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      // Capture Button
                       Positioned(
-                        bottom:
-                            20, // Position the button 20 pixels from the bottom of the Stack
+                        bottom: 20,
                         child: ElevatedButton(
-                          onPressed: _getImageFromCamera,
+                          onPressed: _capturePhoto,
                           style: ElevatedButton.styleFrom(
                             shape: const CircleBorder(),
-                            padding:
-                                const EdgeInsets.all(20), // Adjust button size
-                            backgroundColor:
-                                Colors.white, // Set button color if desired
+                            padding: const EdgeInsets.all(20),
+                            backgroundColor: Colors.white,
                           ),
                           child: _isCapturing
-                              ? const CircularProgressIndicator() // Show loader if capturing
+                              ? const CircularProgressIndicator()
                               : const Icon(Icons.camera_alt,
                                   size: 30, color: Colors.black),
                         ),
@@ -285,7 +231,7 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
               ),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: _getImageFromGallery,
+                onPressed: _pickImageFromGallery,
                 child: const Text(
                   'Photo Library',
                   style: TextStyle(fontFamily: 'Kadaw'),
