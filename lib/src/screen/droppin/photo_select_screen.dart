@@ -49,24 +49,34 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Camera Permission Needed"),
+          title: const Text(
+            "Camera Permission Needed",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
           content: const Text(
-              "You have denied camera access. Please enable it in Settings to take a photo."),
+            "You have denied camera access. Please enable it in Settings to take a photo.",
+            style: TextStyle(fontSize: 14),
+          ),
           actions: [
             TextButton(
               onPressed: () async {
-                await openAppSettings(); // ✅ Open settings
-                if (mounted) {
-                  Navigator.of(context).pop();
-                }
+                await openAppSettings(); // ✅ Open app settings
+                // ignore: use_build_context_synchronously
+                if (mounted) Navigator.of(context).pop();
               },
-              child: const Text("Open Settings"),
+              child: const Text(
+                "Open Settings",
+                style: TextStyle(color: Colors.blue, fontSize: 14),
+              ),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // ❌ Cancel
               },
-              child: const Text("Cancel"),
+              child: const Text(
+                "Cancel",
+                style: TextStyle(color: Colors.blue, fontSize: 14),
+              ),
             ),
           ],
         );
