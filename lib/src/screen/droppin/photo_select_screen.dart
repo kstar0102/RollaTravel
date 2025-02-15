@@ -27,19 +27,29 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _requestCameraPermission();
+      _checkAndRequestCameraPermission();
     });
   }
 
-  /// **Requests camera permission and initializes camera**
-  Future<void> _requestCameraPermission() async {
-    PermissionStatus status = await Permission.camera.request();
+  /// **Check and request camera permission correctly**
+  Future<void> _checkAndRequestCameraPermission() async {
+    PermissionStatus status = await Permission.camera.status;
 
     if (status.isGranted) {
-      logger.i("✅ Camera permission granted");
+      logger.i("✅ Camera permission already granted");
       await _initializeCamera();
+    } else if (status.isDenied) {
+      PermissionStatus newStatus = await Permission.camera.request();
+      if (newStatus.isGranted) {
+        logger.i("✅ Camera permission granted after request");
+        await _initializeCamera();
+      } else {
+        logger.e("🚨 Camera permission denied");
+        _showCameraPermissionDialog();
+      }
     } else if (status.isPermanentlyDenied) {
-      _showCameraPermissionDialog(); // 🚨 Open settings dialog if permanently denied
+      logger.e("🚨 Camera permission permanently denied");
+      _showCameraPermissionDialog();
     }
   }
 
