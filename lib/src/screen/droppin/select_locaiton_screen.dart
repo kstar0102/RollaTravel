@@ -52,6 +52,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
   List<String> formattedStopAddresses = [];
   String stopAddressesString = "";
   List<Map<String, dynamic>> droppins = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -76,37 +77,51 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
   }
 
   Future<void> _getCurrentLocation() async {
+    setState(() {
+      _isLoading = true;
+    });
+
     LocationPermission permission = await Geolocator.checkPermission();
 
-    // ✅ If permission is already granted, use the current location
-    if (permission == LocationPermission.whileInUse ||
-        permission == LocationPermission.always) {
-      Position position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-        ),
-      );
-      setState(() {
-        _currentLocation = LatLng(position.latitude, position.longitude);
-        logger.i("Location: $_currentLocation");
-      });
-      return;
-    }
-
-    // 🛑 If permission is denied, only ask ONCE
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
+
       if (permission == LocationPermission.denied) {
-        logger.i("Location permission denied.");
         _showPermissionDeniedDialog();
+        setState(() {
+          _isLoading = false;
+        });
         return;
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
-      logger.i("Location permission permanently denied.");
       _showPermissionDeniedDialog();
+      setState(() {
+        _isLoading = false;
+      });
       return;
+    }
+
+    if (permission == LocationPermission.whileInUse ||
+        permission == LocationPermission.always) {
+      try {
+        Position position = await Geolocator.getCurrentPosition(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.high,
+          ),
+        );
+        setState(() {
+          _currentLocation = LatLng(position.latitude, position.longitude);
+          _isLoading = false;
+        });
+        logger.i("Location: $_currentLocation");
+      } catch (e) {
+        logger.e("Failed to get location: $e");
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -509,6 +524,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                     ),
 
                     // set map
+                    !_isLoading ?
                     Center(
                       child: SizedBox(
                         height: vhh(context, 36),
@@ -519,8 +535,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                             FlutterMap(
                               mapController: _mapController,
                               options: MapOptions(
-                                initialCenter: _currentLocation ??
-                                    const LatLng(37.7749, -122.4194),
+                                initialCenter: _currentLocation!,
                                 initialZoom: 12.0,
                                 onMapReady: () {
                                   _mapReadyCompleter.complete();
@@ -623,7 +638,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                           ],
                         )),
                       ),
-                    ),
+                    ) : const Center(child: CircularProgressIndicator()),
                     SizedBox(
                       height: vhh(context, 5),
                     ),
