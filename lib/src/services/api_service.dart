@@ -253,8 +253,11 @@ class ApiService {
     required List<Map<String, double>> tripCoordinates,
     required List<Map<String, double>> stopLocations,
     required List<Map<String, dynamic>> droppins,
+    required String startLocation,
+    required String destinationLocation,
   }) async {
     final url = Uri.parse('$baseUrl/trip/create');
+
     final Map<String, dynamic> requestBody = {
       'user_id': userId,
       'start_address': startAddress,
@@ -268,6 +271,8 @@ class ApiService {
       'trip_coordinates': tripCoordinates,
       'stop_locations': stopLocations,
       'droppins': droppins,
+      'start_location': startLocation,
+      'destination_location': destinationLocation,
     };
     logger.i(requestBody);
 
@@ -308,6 +313,8 @@ class ApiService {
     required List<Map<String, double>> tripCoordinates,
     required List<Map<String, double>> stopLocations,
     required List<Map<String, dynamic>> droppins,
+    required String startLocation,
+    required String destinationLocation,
   }) async {
     final url = Uri.parse('$baseUrl/trip/update');
     final Map<String, dynamic> requestBody = {
@@ -324,6 +331,8 @@ class ApiService {
       'trip_coordinates': tripCoordinates,
       'stop_locations': stopLocations,
       'droppins': droppins,
+      'start_location': startLocation,
+      'destination_location': destinationLocation,
     };
     logger.i(requestBody);
 

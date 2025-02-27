@@ -157,6 +157,8 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
       tripSound: "tripSound",
       stopLocations: stopLocations,
       tripCoordinates: tripCoordinates,
+      startLocation: widget.startLocation.toString(),
+      destinationLocation: widget.endLocation.toString(),
       droppins: [],
     );
 
@@ -165,6 +167,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
     if (response['success'] == true) {
       await prefs.remove("tripId");
       await prefs.remove("dropcount");
+
       // Navigate to the next page
       if (mounted) {
         Navigator.pushReplacement(
@@ -178,6 +181,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
         );
       }
       ref.read(pathCoordinatesProvider.notifier).state = [];
+      ref.read(movingLocationProvider.notifier).state = null;
     } else {
       // Extract error message from the API response
       String errorMessage =

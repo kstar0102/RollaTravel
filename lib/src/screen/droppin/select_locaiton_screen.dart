@@ -259,6 +259,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
     ];
 
     LatLng? startLocation = ref.read(staticStartingPointProvider);
+    LatLng? endLocation = ref.read(movingLocationProvider);
     logger.i("startLocation : $startLocation");
     List<MarkerData> stopMarkers = ref.read(markersProvider);
     tripMiles = "${GlobalVariables.totalDistance.toStringAsFixed(3)} miles";
@@ -341,20 +342,21 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
       }).toList();
 
       response = await apiserice.updateTrip(
-        tripId: tripId,
-        userId: GlobalVariables.userId!,
-        startAddress: startAddress!,
-        stopAddresses: stopAddressesString,
-        destinationAddress: "Destination address for DropPin",
-        destinationTextAddress: formattedDestination,
-        tripStartDate: GlobalVariables.tripStartDate!,
-        tripEndDate: formattedDate,
-        tripMiles: tripMiles!,
-        tripSound: "tripSound",
-        stopLocations: stopLocations,
-        tripCoordinates: tripCoordinates,
-        droppins: droppins,
-      );
+          tripId: tripId,
+          userId: GlobalVariables.userId!,
+          startAddress: startAddress!,
+          stopAddresses: stopAddressesString,
+          destinationAddress: "Destination address for DropPin",
+          destinationTextAddress: formattedDestination,
+          tripStartDate: GlobalVariables.tripStartDate!,
+          tripEndDate: formattedDate,
+          tripMiles: tripMiles!,
+          tripSound: "tripSound",
+          stopLocations: stopLocations,
+          tripCoordinates: tripCoordinates,
+          droppins: droppins,
+          startLocation: startLocation.toString(),
+          destinationLocation: endLocation.toString());
 
       if (response['success'] == true) {
         await prefs.setInt("tripId", response['trip']['id']);
@@ -405,19 +407,20 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
         };
       }).toList();
       response = await apiserice.createTrip(
-        userId: GlobalVariables.userId!,
-        startAddress: startAddress!,
-        stopAddresses: stopAddressesString,
-        destinationAddress: "Destination address for DropPin",
-        destinationTextAddress: formattedDestination,
-        tripStartDate: GlobalVariables.tripStartDate!,
-        tripEndDate: formattedDate,
-        tripMiles: tripMiles!,
-        tripSound: "tripSound",
-        stopLocations: stopLocations,
-        tripCoordinates: tripCoordinates,
-        droppins: droppins,
-      );
+          userId: GlobalVariables.userId!,
+          startAddress: startAddress!,
+          stopAddresses: stopAddressesString,
+          destinationAddress: "Destination address for DropPin",
+          destinationTextAddress: formattedDestination,
+          tripStartDate: GlobalVariables.tripStartDate!,
+          tripEndDate: formattedDate,
+          tripMiles: tripMiles!,
+          tripSound: "tripSound",
+          stopLocations: stopLocations,
+          tripCoordinates: tripCoordinates,
+          droppins: droppins,
+          startLocation: startLocation.toString(),
+          destinationLocation: endLocation.toString());
       logger.i(response);
 
       if (response['success'] == true) {
@@ -524,121 +527,128 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                     ),
 
                     // set map
-                    !_isLoading ?
-                    Center(
-                      child: SizedBox(
-                        height: vhh(context, 36),
-                        width: vww(context, 96),
-                        child: Center(
-                            child: Stack(
-                          children: [
-                            FlutterMap(
-                              mapController: _mapController,
-                              options: MapOptions(
-                                initialCenter: _currentLocation!,
-                                initialZoom: 12.0,
-                                onMapReady: () {
-                                  _mapReadyCompleter.complete();
-                                },
-                              ),
-                              children: [
-                                TileLayer(
-                                  urlTemplate:
-                                      "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw",
-                                  additionalOptions: const {
-                                    'access_token':
-                                        'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw',
-                                  },
-                                ),
-                                MarkerLayer(markers: [
-                                  if (widget.selectedLocation ==
-                                      const LatLng(0, 0))
-                                    Marker(
-                                      width: 80.0,
-                                      height: 80.0,
-                                      point: _currentLocation ??
-                                          const LatLng(43.1557, -77.6157),
-                                      child: GestureDetector(
-                                        onTap: () => _showImageDialog(),
-                                        child: const Icon(Icons.location_on,
-                                            color: Colors.red, size: 40),
-                                      ),
-                                    )
-                                  else if (widget.selectedLocation !=
-                                      const LatLng(0, 0))
-                                    Marker(
-                                      width: 80.0,
-                                      height: 80.0,
-                                      point: widget.selectedLocation ??
-                                          const LatLng(43.1557, -77.6157),
-                                      child: GestureDetector(
-                                        onTap: () => _showImageDialog(),
-                                        child: const Icon(Icons.location_on,
-                                            color: Colors.red, size: 40),
-                                      ),
-                                    )
-                                ]),
-                              ],
-                            ),
-                            Positioned(
-                              right: 10,
-                              top: 70,
-                              child: Column(
+                    !_isLoading
+                        ? Center(
+                            child: SizedBox(
+                              height: vhh(context, 36),
+                              width: vww(context, 96),
+                              child: Center(
+                                  child: Stack(
                                 children: [
-                                  FloatingActionButton(
-                                    heroTag:
-                                        'zoom_in_button_droppin', // Unique tag for the zoom in button
-                                    onPressed: () {
-                                      _mapController.move(
-                                        _mapController.camera.center,
-                                        _mapController.camera.zoom + 1,
-                                      );
-                                    },
-                                    mini: true,
-                                    child: const Icon(Icons.zoom_in),
+                                  FlutterMap(
+                                    mapController: _mapController,
+                                    options: MapOptions(
+                                      initialCenter: _currentLocation!,
+                                      initialZoom: 12.0,
+                                      onMapReady: () {
+                                        _mapReadyCompleter.complete();
+                                      },
+                                    ),
+                                    children: [
+                                      TileLayer(
+                                        urlTemplate:
+                                            "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw",
+                                        additionalOptions: const {
+                                          'access_token':
+                                              'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw',
+                                        },
+                                      ),
+                                      MarkerLayer(markers: [
+                                        if (widget.selectedLocation ==
+                                            const LatLng(0, 0))
+                                          Marker(
+                                            width: 80.0,
+                                            height: 80.0,
+                                            point: _currentLocation ??
+                                                const LatLng(43.1557, -77.6157),
+                                            child: GestureDetector(
+                                              onTap: () => _showImageDialog(),
+                                              child: const Icon(
+                                                  Icons.location_on,
+                                                  color: Colors.red,
+                                                  size: 40),
+                                            ),
+                                          )
+                                        else if (widget.selectedLocation !=
+                                            const LatLng(0, 0))
+                                          Marker(
+                                            width: 80.0,
+                                            height: 80.0,
+                                            point: widget.selectedLocation ??
+                                                const LatLng(43.1557, -77.6157),
+                                            child: GestureDetector(
+                                              onTap: () => _showImageDialog(),
+                                              child: const Icon(
+                                                  Icons.location_on,
+                                                  color: Colors.red,
+                                                  size: 40),
+                                            ),
+                                          )
+                                      ]),
+                                    ],
                                   ),
-                                  const SizedBox(height: 8),
-                                  FloatingActionButton(
-                                    heroTag:
-                                        'zoom_out_button_droppin', // Unique tag for the zoom out button
-                                    onPressed: () {
-                                      _mapController.move(
-                                        _mapController.camera.center,
-                                        _mapController.camera.zoom - 1,
-                                      );
-                                    },
-                                    mini: true,
-                                    child: const Icon(Icons.zoom_out),
+                                  Positioned(
+                                    right: 10,
+                                    top: 70,
+                                    child: Column(
+                                      children: [
+                                        FloatingActionButton(
+                                          heroTag:
+                                              'zoom_in_button_droppin', // Unique tag for the zoom in button
+                                          onPressed: () {
+                                            _mapController.move(
+                                              _mapController.camera.center,
+                                              _mapController.camera.zoom + 1,
+                                            );
+                                          },
+                                          mini: true,
+                                          child: const Icon(Icons.zoom_in),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        FloatingActionButton(
+                                          heroTag:
+                                              'zoom_out_button_droppin', // Unique tag for the zoom out button
+                                          onPressed: () {
+                                            _mapController.move(
+                                              _mapController.camera.center,
+                                              _mapController.camera.zoom - 1,
+                                            );
+                                          },
+                                          mini: true,
+                                          child: const Icon(Icons.zoom_out),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Positioned(
+                                    top: 5,
+                                    left: 0,
+                                    right: 0,
+                                    child: Padding(
+                                      padding:
+                                          EdgeInsets.zero, // Adjust for width
+                                      child: Container(
+                                        padding: const EdgeInsets.all(
+                                            5.0), // Inner padding for spacing around text
+                                        child: Text(
+                                          'Tap the pin to see your photo',
+                                          style: TextStyle(
+                                              // ignore: deprecated_member_use
+                                              color:
+                                                  Colors.black.withOpacity(0.8),
+                                              fontSize: 14,
+                                              fontStyle: FontStyle.italic,
+                                              fontFamily: 'Kadaw'),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ],
-                              ),
+                              )),
                             ),
-                            Positioned(
-                              top: 5,
-                              left: 0,
-                              right: 0,
-                              child: Padding(
-                                padding: EdgeInsets.zero, // Adjust for width
-                                child: Container(
-                                  padding: const EdgeInsets.all(
-                                      5.0), // Inner padding for spacing around text
-                                  child: Text(
-                                    'Tap the pin to see your photo',
-                                    style: TextStyle(
-                                        // ignore: deprecated_member_use
-                                        color: Colors.black.withOpacity(0.8),
-                                        fontSize: 14,
-                                        fontStyle: FontStyle.italic,
-                                        fontFamily: 'Kadaw'),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        )),
-                      ),
-                    ) : const Center(child: CircularProgressIndicator()),
+                          )
+                        : const Center(child: CircularProgressIndicator()),
                     SizedBox(
                       height: vhh(context, 5),
                     ),

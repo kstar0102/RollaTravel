@@ -40,6 +40,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   LatLng? startPoint;
   LatLng? endPoint;
   List<LatLng> locations = [];
+  late List<dynamic> dropPinsData = []; // Initialize with an empty list
 
   @override
   void initState() {
@@ -64,10 +65,20 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     try {
       final apiService = ApiService();
       final trips = await apiService.fetchUserTrips(GlobalVariables.userId!);
+      List<dynamic> allDroppins = [];
+
+      for (var trip in trips) {
+        if (trip['droppins'] != null) {
+          allDroppins.addAll(trip['droppins'] as List<dynamic>);
+        }
+      }
+
       setState(() {
         userTrips = trips;
+        dropPinsData = allDroppins.isNotEmpty ? allDroppins : [];
         isLoadingTrips = false;
       });
+      logger.i(dropPinsData);
       if (userTrips != null && userTrips!.isNotEmpty) {}
     } catch (error) {
       logger.e('Error fetching user trips: $error');
@@ -288,502 +299,526 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     return Scaffold(
       backgroundColor: kColorWhite,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Container(
-            decoration: const BoxDecoration(
-              color: kColorWhite,
-            ),
-            padding: EdgeInsets.symmetric(horizontal: vww(context, 4)),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                SizedBox(height: vhh(context, 1)),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Image.asset(
-                      'assets/images/icons/logo.png',
-                      width: vww(context, 20),
-                    ),
-                    SizedBox(width: vww(context, 18)),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          '@${GlobalVariables.userName}',
-                          style: const TextStyle(
-                              color: kColorBlack,
-                              fontSize: 18,
-                              fontFamily: 'Kadaw'),
-                        ),
-                        Image.asset(
-                          'assets/images/icons/verify.png',
-                          width: vww(context, 5),
-                          height: 20,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Container(),
-                    Column(
-                      children: [
-                        Image.asset(
-                          'assets/images/icons/trips.png',
-                          width: vww(context, 19),
-                        ),
-                        Text(
-                          GlobalVariables.tripCount != null
-                              ? GlobalVariables.tripCount!.toString()
-                              : "0",
-                          style: const TextStyle(
-                              fontSize: 20,
-                              color: kColorButtonPrimary,
-                              fontFamily: 'KadawBold'),
-                        ),
-                      ],
-                    ),
-                    Container(
-                      height: vhh(context, 15),
-                      width: vhh(context, 15),
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(100),
-                          border: Border.all(
-                            color: kColorHereButton,
-                            width: 2,
+        child: isLoadingTrips
+            ? const Center(
+                child: CircularProgressIndicator()) // Show loader while loading
+            : SingleChildScrollView(
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: kColorWhite,
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: vww(context, 4)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      SizedBox(height: vhh(context, 1)),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Image.asset(
+                            'assets/images/icons/logo.png',
+                            width: vww(context, 20),
                           ),
-                          image: GlobalVariables.userImageUrl != null
-                              ? DecorationImage(
-                                  image: NetworkImage(GlobalVariables
-                                      .userImageUrl!), // Use NetworkImage for URL
-                                  fit: BoxFit.cover,
-                                )
-                              : null),
-                    ),
-                    Column(
-                      children: [
-                        Image.asset(
-                          'assets/images/icons/followers.png',
-                          width: vww(context, 19),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            _onFollowers();
-                          },
-                          child: Text(
-                            followingCount != null ? followingCount! : "0",
-                            style: const TextStyle(
-                                fontSize: 20,
-                                color: kColorButtonPrimary,
-                                fontFamily: 'KadawBold'),
+                          SizedBox(width: vww(context, 18)),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                '@${GlobalVariables.userName}',
+                                style: const TextStyle(
+                                    color: kColorBlack,
+                                    fontSize: 18,
+                                    fontFamily: 'Kadaw'),
+                              ),
+                              Image.asset(
+                                'assets/images/icons/verify.png',
+                                width: vww(context, 5),
+                                height: 20,
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
-                    ),
-                    Container(),
-                  ],
-                ),
-                SizedBox(height: vhh(context, 1)),
-                Text(
-                  GlobalVariables.realName!,
-                  style: const TextStyle(
-                      color: kColorBlack, fontSize: 20, fontFamily: 'Kadaw'),
-                ),
-                SizedBox(height: vhh(context, 1)),
+                        ],
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Container(),
+                          Column(
+                            children: [
+                              Image.asset(
+                                'assets/images/icons/trips.png',
+                                width: vww(context, 19),
+                              ),
+                              Text(
+                                GlobalVariables.tripCount != null
+                                    ? GlobalVariables.tripCount!.toString()
+                                    : "0",
+                                style: const TextStyle(
+                                    fontSize: 20,
+                                    color: kColorButtonPrimary,
+                                    fontFamily: 'KadawBold'),
+                              ),
+                            ],
+                          ),
+                          Container(
+                            height: vhh(context, 15),
+                            width: vhh(context, 15),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(100),
+                                border: Border.all(
+                                  color: kColorHereButton,
+                                  width: 2,
+                                ),
+                                image: GlobalVariables.userImageUrl != null
+                                    ? DecorationImage(
+                                        image: NetworkImage(GlobalVariables
+                                            .userImageUrl!), // Use NetworkImage for URL
+                                        fit: BoxFit.cover,
+                                      )
+                                    : null),
+                          ),
+                          Column(
+                            children: [
+                              Image.asset(
+                                'assets/images/icons/followers.png',
+                                width: vww(context, 19),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  _onFollowers();
+                                },
+                                child: Text(
+                                  followingCount != null
+                                      ? followingCount!
+                                      : "0",
+                                  style: const TextStyle(
+                                      fontSize: 20,
+                                      color: kColorButtonPrimary,
+                                      fontFamily: 'KadawBold'),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Container(),
+                        ],
+                      ),
+                      SizedBox(height: vhh(context, 1)),
+                      Text(
+                        GlobalVariables.realName!,
+                        style: const TextStyle(
+                            color: kColorBlack,
+                            fontSize: 20,
+                            fontFamily: 'Kadaw'),
+                      ),
+                      SizedBox(height: vhh(context, 1)),
 
-                Text(
-                  GlobalVariables.bio != null ? GlobalVariables.bio! : " ",
-                  style: const TextStyle(
-                      color: kColorGrey, fontSize: 18, fontFamily: 'Kadaw'),
-                ),
-                SizedBox(height: vhh(context, 2)),
-                Row(
-                  children: [
-                    SizedBox(
-                      width: vww(context, 30),
-                      height: 28,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              kColorStrongGrey, // Button background color
-                          shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(30), // Rounded corners
-                          ),
-                          shadowColor:
-                              // ignore: deprecated_member_use
-                              Colors.black.withOpacity(0.9), // Shadow color
-                          elevation: 6,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 2, vertical: 2),
-                        ),
-                        onPressed: () {
-                          _onEditButtonClicked();
-                        },
-                        child: Text("Edit Profile",
-                            style: TextStyle(
-                                color: kColorWhite,
-                                fontSize: 34.sp,
-                                fontFamily: 'Kadaw')),
+                      Text(
+                        GlobalVariables.bio != null
+                            ? GlobalVariables.bio!
+                            : " ",
+                        style: const TextStyle(
+                            color: kColorGrey,
+                            fontSize: 18,
+                            fontFamily: 'Kadaw'),
                       ),
-                    ),
-                    SizedBox(width: vww(context, 1)),
-                    SizedBox(
-                      width: vww(context, 30),
-                      height: 28,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              kColorStrongGrey, // Button background color
-                          shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(30), // Rounded corners
-                          ),
-                          shadowColor:
-                              // ignore: deprecated_member_use
-                              Colors.black.withOpacity(0.9), // Shadow color
-                          elevation: 6,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 2, vertical: 2),
-                        ),
-                        onPressed: () {
-                          _onFollowers();
-                        },
-                        child: Text("Following",
-                            style: TextStyle(
-                                color: kColorWhite,
-                                fontSize: 34.sp,
-                                fontFamily: 'Kadaw')),
-                      ),
-                    ),
-                    SizedBox(width: vww(context, 1)),
-                    SizedBox(
-                      width: vww(context, 30),
-                      height: 28,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              kColorStrongGrey, // Button background color
-                          shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(30), // Rounded corners
-                          ),
-                          shadowColor:
-                              // ignore: deprecated_member_use
-                              Colors.black.withOpacity(0.9), // Shadow color
-                          elevation: 6,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 2, vertical: 2),
-                        ),
-                        onPressed: () {
-                          _onSettingButtonClicked();
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.settings, // Settings icon
-                              size: 16,
-                              color: kColorWhite,
+                      SizedBox(height: vhh(context, 2)),
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: vww(context, 30),
+                            height: 28,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    kColorStrongGrey, // Button background color
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                      30), // Rounded corners
+                                ),
+                                shadowColor:
+                                    // ignore: deprecated_member_use
+                                    Colors.black
+                                        // ignore: deprecated_member_use
+                                        .withOpacity(0.9), // Shadow color
+                                elevation: 6,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 2, vertical: 2),
+                              ),
+                              onPressed: () {
+                                _onEditButtonClicked();
+                              },
+                              child: Text("Edit Profile",
+                                  style: TextStyle(
+                                      color: kColorWhite,
+                                      fontSize: 34.sp,
+                                      fontFamily: 'Kadaw')),
                             ),
-                            const SizedBox(
-                                width: 2), // Spacing between icon and text
-                            Text(
-                              'Settings',
-                              style: TextStyle(
-                                  color:
-                                      kColorWhite, // Matches the text color to the button theme
-                                  fontSize: 34.sp,
-                                  fontFamily: 'Kadaw' // Customize font size
+                          ),
+                          SizedBox(width: vww(context, 1)),
+                          SizedBox(
+                            width: vww(context, 30),
+                            height: 28,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    kColorStrongGrey, // Button background color
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                      30), // Rounded corners
+                                ),
+                                shadowColor:
+                                    // ignore: deprecated_member_use
+                                    Colors.black
+                                        // ignore: deprecated_member_use
+                                        .withOpacity(0.9), // Shadow color
+                                elevation: 6,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 2, vertical: 2),
+                              ),
+                              onPressed: () {
+                                _onFollowers();
+                              },
+                              child: Text("Following",
+                                  style: TextStyle(
+                                      color: kColorWhite,
+                                      fontSize: 34.sp,
+                                      fontFamily: 'Kadaw')),
+                            ),
+                          ),
+                          SizedBox(width: vww(context, 1)),
+                          SizedBox(
+                            width: vww(context, 30),
+                            height: 28,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    kColorStrongGrey, // Button background color
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                      30), // Rounded corners
+                                ),
+                                shadowColor:
+                                    // ignore: deprecated_member_use
+                                    Colors.black
+                                        // ignore: deprecated_member_use
+                                        .withOpacity(0.9), // Shadow color
+                                elevation: 6,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 2, vertical: 2),
+                              ),
+                              onPressed: () {
+                                _onSettingButtonClicked();
+                              },
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.settings, // Settings icon
+                                    size: 16,
+                                    color: kColorWhite,
                                   ),
+                                  const SizedBox(
+                                      width:
+                                          2), // Spacing between icon and text
+                                  Text(
+                                    'Settings',
+                                    style: TextStyle(
+                                        color:
+                                            kColorWhite, // Matches the text color to the button theme
+                                        fontSize: 34.sp,
+                                        fontFamily:
+                                            'Kadaw' // Customize font size
+                                        ),
+                                  ),
+                                ],
+                              ),
                             ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: vhh(context, 1)),
+                      Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                odometer,
+                                style: TextStyle(
+                                    color: kColorBlack,
+                                    fontSize: 14,
+                                    fontFamily: 'Kadaw'),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 4,
+                                    vertical:
+                                        0), // Adjust padding for inner spacing
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: kColorButtonPrimary, // Border color
+                                    width: 1.5, // Border width
+                                  ),
+                                  borderRadius: BorderRadius.circular(
+                                      8), // Rounded corners
+                                ),
+                                child: Text(
+                                  GlobalVariables.odometer != null
+                                      ? '${GlobalVariables.odometer!} Km'
+                                      : ' ',
+                                  style: const TextStyle(
+                                    color: kColorButtonPrimary,
+                                    fontSize: 14,
+                                    fontFamily: 'Kadaw',
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                happy_place,
+                                style: TextStyle(
+                                    color: kColorBlack,
+                                    fontSize: 14,
+                                    fontFamily: 'Kadaw'),
+                              ),
+                              Text(
+                                GlobalVariables.happyPlace != null
+                                    ? GlobalVariables.happyPlace!
+                                    : " ",
+                                style: const TextStyle(
+                                    color: kColorButtonPrimary,
+                                    fontSize: 14,
+                                    fontFamily: 'Kadaw'),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                my_garage,
+                                style: TextStyle(
+                                    color: kColorBlack,
+                                    fontSize: 14,
+                                    fontFamily: 'Kadaw'),
+                              ),
+                              GlobalVariables.garageLogoUrl != null
+                                  ? Image.network(
+                                      GlobalVariables.garageLogoUrl!,
+                                      width: 25, // Adjust width as needed
+                                      height: 25, // Adjust height as needed
+                                    )
+                                  : const Text(""),
+                            ],
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: vhh(context, 1)),
+                      SizedBox(
+                        height: 100,
+                        child: (dropPinsData).isEmpty
+                            ? const Center(
+                                child: Text("No drop pins available",
+                                    style: TextStyle(color: Colors.grey)),
+                              )
+                            : ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: dropPinsData.length,
+                                itemBuilder: (context, index) {
+                                  final dropPin = dropPinsData[index]
+                                      as Map<String, dynamic>;
+                                  final String imagePath =
+                                      dropPin['image_path'] ?? '';
+                                  final String caption =
+                                      dropPin['image_caption'] ?? 'No caption';
+                                  final List<dynamic> likedUsers =
+                                      dropPin['liked_users'] ?? [];
+
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 3),
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        _showImageDialog(imagePath, caption,
+                                            likedUsers.length, likedUsers);
+                                      },
+                                      child: imagePath.isNotEmpty
+                                          ? Container(
+                                              width: 100,
+                                              height: 100,
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                gradient: LinearGradient(
+                                                  colors: [
+                                                    // ignore: deprecated_member_use
+                                                    Colors.black
+                                                        // ignore: deprecated_member_use
+                                                        .withOpacity(0.5),
+                                                    Colors.transparent
+                                                  ],
+                                                  begin: Alignment.bottomCenter,
+                                                  end: Alignment.topCenter,
+                                                ),
+                                              ),
+                                              child: Image.network(
+                                                imagePath,
+                                                fit: BoxFit.cover,
+                                                loadingBuilder: (context, child,
+                                                    loadingProgress) {
+                                                  if (loadingProgress == null) {
+                                                    return child;
+                                                  } else {
+                                                    return const Center(
+                                                        child:
+                                                            CircularProgressIndicator());
+                                                  }
+                                                },
+                                                errorBuilder: (context, error,
+                                                    stackTrace) {
+                                                  return const Icon(
+                                                      Icons.broken_image,
+                                                      size: 100);
+                                                },
+                                              ),
+                                            )
+                                          : const Icon(
+                                              Icons.image_not_supported,
+                                              size: 100),
+                                    ),
+                                  );
+                                },
+                              ),
+                      ),
+
+                      SizedBox(height: vhh(context, 1)),
+                      // Map and Route Section with Dividers
+                      Container(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        color: kColorWhite,
+                        child: Column(
+                          children: [
+                            const Divider(
+                              height: 1,
+                              thickness: 2,
+                              color: Colors.blue,
+                            ),
+                            SizedBox(height: vhh(context, 2)),
+                            userTrips == null
+                                ? const Center(
+                                    child: CircularProgressIndicator())
+                                : userTrips!.isEmpty
+                                    ? const Center(
+                                        child: Text("No trips to display"))
+                                    : Column(
+                                        children: List.generate(
+                                          (userTrips!.length / 2).ceil(),
+                                          (rowIndex) => Column(
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Container(
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.4,
+                                                    height: 150,
+                                                    decoration: BoxDecoration(
+                                                      border: Border.all(
+                                                        color: Colors.grey,
+                                                        width: 2,
+                                                      ),
+                                                    ),
+                                                    child: TripMapWidget(
+                                                      trip: userTrips![
+                                                          rowIndex * 2],
+                                                      index: rowIndex * 2,
+                                                    ),
+                                                  ),
+                                                  SizedBox(
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.05,
+                                                    height: 150,
+                                                    child:
+                                                        const VerticalDivider(
+                                                      width: 2,
+                                                      thickness: 2,
+                                                      color: Colors.grey,
+                                                    ),
+                                                  ),
+                                                  if (rowIndex * 2 + 1 <
+                                                      userTrips!.length)
+                                                    Container(
+                                                      width:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width *
+                                                              0.4,
+                                                      height: 150,
+                                                      decoration: BoxDecoration(
+                                                        border: Border.all(
+                                                          color: Colors.grey,
+                                                          width: 2,
+                                                        ),
+                                                      ),
+                                                      child: TripMapWidget(
+                                                        trip: userTrips![
+                                                            rowIndex * 2 + 1],
+                                                        index: rowIndex * 2 + 1,
+                                                      ),
+                                                    ),
+                                                  if (rowIndex * 2 + 1 >=
+                                                      userTrips!.length)
+                                                    SizedBox(
+                                                        width: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width *
+                                                            0.4),
+                                                ],
+                                              ),
+                                              if (rowIndex <
+                                                  (userTrips!.length / 2)
+                                                          .ceil() -
+                                                      1)
+                                                Column(
+                                                  children: [
+                                                    SizedBox(
+                                                        height:
+                                                            vhh(context, 1)),
+                                                    const Divider(
+                                                      height: 1,
+                                                      thickness: 2,
+                                                      color: Colors.grey,
+                                                    ),
+                                                    SizedBox(
+                                                        height:
+                                                            vhh(context, 1)),
+                                                  ],
+                                                ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
                           ],
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: vhh(context, 1)),
-                Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          odometer,
-                          style: TextStyle(
-                              color: kColorBlack,
-                              fontSize: 14,
-                              fontFamily: 'Kadaw'),
-                        ),
-                        // Text(
-                        //   GlobalVariables.odometer != null
-                        //       ? '${GlobalVariables.odometer!} Km'
-                        //       : ' ',
-                        //   style: const TextStyle(
-                        //       color: kColorButtonPrimary,
-                        //       fontSize: 14,
-                        //       fontFamily: 'Kadaw'),
-                        // ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 4,
-                              vertical: 0), // Adjust padding for inner spacing
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: kColorButtonPrimary, // Border color
-                              width: 1.5, // Border width
-                            ),
-                            borderRadius:
-                                BorderRadius.circular(8), // Rounded corners
-                          ),
-                          child: Text(
-                            GlobalVariables.odometer != null
-                                ? '${GlobalVariables.odometer!} Km'
-                                : ' ',
-                            style: const TextStyle(
-                              color: kColorButtonPrimary,
-                              fontSize: 14,
-                              fontFamily: 'Kadaw',
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          happy_place,
-                          style: TextStyle(
-                              color: kColorBlack,
-                              fontSize: 14,
-                              fontFamily: 'Kadaw'),
-                        ),
-                        Text(
-                          GlobalVariables.happyPlace != null
-                              ? GlobalVariables.happyPlace!
-                              : " ",
-                          style: const TextStyle(
-                              color: kColorButtonPrimary,
-                              fontSize: 14,
-                              fontFamily: 'Kadaw'),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          my_garage,
-                          style: TextStyle(
-                              color: kColorBlack,
-                              fontSize: 14,
-                              fontFamily: 'Kadaw'),
-                        ),
-                        GlobalVariables.garageLogoUrl != null
-                            ? Image.network(
-                                GlobalVariables.garageLogoUrl!,
-                                width: 25, // Adjust width as needed
-                                height: 25, // Adjust height as needed
-                              )
-                            : const Text(""),
-                      ],
-                    ),
-                  ],
-                ),
-                SizedBox(height: vhh(context, 1)),
-                SizedBox(
-                  height: 100,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: GlobalVariables.dropPinsData?.length ?? 0,
-                    itemBuilder: (context, index) {
-                      final dropPin = GlobalVariables.dropPinsData![index]
-                          as Map<String, dynamic>;
-
-                      final String imagePath = dropPin['image_path'] ?? '';
-                      final String caption =
-                          dropPin['image_caption'] ?? 'No caption';
-                      final List<dynamic> likedUsers =
-                          dropPin['liked_users'] ?? [];
-
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 3),
-                        child: GestureDetector(
-                          onTap: () {
-                            // Handle the click event
-                            _showImageDialog(imagePath, caption,
-                                dropPin['liked_users'].length, likedUsers);
-                          },
-                          child: imagePath.isNotEmpty
-                              ? Container(
-                                  width: 100,
-                                  height: 100,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8),
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        // ignore: deprecated_member_use
-                                        Colors.black.withOpacity(0.5),
-                                        Colors.transparent
-                                      ],
-                                      begin: Alignment.bottomCenter,
-                                      end: Alignment.topCenter,
-                                    ),
-                                  ),
-                                  child: Image.network(
-                                    imagePath,
-                                    fit: BoxFit.cover,
-                                    loadingBuilder:
-                                        (context, child, loadingProgress) {
-                                      if (loadingProgress == null) {
-                                        // Image has loaded successfully
-                                        return child;
-                                      } else {
-                                        // Display a loading indicator while the image is loading
-                                        return Center(
-                                          child: CircularProgressIndicator(
-                                            value: loadingProgress
-                                                        .expectedTotalBytes !=
-                                                    null
-                                                ? loadingProgress
-                                                        .cumulativeBytesLoaded /
-                                                    (loadingProgress
-                                                            .expectedTotalBytes ??
-                                                        1)
-                                                : null, // Show progress if available
-                                          ),
-                                        );
-                                      }
-                                    },
-                                    errorBuilder: (context, error, stackTrace) {
-                                      // Fallback widget in case of an error
-                                      return const Icon(Icons.broken_image,
-                                          size: 100);
-                                    },
-                                  ),
-                                )
-                              : const Icon(Icons.image_not_supported,
-                                  size: 100),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                SizedBox(height: vhh(context, 1)),
-                // Map and Route Section with Dividers
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  color: kColorWhite,
-                  child: Column(
-                    children: [
-                      const Divider(
-                        height: 1,
-                        thickness: 2,
-                        color: Colors.blue,
-                      ),
-                      SizedBox(height: vhh(context, 2)),
-                      userTrips == null
-                          ? const Center(child: CircularProgressIndicator())
-                          : userTrips!.isEmpty
-                              ? const Center(child: Text("No trips to display"))
-                              : Column(
-                                  children: List.generate(
-                                    (userTrips!.length / 2).ceil(),
-                                    (rowIndex) => Column(
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Container(
-                                              width: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.4,
-                                              height: 150,
-                                              decoration: BoxDecoration(
-                                                border: Border.all(
-                                                  color: Colors.grey,
-                                                  width: 2,
-                                                ),
-                                              ),
-                                              child: TripMapWidget(
-                                                trip: userTrips![rowIndex * 2],
-                                                index: rowIndex * 2,
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              width: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.05,
-                                              height: 150,
-                                              child: const VerticalDivider(
-                                                width: 2,
-                                                thickness: 2,
-                                                color: Colors.grey,
-                                              ),
-                                            ),
-                                            if (rowIndex * 2 + 1 <
-                                                userTrips!.length)
-                                              Container(
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                    0.4,
-                                                height: 150,
-                                                decoration: BoxDecoration(
-                                                  border: Border.all(
-                                                    color: Colors.grey,
-                                                    width: 2,
-                                                  ),
-                                                ),
-                                                child: TripMapWidget(
-                                                  trip: userTrips![
-                                                      rowIndex * 2 + 1],
-                                                  index: rowIndex * 2 + 1,
-                                                ),
-                                              ),
-                                            if (rowIndex * 2 + 1 >=
-                                                userTrips!.length)
-                                              SizedBox(
-                                                  width: MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.4),
-                                          ],
-                                        ),
-                                        if (rowIndex <
-                                            (userTrips!.length / 2).ceil() - 1)
-                                          Column(
-                                            children: [
-                                              SizedBox(height: vhh(context, 1)),
-                                              const Divider(
-                                                height: 1,
-                                                thickness: 2,
-                                                color: Colors.grey,
-                                              ),
-                                              SizedBox(height: vhh(context, 1)),
-                                            ],
-                                          ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
                     ],
                   ),
                 ),
-              ],
-            ),
-          ),
-        ),
+              ),
       ),
       bottomNavigationBar: BottomNavBar(currentIndex: _currentIndex),
     );

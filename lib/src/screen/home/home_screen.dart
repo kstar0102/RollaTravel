@@ -54,6 +54,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
       setState(() {
         trips = data;
       });
+      logger.i(trips);
 
       // Scroll to the correct index if homeTripID is set
       if (GlobalVariables.homeTripID != null) {
@@ -252,11 +253,26 @@ class PostWidgetState extends State<PostWidget> {
     List<LatLng> tempLocations = []; // Temporary list to batch all locations
 
     try {
-      // Fetch Start Address
-      final startCoordinates =
-          await getCoordinates(widget.post['start_address']);
-      startPoint =
-          LatLng(startCoordinates['latitude']!, startCoordinates['longitude']!);
+      if (widget.post['start_location'] != null &&
+          widget.post['start_location'].toString().contains("LatLng")) {
+        // Extracting coordinates from string format "LatLng(latitude:49.779318, longitude:-86.535325)"
+        final regex =
+            RegExp(r"LatLng\(latitude:([\d\.-]+), longitude:([\d\.-]+)\)");
+        final match = regex.firstMatch(widget.post['start_location']);
+
+        if (match != null) {
+          final double latitude = double.parse(match.group(1)!);
+          final double longitude = double.parse(match.group(2)!);
+          startPoint = LatLng(latitude, longitude);
+          logger.i("startPoint : $startPoint");
+        }
+      } else {
+        // Fetch Start Address Coordinates if `start_location` is not available
+        final startCoordinates =
+            await getCoordinates(widget.post['start_address']);
+        startPoint = LatLng(
+            startCoordinates['latitude']!, startCoordinates['longitude']!);
+      }
     } catch (e) {
       logger.e('Failed to fetch start address coordinates: $e');
     }
@@ -283,10 +299,23 @@ class PostWidgetState extends State<PostWidget> {
           "Destination address for DropPin") {
         endPoint = null;
       } else {
-        final destinationCoordinates =
-            await getCoordinates(widget.post['destination_address']);
-        endPoint = LatLng(destinationCoordinates['latitude']!,
-            destinationCoordinates['longitude']!);
+        // final destinationCoordinates =
+        //     await getCoordinates(widget.post['destination_address']);
+        // endPoint = LatLng(destinationCoordinates['latitude']!,
+        //     destinationCoordinates['longitude']!);
+        final regex =
+            RegExp(r"LatLng\(latitude:([\d\.-]+), longitude:([\d\.-]+)\)");
+        final match = regex.firstMatch(widget.post['destination_location']);
+
+        if (match != null) {
+          final double latitude = double.parse(match.group(1)!);
+          final double longitude = double.parse(match.group(2)!);
+          setState(() {
+            endPoint = LatLng(latitude, longitude);
+          });
+
+          logger.i("endPoint : $endPoint");
+        }
       }
     } catch (e) {
       logger.e('Failed to fetch destination address coordinates: $e');

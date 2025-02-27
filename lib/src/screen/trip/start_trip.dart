@@ -297,9 +297,6 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     final movingLocation = ref.read(movingLocationProvider);
     final staticStartingPoint = ref.read(staticStartingPointProvider);
     final restoredPath = ref.read(pathCoordinatesProvider);
-    // pathCoordinates = restoredPath;
-    // logger.i("Static Starting Point: $staticStartingPoint");
-    // logger.i("Restored Path: $restoredPath");
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (staticStartingPoint != null) {
@@ -324,13 +321,22 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     });
   }
 
-  void _endTrip() {
+  void _endTrip() async {
     LatLng? startLocation = ref.read(staticStartingPointProvider);
-    LatLng? endLocation = ref.read(movingLocationProvider);
+    // ✅ Get the most recent location before setting `endLocation`
+    Position position = await Geolocator.getCurrentPosition(
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.high,
+      ),
+    );
+
+    // ✅ Assign `endLocation` the most accurate position
+    LatLng endLocation = LatLng(position.latitude, position.longitude);
     List<MarkerData> stopMarkers = ref.read(markersProvider);
 
     // Check if there are no stop markers
     if (stopMarkers.isEmpty) {
+      if (!mounted) return;
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -362,6 +368,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
 
     if (GlobalVariables.tripStartDate != null &&
         GlobalVariables.tripEndDate != null) {
+      if (!mounted) return;
       // ✅ End the trip and navigate to the EndTripScreen
       Navigator.push(
         context,
