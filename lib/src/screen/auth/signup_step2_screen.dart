@@ -13,7 +13,7 @@ class SignupStep2Screen extends ConsumerStatefulWidget {
   final String lastName;
   final String emailAddress;
   const SignupStep2Screen({
-    super.key, 
+    super.key,
     required this.firstName,
     required this.lastName,
     required this.emailAddress,
@@ -25,7 +25,7 @@ class SignupStep2Screen extends ConsumerStatefulWidget {
 
 class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
   final _usernameController = TextEditingController();
-  final _passwordController= TextEditingController();
+  final _passwordController = TextEditingController();
   final _rePasswordController = TextEditingController();
   final logger = Logger();
   bool isPasswordVisible = false;
@@ -48,7 +48,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
         setState(() {
           this.keyboardHeight = keyboardHeight;
         });
-      } 
+      }
     });
   }
 
@@ -60,11 +60,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
     super.dispose();
   }
 
-  Future<bool> _onWillPop() async {
-    return false;
-  }
-
-  void _onCreateAccount() async{
+  void _onCreateAccount() async {
     if (_usernameController.text.isEmpty) {
       setState(() {
         userNameError = "Username is required";
@@ -85,7 +81,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
         rePasswordError = "Passwords do not match";
       });
       return;
-    } else if(_selectedOption == null){
+    } else if (_selectedOption == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Please select how you heard about us.'),
@@ -100,13 +96,12 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
       final apiService = ApiService();
       try {
         final response = await apiService.register(
-          firstName: widget.firstName,
-          lastName: widget.lastName,
-          email: widget.emailAddress,
-          password: _passwordController.text,
-          rollaUsername: _usernameController.text,
-          hearRolla: _selectedOption!
-        );
+            firstName: widget.firstName,
+            lastName: widget.lastName,
+            email: widget.emailAddress,
+            password: _passwordController.text,
+            rollaUsername: _usernameController.text,
+            hearRolla: _selectedOption!);
 
         if (response['success'] == true) {
           // Navigate to LoginUserFlowScreen on successful registration
@@ -151,7 +146,6 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     if (_isKeyboardVisible == true) {
@@ -160,17 +154,20 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
       screenHeight = 800;
       keyboardHeight = 0;
     }
-    return WillPopScope (
-      onWillPop: _onWillPop,
-      child: Scaffold(
-        resizeToAvoidBottomInset: true,
-        body: SizedBox.expand(
-          child: SingleChildScrollView(
+    return PopScope(
+        canPop: false, // Prevents default back navigation
+        onPopInvokedWithResult: (didPop, result) {
+          if (!didPop) {
+            return; // Prevent pop action
+          }
+        },
+        child: Scaffold(
+          resizeToAvoidBottomInset: true,
+          body: SizedBox.expand(
+              child: SingleChildScrollView(
             child: FocusScope(
               child: Container(
-                decoration: const BoxDecoration(
-                  color: kColorWhite
-                ),
+                decoration: const BoxDecoration(color: kColorWhite),
                 height: vhh(context, 100),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -192,16 +189,18 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                             height: 20,
                           ),
                         ),
-                        
                         Image.asset(
                           'assets/images/icons/logo.png',
                           width: vww(context, 25),
                         ),
-
-                        Container(width: vww(context, 15),),
+                        Container(
+                          width: vww(context, 15),
+                        ),
                       ],
                     ),
-                    SizedBox(height: vhh(context, 3),),
+                    SizedBox(
+                      height: vhh(context, 3),
+                    ),
                     SizedBox(
                       width: vw(context, 38),
                       height: vh(context, 6.5),
@@ -210,45 +209,54 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                         keyboardType: TextInputType.emailAddress,
                         autocorrect: false,
                         cursorColor: kColorGrey,
-                        style: const TextStyle(color: kColorBlack, fontSize: 14, fontFamily: 'Kadaw'),
+                        style: const TextStyle(
+                            color: kColorBlack,
+                            fontSize: 14,
+                            fontFamily: 'Kadaw'),
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           enabledBorder: const UnderlineInputBorder(
                             borderSide: BorderSide(color: kColorGrey, width: 1),
                           ),
                           focusedBorder: const UnderlineInputBorder(
-                            borderSide: BorderSide(color: kColorBlack, width: 1.5),
+                            borderSide:
+                                BorderSide(color: kColorBlack, width: 1.5),
                           ),
                           errorText: userNameError,
                           hintText: "Rolla Username",
-                          hintStyle: const TextStyle(color: kColorGrey, fontSize: 14, fontFamily: 'Kadaw'),
+                          hintStyle: const TextStyle(
+                              color: kColorGrey,
+                              fontSize: 14,
+                              fontFamily: 'Kadaw'),
                           contentPadding: const EdgeInsets.only(
                             top: -8, // Push hint closer to the top
-                            bottom: -5, // Reduce space between text and underline
+                            bottom:
+                                -5, // Reduce space between text and underline
                           ),
                           errorStyle: const TextStyle(
-                            color: Colors.red, // Customize error message color
-                            fontSize: 12, // Reduce font size of the error message
-                            height: 0.5, // Adjust line height for tighter spacing
-                            fontFamily: 'Kadaw'
-                          ),
+                              color:
+                                  Colors.red, // Customize error message color
+                              fontSize:
+                                  12, // Reduce font size of the error message
+                              height:
+                                  0.5, // Adjust line height for tighter spacing
+                              fontFamily: 'Kadaw'),
                           counterText: '',
                         ),
                         onChanged: (value) {
                           setState(() {
                             if (value.length < 4) {
-                              userNameError = 'Username must be at least 6 characters.';
-                            } else if(value.isEmpty){
+                              userNameError =
+                                  'Username must be at least 6 characters.';
+                            } else if (value.isEmpty) {
                               userNameError = "username is required";
-                            }
-                            else {
+                            } else {
                               userNameError = null; // No error
                             }
                           });
                         },
                       ),
                     ),
-
                     SizedBox(
                       width: vw(context, 38),
                       height: vh(context, 6.5),
@@ -258,45 +266,54 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                         autocorrect: false,
                         obscureText: true,
                         cursorColor: kColorGrey,
-                        style: const TextStyle(color: kColorBlack, fontSize: 14, fontFamily: 'Kadaw'),
+                        style: const TextStyle(
+                            color: kColorBlack,
+                            fontSize: 14,
+                            fontFamily: 'Kadaw'),
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           enabledBorder: const UnderlineInputBorder(
                             borderSide: BorderSide(color: kColorGrey, width: 1),
                           ),
                           focusedBorder: const UnderlineInputBorder(
-                            borderSide: BorderSide(color: kColorBlack, width: 1.5),
+                            borderSide:
+                                BorderSide(color: kColorBlack, width: 1.5),
                           ),
                           errorText: passwordError,
                           hintText: password_title,
-                          hintStyle: const TextStyle(color: kColorGrey, fontSize: 14, fontFamily: 'Kadaw'),
+                          hintStyle: const TextStyle(
+                              color: kColorGrey,
+                              fontSize: 14,
+                              fontFamily: 'Kadaw'),
                           contentPadding: const EdgeInsets.only(
                             top: -8, // Push hint closer to the top
-                            bottom: -5, // Reduce space between text and underline
+                            bottom:
+                                -5, // Reduce space between text and underline
                           ),
                           errorStyle: const TextStyle(
-                            color: Colors.red, // Customize error message color
-                            fontSize: 12, // Reduce font size of the error message
-                            height: 0.5, // Adjust line height for tighter spacing
-                            fontFamily: 'Kadaw'
-                          ),
+                              color:
+                                  Colors.red, // Customize error message color
+                              fontSize:
+                                  12, // Reduce font size of the error message
+                              height:
+                                  0.5, // Adjust line height for tighter spacing
+                              fontFamily: 'Kadaw'),
                           counterText: '',
                         ),
                         onChanged: (value) {
                           setState(() {
                             if (value.length < 6) {
-                              passwordError = 'Password must be at least 6 characters.';
-                            } else if(value.isEmpty){
+                              passwordError =
+                                  'Password must be at least 6 characters.';
+                            } else if (value.isEmpty) {
                               passwordError = "Password is required";
-                            }
-                            else {
+                            } else {
                               passwordError = null; // No error
                             }
                           });
                         },
                       ),
                     ),
-
                     SizedBox(
                       width: vw(context, 38),
                       height: vh(context, 6.5),
@@ -306,68 +323,90 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                         autocorrect: false,
                         obscureText: true,
                         cursorColor: kColorGrey,
-                        style: const TextStyle(color: kColorBlack, fontSize: 14, fontFamily: 'Kadaw'),
+                        style: const TextStyle(
+                            color: kColorBlack,
+                            fontSize: 14,
+                            fontFamily: 'Kadaw'),
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           enabledBorder: const UnderlineInputBorder(
                             borderSide: BorderSide(color: kColorGrey, width: 1),
                           ),
                           focusedBorder: const UnderlineInputBorder(
-                            borderSide: BorderSide(color: kColorBlack, width: 1.5),
+                            borderSide:
+                                BorderSide(color: kColorBlack, width: 1.5),
                           ),
-                          errorText: rePasswordError, 
+                          errorText: rePasswordError,
                           hintText: re_enter_password,
-                          hintStyle: const TextStyle(color: kColorGrey, fontSize: 14, fontFamily: 'Kadaw'),
+                          hintStyle: const TextStyle(
+                              color: kColorGrey,
+                              fontSize: 14,
+                              fontFamily: 'Kadaw'),
                           contentPadding: const EdgeInsets.only(
                             top: -8, // Push hint closer to the top
-                            bottom: -5, // Reduce space between text and underline
+                            bottom:
+                                -5, // Reduce space between text and underline
                           ),
                           errorStyle: const TextStyle(
-                            color: Colors.red, // Customize error message color
-                            fontSize: 12, // Reduce font size of the error message
-                            height: 0.5, // Adjust line height for tighter spacing
-                            fontFamily: 'Kadaw'
-                          ),
+                              color:
+                                  Colors.red, // Customize error message color
+                              fontSize:
+                                  12, // Reduce font size of the error message
+                              height:
+                                  0.5, // Adjust line height for tighter spacing
+                              fontFamily: 'Kadaw'),
                           counterText: '',
                         ),
                         onChanged: (value) {
-                        setState(() {
-                          if (value != _passwordController.text) {
-                            rePasswordError = 'Passwords do not match.';
-                          } else if (value.length < 6) {
-                            rePasswordError = 'Password must be at least 6 characters.';
-                          } else if(value.isEmpty){
-                            rePasswordError = 'Re-enter password is required.';
-                          } 
-                          else {
-                            rePasswordError = null; // No error
-                          }
-                        });
-                      },
+                          setState(() {
+                            if (value != _passwordController.text) {
+                              rePasswordError = 'Passwords do not match.';
+                            } else if (value.length < 6) {
+                              rePasswordError =
+                                  'Password must be at least 6 characters.';
+                            } else if (value.isEmpty) {
+                              rePasswordError =
+                                  'Re-enter password is required.';
+                            } else {
+                              rePasswordError = null; // No error
+                            }
+                          });
+                        },
                       ),
                     ),
-
                     SizedBox(
-                      height: vhh(context, 5),                     
+                      height: vhh(context, 5),
                     ),
-                    
                     Padding(
-                      padding: EdgeInsets.only(top: vhh(context, 1), left: vww(context, 10), right: vww(context, 10)),
+                      padding: EdgeInsets.only(
+                          top: vhh(context, 1),
+                          left: vww(context, 10),
+                          right: vww(context, 10)),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
                             how_did_you_hear,
-                            style: TextStyle(fontSize: 14, fontFamily: 'KadawBold'),
+                            style: TextStyle(
+                                fontSize: 14, fontFamily: 'KadawBold'),
                           ),
                           SizedBox(height: vhh(context, 1)),
                           RadioListTile<String>(
                             controlAffinity: ListTileControlAffinity.trailing,
-                            contentPadding: EdgeInsets.zero, // Remove extra padding
-                            visualDensity: const VisualDensity(horizontal: -4, vertical: -4), // Adjust density to reduce spacing
+                            contentPadding:
+                                EdgeInsets.zero, // Remove extra padding
+                            visualDensity: const VisualDensity(
+                                horizontal: -4,
+                                vertical:
+                                    -4), // Adjust density to reduce spacing
                             title: const Padding(
-                              padding: EdgeInsets.only(left: 20), // Indent the text by approximately 10 inches
-                              child: Text(i_saw_ad, style: TextStyle(fontFamily: 'Kadaw'),),
+                              padding: EdgeInsets.only(
+                                  left:
+                                      20), // Indent the text by approximately 10 inches
+                              child: Text(
+                                i_saw_ad,
+                                style: TextStyle(fontFamily: 'Kadaw'),
+                              ),
                             ),
                             value: i_saw_ad,
                             groupValue: _selectedOption,
@@ -380,10 +419,16 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                           RadioListTile<String>(
                             controlAffinity: ListTileControlAffinity.trailing,
                             contentPadding: EdgeInsets.zero,
-                            visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+                            visualDensity: const VisualDensity(
+                                horizontal: -4, vertical: -4),
                             title: const Padding(
-                              padding: EdgeInsets.only(left: 20), // Indent the text by approximately 10 inches
-                              child: Text(recommendation, style: TextStyle(fontFamily: 'Kadaw'),),
+                              padding: EdgeInsets.only(
+                                  left:
+                                      20), // Indent the text by approximately 10 inches
+                              child: Text(
+                                recommendation,
+                                style: TextStyle(fontFamily: 'Kadaw'),
+                              ),
                             ),
                             value: recommendation,
                             groupValue: _selectedOption,
@@ -396,10 +441,16 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                           RadioListTile<String>(
                             controlAffinity: ListTileControlAffinity.trailing,
                             contentPadding: EdgeInsets.zero,
-                            visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+                            visualDensity: const VisualDensity(
+                                horizontal: -4, vertical: -4),
                             title: const Padding(
-                              padding: EdgeInsets.only(left: 20), // Indent the text by approximately 10 inches
-                              child: Text(other, style: TextStyle(fontFamily: 'Kadaw'),),
+                              padding: EdgeInsets.only(
+                                  left:
+                                      20), // Indent the text by approximately 10 inches
+                              child: Text(
+                                other,
+                                style: TextStyle(fontFamily: 'Kadaw'),
+                              ),
                             ),
                             value: other,
                             groupValue: _selectedOption,
@@ -412,27 +463,28 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                         ],
                       ),
                     ),
-
-                    _isLoading ? const CircularProgressIndicator() 
-                      : Padding(
-                        padding: EdgeInsets.only(left: vww(context, 15), right: vww(context, 15), top: vhh(context, 2)),
-                        child: ButtonWidget(
-                          btnType: ButtonWidgetType.createAccountTitle,
-                          borderColor: kColorCreateButton,
-                          textColor: kColorWhite,
-                          fullColor: kColorCreateButton,
-                          onPressed: () {
-                            _onCreateAccount();
-                          },
-                        ),
-                      ),
+                    _isLoading
+                        ? const CircularProgressIndicator()
+                        : Padding(
+                            padding: EdgeInsets.only(
+                                left: vww(context, 15),
+                                right: vww(context, 15),
+                                top: vhh(context, 2)),
+                            child: ButtonWidget(
+                              btnType: ButtonWidgetType.createAccountTitle,
+                              borderColor: kColorCreateButton,
+                              textColor: kColorWhite,
+                              fullColor: kColorCreateButton,
+                              onPressed: () {
+                                _onCreateAccount();
+                              },
+                            ),
+                          ),
                   ],
                 ),
               ),
             ),
-          )
-        ),
-      )
-    );
+          )),
+        ));
   }
 }

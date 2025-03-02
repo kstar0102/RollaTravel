@@ -30,72 +30,76 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
     if (username != null && username.isNotEmpty) {
       _handleLogin(username, password!);
-    } else{
+    } else {
       _goLoginScreen();
     }
   }
 
   Future<void> _handleLogin(String userName, String passWord) async {
     try {
-        final response = await _apiService.login(
-          userName,
-          passWord,
-        );
+      final response = await _apiService.login(
+        userName,
+        passWord,
+      );
 
-        if (response['token'] != null && response['token'].isNotEmpty) {
-
-          final Map<String, dynamic>? userData = response['userData'] != null
+      if (response['token'] != null && response['token'].isNotEmpty) {
+        final Map<String, dynamic>? userData = response['userData'] != null
             ? response['userData'] as Map<String, dynamic>
             : null;
 
-          final List<dynamic>? dropPinsData = response['droppins'] != null
-              ? response['droppins'] as List<dynamic>
-              : null;
+        final List<dynamic>? dropPinsData = response['droppins'] != null
+            ? response['droppins'] as List<dynamic>
+            : null;
 
-          final List<dynamic>? garagesData = response['garages'] != null
+        final List<dynamic>? garagesData = response['garages'] != null
             ? response['garages'] as List<dynamic>?
             : null;
-            
-          if (dropPinsData != null) {
-            GlobalVariables.dropPinsData = dropPinsData;
-          }
-          if (userData != null) {
-            // Handle the case where userData is null
-            GlobalVariables.userId = userData['id'];
-            GlobalVariables.userName = userData['rolla_username'];
-            GlobalVariables.realName = '${userData['first_name']} ${userData['last_name']}';
-            GlobalVariables.happyPlace = userData['happy_place'];
-            GlobalVariables.bio = userData['bio'];
-            GlobalVariables.garage = userData['garage'];
-            GlobalVariables.userImageUrl = userData['photo'];
-            GlobalVariables.followingIds = userData['following_user_id'];
-          }
 
-          if(garagesData != null && garagesData.isNotEmpty) {
-             GlobalVariables.garageLogoUrl = garagesData[0]['logo_path'];
-          }
-          
-          GlobalVariables.odometer = response['trip_miles_sum'];
-          GlobalVariables.tripCount = response['total_trips'];
-
-          if (mounted) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ProfileScreen()),
-            );
-          }
-        } else {
-          _showErrorDialog(response['message']);
+        if (dropPinsData != null) {
+          GlobalVariables.dropPinsData = dropPinsData;
         }
-      } catch (e, stackTrace) {
-          // Log and handle unexpected errors
-          logger.e('Login error: $e\nStack trace: $stackTrace');
-          _showErrorDialog('Network not working now...');
-        } finally {
-        // setState(() {
-        //   _isLoading = false;
-        // });
+        if (userData != null) {
+          // Handle the case where userData is null
+          GlobalVariables.userId = userData['id'];
+          GlobalVariables.userName = userData['rolla_username'];
+          GlobalVariables.realName =
+              '${userData['first_name']} ${userData['last_name']}';
+          GlobalVariables.happyPlace = userData['happy_place'];
+          GlobalVariables.bio = userData['bio'];
+          GlobalVariables.garage = userData['garage'];
+          GlobalVariables.userImageUrl = userData['photo'];
+          GlobalVariables.followingIds = userData['following_user_id'];
+        }
+
+        if (garagesData != null && garagesData.isNotEmpty) {
+          GlobalVariables.garageLogoUrl = garagesData[0]['logo_path'];
+        }
+
+        GlobalVariables.odometer = response['trip_miles_sum'];
+        GlobalVariables.tripCount = response['total_trips'];
+
+        if (mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ProfileScreen()),
+          );
+        }
+      } else {
+        Navigator.push(
+          // ignore: use_build_context_synchronously
+          context,
+          MaterialPageRoute(builder: (context) => const SigninScreen()),
+        );
       }
+    } catch (e, stackTrace) {
+      // Log and handle unexpected errors
+      logger.e('Login error: $e\nStack trace: $stackTrace');
+      _showErrorDialog('Network not working now...');
+    } finally {
+      // setState(() {
+      //   _isLoading = false;
+      // });
+    }
   }
 
   void _showErrorDialog(String message) {
@@ -139,10 +143,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       body: SizedBox.expand(
         child: FocusScope(
           child: Container(
-            decoration: const BoxDecoration(
-              color: Colors.black
-            ),
-            child:  Column(
+            decoration: const BoxDecoration(color: Colors.black),
+            child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[

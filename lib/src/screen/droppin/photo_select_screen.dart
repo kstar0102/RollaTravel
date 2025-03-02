@@ -190,8 +190,13 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: WillPopScope(
-        onWillPop: () async => false,
+      body: PopScope(
+        canPop: false, // Prevents popping by default
+        onPopInvokedWithResult: (didPop, result) {
+          if (!didPop) {
+            return; // Prevent pop action
+          }
+        },
         child: Padding(
           padding: const EdgeInsets.all(10.0),
           child: Column(

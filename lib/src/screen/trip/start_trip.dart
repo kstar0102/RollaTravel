@@ -268,6 +268,11 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   }
 
   void _startTrip() {
+    if (GlobalVariables.editDestination == "Edit destination" ||
+        GlobalVariables.editDestination.isEmpty) {
+      _showDestinationAlert(context);
+      return;
+    }
     GlobalVariables.isTripStarted = true;
     ref.read(isTripStartedProvider.notifier).state = true;
     ref.read(pathCoordinatesProvider.notifier).state = [];
@@ -291,6 +296,27 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
 
     // ✅ Start tracking user movement
     _startTrackingMovement();
+  }
+
+  void _showDestinationAlert(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Destination Required"),
+          content: const Text(
+              "Please enter the destination before starting the trip."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close dialog
+              },
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _restoreState() {
@@ -332,6 +358,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
 
     // ✅ Assign `endLocation` the most accurate position
     LatLng endLocation = LatLng(position.latitude, position.longitude);
+    logger.i("end trip location : $endLocation");
     List<MarkerData> stopMarkers = ref.read(markersProvider);
 
     // Check if there are no stop markers
@@ -365,6 +392,8 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
 
     String tripMiles =
         "${GlobalVariables.totalDistance.toStringAsFixed(3)} miles";
+
+    GlobalVariables.editDestination = 'Edit destination';
 
     if (GlobalVariables.tripStartDate != null &&
         GlobalVariables.tripEndDate != null) {

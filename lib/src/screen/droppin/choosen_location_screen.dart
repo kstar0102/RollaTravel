@@ -49,10 +49,6 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
     super.dispose();
   }
 
-  Future<bool> _onWillPop() async {
-    return false;
-  }
-
   void _onCloseClicked() {
     Navigator.push(context,
         MaterialPageRoute(builder: (context) => const StartTripScreen()));
@@ -85,9 +81,13 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kColorWhite,
-      // ignore: deprecated_member_use
-      body: WillPopScope(
-        onWillPop: _onWillPop,
+      body: PopScope(
+        canPop: false, // Prevents popping by default
+        onPopInvokedWithResult: (didPop, result) {
+          if (!didPop) {
+            return; // Prevent pop action
+          }
+        },
         child: Stack(
           children: [
             // Main body content

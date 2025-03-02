@@ -21,12 +21,8 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
   bool showLikes = true;
   final logger = Logger();
   final int _currentIndex = 3;
-  final LatLng photoLocation = const LatLng (0, 0);
+  final LatLng photoLocation = const LatLng(0, 0);
   final TextEditingController _captionController = TextEditingController();
-
-  Future<bool> _onWillPop() async {
-    return false;
-  }
 
   Future<void> _handleLocationSelection() async {
     // logger.i(showLikes);
@@ -63,8 +59,13 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: _onWillPop,
+    return PopScope(
+      canPop: false, // Prevents default back navigation
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          return; // Prevent pop action
+        }
+      },
       child: Scaffold(
         backgroundColor: kColorWhite,
         body: Center(
@@ -76,7 +77,8 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Image.asset('assets/images/icons/logo.png', height: vhh(context, 12)),
+                    Image.asset('assets/images/icons/logo.png',
+                        height: vhh(context, 12)),
                     IconButton(
                       icon: const Icon(Icons.close, size: 30),
                       onPressed: () {
@@ -104,7 +106,11 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
                                 fit: BoxFit.cover,
                               ),
                             )
-                          : const Center(child: Text('No image selected.', style: TextStyle(fontFamily: 'Kadaw'),)),
+                          : const Center(
+                              child: Text(
+                              'No image selected.',
+                              style: TextStyle(fontFamily: 'Kadaw'),
+                            )),
                     ),
 
                     // Overlay elements on top of the image
@@ -114,7 +120,8 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
                         Padding(
                           padding: const EdgeInsets.all(10.0),
                           child: Container(
-                            color: Colors.transparent, // Semi-transparent background
+                            color: Colors
+                                .transparent, // Semi-transparent background
                             child: TextField(
                               controller: _captionController,
                               decoration: InputDecoration(
@@ -122,7 +129,8 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
                                 hintStyle: const TextStyle(fontFamily: 'Kadaw'),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8.0),
-                                  borderSide: const BorderSide(color: Colors.blue, width: 2.0),
+                                  borderSide: const BorderSide(
+                                      color: Colors.blue, width: 2.0),
                                 ),
                                 filled: true,
                                 fillColor: Colors.white.withOpacity(0.9),
@@ -131,13 +139,14 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
                             ),
                           ),
                         ),
-                      
+
                         const Spacer(),
                         // Radio buttons for "hide likes" and "show likes"
                         Align(
                           alignment: Alignment.centerLeft,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16.0, vertical: 8.0),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -158,7 +167,13 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
                                         },
                                         activeColor: Colors.blue,
                                       ),
-                                      const Text('hide likes', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontFamily: 'Kadaw'),),
+                                      const Text(
+                                        'hide likes',
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.w500,
+                                            fontFamily: 'Kadaw'),
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -179,7 +194,13 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
                                         },
                                         activeColor: Colors.blue,
                                       ),
-                                      const Text('show likes', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontFamily: 'Kadaw'),),
+                                      const Text(
+                                        'show likes',
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.w500,
+                                            fontFamily: 'Kadaw'),
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -193,7 +214,9 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 10,),
+              const SizedBox(
+                height: 10,
+              ),
               // Select Location button
               Center(
                 child: Padding(
@@ -203,16 +226,22 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.zero,
                       backgroundColor: kColorButtonPrimary, // Button color
-                      minimumSize: const Size(150, 30), // Set button width and height
+                      minimumSize:
+                          const Size(150, 30), // Set button width and height
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20), // Rounded corners
+                        borderRadius:
+                            BorderRadius.circular(20), // Rounded corners
                       ),
                       elevation: 4, // Shadow depth
-                      shadowColor: Colors.black.withOpacity(0.25), // Shadow color
+                      shadowColor:
+                          Colors.black.withOpacity(0.25), // Shadow color
                     ),
                     child: const Text(
                       'Select Location',
-                      style: TextStyle(color: Colors.white, fontFamily: 'Kadaw', fontSize: 14),
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontFamily: 'Kadaw',
+                          fontSize: 14),
                     ),
                   ),
                 ),

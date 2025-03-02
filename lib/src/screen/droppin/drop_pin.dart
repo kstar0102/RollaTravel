@@ -23,7 +23,7 @@ class DropPinScreenState extends ConsumerState<DropPinScreen> {
         setState(() {
           this.keyboardHeight = keyboardHeight;
         });
-      } 
+      }
     });
   }
 
@@ -32,24 +32,18 @@ class DropPinScreenState extends ConsumerState<DropPinScreen> {
     super.dispose();
   }
 
-  Future<bool> _onWillPop() async {
-    return false;
-  }
-
   Widget buildInstructionItem(int number, String text) {
     return Padding(
       padding: const EdgeInsets.only(left: 16.0, top: 4.0, bottom: 4.0),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.baseline, // Use baseline alignment
+        crossAxisAlignment:
+            CrossAxisAlignment.baseline, // Use baseline alignment
         textBaseline: TextBaseline.alphabetic, // Specify the baseline alignment
         children: [
           Text(
             '$number. ',
             style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey[600],
-              fontFamily: 'Kadaw'
-            ),
+                fontSize: 16, color: Colors.grey[600], fontFamily: 'Kadaw'),
           ),
           Expanded(
             child: RichText(
@@ -71,10 +65,7 @@ class DropPinScreenState extends ConsumerState<DropPinScreen> {
         children.add(TextSpan(
           text: parts[i],
           style: TextStyle(
-            fontSize: 16,
-            color: Colors.grey[600],
-            fontFamily: 'Kadaw'
-          ),
+              fontSize: 16, color: Colors.grey[600], fontFamily: 'Kadaw'),
         ));
       }
 
@@ -101,14 +92,21 @@ class DropPinScreenState extends ConsumerState<DropPinScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: WillPopScope(
-        onWillPop: _onWillPop,
+      body: PopScope(
+        canPop: false, // Prevents popping by default
+        onPopInvokedWithResult: (didPop, result) {
+          if (!didPop) {
+            return; // Prevent pop action
+          }
+        },
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              SizedBox(height: vhh(context, 3),),
+              SizedBox(
+                height: vhh(context, 3),
+              ),
               // Logo at the top
               Align(
                 alignment: Alignment.topLeft,
@@ -118,51 +116,55 @@ class DropPinScreenState extends ConsumerState<DropPinScreen> {
                 ),
               ),
               SizedBox(height: vhh(context, 8)),
-              
+
               // Note text
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0), // Adjust the value as needed
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 20.0), // Adjust the value as needed
                 child: RichText(
                   textAlign: TextAlign.center,
                   text: TextSpan(
                     style: const TextStyle(
-                      fontSize: 16,
-                      fontStyle: FontStyle.italic,
-                      color: Colors.black, // Set the text color
-                      fontFamily: 'KadawBold'
-                    ),
+                        fontSize: 16,
+                        fontStyle: FontStyle.italic,
+                        color: Colors.black, // Set the text color
+                        fontFamily: 'KadawBold'),
                     children: [
                       const TextSpan(
-                        text: 'Note: You must start trip under the '
-                      ),
+                          text: 'Note: You must start trip under the '),
                       WidgetSpan(
                         alignment: PlaceholderAlignment.middle,
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4.0), // Adjust spacing if needed
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 4.0), // Adjust spacing if needed
                           child: Image.asset(
                             'assets/images/icons/home.png',
-                            width: 20, // Adjust the size to fit well with the text
+                            width:
+                                20, // Adjust the size to fit well with the text
                             height: 20,
                           ),
                         ),
                       ),
                       const TextSpan(
-                        text: ' button before you can drop a pin and post your map.',
+                        text:
+                            ' button before you can drop a pin and post your map.',
                       ),
                     ],
                   ),
                 ),
               ),
               SizedBox(height: vhh(context, 10)),
-              
+
               // Instructions list
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   buildInstructionItem(1, 'Navigate to \u{1F698} button.'),
                   buildInstructionItem(2, 'Tap "Start Trip".'),
-                  buildInstructionItem(3, 'Navigate back here, to the "Drop Pin" tab.'),
-                  buildInstructionItem(4, 'Upload photo and drop it on your map.'),
+                  buildInstructionItem(
+                      3, 'Navigate back here, to the "Drop Pin" tab.'),
+                  buildInstructionItem(
+                      4, 'Upload photo and drop it on your map.'),
                 ],
               ),
             ],
@@ -172,5 +174,4 @@ class DropPinScreenState extends ConsumerState<DropPinScreen> {
       bottomNavigationBar: BottomNavBar(currentIndex: _currentIndex),
     );
   }
-
 }

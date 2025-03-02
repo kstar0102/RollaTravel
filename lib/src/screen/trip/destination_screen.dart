@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 
-class DestinationScreen extends ConsumerStatefulWidget{
+class DestinationScreen extends ConsumerStatefulWidget {
   final String initialDestination;
   const DestinationScreen({super.key, required this.initialDestination});
 
@@ -37,15 +37,19 @@ class DestinationScreenState extends ConsumerState<DestinationScreen> {
 
   Future<List<String>> fetchAddressSuggestions(String query) async {
     final response = await http.get(
-      Uri.parse('https://api.mapbox.com/geocoding/v5/mapbox.places/$query.json?access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw'),
+      Uri.parse(
+          'https://api.mapbox.com/geocoding/v5/mapbox.places/$query.json?access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw'),
     );
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-      final features = data['features'] as List;
-      return features.map((feature) => feature['place_name'] as String).toList();
+      final List features = (data['features'] ?? []) as List;
+      return features
+          .map((feature) => feature['place_name'] as String)
+          .toList();
     } else {
-      throw Exception('Failed to load suggestions');
+      debugPrint('API Error: ${response.statusCode} - ${response.body}');
+      return [];
     }
   }
 
@@ -66,7 +70,7 @@ class DestinationScreenState extends ConsumerState<DestinationScreen> {
                   const SizedBox(width: 16),
                   InkWell(
                     onTap: () {
-                      if(_searchController.text.isNotEmpty){
+                      if (_searchController.text.isNotEmpty) {
                         Navigator.pop(context, _searchController.text);
                       } else {
                         Navigator.pop(context, widget.initialDestination);
@@ -89,10 +93,12 @@ class DestinationScreenState extends ConsumerState<DestinationScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 48), // To balance the space taken by the IconButton
+                  const SizedBox(
+                      width:
+                          48), // To balance the space taken by the IconButton
                 ],
               ),
-              
+
               const SizedBox(height: 30),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -105,25 +111,36 @@ class DestinationScreenState extends ConsumerState<DestinationScreen> {
                         textFieldConfiguration: TextFieldConfiguration(
                           controller: _searchController,
                           decoration: InputDecoration(
-                            hintText: "Search Locations", 
-                            hintStyle: const TextStyle(fontSize: 16, fontFamily: 'Kadaw'), // Set font size for hint text
-                            contentPadding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0), // Set inner padding
+                            hintText: "Search Locations",
+                            hintStyle: const TextStyle(
+                                fontSize: 16,
+                                fontFamily:
+                                    'Kadaw'), // Set font size for hint text
+                            contentPadding: const EdgeInsets.symmetric(
+                                vertical: 12.0,
+                                horizontal: 16.0), // Set inner padding
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(4.0),
-                              borderSide: const BorderSide(color: Colors.black, width: 1.0),
+                              borderSide: const BorderSide(
+                                  color: Colors.black, width: 1.0),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(4.0),
-                              borderSide: const BorderSide(color: Colors.black, width: 1.0),
+                              borderSide: const BorderSide(
+                                  color: Colors.black, width: 1.0),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(4.0),
-                              borderSide: const BorderSide(color: Colors.black, width: 1.0),
+                              borderSide: const BorderSide(
+                                  color: Colors.black, width: 1.0),
                             ),
                             filled: true,
                             fillColor: Colors.grey[200],
                           ),
-                          style: const TextStyle(fontSize: 16, fontFamily: 'Kadaw'), // Set font size for input text
+                          style: const TextStyle(
+                              fontSize: 16,
+                              fontFamily:
+                                  'Kadaw'), // Set font size for input text
                         ),
                         suggestionsCallback: (pattern) async {
                           return await fetchAddressSuggestions(pattern);
@@ -147,7 +164,5 @@ class DestinationScreenState extends ConsumerState<DestinationScreen> {
         bottomNavigationBar: BottomNavBar(currentIndex: _currentIndex),
       ),
     );
-    
   }
-
 }

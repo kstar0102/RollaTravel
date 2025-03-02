@@ -58,10 +58,6 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
     super.dispose();
   }
 
-  Future<bool> _onWillPop() async {
-    return false;
-  }
-
   Future<void> _getCurrentLocation() async {
     logger.i("Checking location permission...");
 
@@ -134,12 +130,13 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-      final features = data['features'] as List;
+      final List features = (data['features'] ?? []) as List;
       return features
           .map((feature) => feature['place_name'] as String)
           .toList();
     } else {
-      throw Exception('Failed to load suggestions');
+      debugPrint('API Error: ${response.statusCode} - ${response.body}');
+      return [];
     }
   }
 
@@ -202,8 +199,13 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: WillPopScope(
-        onWillPop: _onWillPop,
+      body: PopScope(
+        canPop: false, // Prevents popping by default
+        onPopInvokedWithResult: (didPop, result) {
+          if (!didPop) {
+            return; // Prevent pop action
+          }
+        },
         child: Padding(
           padding: const EdgeInsets.all(10.0),
           child: Column(

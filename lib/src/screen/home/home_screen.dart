@@ -303,19 +303,26 @@ class PostWidgetState extends State<PostWidget> {
         //     await getCoordinates(widget.post['destination_address']);
         // endPoint = LatLng(destinationCoordinates['latitude']!,
         //     destinationCoordinates['longitude']!);
-        final regex =
-            RegExp(r"LatLng\(latitude:([\d\.-]+), longitude:([\d\.-]+)\)");
-        final match = regex.firstMatch(widget.post['destination_location']);
+
+        final locationString = widget.post['destination_location'];
+        logger.i("Raw location string: $locationString");
+
+        final regex = RegExp(
+            r"LatLng\(latitude:\s*([\d\.-]+), longitude:\s*([\d\.-]+)\)");
+        final match = regex.firstMatch(locationString ?? '');
 
         if (match != null) {
           final double latitude = double.parse(match.group(1)!);
           final double longitude = double.parse(match.group(2)!);
+          logger.i("Extracted latitude: $latitude, longitude: $longitude");
+
           setState(() {
             endPoint = LatLng(latitude, longitude);
           });
-
-          logger.i("endPoint : $endPoint");
+        } else {
+          logger.i("No match found");
         }
+        ;
       }
     } catch (e) {
       logger.e('Failed to fetch destination address coordinates: $e');
@@ -704,10 +711,12 @@ class PostWidgetState extends State<PostWidget> {
                 SizedBox(
                   width: 210, // Set your desired width
                   child: Text(
-                    widget.post['destination_text_address'] ==
-                            "[\"Edit destination\"]"
+                    widget.post['destination_text_address']
+                                .replaceAll(RegExp(r'[\[\]"]'), '') ==
+                            "Edit destination"
                         ? " "
-                        : widget.post['destination_text_address'],
+                        : widget.post['destination_text_address']
+                            .replaceAll(RegExp(r'[\[\]"]'), ''),
                     style: const TextStyle(
                       fontSize: 16,
                       color: Colors.brown,

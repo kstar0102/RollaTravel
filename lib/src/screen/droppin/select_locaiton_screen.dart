@@ -47,6 +47,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
   final MapController _mapController = MapController();
   final Completer<void> _mapReadyCompleter = Completer<void>();
   bool isuploadingImage = false;
+  bool isuploadingData = false;
   String? tripMiles;
   String? startAddress;
   List<String> formattedStopAddresses = [];
@@ -226,6 +227,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
     if (imageUrl.isNotEmpty) {
       setState(() {
         isuploadingImage = false;
+        isuploadingData = true;
       });
     } else {
       // ignore: use_build_context_synchronously
@@ -359,6 +361,9 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
           destinationLocation: endLocation.toString());
 
       if (response['success'] == true) {
+        setState(() {
+          isuploadingData = false;
+        });
         await prefs.setInt("tripId", response['trip']['id']);
         await prefs.setInt("dropcount", response['trip']['droppins'].length);
         if (mounted) {
@@ -372,6 +377,9 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                       )));
         }
       } else {
+        setState(() {
+          isuploadingData = false;
+        });
         // Extract error message from the API response
         String errorMessage =
             response['error'] ?? 'Failed to create the trip. Please try again.';
@@ -424,6 +432,9 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
       logger.i(response);
 
       if (response['success'] == true) {
+        setState(() {
+          isuploadingData = false;
+        });
         await prefs.setInt("tripId", response['trip']['id']);
         logger.i(response['trip']['droppins'][0]['id']);
         await prefs.setInt("droppinId", response['trip']['droppins'][0]['id']);
@@ -439,6 +450,9 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                         location: _currentLocation,
                       )));
         } else {
+          setState(() {
+            isuploadingData = false;
+          });
           // Extract error message from the API response
           String errorMessage = response['error'] ??
               'Failed to create the trip. Please try again.';
@@ -478,17 +492,17 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                 )));
   }
 
-  Future<bool> _onWillPop() async {
-    return false;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kColorWhite,
-      // ignore: deprecated_member_use
-      body: WillPopScope(
-          onWillPop: _onWillPop,
+      body: PopScope(
+          canPop: false, // Prevents popping by default
+          onPopInvokedWithResult: (didPop, result) {
+            if (!didPop) {
+              return; // Prevent pop action
+            }
+          },
           child: Stack(
             children: [
               Padding(
@@ -737,9 +751,32 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                     ),
                   ),
                 ),
+              if (isuploadingData)
+                BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                  child: Container(
+                    color:
+                        // ignore: deprecated_member_use
+                        Colors.black
+                            // ignore: deprecated_member_use
+                            .withOpacity(0.3), // Semi-transparent overlay
+                    child: const Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CircularProgressIndicator(),
+                          SizedBox(height: 16),
+                          Text(
+                            'Updating Data to server...',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
             ],
           )),
-
       bottomNavigationBar: BottomNavBar(currentIndex: _currentIndex),
     );
   }
