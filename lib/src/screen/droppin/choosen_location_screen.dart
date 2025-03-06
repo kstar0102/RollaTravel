@@ -88,6 +88,9 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
             return; // Prevent pop action
           }
         },
+        child :SizedBox.expand(
+          child: SingleChildScrollView(
+        
         child: Stack(
           children: [
             // Main body content
@@ -324,7 +327,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                 ),
               ),
           ],
-        ),
+        ),),),
       ),
       bottomNavigationBar: BottomNavBar(currentIndex: _currentIndex),
     );
