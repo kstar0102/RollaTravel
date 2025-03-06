@@ -40,7 +40,6 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   final logger = Logger();
   LatLng? currentLocation;
   final TextEditingController _captionController = TextEditingController();
-  // String editDestination = 'Edit destination';
   String initialSound = "Edit Playlist";
   double totalDistanceInMiles = 0;
   List<LatLng> pathCoordinates = [];
@@ -118,7 +117,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
             TextButton(
               child: const Text("Open Settings"),
               onPressed: () async {
-                await Geolocator.openLocationSettings(); // ✅ Opens GPS 
+                await Geolocator.openLocationSettings(); // ✅ Opens GPS settings
                 // ignore: use_build_context_synchronously
                 Navigator.of(context).pop();
               },
@@ -146,9 +145,22 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
           accuracy: LocationAccuracy.high,
         ),
       );
-      currentLocation = LatLng(position.latitude, position.longitude);
-      ref.read(movingLocationProvider.notifier).state ??= currentLocation;
-      _mapController.move(currentLocation!, 15.0);
+      setState(() {
+        currentLocation = LatLng(position.latitude, position.longitude);
+        ref.read(movingLocationProvider.notifier).state ??= currentLocation;
+      });
+      // Delay execution to ensure the map is rendered before moving
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (mounted) {
+            try {
+              _mapController.move(currentLocation!, 15.0);
+            } catch (e) {
+              logger.e("Error moving map: $e");
+            }
+          }
+        });
+      });
       return;
     }
 
@@ -269,8 +281,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   }
 
   void _startTrip() {
-    if (GlobalVariables.editDestination == "Edit destination" ||
-        GlobalVariables.editDestination.isEmpty) {
+    if (GlobalVariables.editDestination == null) {
       _showDestinationAlert(context);
       return;
     }
@@ -394,8 +405,6 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     String tripMiles =
         "${GlobalVariables.totalDistance.toStringAsFixed(3)} miles";
 
-    GlobalVariables.editDestination = 'Edit destination';
-
     if (GlobalVariables.tripStartDate != null &&
         GlobalVariables.tripEndDate != null) {
       if (!mounted) return;
@@ -410,7 +419,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
             tripStartDate: GlobalVariables.tripStartDate!,
             tripEndDate: GlobalVariables.tripEndDate!,
             tripDistance: tripMiles,
-            endDestination: GlobalVariables.editDestination,
+            endDestination: GlobalVariables.editDestination!,
           ),
         ),
       );
@@ -473,16 +482,12 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
         MaterialPageRoute(builder: (context) => const TripTagSearchScreen()));
   }
 
-  Future<bool> _onWillPop() async {
-    return false;
-  }
-
   Future<void> _onDestintionClick() async {
     final result = await Navigator.push(
       context,
       PageRouteBuilder(
-        pageBuilder: (context, animation1, animation2) => DestinationScreen(
-            initialDestination: GlobalVariables.editDestination),
+        pageBuilder: (context, animation1, animation2) =>
+            const DestinationScreen(),
         transitionDuration: Duration.zero,
         reverseTransitionDuration: Duration.zero,
       ),
@@ -503,9 +508,13 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
 
     return Scaffold(
       backgroundColor: kColorWhite,
-      // ignore: deprecated_member_use
-      body: WillPopScope(
-        onWillPop: _onWillPop,
+      body: PopScope(
+        canPop: false, // Prevents default back navigation
+        onPopInvokedWithResult: (didPop, result) {
+          if (!didPop) {
+            return; // Prevent pop action
+          }
+        },
         child: Scaffold(
           backgroundColor: Colors.white,
           resizeToAvoidBottomInset: true,
@@ -581,9 +590,14 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                               _onDestintionClick();
                             },
                             child: Text(
-                              GlobalVariables.editDestination.length > 30
-                                  ? '${GlobalVariables.editDestination.substring(0, 30)}...'
-                                  : GlobalVariables.editDestination,
+                              GlobalVariables.editDestination != null &&
+                                      GlobalVariables
+                                          .editDestination!.isNotEmpty
+                                  ? (GlobalVariables.editDestination!.length >
+                                          30
+                                      ? '${GlobalVariables.editDestination!.substring(0, 30)}...'
+                                      : GlobalVariables.editDestination!)
+                                  : "Edit Destination",
                               style: const TextStyle(
                                 color: kColorButtonPrimary,
                                 fontSize: 14,
@@ -995,7 +1009,6 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                   child: Container(
                                     padding: const EdgeInsets.all(
                                         3.0), // Inner padding for spacing around text
-                                    // ignore: deprecated_member_use
                                     color: Colors.white.withOpacity(
                                         0.5), // Background color with slight transparency
                                     child: const Text(

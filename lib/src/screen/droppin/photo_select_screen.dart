@@ -22,6 +22,7 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
   final ImagePicker _picker = ImagePicker();
   bool _isCapturing = false;
   bool _isCameraInitialized = false;
+  FlashMode _currentFlashMode = FlashMode.auto;
 
   @override
   void initState() {
@@ -108,6 +109,8 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
         _initializeControllerFuture = _cameraController!.initialize();
         await _initializeControllerFuture;
 
+        await _cameraController!.setFlashMode(FlashMode.auto);
+
         setState(() {
           _isCameraInitialized = true;
         });
@@ -186,6 +189,27 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
     }
   }
 
+  Future<void> _toggleFlash() async {
+    if (_cameraController == null) return;
+
+    // Cycle through flash modes
+    FlashMode newFlashMode;
+    if (_currentFlashMode == FlashMode.auto) {
+      newFlashMode = FlashMode.always;
+    } else if (_currentFlashMode == FlashMode.always) {
+      newFlashMode = FlashMode.off;
+    } else {
+      newFlashMode = FlashMode.auto;
+    }
+
+    await _cameraController!.setFlashMode(newFlashMode);
+    setState(() {
+      _currentFlashMode = newFlashMode;
+    });
+
+    logger.i("⚡ Flash mode set to: $_currentFlashMode");
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -247,6 +271,22 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
                               ? const CircularProgressIndicator()
                               : const Icon(Icons.camera_alt,
                                   size: 30, color: Colors.black),
+                        ),
+                      ),
+                      Positioned(
+                        top: 20,
+                        right: 20,
+                        child: IconButton(
+                          icon: Icon(
+                            _currentFlashMode == FlashMode.auto
+                                ? Icons.flash_auto
+                                : _currentFlashMode == FlashMode.always
+                                    ? Icons.flash_on
+                                    : Icons.flash_off,
+                            color: Colors.white,
+                            size: 30,
+                          ),
+                          onPressed: _toggleFlash,
                         ),
                       ),
                     ],

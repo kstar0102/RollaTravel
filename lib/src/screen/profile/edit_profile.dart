@@ -117,10 +117,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     }
   }
 
-  Future<bool> _onWillPop() async {
-    return false;
-  }
-
   Future<void> setPhotoUrl() async {
     setState(() {
       _ischangeimage = true;
@@ -293,8 +289,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kColorWhite,
-      body: WillPopScope(
-        onWillPop: _onWillPop,
+      body: PopScope(
+        canPop: false, // Prevents default back navigation
+        onPopInvokedWithResult: (didPop, result) {
+          if (!didPop) {
+            return; // Prevent pop action
+          }
+        },
         child: Scaffold(
           resizeToAvoidBottomInset: true,
           body: SingleChildScrollView(

@@ -12,7 +12,6 @@ import 'package:latlong2/latlong.dart';
 import 'package:logger/logger.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 final logger = Logger();
 
@@ -212,12 +211,78 @@ class PostWidgetState extends State<PostWidget> {
     super.initState();
     mapController = MapController();
     _initializeRoutePoints();
+    startAndendMark();
     _getlocaionts().then((_) {
       setState(() {
         isLoading = false;
         likes = _calculateTotalLikes(widget.post['droppins']);
       });
     });
+  }
+
+  Future<void> startAndendMark() async {
+    try {
+      if (widget.post['start_location'] != null &&
+          widget.post['start_location'].toString().contains("LatLng")) {
+        // Extracting coordinates from string format "LatLng(latitude:49.779318, longitude:-86.535325)"
+        final regex =
+            RegExp(r"LatLng\(latitude:([\d\.-]+), longitude:([\d\.-]+)\)");
+        final match = regex.firstMatch(widget.post['start_location']);
+
+        if (match != null) {
+          final double startlatitude = double.parse(match.group(1)!);
+          final double startlongitude = double.parse(match.group(2)!);
+          setState(() {
+            startPoint = LatLng(startlatitude, startlongitude);
+            logger.i("from location");
+          });
+        }
+      } else {
+        // Fetch Start Address Coordinates if `start_location` is not available
+        final startCoordinates =
+            await getCoordinates(widget.post['start_address']);
+        setState(() {
+          startPoint = LatLng(
+              startCoordinates['latitude']!, startCoordinates['longitude']!);
+          logger.i("from address");
+        });
+      }
+    } catch (e) {
+      logger.e('Failed to fetch start address coordinates: $e');
+    }
+
+    // Fetch Destination Address
+    try {
+      if (widget.post['destination_address'] ==
+          "Destination address for DropPin") {
+        endPoint = null;
+      } else {
+        final destinationCoordinates =
+            await getCoordinates(widget.post['destination_address']);
+        setState(() {
+          endPoint = LatLng(destinationCoordinates['latitude']!,
+              destinationCoordinates['longitude']!);
+        });
+
+        // final locationString = widget.post['destination_location'];
+
+        // final regex = RegExp(
+        //     r"LatLng\(latitude:\s*([\d\.-]+), longitude:\s*([\d\.-]+)\)");
+        // final match = regex.firstMatch(locationString ?? '');
+
+        // if (match != null) {
+        //   final double endlatitude = double.parse(match.group(1)!);
+        //   final double endlongitude = double.parse(match.group(2)!);
+        //   setState(() {
+        //     endPoint = LatLng(endlatitude, endlongitude);
+        //   });
+        // // } else {
+        //   logger.i("No match found");
+        // }
+      }
+    } catch (e) {
+      logger.e('Failed to fetch destination address coordinates: $e');
+    }
   }
 
   // Function to calculate total likes
@@ -252,31 +317,6 @@ class PostWidgetState extends State<PostWidget> {
   Future<void> _getlocaionts() async {
     List<LatLng> tempLocations = []; // Temporary list to batch all locations
 
-    try {
-      if (widget.post['start_location'] != null &&
-          widget.post['start_location'].toString().contains("LatLng")) {
-        // Extracting coordinates from string format "LatLng(latitude:49.779318, longitude:-86.535325)"
-        final regex =
-            RegExp(r"LatLng\(latitude:([\d\.-]+), longitude:([\d\.-]+)\)");
-        final match = regex.firstMatch(widget.post['start_location']);
-
-        if (match != null) {
-          final double latitude = double.parse(match.group(1)!);
-          final double longitude = double.parse(match.group(2)!);
-          startPoint = LatLng(latitude, longitude);
-          logger.i("startPoint : $startPoint");
-        }
-      } else {
-        // Fetch Start Address Coordinates if `start_location` is not available
-        final startCoordinates =
-            await getCoordinates(widget.post['start_address']);
-        startPoint = LatLng(
-            startCoordinates['latitude']!, startCoordinates['longitude']!);
-      }
-    } catch (e) {
-      logger.e('Failed to fetch start address coordinates: $e');
-    }
-
     // Use Stop Locations directly
     if (widget.post['stop_locations'] != null) {
       try {
@@ -291,41 +331,6 @@ class PostWidgetState extends State<PostWidget> {
       } catch (e) {
         logger.e('Failed to process stop locations: $e');
       }
-    }
-
-    // Fetch Destination Address
-    try {
-      if (widget.post['destination_address'] ==
-          "Destination address for DropPin") {
-        endPoint = null;
-      } else {
-        // final destinationCoordinates =
-        //     await getCoordinates(widget.post['destination_address']);
-        // endPoint = LatLng(destinationCoordinates['latitude']!,
-        //     destinationCoordinates['longitude']!);
-
-        final locationString = widget.post['destination_location'];
-        logger.i("Raw location string: $locationString");
-
-        final regex = RegExp(
-            r"LatLng\(latitude:\s*([\d\.-]+), longitude:\s*([\d\.-]+)\)");
-        final match = regex.firstMatch(locationString ?? '');
-
-        if (match != null) {
-          final double latitude = double.parse(match.group(1)!);
-          final double longitude = double.parse(match.group(2)!);
-          logger.i("Extracted latitude: $latitude, longitude: $longitude");
-
-          setState(() {
-            endPoint = LatLng(latitude, longitude);
-          });
-        } else {
-          logger.i("No match found");
-        }
-        ;
-      }
-    } catch (e) {
-      logger.e('Failed to fetch destination address coordinates: $e');
     }
 
     // Update all locations in one go
@@ -830,16 +835,24 @@ class PostWidgetState extends State<PostWidget> {
                                 width: 80.0,
                                 height: 80.0,
                                 point: startPoint!,
-                                child: Icon(Icons.location_on,
-                                    color: Colors.red, size: 60.sp),
+                                child: const SizedBox(
+                                  width: 40,
+                                  height: 40,
+                                  child: Icon(Icons.location_on,
+                                      color: Colors.red, size: 30),
+                                ),
                               ),
                             if (endPoint != null)
                               Marker(
                                 width: 80.0,
                                 height: 80.0,
                                 point: endPoint!,
-                                child: Icon(Icons.location_on,
-                                    color: Colors.green, size: 60.sp),
+                                child: const SizedBox(
+                                  width: 40,
+                                  height: 40,
+                                  child: Icon(Icons.location_on,
+                                      color: Colors.green, size: 30),
+                                ),
                               ),
                             ...locations.map((location) {
                               return Marker(
@@ -861,8 +874,12 @@ class PostWidgetState extends State<PostWidget> {
                                       index,
                                     );
                                   },
-                                  child: Icon(Icons.location_on,
-                                      color: Colors.blue, size: 60.sp),
+                                  child: const SizedBox(
+                                    width: 40,
+                                    height: 40,
+                                    child: Icon(Icons.location_on,
+                                        color: Colors.blue, size: 25),
+                                  ),
                                 ),
                               );
                             }),

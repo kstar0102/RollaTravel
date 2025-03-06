@@ -1,3 +1,5 @@
+import 'package:RollaTravel/src/constants/app_styles.dart';
+import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:RollaTravel/src/utils/index.dart';
@@ -7,8 +9,7 @@ import 'dart:convert';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 class DestinationScreen extends ConsumerStatefulWidget {
-  final String initialDestination;
-  const DestinationScreen({super.key, required this.initialDestination});
+  const DestinationScreen({super.key});
 
   @override
   ConsumerState<DestinationScreen> createState() => DestinationScreenState();
@@ -23,16 +24,15 @@ class DestinationScreenState extends ConsumerState<DestinationScreen> {
   @override
   void initState() {
     super.initState();
+    if (GlobalVariables.editDestination != null) {
+      _searchController.text = GlobalVariables.editDestination!;
+    }
   }
 
   @override
   void dispose() {
     super.dispose();
     _searchController.dispose();
-  }
-
-  Future<bool> _onWillPop() async {
-    return false;
   }
 
   Future<List<String>> fetchAddressSuggestions(String query) async {
@@ -53,10 +53,37 @@ class DestinationScreenState extends ConsumerState<DestinationScreen> {
     }
   }
 
+  void _handleSave(BuildContext context) {
+    if (_searchController.text.isEmpty) {
+      // Show an alert dialog
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("Alert"),
+          content: const Text("Please enter your Destination"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("OK"),
+            ),
+          ],
+        ),
+      );
+    } else {
+      GlobalVariables.editDestination = _searchController.text;
+      Navigator.pop(context, _searchController.text);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: _onWillPop,
+    return PopScope(
+      canPop: false, // Prevents default back navigation
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          return; // Prevent pop action
+        }
+      },
       child: Scaffold(
         backgroundColor: Colors.white,
         body: Center(
@@ -70,11 +97,7 @@ class DestinationScreenState extends ConsumerState<DestinationScreen> {
                   const SizedBox(width: 16),
                   InkWell(
                     onTap: () {
-                      if (_searchController.text.isNotEmpty) {
-                        Navigator.pop(context, _searchController.text);
-                      } else {
-                        Navigator.pop(context, widget.initialDestination);
-                      }
+                      Navigator.pop(context);
                     },
                     child: Image.asset(
                       'assets/images/icons/allow-left.png',
@@ -153,6 +176,45 @@ class DestinationScreenState extends ConsumerState<DestinationScreen> {
                         onSuggestionSelected: (suggestion) {
                           _searchController.text = suggestion;
                         },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(
+                height: 20,
+              ),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    SizedBox(
+                      width: vww(context, 30),
+                      height: 28,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              kColorHereButton, // Button background color
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(30), // Rounded corners
+                          ),
+                          shadowColor:
+                              // ignore: deprecated_member_use
+                              Colors.black.withOpacity(0.9), // Shadow color
+                          elevation: 6, // Elevation to create the shadow effect
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 5, vertical: 5),
+                        ),
+                        onPressed: () => _handleSave(context),
+                        child: const Text("Save Destination",
+                            style: TextStyle(
+                                color: kColorWhite,
+                                fontSize: 13,
+                                fontFamily: 'Kadaw')),
                       ),
                     ),
                   ],
