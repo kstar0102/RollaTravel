@@ -118,7 +118,8 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
             TextButton(
               child: const Text("Open Settings"),
               onPressed: () async {
-                await Geolocator.openLocationSettings(); // ✅ Opens GPS settings
+                await Geolocator.openLocationSettings(); // ✅ Opens GPS 
+                // ignore: use_build_context_synchronously
                 Navigator.of(context).pop();
               },
             ),
@@ -893,6 +894,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                             EdgeInsets.zero, // Adjust for width
                                         child: Container(
                                           padding: const EdgeInsets.all(3.0),
+                                          // ignore: deprecated_member_use
                                           color: Colors.white.withOpacity(0.5),
                                           child: const Column(
                                             children: [
@@ -993,6 +995,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                   child: Container(
                                     padding: const EdgeInsets.all(
                                         3.0), // Inner padding for spacing around text
+                                    // ignore: deprecated_member_use
                                     color: Colors.white.withOpacity(
                                         0.5), // Background color with slight transparency
                                     child: const Text(

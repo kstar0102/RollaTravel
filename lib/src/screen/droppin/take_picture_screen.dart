@@ -68,7 +68,8 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
       },
       child: Scaffold(
         backgroundColor: kColorWhite,
-        body: Center(
+        body: SizedBox.expand(
+              child: SingleChildScrollView(
           child: Column(
             children: [
               // Logo and close button aligned at the top
@@ -133,6 +134,7 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
                                       color: Colors.blue, width: 2.0),
                                 ),
                                 filled: true,
+                                // ignore: deprecated_member_use
                                 fillColor: Colors.white.withOpacity(0.9),
                               ),
                               style: const TextStyle(fontFamily: 'Kadaw'),
@@ -151,6 +153,7 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Container(
+                                  // ignore: deprecated_member_use
                                   color: Colors.white.withOpacity(0.9),
                                   width: vww(context, 40),
                                   height: vhh(context, 4),
@@ -179,6 +182,7 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
                                 ),
                                 const SizedBox(height: 10),
                                 Container(
+                                  // ignore: deprecated_member_use
                                   color: Colors.white.withOpacity(0.9),
                                   width: vww(context, 40),
                                   height: vhh(context, 4),
@@ -234,6 +238,7 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
                       ),
                       elevation: 4, // Shadow depth
                       shadowColor:
+                          // ignore: deprecated_member_use
                           Colors.black.withOpacity(0.25), // Shadow color
                     ),
                     child: const Text(
@@ -248,7 +253,7 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
               ),
               const SizedBox(height: 16),
             ],
-          ),
+          ),),
         ),
         bottomNavigationBar: BottomNavBar(currentIndex: _currentIndex),
       ),

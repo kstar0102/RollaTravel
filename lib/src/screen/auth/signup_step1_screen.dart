@@ -59,10 +59,6 @@ class _SignupStep1ScreenState extends ConsumerState<SignupStep1Screen> {
     super.dispose();
   }
 
-  Future<bool> _onWillPop() async {
-    return false;
-  }
-
   void _validateFirstName(String value) {
     setState(() {
       if (value.isEmpty) {

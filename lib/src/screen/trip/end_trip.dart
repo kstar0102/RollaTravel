@@ -116,10 +116,6 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
     }
   }
 
-  Future<bool> _onWillPop() async {
-    return false;
-  }
-
   Future<void> sendTripData() async {
     final apiserice = ApiService();
 
@@ -215,9 +211,15 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
 
     return Scaffold(
       backgroundColor: kColorWhite,
-      // ignore: deprecated_member_use
-      body: WillPopScope(
-        onWillPop: _onWillPop,
+      body: PopScope(
+        canPop: false, // Prevents popping by default
+        onPopInvokedWithResult: (didPop, result) {
+          if (!didPop) {
+            return; // Prevent pop action
+          }
+        },
+        child: SizedBox.expand(
+              child: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -595,7 +597,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
               ),
             ],
           ),
-        ),
+        ),),)
       ),
       bottomNavigationBar: BottomNavBar(currentIndex: _currentIndex),
     );
