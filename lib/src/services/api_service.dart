@@ -8,6 +8,33 @@ class ApiService {
   String apiKey = 'cfdb0e89363c14687341dbc25d1e1d43';
   final logger = Logger();
 
+  Future<Map<String, dynamic>> fetchAllDropPinData() async {
+    final url = Uri.parse('$baseUrl/droppin/data'); // API Endpoint
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+
+      if (data.containsKey('status') && data.containsKey('data')) {
+        return {
+          "status": data['status'], // Returns status
+          "data": List<Map<String, dynamic>>.from(
+              data['data']) // Returns data as a list of maps
+        };
+      } else {
+        throw Exception('Invalid response format: Missing status or data');
+      }
+    } else {
+      throw Exception('Failed to fetch data: ${response.statusCode}');
+    }
+  }
+
   Future<List<Map<String, dynamic>>> fetchAllTrips() async {
     final url = Uri.parse('$baseUrl/trip/data');
 

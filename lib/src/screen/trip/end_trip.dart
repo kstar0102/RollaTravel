@@ -210,7 +210,6 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
   @override
   Widget build(BuildContext context) {
     final pathCoordinates = ref.watch(pathCoordinatesProvider);
-
     return Scaffold(
       backgroundColor: kColorWhite,
       body: PopScope(
@@ -293,14 +292,22 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                                       fontSize: 14,
                                       fontFamily: 'Kadaw'),
                                 ),
-                                Text(
-                                  GlobalVariables.editDestination!,
-                                  style: const TextStyle(
+                                Flexible(
+                                  // Ensures the text takes available space without being cut off
+                                  child: Text(
+                                    GlobalVariables.editDestination ?? '',
+                                    style: const TextStyle(
                                       color: kColorButtonPrimary,
                                       fontSize: 14,
                                       decoration: TextDecoration.underline,
                                       decorationColor: kColorButtonPrimary,
-                                      fontFamily: 'Kadaw'),
+                                      fontFamily: 'Kadaw',
+                                    ),
+                                    softWrap:
+                                        true, // Ensures text wraps instead of truncating
+                                    overflow: TextOverflow
+                                        .visible, // Makes sure text is displayed fully
+                                  ),
                                 ),
                               ],
                             ),
@@ -320,7 +327,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                                       fontFamily: 'Kadaw'),
                                 ),
                                 Text(
-                                  totalDistanceInMeters.toStringAsFixed(3),
+                                  widget.tripDistance,
                                   style: const TextStyle(
                                       color: kColorBlack,
                                       fontSize: 14,
@@ -595,16 +602,22 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Text(
-                          'Share this summary:',
+                          'Post this travel:',
                           style: TextStyle(fontSize: 16, fontFamily: 'Kadaw'),
                         ),
                         GestureDetector(
                           onTap: () {
                             sendTripData();
                           },
-                          child: Image.asset(
-                            "assets/images/icons/share.png",
-                            height: 50,
+                          // child: Image.asset(
+                          //   "assets/images/icons/share.png",
+                          //   height: 50,
+                          // ),
+                          child: const Icon(
+                            Icons.post_add, // Material Design "Post" icon
+                            size: 50,
+                            color:
+                                kColorCreateButton, // Adjust the color to match your theme
                           ),
                         ),
                       ],

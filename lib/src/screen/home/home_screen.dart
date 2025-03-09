@@ -234,7 +234,6 @@ class PostWidgetState extends State<PostWidget> {
           final double startlongitude = double.parse(match.group(2)!);
           setState(() {
             startPoint = LatLng(startlatitude, startlongitude);
-            logger.i("from location");
           });
         }
       } else {
@@ -253,32 +252,33 @@ class PostWidgetState extends State<PostWidget> {
 
     // Fetch Destination Address
     try {
-      if (widget.post['destination_address'] ==
-          "Destination address for DropPin") {
-        endPoint = null;
-      } else {
-        final destinationCoordinates =
-            await getCoordinates(widget.post['destination_address']);
-        setState(() {
-          endPoint = LatLng(destinationCoordinates['latitude']!,
-              destinationCoordinates['longitude']!);
-        });
+      if (widget.post['destination_location'] != null) {
+        // endPoint = null;
 
-        // final locationString = widget.post['destination_location'];
+        // final destinationCoordinates =
+        //     await getCoordinates(widget.post['destination_address']);
+        // setState(() {
+        //   endPoint = LatLng(destinationCoordinates['latitude']!,
+        //       destinationCoordinates['longitude']!);
+        // });
+        // logger.i(endPoint);
 
-        // final regex = RegExp(
-        //     r"LatLng\(latitude:\s*([\d\.-]+), longitude:\s*([\d\.-]+)\)");
-        // final match = regex.firstMatch(locationString ?? '');
+        final locationString = widget.post['destination_location'];
 
-        // if (match != null) {
-        //   final double endlatitude = double.parse(match.group(1)!);
-        //   final double endlongitude = double.parse(match.group(2)!);
-        //   setState(() {
-        //     endPoint = LatLng(endlatitude, endlongitude);
-        //   });
-        // // } else {
-        //   logger.i("No match found");
-        // }
+        final regex = RegExp(
+            r"LatLng\(latitude:\s*([\d\.-]+), longitude:\s*([\d\.-]+)\)");
+        final match = regex.firstMatch(locationString ?? '');
+
+        if (match != null) {
+          final double endlatitude = double.parse(match.group(1)!);
+          final double endlongitude = double.parse(match.group(2)!);
+          setState(() {
+            endPoint = LatLng(endlatitude, endlongitude);
+          });
+          logger.i("endPoint : $endPoint");
+        } else {
+          logger.i("No match found");
+        }
       }
     } catch (e) {
       logger.e('Failed to fetch destination address coordinates: $e');

@@ -361,16 +361,17 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
 
   void _endTrip() async {
     LatLng? startLocation = ref.read(staticStartingPointProvider);
-    // ✅ Get the most recent location before setting `endLocation`
-    Position position = await Geolocator.getCurrentPosition(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.high,
-      ),
-    );
+    LatLng? endLocation = ref.read(movingLocationProvider);
+    // // ✅ Get the most recent location before setting `endLocation`
+    // Position position = await Geolocator.getCurrentPosition(
+    //   locationSettings: const LocationSettings(
+    //     accuracy: LocationAccuracy.high,
+    //   ),
+    // );
 
-    // ✅ Assign `endLocation` the most accurate position
-    LatLng endLocation = LatLng(position.latitude, position.longitude);
-    logger.i("end trip location : $endLocation");
+    // // ✅ Assign `endLocation` the most accurate position
+    // LatLng endLocation = LatLng(position.latitude, position.longitude);
+    // logger.i("end trip location : $endLocation");
     List<MarkerData> stopMarkers = ref.read(markersProvider);
 
     // Check if there are no stop markers
