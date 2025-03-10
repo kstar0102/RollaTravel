@@ -35,7 +35,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    logger.i(GlobalVariables.homeTripID);
+    // logger.i(GlobalVariables.homeTripID);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
       if (mounted) {
@@ -405,15 +405,39 @@ class PostWidgetState extends State<PostWidget> {
                       ],
                     ),
                   ),
-                  // Image
-                  Image.network(
-                    imagePath,
-                    fit: BoxFit.cover,
-                    width: MediaQuery.of(context).size.width * 0.9,
-                    height: MediaQuery.of(context).size.height * 0.5,
-                    errorBuilder: (context, error, stackTrace) =>
-                        const Icon(Icons.broken_image, size: 100),
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // Image
+                      Image.network(
+                        imagePath,
+                        fit: BoxFit.cover,
+                        width: MediaQuery.of(context).size.width * 0.9,
+                        height: MediaQuery.of(context).size.height * 0.5,
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Icon(Icons.broken_image, size: 100),
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) {
+                            // Image has finished loading
+                            return child;
+                          } else {
+                            // Show a rotating loading indicator while the image loads
+                            return Center(
+                              child: CircularProgressIndicator(
+                                value: loadingProgress.expectedTotalBytes !=
+                                        null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                        (loadingProgress.expectedTotalBytes ??
+                                            1)
+                                    : null,
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                    ],
                   ),
+
                   const Divider(height: 1, color: Colors.grey),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -856,8 +880,8 @@ class PostWidgetState extends State<PostWidget> {
                               ),
                             ...locations.map((location) {
                               return Marker(
-                                width: 80.0,
-                                height: 80.0,
+                                width: 20.0,
+                                height: 20.0,
                                 point: location,
                                 child: GestureDetector(
                                   onTap: () {
@@ -874,11 +898,28 @@ class PostWidgetState extends State<PostWidget> {
                                       index,
                                     );
                                   },
-                                  child: const SizedBox(
-                                    width: 40,
-                                    height: 40,
-                                    child: Icon(Icons.location_on,
-                                        color: Colors.blue, size: 25),
+                                  child: Container(
+                                    width: 12, // Smaller width
+                                    height: 12, // Smaller height
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.white,
+                                      border: Border.all(
+                                        color: kColorBlack, // Border color
+                                        width: 2, // Border width
+                                      ),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        '${locations.indexOf(location) + 1}', // Display index + 1 inside the circle
+                                        style: const TextStyle(
+                                          color: Colors
+                                              .black, // Text color to match border
+                                          fontSize: 13, // Smaller font size
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ),
                               );
