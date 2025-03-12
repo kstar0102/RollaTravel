@@ -188,7 +188,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     _positionStreamSubscription = Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.bestForNavigation,
-        distanceFilter: 10,
+        distanceFilter: 8,
       ),
     ).listen((Position position) async {
       final LatLng newLocation = LatLng(position.latitude, position.longitude);
@@ -208,12 +208,12 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
             newLocation.latitude,
             newLocation.longitude,
           );
-
-          // Update total distance
-          GlobalVariables.totalDistance +=
-              distance / 1609.34; // Convert to miles
-          ref.read(totalDistanceProvider.notifier).state =
-              GlobalVariables.totalDistance;
+          if (distance > 5) {
+            GlobalVariables.totalDistance +=
+                distance / 1609.34; // Convert to miles
+            ref.read(totalDistanceProvider.notifier).state =
+                GlobalVariables.totalDistance;
+          }
         }
 
         // Add the new location to the path
@@ -782,10 +782,16 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                       // Markers from markersProvider
                                       ...ref
                                           .watch(markersProvider)
-                                          .map((markerData) {
+                                          .asMap()
+                                          .entries
+                                          .map((entry) {
+                                        int index = entry.key +
+                                            1; // Get the index (starting from 1)
+                                        MarkerData markerData = entry.value;
+
                                         return Marker(
-                                          width: 80.0,
-                                          height: 80.0,
+                                          width: 20.0,
+                                          height: 20.0,
                                           point: markerData.location,
                                           child: GestureDetector(
                                             onTap: () {
@@ -846,10 +852,8 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                                             loadingProgress) {
                                                           if (loadingProgress ==
                                                               null) {
-                                                            // Image has loaded successfully
                                                             return child;
                                                           } else {
-                                                            // Display a loading indicator while the image is loading
                                                             return Center(
                                                               child:
                                                                   CircularProgressIndicator(
@@ -860,14 +864,13 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                                                             .cumulativeBytesLoaded /
                                                                         (loadingProgress.expectedTotalBytes ??
                                                                             1)
-                                                                    : null, // Show progress if available
+                                                                    : null,
                                                               ),
                                                             );
                                                           }
                                                         },
                                                         errorBuilder: (context,
                                                             error, stackTrace) {
-                                                          // Fallback widget in case of an error
                                                           return const Icon(
                                                               Icons
                                                                   .broken_image,
@@ -879,11 +882,27 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                                 ),
                                               );
                                             },
-                                            child: const Icon(
-                                              Icons.location_on,
-                                              color: Colors
-                                                  .blue, // Blue for additional markers
-                                              size: 30,
+                                            child: Container(
+                                              width: 10,
+                                              height: 10,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: Colors
+                                                    .white, // White background
+                                                border: Border.all(
+                                                    color: Colors.black,
+                                                    width: 2), // Black border
+                                              ),
+                                              alignment: Alignment.center,
+                                              child: Text(
+                                                index
+                                                    .toString(), // Display index number
+                                                style: const TextStyle(
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.black,
+                                                ),
+                                              ),
                                             ),
                                           ),
                                         );
