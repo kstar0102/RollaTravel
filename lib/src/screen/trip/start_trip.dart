@@ -1,6 +1,6 @@
 import 'package:RollaTravel/src/constants/app_button.dart';
 import 'package:RollaTravel/src/constants/app_styles.dart';
-import 'package:RollaTravel/src/screen/trip/destination_screen.dart';
+// import 'package:RollaTravel/src/screen/trip/destination_screen.dart';
 import 'package:RollaTravel/src/screen/trip/end_trip.dart';
 import 'package:RollaTravel/src/screen/trip/sound_screen.dart';
 import 'package:RollaTravel/src/screen/trip/trip_settting_screen.dart';
@@ -483,22 +483,71 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
         MaterialPageRoute(builder: (context) => const TripTagSearchScreen()));
   }
 
-  Future<void> _onDestintionClick() async {
-    final result = await Navigator.push(
-      context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation1, animation2) =>
-            const DestinationScreen(),
-        transitionDuration: Duration.zero,
-        reverseTransitionDuration: Duration.zero,
-      ),
+  // Future<void> _onDestintionClick() async {
+  //   final result = await Navigator.push(
+  //     context,
+  //     PageRouteBuilder(
+  //       pageBuilder: (context, animation1, animation2) =>
+  //           const DestinationScreen(),
+  //       transitionDuration: Duration.zero,
+  //       reverseTransitionDuration: Duration.zero,
+  //     ),
+  //   );
+  //   if (result != null) {
+  //     setState(() {
+  //       GlobalVariables.editDestination = result;
+  //     });
+  //     logger.i(GlobalVariables.editDestination);
+  //   }
+  // }
+
+  void _onDestintionClick() {
+    TextEditingController textController =
+        TextEditingController(text: GlobalVariables.editDestination ?? "");
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+            "Edit Destination",
+            style: TextStyle(fontFamily: 'KadawBold'),
+          ),
+          content: TextField(
+            controller: textController,
+            decoration: const InputDecoration(
+                hintText: "Enter destination",
+                hintStyle: TextStyle(fontFamily: 'Kadaw')),
+            style: const TextStyle(fontFamily: 'Kadaw', fontSize: 14),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close dialog
+              },
+              child: const Text(
+                "Cancel",
+                style:
+                    TextStyle(fontFamily: 'Kadaw', color: kColorButtonPrimary),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  GlobalVariables.editDestination = textController.text;
+                });
+                Navigator.of(context).pop(); // Close dialog
+              },
+              child: const Text(
+                "OK",
+                style:
+                    TextStyle(fontFamily: 'Kadaw', color: kColorCreateButton),
+              ),
+            ),
+          ],
+        );
+      },
     );
-    if (result != null) {
-      setState(() {
-        GlobalVariables.editDestination = result;
-      });
-      logger.i(GlobalVariables.editDestination);
-    }
   }
 
   @override

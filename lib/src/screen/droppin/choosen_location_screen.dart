@@ -322,6 +322,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                       color:
                           // ignore: deprecated_member_use
                           Colors.black
+                              // ignore: deprecated_member_use
                               .withOpacity(0.3), // Semi-transparent overlay
                       child: const Center(
                         child: Column(
