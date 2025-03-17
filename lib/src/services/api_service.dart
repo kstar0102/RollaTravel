@@ -35,6 +35,35 @@ class ApiService {
     }
   }
 
+  Future<Map<String, dynamic>> fetchAllUserData() async {
+    final url = Uri.parse('$baseUrl/user/all'); // API Endpoint
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      logger.i(data);
+
+      // Correct the condition
+      if (data['message'] == "success" && data.containsKey('data')) {
+        return {
+          "status": data['statusCode'], // Ensure statusCode is correctly used
+          "data": List<Map<String, dynamic>>.from(
+              data['data']) // Ensure it's a List of Maps
+        };
+      } else {
+        throw Exception('Invalid response format: Missing status or data');
+      }
+    } else {
+      throw Exception('Failed to fetch data: ${response.statusCode}');
+    }
+  }
+
   Future<List<Map<String, dynamic>>> fetchAllTrips() async {
     final url = Uri.parse('$baseUrl/trip/data');
 

@@ -386,22 +386,85 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                               ),
                             ],
                           ),
-                          Container(
-                            height: vhh(context, 15),
-                            width: vhh(context, 15),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(100),
-                                border: Border.all(
-                                  color: kColorHereButton,
-                                  width: 2,
+                          Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              // Circular container with border
+                              Container(
+                                height: vhh(context, 15),
+                                width: vhh(context, 15),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(100),
+                                  border: Border.all(
+                                    color: kColorHereButton,
+                                    width: 2,
+                                  ),
                                 ),
-                                image: GlobalVariables.userImageUrl != null
-                                    ? DecorationImage(
-                                        image: NetworkImage(GlobalVariables
-                                            .userImageUrl!), // Use NetworkImage for URL
+                              ),
+
+                              // Image with loading indicator
+                              ClipOval(
+                                child: GlobalVariables.userImageUrl != null
+                                    ? Image.network(
+                                        GlobalVariables.userImageUrl!,
                                         fit: BoxFit.cover,
+                                        height: vhh(context, 15),
+                                        width: vhh(context, 15),
+                                        loadingBuilder:
+                                            (context, child, loadingProgress) {
+                                          if (loadingProgress == null) {
+                                            return child;
+                                          }
+                                          return SizedBox(
+                                            height: vhh(context, 15),
+                                            width: vhh(context, 15),
+                                            child: Center(
+                                              child: CircularProgressIndicator(
+                                                value: loadingProgress
+                                                            .expectedTotalBytes !=
+                                                        null
+                                                    ? loadingProgress
+                                                            .cumulativeBytesLoaded /
+                                                        (loadingProgress
+                                                                .expectedTotalBytes ??
+                                                            1)
+                                                    : null,
+                                                strokeWidth: 2,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
+                                          return Container(
+                                            height: vhh(context, 15),
+                                            width: vhh(context, 15),
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: Colors.grey[
+                                                  300], // Placeholder background
+                                            ),
+                                            child: Icon(
+                                              Icons.person, // Fallback icon
+                                              color: Colors.grey[600],
+                                            ),
+                                          );
+                                        },
                                       )
-                                    : null),
+                                    : Container(
+                                        height: vhh(context, 15),
+                                        width: vhh(context, 15),
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.grey[300],
+                                        ),
+                                        child: Icon(
+                                          Icons.person,
+                                          color: Colors.grey[600],
+                                        ),
+                                      ),
+                              ),
+                            ],
                           ),
                           Column(
                             children: [
