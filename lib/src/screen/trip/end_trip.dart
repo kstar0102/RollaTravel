@@ -32,7 +32,6 @@ class EndTripScreen extends ConsumerStatefulWidget {
       required this.tripEndDate,
       required this.tripDistance,
       required this.endDestination});
-
   @override
   ConsumerState<EndTripScreen> createState() => _EndTripScreenState();
 }
@@ -44,7 +43,6 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
   final Logger logger = Logger();
   final MapController _mapController = MapController();
   double totalDistanceInMeters = 0;
-
   String? startAddress;
   String? endAddress;
   String stopAddressesString = "";
@@ -55,10 +53,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
   void initState() {
     super.initState();
     _fetchAddresses();
-    // _fetchRoute();
     _fetchDropPins();
-    logger.i(GlobalVariables.editDestination);
-    logger.i(widget.endDestination);
   }
 
   @override
@@ -68,32 +63,24 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
   }
 
   Future<void> _fetchDropPins() async {
-    // Convert the list of MarkerData to the desired format
     droppins = widget.stopMarkers.asMap().entries.map((entry) {
       final int index = entry.key + 1; // stop_index starts from 1
       final MarkerData marker = entry.value;
-
       return {
         "stop_index": index,
         "image_path": marker.imagePath,
         "image_caption": marker.caption,
       };
     }).toList();
-
-    // Log the formatted droppins
-    // logger.i("Droppins: $droppins");
   }
 
   Future<void> _fetchAddresses() async {
     if (widget.startLocation != null) {
-      // logger.i('start location : $widget.startLocation');
       startAddress = await Common.getAddressFromLocation(widget.startLocation!);
-      // logger.i("startAddress : $startAddress");
     }
 
     if (widget.endLocation != null) {
       endAddress = await Common.getAddressFromLocation(widget.endLocation!);
-      // logger.i("endAddress : $endAddress");
     }
 
     if (widget.stopMarkers != []) {
@@ -165,8 +152,8 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
     if (response['success'] == true) {
       await prefs.remove("tripId");
       await prefs.remove("dropcount");
+      GlobalVariables.editDestination = null;
 
-      // Navigate to the next page
       if (mounted) {
         Navigator.pushReplacement(
           context,
@@ -181,11 +168,8 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
       ref.read(pathCoordinatesProvider.notifier).state = [];
       ref.read(movingLocationProvider.notifier).state = null;
     } else {
-      // Extract error message from the API response
       String errorMessage =
           response['error'] ?? 'Failed to create the trip. Please try again.';
-
-      // Show an alert dialog with the error message
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -213,10 +197,10 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
     return Scaffold(
       backgroundColor: kColorWhite,
       body: PopScope(
-          canPop: false, // Prevents popping by default
+          canPop: false,
           onPopInvokedWithResult: (didPop, result) {
             if (!didPop) {
-              return; // Prevent pop action
+              return;
             }
           },
           child: SizedBox.expand(
@@ -405,27 +389,27 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                                               width: 80.0,
                                               height: 80.0,
                                               point: widget.startLocation!,
-                                              child: const Icon(
-                                                  Icons.location_on,
-                                                  color: Colors.red,
-                                                  size: 40),
+                                              child: const Icon(Icons.flag,
+                                                  color: Colors.red, size: 40),
                                             ),
                                           if (widget.endLocation != null)
                                             Marker(
                                               width: 80.0,
                                               height: 80.0,
                                               point: widget.endLocation!,
-                                              child: const Icon(
-                                                  Icons.location_on,
+                                              child: const Icon(Icons.flag,
                                                   color: Colors.green,
                                                   size: 40),
                                             ),
                                           if (widget.stopMarkers.isNotEmpty)
                                             ...widget.stopMarkers
                                                 .map((markerData) {
+                                              int index = widget.stopMarkers
+                                                      .indexOf(markerData) +
+                                                  1;
                                               return Marker(
-                                                width: 80.0,
-                                                height: 80.0,
+                                                width: 20.0,
+                                                height: 20.0,
                                                 point: markerData.location,
                                                 child: GestureDetector(
                                                   onTap: () {
@@ -525,11 +509,31 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                                                       ),
                                                     );
                                                   },
-                                                  child: const Icon(
-                                                    Icons.location_on,
-                                                    color: Colors
-                                                        .blue, // Blue for additional markers
-                                                    size: 40,
+                                                  child: Container(
+                                                    width:
+                                                        30, // Adjust the size of the circle
+                                                    height: 30,
+                                                    decoration: BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      color: Colors
+                                                          .white, // White background
+                                                      border: Border.all(
+                                                        color: Colors.black,
+                                                        width:
+                                                            2, // Black border
+                                                      ),
+                                                    ),
+                                                    alignment: Alignment.center,
+                                                    child: Text(
+                                                      index
+                                                          .toString(), // Display index number
+                                                      style: const TextStyle(
+                                                        fontSize: 13,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: Colors.black,
+                                                      ),
+                                                    ),
                                                   ),
                                                 ),
                                               );

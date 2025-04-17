@@ -243,7 +243,6 @@ class PostWidgetState extends State<PostWidget> {
         setState(() {
           startPoint = LatLng(
               startCoordinates['latitude']!, startCoordinates['longitude']!);
-          logger.i("from address");
         });
       }
     } catch (e) {
@@ -253,31 +252,18 @@ class PostWidgetState extends State<PostWidget> {
     // Fetch Destination Address
     try {
       if (widget.post['destination_location'] != null) {
-        // endPoint = null;
-
-        // final destinationCoordinates =
-        //     await getCoordinates(widget.post['destination_address']);
-        // setState(() {
-        //   endPoint = LatLng(destinationCoordinates['latitude']!,
-        //       destinationCoordinates['longitude']!);
-        // });
-        // logger.i(endPoint);
-
         final locationString = widget.post['destination_location'];
-
         final regex = RegExp(
-            r"LatLng\(latitude:\s*([\d\.-]+), longitude:\s*([\d\.-]+)\)");
+            r"LatLng\(\s*latitude:\s*([\d\.-]+),\s*longitude:\s*([\d\.-]+)\s*\)");
         final match = regex.firstMatch(locationString ?? '');
-
         if (match != null) {
           final double endlatitude = double.parse(match.group(1)!);
           final double endlongitude = double.parse(match.group(2)!);
           setState(() {
             endPoint = LatLng(endlatitude, endlongitude);
           });
-          logger.i("endPoint : $endPoint");
         } else {
-          logger.i("No match found");
+          logger.i("No match found for destination location.");
         }
       }
     } catch (e) {
@@ -738,7 +724,7 @@ class PostWidgetState extends State<PostWidget> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 SizedBox(
-                  width: 210, // Set your desired width
+                  width: 210,
                   child: Text(
                     widget.post['destination_text_address']
                                 .replaceAll(RegExp(r'[\[\]"]'), '') ==
@@ -753,8 +739,8 @@ class PostWidgetState extends State<PostWidget> {
                       fontFamily: 'Kadaw',
                     ),
                     maxLines: 1, // Limit to one line
-                    overflow:
-                        TextOverflow.ellipsis, // Add ellipsis if text overflows
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.right,
                   ),
                 ),
                 const SizedBox(height: 3),
@@ -862,7 +848,7 @@ class PostWidgetState extends State<PostWidget> {
                                 child: const SizedBox(
                                   width: 40,
                                   height: 40,
-                                  child: Icon(Icons.location_on,
+                                  child: Icon(Icons.flag,
                                       color: Colors.red, size: 30),
                                 ),
                               ),
@@ -874,7 +860,7 @@ class PostWidgetState extends State<PostWidget> {
                                 child: const SizedBox(
                                   width: 40,
                                   height: 40,
-                                  child: Icon(Icons.location_on,
+                                  child: Icon(Icons.flag,
                                       color: Colors.green, size: 30),
                                 ),
                               ),

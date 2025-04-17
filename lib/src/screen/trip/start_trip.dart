@@ -51,7 +51,6 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   @override
   void initState() {
     super.initState();
-
     _getFetchTripData();
     _checkLocationServices();
   }
@@ -68,26 +67,18 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     super.didChangeDependencies();
   }
 
-  // Function to fetch trip data
   void _getFetchTripData() async {
     final prefs = await SharedPreferences.getInstance();
     int? tripId = prefs.getInt("tripId");
     logger.i("Saved local database tripId: $tripId");
 
     if (tripId != null) {
-      // Show the loading dialog
       _showLoadingDialog();
       final apiserice = ApiService();
-
       GlobalVariables.isTripStarted = true;
       ref.read(isTripStartedProvider.notifier).state = true;
       try {
-        // Call the function to fetch the trip data using the tripId
         final tripData = await apiserice.fetchTripData(tripId);
-
-        // Example of how to handle the fetched data
-        logger.i("Trip Data: ${tripData['trips']}");
-
         var destinationTextAddress =
             tripData['trips'][0]['destination_text_address'];
         if (destinationTextAddress is String) {
@@ -96,15 +87,9 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
         GlobalVariables.editDestination = destinationTextAddress[0];
         GlobalVariables.tripStartDate = tripData['trips'][0]['trip_start_date'];
         var startLocation = tripData['trips'][0]['start_location'];
-
-        // Extract stop_locations and droppins from trip data
         List stopLocations = tripData['trips'][0]['stop_locations'];
         List droppins = tripData['trips'][0]['droppins'];
-
-        // Initialize a list to hold the markers
         List<MarkerData> markers = [];
-
-        // Loop through stop locations and droppins and create MarkerData objects
         stopLocations.asMap().forEach((i, stop) {
           if (stop is Map &&
               stop.containsKey('latitude') &&
@@ -115,7 +100,6 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
             String imagePath = "";
             String caption = "Trip Stop";
 
-            // Find the droppin associated with this stop
             var droppin = droppins.firstWhere(
               (d) => d['stop_index'] == (i + 1), // Matching stop_index
               orElse: () => null,
@@ -135,11 +119,9 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
           }
         });
 
-        // Update the state with the new markers list
         ref.read(markersProvider.notifier).state = markers;
 
         if (startLocation is String) {
-          // Use a regular expression to extract latitude and longitude from the string
           RegExp regExp =
               RegExp(r'LatLng\((latitude:([0-9.-]+), longitude:([0-9.-]+))\)');
           Match? match = regExp.firstMatch(startLocation);
@@ -163,10 +145,12 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
       } catch (e) {
         logger.e("Error fetching trip data: $e");
       } finally {
-        // Hide the loading dialog after fetching data or error
         _hideLoadingDialog();
       }
     } else {
+      setState(() {
+        isStateRestored = true;
+      });
       if (PermissionService().hasLocationPermission) {
         _getCurrentLocation();
       }
@@ -174,7 +158,6 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     }
   }
 
-  // Function to show the loading dialog
   void _showLoadingDialog() {
     setState(() {
       _isLoading = true;
@@ -182,8 +165,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
 
     showDialog(
       context: context,
-      barrierDismissible:
-          false, // Prevent dismissing by tapping outside the dialog
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return const AlertDialog(
           content: Row(
@@ -199,7 +181,6 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     );
   }
 
-  // Function to hide the loading dialog
   void _hideLoadingDialog() {
     if (_isLoading) {
       Navigator.of(context).pop();
@@ -213,7 +194,6 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     bool isLocationEnabled = await Geolocator.isLocationServiceEnabled();
     LocationPermission permission = await Geolocator.checkPermission();
 
-    // ✅ If location services are OFF, show a notification dialog
     if (!isLocationEnabled) {
       logger.e("Location services are disabled!");
       _showLocationDisabledDialog();
@@ -273,8 +253,6 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
 
   Future<void> _getCurrentLocation() async {
     LocationPermission permission = await Geolocator.checkPermission();
-
-    // ✅ If permission is already granted, use the current location
     if (permission == LocationPermission.whileInUse ||
         permission == LocationPermission.always) {
       Position position = await Geolocator.getCurrentPosition(
@@ -284,16 +262,14 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
       );
       setState(() {
         currentLocation = LatLng(position.latitude, position.longitude);
-        // ref.read(movingLocationProvider.notifier).state ??= currentLocation;
         ref.read(staticStartingPointProvider.notifier).state ??=
             currentLocation;
       });
-      // Delay execution to ensure the map is rendered before moving
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Future.delayed(const Duration(milliseconds: 500), () {
           if (mounted) {
             try {
-              _mapController.move(currentLocation!, 15.0);
+              _mapController.move(currentLocation!, 12.0);
             } catch (e) {
               logger.e("Error moving map: $e");
             }
@@ -303,7 +279,6 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
       return;
     }
 
-    // 🛑 If permission is denied, only ask ONCE
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
@@ -367,9 +342,17 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   }
 
   void _endTrip() async {
+    Position position = await Geolocator.getCurrentPosition(
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.high,
+      ),
+    );
+
     LatLng? startLocation = ref.read(staticStartingPointProvider);
-    LatLng? endLocation = ref.read(movingLocationProvider);
+    LatLng? endLocation = LatLng(position.latitude, position.longitude);
     List<MarkerData> stopMarkers = ref.read(markersProvider);
+
+    logger.i("endlocation : $endLocation");
 
     if (stopMarkers.isEmpty) {
       if (!mounted) return;
@@ -536,10 +519,10 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     return Scaffold(
       backgroundColor: kColorWhite,
       body: PopScope(
-        canPop: false, // Prevents default back navigation
+        canPop: false,
         onPopInvokedWithResult: (didPop, result) {
           if (!didPop) {
-            return; // Prevent pop action
+            return;
           }
         },
         child: Scaffold(
@@ -1025,33 +1008,6 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                 ),
                               ),
 
-                              // Button overlay
-                              // Positioned(
-                              //   bottom: 70,
-                              //   left: 0,
-                              //   right: 0,
-                              //   child: Center(
-                              //     child: Padding(
-                              //       padding: EdgeInsets.only(
-                              //           left: vww(context, 15),
-                              //           right: vww(context, 15),
-                              //           top: vhh(context, 3)),
-                              //       child: ButtonWidget(
-                              //         btnType: GlobalVariables.isTripStarted
-                              //             ? ButtonWidgetType.endTripTitle
-                              //             : ButtonWidgetType.startTripTitle,
-                              //         borderColor: GlobalVariables.isTripStarted
-                              //             ? Colors.red
-                              //             : kColorButtonPrimary,
-                              //         textColor: kColorWhite,
-                              //         fullColor: GlobalVariables.isTripStarted
-                              //             ? Colors.red
-                              //             : kColorButtonPrimary,
-                              //         onPressed: toggleTrip,
-                              //       ),
-                              //     ),
-                              //   ),
-                              // ),
                               Positioned(
                                 bottom: 70,
                                 left: 0,

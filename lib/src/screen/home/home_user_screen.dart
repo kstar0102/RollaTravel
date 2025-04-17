@@ -78,10 +78,6 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
     }
   }
 
-  Future<bool> _onWillPop() async {
-    return false;
-  }
-
   void _onFollowers() {
     Navigator.push(context,
         MaterialPageRoute(builder: (context) => const HomeFollowScreen()));
@@ -159,8 +155,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                         GestureDetector(
                           onTap: () {
                             setState(() {
-                              showLikesDropdown =
-                                  !showLikesDropdown; // Toggle the visibility of the dropdown
+                              showLikesDropdown = !showLikesDropdown;
                             });
                           },
                           child: Text(
@@ -238,8 +233,13 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: WillPopScope(
-        onWillPop: _onWillPop,
+      body: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) {
+          if (!didPop) {
+            return;
+          }
+        },
         child: Scaffold(
           backgroundColor: kColorWhite,
           resizeToAvoidBottomInset: true,
@@ -308,22 +308,6 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                 ),
                               ],
                             ),
-                            // Container(
-                            //   height: vhh(context, 15),
-                            //   width: vhh(context, 15),
-                            //   decoration: BoxDecoration(
-                            //     borderRadius: BorderRadius.circular(100),
-                            //     border: Border.all(
-                            //       color: kColorHereButton,
-                            //       width: 2,
-                            //     ),
-                            //     image: const DecorationImage(
-                            //       image: AssetImage(
-                            //           "assets/images/background/image2.png"),
-                            //       fit: BoxFit.cover,
-                            //     ),
-                            //   ),
-                            // ),
                             Container(
                               height: vhh(context, 15),
                               width: vhh(context, 15),
@@ -333,7 +317,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                     color: kColorHereButton,
                                     width: 2,
                                   ),
-                                  image: userProfile!['photo'] != null
+                                  image: userProfile?['photo'] != null
                                       ? DecorationImage(
                                           image: NetworkImage(userProfile![
                                               'photo']), // Use NetworkImage for URL
@@ -368,9 +352,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                         SizedBox(height: vhh(context, 1)),
                         if (userProfile != null) ...[
                           Text(
-                            userProfile!['first_name'] +
-                                ' ' +
-                                userProfile!['last_name'],
+                            '${userProfile!['first_name']} ${userProfile!['last_name']}',
                             style: const TextStyle(
                               color: kColorBlack,
                               fontSize: 20,
@@ -409,8 +391,8 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                       20), // Rounded corners
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black
-                                          .withOpacity(0.2), // Shadow color
+                                      color:
+                                          Colors.black.withValues(alpha: 0.2),
                                       offset:
                                           const Offset(0, 2), // Shadow offset
                                       blurRadius: 4, // Blur radius for shadow
@@ -445,8 +427,8 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                       20), // Rounded corners
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black
-                                          .withOpacity(0.2), // Shadow color
+                                      color: Colors.black.withValues(
+                                          alpha: 0.2), // Shadow color
                                       offset:
                                           const Offset(0, 2), // Shadow offset
                                       blurRadius: 4, // Blur radius for shadow
