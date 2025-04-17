@@ -940,7 +940,7 @@ class _TripMapWidgetState extends State<TripMapWidget> {
   void initState() {
     super.initState();
     mapController = MapController();
-    logger.i(widget.trip['id']);
+    logger.i("Saved TripID : ${widget.trip['id']}");
     _initializeRoutePoints();
     _getLocations().then((_) {
       if (mounted) {

@@ -6,6 +6,7 @@ import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/screen/droppin/another_location_screen.dart';
 import 'package:RollaTravel/src/screen/droppin/choosen_location_screen.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
+import 'package:RollaTravel/src/services/databasehelper.dart';
 import 'package:RollaTravel/src/utils/common.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:RollaTravel/src/utils/location.permission.dart';
@@ -250,7 +251,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
     logger.i("Selected location : $selectedLocation");
 
     final markerData = MarkerData(
-        location: selectedLocation, // Use the valid location
+        location: selectedLocation,
         imagePath: imageUrl,
         caption: widget.caption);
 
@@ -343,6 +344,19 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
         }
       }).toList();
 
+      logger.i("tripId : $tripId");
+      logger.i("userId : ${GlobalVariables.userId!}");
+      logger.i("startAddress : $startAddress");
+      logger.i("stopAddresses : $stopAddressesString");
+      logger.i("destinationTextAddress : $formattedDestination");
+      logger.i("tripStartDate : ${GlobalVariables.tripStartDate!}");
+      logger.i("tripEndDate : $formattedDate");
+      logger.i("stopLocations : $stopLocations");
+      logger.i("tripCoordinates : $tripCoordinates");
+      logger.i("droppins : $droppins");
+      logger.i("startLocation : $startLocation");
+      logger.i("destinationLocation : $endLocation");
+
       response = await apiserice.updateTrip(
           tripId: tripId,
           userId: GlobalVariables.userId!,
@@ -414,6 +428,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
           "image_caption": marker.caption,
         };
       }).toList();
+
       response = await apiserice.createTrip(
           userId: GlobalVariables.userId!,
           startAddress: startAddress!,
@@ -429,14 +444,30 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
           droppins: droppins,
           startLocation: startLocation.toString(),
           destinationLocation: endLocation.toString());
+
       logger.i(response);
 
       if (response['success'] == true) {
         setState(() {
           isuploadingData = false;
         });
+
+        Map<String, dynamic> tripData = {
+          'tripId': response['trip']['id'].toString(),
+          'start_address': response['trip']['start_address'],
+          'stop_address': response['trip']['stop_address'],
+          'destination_address': response['trip']['destination_address'],
+          'start_location': response['trip']['start_location'],
+          'stop_locations': response['trip']['stop_locations'].toString(),
+          'trip_start_date': response['trip']['trip_start_date'],
+          'trip_end_date': response['trip']['trip_end_date'],
+          'trip_miles': response['trip']['trip_miles'],
+          'droppins': response['trip']['droppins'].toString(),
+        };
+
+        await DatabaseHelper().insertTrip(tripData);
+
         await prefs.setInt("tripId", response['trip']['id']);
-        logger.i(response['trip']['droppins'][0]['id']);
         await prefs.setInt("droppinId", response['trip']['droppins'][0]['id']);
         await prefs.setInt("dropcount", response['trip']['droppins'].length);
         // Navigate to the next page

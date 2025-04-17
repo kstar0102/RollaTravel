@@ -35,6 +35,34 @@ class ApiService {
     }
   }
 
+  Future<Map<String, dynamic>> fetchTripData(int tripId) async {
+    final url = Uri.parse(
+        '$baseUrl/trip/trips/id?trip_id=$tripId'); // API Endpoint with trip_id as a query parameter
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+
+      if (data.containsKey('message') && data.containsKey('trips')) {
+        return {
+          "message": data['message'], // Returns message
+          "trips": List<Map<String, dynamic>>.from(
+              data['trips']) // Returns trips data as a list of maps
+        };
+      } else {
+        throw Exception('Invalid response format: Missing message or trips');
+      }
+    } else {
+      throw Exception('Failed to fetch data: ${response.statusCode}');
+    }
+  }
+
   Future<Map<String, dynamic>> fetchAllUserData() async {
     final url = Uri.parse('$baseUrl/user/all'); // API Endpoint
 

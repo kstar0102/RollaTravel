@@ -1,10 +1,11 @@
+import 'dart:convert';
 import 'package:RollaTravel/src/constants/app_button.dart';
 import 'package:RollaTravel/src/constants/app_styles.dart';
-// import 'package:RollaTravel/src/screen/trip/destination_screen.dart';
 import 'package:RollaTravel/src/screen/trip/end_trip.dart';
 import 'package:RollaTravel/src/screen/trip/sound_screen.dart';
 import 'package:RollaTravel/src/screen/trip/trip_settting_screen.dart';
 import 'package:RollaTravel/src/screen/trip/trip_tag_screen.dart';
+import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/translate/en.dart';
 import 'package:RollaTravel/src/utils/index.dart';
 import 'package:RollaTravel/src/utils/location.permission.dart';
@@ -17,11 +18,9 @@ import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:logger/logger.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'dart:async';
 import 'package:intl/intl.dart';
-// import 'dart:math';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class StartTripScreen extends ConsumerStatefulWidget {
   const StartTripScreen({super.key});
@@ -44,6 +43,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   double totalDistanceInMiles = 0;
   List<LatLng> pathCoordinates = [];
   bool isStateRestored = false;
+  bool _isLoading = false;
 
   static const String mapboxAccessToken =
       "pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw";
@@ -51,11 +51,8 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   @override
   void initState() {
     super.initState();
-    _restoreState();
-    if (PermissionService().hasLocationPermission) {
-      _getCurrentLocation(); // ✅ It will not request permission again
-    }
-    _startTrackingMovement();
+
+    _getFetchTripData();
     _checkLocationServices();
   }
 
@@ -69,7 +66,147 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _restoreState(); // Restore map and path state
+  }
+
+  // Function to fetch trip data
+  void _getFetchTripData() async {
+    final prefs = await SharedPreferences.getInstance();
+    int? tripId = prefs.getInt("tripId");
+    logger.i("Saved local database tripId: $tripId");
+
+    if (tripId != null) {
+      // Show the loading dialog
+      _showLoadingDialog();
+      final apiserice = ApiService();
+
+      GlobalVariables.isTripStarted = true;
+      ref.read(isTripStartedProvider.notifier).state = true;
+      try {
+        // Call the function to fetch the trip data using the tripId
+        final tripData = await apiserice.fetchTripData(tripId);
+
+        // Example of how to handle the fetched data
+        logger.i("Trip Data: ${tripData['trips']}");
+
+        var destinationTextAddress =
+            tripData['trips'][0]['destination_text_address'];
+        if (destinationTextAddress is String) {
+          destinationTextAddress = jsonDecode(destinationTextAddress);
+        }
+        GlobalVariables.editDestination = destinationTextAddress[0];
+        GlobalVariables.tripStartDate = tripData['trips'][0]['trip_start_date'];
+        var startLocation = tripData['trips'][0]['start_location'];
+
+        // Extract stop_locations and droppins from trip data
+        List stopLocations = tripData['trips'][0]['stop_locations'];
+        List droppins = tripData['trips'][0]['droppins'];
+
+        // Initialize a list to hold the markers
+        List<MarkerData> markers = [];
+
+        // Loop through stop locations and droppins and create MarkerData objects
+        stopLocations.asMap().forEach((i, stop) {
+          if (stop is Map &&
+              stop.containsKey('latitude') &&
+              stop.containsKey('longitude')) {
+            double latitude = stop['latitude'];
+            double longitude = stop['longitude'];
+
+            String imagePath = "";
+            String caption = "Trip Stop";
+
+            // Find the droppin associated with this stop
+            var droppin = droppins.firstWhere(
+              (d) => d['stop_index'] == (i + 1), // Matching stop_index
+              orElse: () => null,
+            );
+
+            if (droppin != null) {
+              imagePath = droppin['image_path'] ?? "";
+              caption = droppin['image_caption'] ?? "No caption";
+            }
+
+            MarkerData marker = MarkerData(
+              location: LatLng(latitude, longitude),
+              imagePath: imagePath,
+              caption: caption,
+            );
+            markers.add(marker);
+          }
+        });
+
+        // Update the state with the new markers list
+        ref.read(markersProvider.notifier).state = markers;
+
+        if (startLocation is String) {
+          // Use a regular expression to extract latitude and longitude from the string
+          RegExp regExp =
+              RegExp(r'LatLng\((latitude:([0-9.-]+), longitude:([0-9.-]+))\)');
+          Match? match = regExp.firstMatch(startLocation);
+
+          if (match != null) {
+            double latitude = double.tryParse(match.group(2) ?? "0.0") ?? 0.0;
+            double longitude = double.tryParse(match.group(3) ?? "0.0") ?? 0.0;
+            LatLng startLatLng = LatLng(latitude, longitude);
+            ref.read(staticStartingPointProvider.notifier).state ??=
+                startLatLng;
+            setState(() {
+              isStateRestored = true;
+            });
+          } else {
+            logger.e("Failed to parse start location string");
+            setState(() {
+              isStateRestored = true;
+            });
+          }
+        }
+      } catch (e) {
+        logger.e("Error fetching trip data: $e");
+      } finally {
+        // Hide the loading dialog after fetching data or error
+        _hideLoadingDialog();
+      }
+    } else {
+      if (PermissionService().hasLocationPermission) {
+        _getCurrentLocation();
+      }
+      logger.w("No tripId found in local database");
+    }
+  }
+
+  // Function to show the loading dialog
+  void _showLoadingDialog() {
+    setState(() {
+      _isLoading = true;
+    });
+
+    showDialog(
+      context: context,
+      barrierDismissible:
+          false, // Prevent dismissing by tapping outside the dialog
+      builder: (BuildContext context) {
+        return const AlertDialog(
+          content: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              CircularProgressIndicator(), // Progress bar
+              SizedBox(width: 20),
+              Text("Loading..."), // Loading text
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // Function to hide the loading dialog
+  void _hideLoadingDialog() {
+    if (_isLoading) {
+      Navigator.of(context).pop();
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   Future<void> _checkLocationServices() async {
@@ -147,7 +284,9 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
       );
       setState(() {
         currentLocation = LatLng(position.latitude, position.longitude);
-        ref.read(movingLocationProvider.notifier).state ??= currentLocation;
+        // ref.read(movingLocationProvider.notifier).state ??= currentLocation;
+        ref.read(staticStartingPointProvider.notifier).state ??=
+            currentLocation;
       });
       // Delay execution to ensure the map is rendered before moving
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -181,133 +320,29 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     }
   }
 
-  Future<void> _startTrackingMovement() async {
-    if (_positionStreamSubscription != null) {
-      return; // Prevent multiple listeners
-    }
-    _positionStreamSubscription = Geolocator.getPositionStream(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.bestForNavigation,
-        distanceFilter: 8,
-      ),
-    ).listen((Position position) async {
-      final LatLng newLocation = LatLng(position.latitude, position.longitude);
-
-      // Update moving location
-      ref.read(movingLocationProvider.notifier).state = newLocation;
-
-      if (!GlobalVariables.isTripStarted) {
-        ref.read(staticStartingPointProvider.notifier).state = newLocation;
-      } else {
-        // Calculate the distance from the last point
-        if (pathCoordinates.isNotEmpty) {
-          final lastLocation = pathCoordinates.last;
-          final distance = Geolocator.distanceBetween(
-            lastLocation.latitude,
-            lastLocation.longitude,
-            newLocation.latitude,
-            newLocation.longitude,
-          );
-          if (distance > 5) {
-            GlobalVariables.totalDistance +=
-                distance / 1609.34; // Convert to miles
-            ref.read(totalDistanceProvider.notifier).state =
-                GlobalVariables.totalDistance;
-          }
-        }
-
-        // Add the new location to the path
-        pathCoordinates.add(newLocation);
-        await _fetchSnappedRoute();
-      }
-
-      // Always update pathCoordinates state
-      ref.read(pathCoordinatesProvider.notifier).state = [...pathCoordinates];
-
-      // Smoothly move the map to the new location
-      _mapController.move(newLocation, 15.0);
-    });
-  }
-
-  Future<void> _fetchSnappedRoute() async {
-    if (pathCoordinates.length < 2) {
-      logger.i("Not enough coordinates for route snapping");
-      return;
-    }
-
-    final coordinates = pathCoordinates
-        .map((point) => "${point.longitude},${point.latitude}")
-        .join(";");
-
-    final url =
-        "https://api.mapbox.com/matching/v5/mapbox/driving/$coordinates?access_token=$mapboxAccessToken&geometries=geojson&steps=false&overview=full";
-
-    try {
-      final response = await http.get(Uri.parse(url));
-      // logger.i("Response from Mapbox: ${response.body}");
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final List<dynamic> matchedPoints =
-            data['matchings'][0]['geometry']['coordinates'];
-
-        // Update pathCoordinates with matched points
-        final updatedPath =
-            matchedPoints.map((coord) => LatLng(coord[1], coord[0])).toList();
-
-        if (pathCoordinates.isNotEmpty) {
-          updatedPath.insert(0, pathCoordinates.first);
-        }
-
-        ref.read(pathCoordinatesProvider.notifier).state = updatedPath;
-        setState(() {
-          pathCoordinates = updatedPath;
-        });
-      } else {
-        logger.e("Failed to fetch snapped route: ${response.statusCode}");
-      }
-    } catch (e) {
-      logger.e("Error fetching snapped route: $e");
-    }
-  }
-
   void toggleTrip() {
     if (GlobalVariables.isTripStarted) {
       // ✅ End the trip
       _endTrip();
     } else {
       // ✅ Start the trip
-      _startTrip();
+      // _startTrip();
+      _noTrackingStartTrip();
     }
   }
 
-  void _startTrip() {
+  void _noTrackingStartTrip() {
     if (GlobalVariables.editDestination == null) {
       _showDestinationAlert(context);
       return;
     }
     GlobalVariables.isTripStarted = true;
     ref.read(isTripStartedProvider.notifier).state = true;
-    ref.read(pathCoordinatesProvider.notifier).state = [];
 
     // ✅ Record trip start time
     DateTime now = DateTime.now();
     String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
     GlobalVariables.tripStartDate = formattedDate;
-
-    // ✅ Set static starting point (this is the current location at the moment the trip starts)
-    final currentLocation = ref.read(movingLocationProvider);
-    if (currentLocation != null) {
-      // ✅ Set this location as the starting point for the trip
-      ref.read(staticStartingPointProvider.notifier).state = currentLocation;
-      logger.i("currentLocation : $currentLocation");
-
-      // Add starting location to pathCoordinates
-      pathCoordinates = [currentLocation];
-      ref.read(pathCoordinatesProvider.notifier).state = [...pathCoordinates];
-    }
-
-    // ✅ Start tracking user movement
-    _startTrackingMovement();
   }
 
   void _showDestinationAlert(BuildContext context) {
@@ -331,50 +366,11 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     );
   }
 
-  void _restoreState() {
-    final movingLocation = ref.read(movingLocationProvider);
-    final staticStartingPoint = ref.read(staticStartingPointProvider);
-    final restoredPath = ref.read(pathCoordinatesProvider);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (staticStartingPoint != null) {
-        // Center the map at the static starting point
-        _mapController.move(staticStartingPoint, 15.0);
-      } else if (movingLocation != null) {
-        // Center the map at the moving location
-        _mapController.move(movingLocation, 14.0);
-      }
-    });
-
-    // Restore pathCoordinates state
-    if (restoredPath.isNotEmpty) {
-      Future.microtask(() {
-        ref.read(pathCoordinatesProvider.notifier).state = [...restoredPath];
-      });
-    }
-
-    // Mark state as restored and force rebuild
-    setState(() {
-      isStateRestored = true;
-    });
-  }
-
   void _endTrip() async {
     LatLng? startLocation = ref.read(staticStartingPointProvider);
     LatLng? endLocation = ref.read(movingLocationProvider);
-    // // ✅ Get the most recent location before setting `endLocation`
-    // Position position = await Geolocator.getCurrentPosition(
-    //   locationSettings: const LocationSettings(
-    //     accuracy: LocationAccuracy.high,
-    //   ),
-    // );
-
-    // // ✅ Assign `endLocation` the most accurate position
-    // LatLng endLocation = LatLng(position.latitude, position.longitude);
-    // logger.i("end trip location : $endLocation");
     List<MarkerData> stopMarkers = ref.read(markersProvider);
 
-    // Check if there are no stop markers
     if (stopMarkers.isEmpty) {
       if (!mounted) return;
       showDialog(
@@ -387,7 +383,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
             actions: [
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.of(context).pop();
                 },
                 child: const Text("OK"),
               ),
@@ -395,10 +391,9 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
           );
         },
       );
-      return; // Prevent further execution
+      return;
     }
 
-    // ✅ Record trip end time
     DateTime now = DateTime.now();
     String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
     GlobalVariables.tripEndDate = formattedDate;
@@ -409,7 +404,6 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     if (GlobalVariables.tripStartDate != null &&
         GlobalVariables.tripEndDate != null) {
       if (!mounted) return;
-      // ✅ End the trip and navigate to the EndTripScreen
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -483,24 +477,6 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
         MaterialPageRoute(builder: (context) => const TripTagSearchScreen()));
   }
 
-  // Future<void> _onDestintionClick() async {
-  //   final result = await Navigator.push(
-  //     context,
-  //     PageRouteBuilder(
-  //       pageBuilder: (context, animation1, animation2) =>
-  //           const DestinationScreen(),
-  //       transitionDuration: Duration.zero,
-  //       reverseTransitionDuration: Duration.zero,
-  //     ),
-  //   );
-  //   if (result != null) {
-  //     setState(() {
-  //       GlobalVariables.editDestination = result;
-  //     });
-  //     logger.i(GlobalVariables.editDestination);
-  //   }
-  // }
-
   void _onDestintionClick() {
     TextEditingController textController =
         TextEditingController(text: GlobalVariables.editDestination ?? "");
@@ -555,6 +531,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     final pathCoordinates = ref.watch(pathCoordinatesProvider);
     final movingLocation = ref.watch(movingLocationProvider);
     final staticStartingPoint = ref.watch(staticStartingPointProvider);
+    final isTripStarted = ref.watch(isTripStartedProvider);
 
     return Scaffold(
       backgroundColor: kColorWhite,
@@ -794,7 +771,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                   initialCenter: movingLocation ??
                                       staticStartingPoint ??
                                       const LatLng(43.1557, -77.6157),
-                                  initialZoom: 15.0,
+                                  initialZoom: 12.0,
                                 ),
                                 children: [
                                   TileLayer(
@@ -825,8 +802,15 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                           width: 80.0,
                                           height: 80.0,
                                           point: staticStartingPoint,
-                                          child: const Icon(Icons.location_on,
-                                              color: Colors.red, size: 30),
+                                          child: Icon(
+                                            isTripStarted
+                                                ? Icons.flag
+                                                : Icons.location_on,
+                                            color: isTripStarted
+                                                ? Colors.red
+                                                : Colors.red,
+                                            size: 30,
+                                          ),
                                         ),
                                       // Markers from markersProvider
                                       ...ref
@@ -1042,6 +1026,32 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                               ),
 
                               // Button overlay
+                              // Positioned(
+                              //   bottom: 70,
+                              //   left: 0,
+                              //   right: 0,
+                              //   child: Center(
+                              //     child: Padding(
+                              //       padding: EdgeInsets.only(
+                              //           left: vww(context, 15),
+                              //           right: vww(context, 15),
+                              //           top: vhh(context, 3)),
+                              //       child: ButtonWidget(
+                              //         btnType: GlobalVariables.isTripStarted
+                              //             ? ButtonWidgetType.endTripTitle
+                              //             : ButtonWidgetType.startTripTitle,
+                              //         borderColor: GlobalVariables.isTripStarted
+                              //             ? Colors.red
+                              //             : kColorButtonPrimary,
+                              //         textColor: kColorWhite,
+                              //         fullColor: GlobalVariables.isTripStarted
+                              //             ? Colors.red
+                              //             : kColorButtonPrimary,
+                              //         onPressed: toggleTrip,
+                              //       ),
+                              //     ),
+                              //   ),
+                              // ),
                               Positioned(
                                 bottom: 70,
                                 left: 0,
@@ -1052,18 +1062,24 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                         left: vww(context, 15),
                                         right: vww(context, 15),
                                         top: vhh(context, 3)),
-                                    child: ButtonWidget(
-                                      btnType: GlobalVariables.isTripStarted
-                                          ? ButtonWidgetType.endTripTitle
-                                          : ButtonWidgetType.startTripTitle,
-                                      borderColor: GlobalVariables.isTripStarted
-                                          ? Colors.red
-                                          : kColorButtonPrimary,
-                                      textColor: kColorWhite,
-                                      fullColor: GlobalVariables.isTripStarted
-                                          ? Colors.red
-                                          : kColorButtonPrimary,
-                                      onPressed: toggleTrip,
+                                    child: Consumer(
+                                      builder: (context, ref, _) {
+                                        final isTripStarted =
+                                            ref.watch(isTripStartedProvider);
+                                        return ButtonWidget(
+                                          btnType: isTripStarted
+                                              ? ButtonWidgetType.endTripTitle
+                                              : ButtonWidgetType.startTripTitle,
+                                          borderColor: isTripStarted
+                                              ? Colors.red
+                                              : kColorButtonPrimary,
+                                          textColor: kColorWhite,
+                                          fullColor: isTripStarted
+                                              ? Colors.red
+                                              : kColorButtonPrimary,
+                                          onPressed: toggleTrip,
+                                        );
+                                      },
                                     ),
                                   ),
                                 ),
@@ -1078,8 +1094,8 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                   child: Container(
                                     padding: const EdgeInsets.all(
                                         3.0), // Inner padding for spacing around text
-                                    color: Colors.white.withOpacity(
-                                        0.5), // Background color with slight transparency
+                                    color: Colors.white.withAlpha(
+                                        128), // Background color with slight transparency
                                     child: const Text(
                                       'Note: Start trip, then drop a pin to make\nyour post visible to your followers',
                                       style: TextStyle(
