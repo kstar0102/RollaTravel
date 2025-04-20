@@ -1,5 +1,6 @@
 // import 'package:RollaTravel/src/screen/droppin/select_locaiton_screen.dart';
-import 'package:RollaTravel/src/screen/droppin/choosen_location_screen.dart';
+// import 'package:RollaTravel/src/screen/droppin/choosen_location_screen.dart';
+import 'package:RollaTravel/src/screen/droppin/select_locaiton_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
@@ -205,10 +206,10 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => ChoosenLocationScreen(
+            builder: (context) => SelectLocationScreen(
                   caption: widget.caption,
                   imagePath: widget.imagePath,
-                  location: _selectedLocation,
+                  selectedLocation: _selectedLocation,
                 )));
     logger.i("Selected location: $_selectedLocation");
   }

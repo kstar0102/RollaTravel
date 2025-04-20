@@ -342,13 +342,80 @@ class PostWidgetState extends State<PostWidget> {
     }
   }
 
-  void _showImageDialog(String imagePath, String caption, int droppinlikes,
-      List<dynamic> likedUsers, int droppinId, int droppinIndex) {
+  bool hasUserViewed(String? viewlist, int userId) {
+    if (viewlist == null || viewlist.trim().isEmpty) {
+      return false;
+    }
+
+    // Convert string to list of ints (e.g. "1, 9" -> [1, 9])
+    List<int> viewedIds = viewlist
+        .split(',')
+        .map((e) => e.trim()) // Remove spaces
+        .where((e) => e.isNotEmpty) // Clean up empty entries
+        .map(int.parse) // Convert to int
+        .toList();
+
+    return viewedIds.contains(userId);
+  }
+
+  Future<void> _showImageDialog(
+    String imagePath,
+    String caption,
+    int droppinlikes,
+    List<dynamic> likedUsers,
+    int droppinId,
+    String? viewlist,
+    int droppinIndex,
+  ) async {
+    logger.i("droppin Id : $droppinId");
+    final apiservice = ApiService();
     if (likedUsers.map((user) => user['id']).contains(GlobalVariables.userId)) {
       isLiked = true;
     } else {
       isLiked = false;
     }
+
+    int? viewcount;
+    if (viewlist != null) {
+      viewcount = viewlist.split(',').length;
+    } else {
+      logger.i("viewlist is null");
+      viewcount = 0;
+    }
+
+    int currentUserId = GlobalVariables.userId!;
+
+    bool viewed = hasUserViewed(viewlist, currentUserId);
+
+    if (viewed == false) {
+      final result = await apiservice.markDropinAsViewed(
+        userId: GlobalVariables.userId!,
+        dropinId: droppinId,
+      );
+      final status = result['statusCode'];
+
+      if (status == true) {
+        setState(() {
+          if (widget.post['droppins'][droppinIndex]['view_count'] != null) {
+            widget.post['droppins'][droppinIndex]['view_count'] +=
+                ',${GlobalVariables.userId}';
+          } else {
+            widget.post['droppins'][droppinIndex]['view_count'] =
+                '${GlobalVariables.userId}';
+          }
+
+          viewcount = widget.post['droppins'][droppinIndex]['view_count']
+              .split(',')
+              .length;
+
+          viewed = hasUserViewed(
+              widget.post['droppins'][droppinIndex]['view_count'],
+              currentUserId);
+        });
+      }
+    }
+
+    if (!mounted) return;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -425,6 +492,22 @@ class PostWidgetState extends State<PostWidget> {
                   ),
 
                   const Divider(height: 1, color: Colors.grey),
+
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 1.0, horizontal: 16.0),
+                    child: viewed
+                        ? const Text(
+                            "You've already seen this droppin.",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              fontFamily: 'Kadaw',
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Row(
@@ -497,6 +580,15 @@ class PostWidgetState extends State<PostWidget> {
                               fontSize: 16,
                               fontFamily: 'Kadaw',
                             ),
+                          ),
+                        ),
+                        const Spacer(),
+                        Text(
+                          '$viewcount Views',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            fontFamily: 'Kadaw',
                           ),
                         ),
                       ],
@@ -784,6 +876,7 @@ class PostWidgetState extends State<PostWidget> {
                       widget.post['droppins'][index]['liked_users'].length,
                       widget.post['droppins'][index]['liked_users'],
                       widget.post['droppins'][index]['id'],
+                      widget.post['droppins'][index]['view_count'],
                       index);
                 },
                 child: Container(
@@ -881,6 +974,7 @@ class PostWidgetState extends State<PostWidget> {
                                       droppin['liked_users'].length,
                                       droppin['liked_users'],
                                       droppin['id'],
+                                      droppin['view_count'],
                                       index,
                                     );
                                   },

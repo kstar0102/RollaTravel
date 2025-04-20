@@ -129,6 +129,8 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
     final prefs = await SharedPreferences.getInstance();
     int? tripId = prefs.getInt("tripId");
 
+    logger.i("end trip location : ${widget.endLocation.toString()}");
+
     final response = await apiserice.updateTrip(
       tripId: tripId!,
       userId: GlobalVariables.userId!,
@@ -361,7 +363,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                                     mapController: _mapController,
                                     options: MapOptions(
                                       initialCenter: widget.startLocation!,
-                                      initialZoom: 16.0,
+                                      initialZoom: 12.0,
                                     ),
                                     children: [
                                       TileLayer(

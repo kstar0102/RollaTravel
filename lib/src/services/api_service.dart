@@ -3,13 +3,46 @@ import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://16.171.153.11/api';
+  static const String baseUrl = 'http://13.61.4.152/api';
   // static const String baseUrl = 'http://192.168.141.105:8000/api';
   String apiKey = 'cfdb0e89363c14687341dbc25d1e1d43';
   final logger = Logger();
 
+  Future<Map<String, dynamic>> markDropinAsViewed({
+    required int userId,
+    required int dropinId,
+  }) async {
+    final url = Uri.parse('$baseUrl/droppin/viewed');
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'user_id': userId,
+        'droppin_id': dropinId,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return {
+        'statusCode': data['statusCode'],
+        'message': data['message'],
+        'data': data['data'],
+      };
+    } else {
+      return {
+        'statusCode': false,
+        'message': 'Request failed with status ${response.statusCode}',
+        'data': null,
+      };
+    }
+  }
+
   Future<Map<String, dynamic>> fetchAllDropPinData() async {
-    final url = Uri.parse('$baseUrl/droppin/data'); // API Endpoint
+    final url = Uri.parse('$baseUrl/droppin/data');
 
     final response = await http.get(
       url,
@@ -75,8 +108,6 @@ class ApiService {
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-      logger.i(data);
-
       // Correct the condition
       if (data['message'] == "success" && data.containsKey('data')) {
         return {

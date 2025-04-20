@@ -622,25 +622,25 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                           ),
                         ],
                       ),
-                      const Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            miles_traveled,
-                            style: TextStyle(
-                                color: kColorBlack,
-                                fontSize: 14,
-                                fontFamily: 'Kadaw'),
-                          ),
-                          Text(
-                            "0",
-                            style: TextStyle(
-                                color: kColorBlack,
-                                fontSize: 14,
-                                fontFamily: 'Kadaw'),
-                          ),
-                        ],
-                      ),
+                      // const Row(
+                      //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      //   children: [
+                      //     Text(
+                      //       miles_traveled,
+                      //       style: TextStyle(
+                      //           color: kColorBlack,
+                      //           fontSize: 14,
+                      //           fontFamily: 'Kadaw'),
+                      //     ),
+                      //     Text(
+                      //       "0",
+                      //       style: TextStyle(
+                      //           color: kColorBlack,
+                      //           fontSize: 14,
+                      //           fontFamily: 'Kadaw'),
+                      //     ),
+                      //   ],
+                      // ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [

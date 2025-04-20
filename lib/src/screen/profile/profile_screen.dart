@@ -65,6 +65,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     try {
       final apiService = ApiService();
       final trips = await apiService.fetchUserTrips(GlobalVariables.userId!);
+      logger.i(trips);
       List<dynamic> allDroppins = [];
 
       for (var trip in trips) {
@@ -78,8 +79,8 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
         dropPinsData = allDroppins.isNotEmpty ? allDroppins : [];
         isLoadingTrips = false;
       });
-      logger.i(dropPinsData);
-      if (userTrips != null && userTrips!.isNotEmpty) {}
+      // logger.i(dropPinsData);
+      // if (userTrips != null && userTrips!.isNotEmpty) {}
     } catch (error) {
       logger.e('Error fetching user trips: $error');
       setState(() {
@@ -940,7 +941,6 @@ class _TripMapWidgetState extends State<TripMapWidget> {
   void initState() {
     super.initState();
     mapController = MapController();
-    logger.i("Saved TripID : ${widget.trip['id']}");
     _initializeRoutePoints();
     _getLocations().then((_) {
       if (mounted) {

@@ -6,7 +6,7 @@ import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/screen/droppin/another_location_screen.dart';
 import 'package:RollaTravel/src/screen/droppin/choosen_location_screen.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
-import 'package:RollaTravel/src/services/databasehelper.dart';
+// import 'package:RollaTravel/src/services/databasehelper.dart';
 import 'package:RollaTravel/src/utils/common.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:RollaTravel/src/utils/location.permission.dart';
@@ -243,10 +243,10 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
     LatLng? testlocation;
     testlocation = widget.selectedLocation;
 
-    final LatLng selectedLocation = (testlocation!.latitude == 0.0 &&
-            testlocation.longitude == 0.0)
-        ? _currentLocation! // Use _currentLocation if testlocation is invalid
-        : testlocation; // Otherwise, use testlocation
+    final LatLng selectedLocation =
+        (testlocation!.latitude == 0.0 && testlocation.longitude == 0.0)
+            ? _currentLocation!
+            : testlocation;
 
     logger.i("Selected location : $selectedLocation");
 
@@ -451,22 +451,6 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
         setState(() {
           isuploadingData = false;
         });
-
-        Map<String, dynamic> tripData = {
-          'tripId': response['trip']['id'].toString(),
-          'start_address': response['trip']['start_address'],
-          'stop_address': response['trip']['stop_address'],
-          'destination_address': response['trip']['destination_address'],
-          'start_location': response['trip']['start_location'],
-          'stop_locations': response['trip']['stop_locations'].toString(),
-          'trip_start_date': response['trip']['trip_start_date'],
-          'trip_end_date': response['trip']['trip_end_date'],
-          'trip_miles': response['trip']['trip_miles'],
-          'droppins': response['trip']['droppins'].toString(),
-        };
-
-        await DatabaseHelper().insertTrip(tripData);
-
         await prefs.setInt("tripId", response['trip']['id']);
         await prefs.setInt("droppinId", response['trip']['droppins'][0]['id']);
         await prefs.setInt("dropcount", response['trip']['droppins'].length);
@@ -602,8 +586,8 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                                         if (widget.selectedLocation ==
                                             const LatLng(0, 0))
                                           Marker(
-                                            width: 80.0,
-                                            height: 80.0,
+                                            width: 60.0,
+                                            height: 60.0,
                                             point: _currentLocation ??
                                                 const LatLng(43.1557, -77.6157),
                                             child: GestureDetector(
@@ -611,7 +595,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                                               child: const Icon(
                                                   Icons.location_on,
                                                   color: Colors.red,
-                                                  size: 40),
+                                                  size: 30),
                                             ),
                                           )
                                         else if (widget.selectedLocation !=

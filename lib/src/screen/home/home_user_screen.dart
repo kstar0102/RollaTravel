@@ -19,10 +19,12 @@ class HomeUserScreen extends ConsumerStatefulWidget {
 class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
   double screenHeight = 0;
   double keyboardHeight = 0;
-  final int _currentIndex = 1;
+  final int _currentIndex = 0;
   bool isLiked = false;
   bool showLikesDropdown = false;
   Map<String, dynamic>? userProfile;
+  String? rollaUserName;
+  String? rollaUserImage;
   final logger = Logger();
 
   final List<String> imagePaths = [
@@ -69,13 +71,15 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
   }
 
   Future<void> _fetchUserProfile() async {
-    final userProfile = await ApiService().fetchUserInfo(widget.userId);
-    logger.i(userProfile);
-    if (mounted) {
-      setState(() {
-        this.userProfile = userProfile;
-      });
-    }
+    final userProfile = await ApiService().fetchUserTrips(widget.userId);
+    logger.i(userProfile[0]['user']);
+    rollaUserName = userProfile[0]['user']['rolla_username'];
+    rollaUserImage = userProfile[0]['user']['photo'];
+    // if (mounted) {
+    //   setState(() {
+    //     this.userProfile = userProfile;
+    //   });
+    // }
   }
 
   void _onFollowers() {
@@ -258,16 +262,28 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
-                        SizedBox(height: vhh(context, 5)),
+                        SizedBox(height: vhh(context, 3)),
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
+                            IconButton(
+                              icon: const Icon(Icons.arrow_back),
+                              iconSize:
+                                  vww(context, 6), // Set size of the back icon
+                              padding:
+                                  EdgeInsets.zero, // Remove default padding
+                              constraints:
+                                  const BoxConstraints(), // Remove default min constraints
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
                             Image.asset(
                               'assets/images/icons/logo.png',
                               width: vww(context, 20),
                             ),
-                            SizedBox(width: vww(context, 20)),
+                            SizedBox(width: vww(context, 10)),
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [

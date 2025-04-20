@@ -88,7 +88,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
           isUserDataFetched = true;
           isLoading = false;
         });
-        logger.i("allUserData : $allUserData");
       } else {
         logger.e("Failed to fetch user data.");
         setState(() => isLoading = false);
@@ -328,13 +327,14 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                       children: [
                         // User Name
                         Text(
-                          '${user['first_name']} ${user['last_name']}',
+                          '${user?['first_name'] ?? ''} ${user?['last_name'] ?? ''}',
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             fontFamily: 'Kadaw',
                           ),
                         ),
+
                         const SizedBox(height: 4),
                         // Caption
                         Text(
