@@ -65,8 +65,8 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     try {
       final apiService = ApiService();
       final trips = await apiService.fetchUserTrips(GlobalVariables.userId!);
-      logger.i(trips);
-      garageImageUrl = trips[0]['user']['garage']['logo_path'];
+      // logger.i(trips);
+      garageImageUrl = trips[0]['user']['garage'][0]['logo_path'];
       List<dynamic> allDroppins = [];
 
       for (var trip in trips) {
@@ -630,42 +630,42 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                       SizedBox(height: vhh(context, 1)),
                       Column(
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                odometer,
-                                style: TextStyle(
-                                    color: kColorBlack,
-                                    fontSize: 14,
-                                    fontFamily: 'Kadaw'),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 4,
-                                    vertical:
-                                        0), // Adjust padding for inner spacing
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: kColorButtonPrimary, // Border color
-                                    width: 1.5, // Border width
-                                  ),
-                                  borderRadius: BorderRadius.circular(
-                                      8), // Rounded corners
-                                ),
-                                child: Text(
-                                  GlobalVariables.odometer != null
-                                      ? '${GlobalVariables.odometer!} Km'
-                                      : ' ',
-                                  style: const TextStyle(
-                                    color: kColorButtonPrimary,
-                                    fontSize: 14,
-                                    fontFamily: 'Kadaw',
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                          // Row(
+                          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          //   children: [
+                          //     const Text(
+                          //       odometer,
+                          //       style: TextStyle(
+                          //           color: kColorBlack,
+                          //           fontSize: 14,
+                          //           fontFamily: 'Kadaw'),
+                          //     ),
+                          //     Container(
+                          //       padding: const EdgeInsets.symmetric(
+                          //           horizontal: 4,
+                          //           vertical:
+                          //               0), // Adjust padding for inner spacing
+                          //       decoration: BoxDecoration(
+                          //         border: Border.all(
+                          //           color: kColorButtonPrimary, // Border color
+                          //           width: 1.5, // Border width
+                          //         ),
+                          //         borderRadius: BorderRadius.circular(
+                          //             8), // Rounded corners
+                          //       ),
+                          //       child: Text(
+                          //         GlobalVariables.odometer != null
+                          //             ? '${GlobalVariables.odometer!} Km'
+                          //             : ' ',
+                          //         style: const TextStyle(
+                          //           color: kColorButtonPrimary,
+                          //           fontSize: 14,
+                          //           fontFamily: 'Kadaw',
+                          //         ),
+                          //       ),
+                          //     ),
+                          //   ],
+                          // ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -699,7 +699,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                               ),
                               garageImageUrl != null
                                   ? Image.network(
-                                      GlobalVariables.garageLogoUrl!,
+                                      garageImageUrl!,
                                       width: 25, // Adjust width as needed
                                       height: 25, // Adjust height as needed
                                     )
