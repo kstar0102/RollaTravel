@@ -142,7 +142,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                 '${userData['first_name']} ${userData['last_name']}';
             GlobalVariables.happyPlace = userData['happy_place'];
             GlobalVariables.bio = userData['bio'];
-            GlobalVariables.garage = userData['garage'];
+            // GlobalVariables.garage = userData['garage'];
             GlobalVariables.userImageUrl = userData['photo'];
             GlobalVariables.followingIds = userData['following_user_id'];
           }
