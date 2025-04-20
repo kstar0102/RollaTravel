@@ -25,7 +25,10 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
   Map<String, dynamic>? userProfile;
   String? rollaUserName;
   String? rollaUserImage;
+  String? tripCount;
+  String? followingCount;
   final logger = Logger();
+  bool isloding = true;
 
   final List<String> imagePaths = [
     'assets/images/background/Lake1.png',
@@ -71,15 +74,34 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
   }
 
   Future<void> _fetchUserProfile() async {
+    setState(() {
+      isloding = true;
+    });
     final userProfile = await ApiService().fetchUserTrips(widget.userId);
     logger.i(userProfile[0]['user']);
-    rollaUserName = userProfile[0]['user']['rolla_username'];
+    rollaUserName = userProfile[0]['user']['rolla_username'] ?? " ";
     rollaUserImage = userProfile[0]['user']['photo'];
-    // if (mounted) {
-    //   setState(() {
-    //     this.userProfile = userProfile;
-    //   });
-    // }
+
+    int triplenght;
+    if (userProfile.isNotEmpty) {
+      triplenght = userProfile.length;
+      tripCount = triplenght.toString();
+    } else {
+      tripCount = "0";
+    }
+
+    int? followcount;
+    if (userProfile[0]['user']['following_user_id'] != "") {
+      followcount =
+          userProfile[0]['user']['following_user_id'].split(',').length;
+    } else {
+      logger.i("viewlist is null");
+      followcount = 0;
+    }
+    followingCount = followcount.toString();
+    setState(() {
+      isloding = false;
+    });
   }
 
   void _onFollowers() {
@@ -236,6 +258,11 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (isloding) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
     return Scaffold(
       body: PopScope(
         canPop: false,
@@ -287,9 +314,9 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                const Text(
-                                  "@smith",
-                                  style: TextStyle(
+                                Text(
+                                  rollaUserName!,
+                                  style: const TextStyle(
                                       color: kColorBlack,
                                       fontSize: 18,
                                       fontFamily: 'KadawBold'),
@@ -314,9 +341,9 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                   'assets/images/icons/trips.png',
                                   width: vww(context, 15),
                                 ),
-                                const Text(
-                                  "1",
-                                  style: TextStyle(
+                                Text(
+                                  tripCount!,
+                                  style: const TextStyle(
                                     fontSize: 20,
                                     color: kColorButtonPrimary,
                                     fontFamily: 'KadawBold',
@@ -333,10 +360,10 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                     color: kColorHereButton,
                                     width: 2,
                                   ),
-                                  image: userProfile?['photo'] != null
+                                  image: rollaUserImage != null
                                       ? DecorationImage(
-                                          image: NetworkImage(userProfile![
-                                              'photo']), // Use NetworkImage for URL
+                                          image: NetworkImage(
+                                              rollaUserImage!), // Use NetworkImage for URL
                                           fit: BoxFit.cover,
                                         )
                                       : null),
@@ -351,9 +378,9 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                   onTap: () {
                                     _onFollowers();
                                   },
-                                  child: const Text(
-                                    "30",
-                                    style: TextStyle(
+                                  child: Text(
+                                    followingCount!,
+                                    style: const TextStyle(
                                       fontSize: 20,
                                       color: kColorButtonPrimary,
                                       fontFamily: 'KadawBold',

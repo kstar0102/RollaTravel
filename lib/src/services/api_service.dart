@@ -476,7 +476,6 @@ class ApiService {
 
   Future<List<Map<String, dynamic>>> fetchUserTrips(int userId) async {
     final url = Uri.parse('$baseUrl/trip/trips/user?user_id=$userId');
-
     try {
       final response = await http.get(
         url,
