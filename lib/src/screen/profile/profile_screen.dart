@@ -31,7 +31,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   bool isLiked = false;
   bool showLikesDropdown = false;
   String? followingCount;
-
+  String? garageImageUrl;
   final logger = Logger();
 
   List<Map<String, dynamic>>? userTrips;
@@ -66,6 +66,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
       final apiService = ApiService();
       final trips = await apiService.fetchUserTrips(GlobalVariables.userId!);
       logger.i(trips);
+      garageImageUrl = trips[0]['user']['garage']['logo_path'];
       List<dynamic> allDroppins = [];
 
       for (var trip in trips) {
@@ -696,7 +697,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     fontSize: 14,
                                     fontFamily: 'Kadaw'),
                               ),
-                              GlobalVariables.garageLogoUrl != null
+                              garageImageUrl != null
                                   ? Image.network(
                                       GlobalVariables.garageLogoUrl!,
                                       width: 25, // Adjust width as needed

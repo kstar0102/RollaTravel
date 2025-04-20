@@ -59,6 +59,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
           GlobalVariables.dropPinsData = dropPinsData;
         }
         if (userData != null) {
+          logger.i(userData['garage']);
           // Handle the case where userData is null
           GlobalVariables.userId = userData['id'];
           GlobalVariables.userName = userData['rolla_username'];
@@ -66,7 +67,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
               '${userData['first_name']} ${userData['last_name']}';
           GlobalVariables.happyPlace = userData['happy_place'];
           GlobalVariables.bio = userData['bio'];
-          GlobalVariables.garage = userData['garage'];
+          // GlobalVariables.garage = userData['garage'];
           GlobalVariables.userImageUrl = userData['photo'];
           GlobalVariables.followingIds = userData['following_user_id'];
         }
