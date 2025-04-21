@@ -212,7 +212,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                         style: const TextStyle(
                             color: kColorBlack,
                             fontSize: 14,
-                            fontFamily: 'Kadaw'),
+                            fontFamily: 'inter'),
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           enabledBorder: const UnderlineInputBorder(
@@ -227,7 +227,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                           hintStyle: const TextStyle(
                               color: kColorGrey,
                               fontSize: 14,
-                              fontFamily: 'Kadaw'),
+                              fontFamily: 'inter'),
                           contentPadding: const EdgeInsets.only(
                             top: -8, // Push hint closer to the top
                             bottom:
@@ -240,7 +240,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                                   12, // Reduce font size of the error message
                               height:
                                   0.5, // Adjust line height for tighter spacing
-                              fontFamily: 'Kadaw'),
+                              fontFamily: 'inter'),
                           counterText: '',
                         ),
                         onChanged: (value) {
@@ -269,7 +269,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                         style: const TextStyle(
                             color: kColorBlack,
                             fontSize: 14,
-                            fontFamily: 'Kadaw'),
+                            fontFamily: 'inter'),
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           enabledBorder: const UnderlineInputBorder(
@@ -284,7 +284,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                           hintStyle: const TextStyle(
                               color: kColorGrey,
                               fontSize: 14,
-                              fontFamily: 'Kadaw'),
+                              fontFamily: 'inter'),
                           contentPadding: const EdgeInsets.only(
                             top: -8, // Push hint closer to the top
                             bottom:
@@ -297,7 +297,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                                   12, // Reduce font size of the error message
                               height:
                                   0.5, // Adjust line height for tighter spacing
-                              fontFamily: 'Kadaw'),
+                              fontFamily: 'inter'),
                           counterText: '',
                         ),
                         onChanged: (value) {
@@ -326,7 +326,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                         style: const TextStyle(
                             color: kColorBlack,
                             fontSize: 14,
-                            fontFamily: 'Kadaw'),
+                            fontFamily: 'inter'),
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           enabledBorder: const UnderlineInputBorder(
@@ -341,7 +341,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                           hintStyle: const TextStyle(
                               color: kColorGrey,
                               fontSize: 14,
-                              fontFamily: 'Kadaw'),
+                              fontFamily: 'inter'),
                           contentPadding: const EdgeInsets.only(
                             top: -8, // Push hint closer to the top
                             bottom:
@@ -354,7 +354,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                                   12, // Reduce font size of the error message
                               height:
                                   0.5, // Adjust line height for tighter spacing
-                              fontFamily: 'Kadaw'),
+                              fontFamily: 'inter'),
                           counterText: '',
                         ),
                         onChanged: (value) {
@@ -388,7 +388,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                           const Text(
                             how_did_you_hear,
                             style: TextStyle(
-                                fontSize: 14, fontFamily: 'KadawBold'),
+                                fontSize: 14, fontFamily: 'interBold'),
                           ),
                           SizedBox(height: vhh(context, 1)),
                           RadioListTile<String>(
@@ -405,7 +405,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                                       20), // Indent the text by approximately 10 inches
                               child: Text(
                                 i_saw_ad,
-                                style: TextStyle(fontFamily: 'Kadaw'),
+                                style: TextStyle(fontFamily: 'inter'),
                               ),
                             ),
                             value: i_saw_ad,
@@ -427,7 +427,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                                       20), // Indent the text by approximately 10 inches
                               child: Text(
                                 recommendation,
-                                style: TextStyle(fontFamily: 'Kadaw'),
+                                style: TextStyle(fontFamily: 'inter'),
                               ),
                             ),
                             value: recommendation,
@@ -449,7 +449,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                                       20), // Indent the text by approximately 10 inches
                               child: Text(
                                 other,
-                                style: TextStyle(fontFamily: 'Kadaw'),
+                                style: TextStyle(fontFamily: 'inter'),
                               ),
                             ),
                             value: other,

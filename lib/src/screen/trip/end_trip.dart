@@ -276,7 +276,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                                   style: TextStyle(
                                       color: kColorBlack,
                                       fontSize: 14,
-                                      fontFamily: 'Kadaw'),
+                                      fontFamily: 'inter'),
                                 ),
                                 Flexible(
                                   // Ensures the text takes available space without being cut off
@@ -287,7 +287,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                                       fontSize: 14,
                                       decoration: TextDecoration.underline,
                                       decorationColor: kColorButtonPrimary,
-                                      fontFamily: 'Kadaw',
+                                      fontFamily: 'inter',
                                     ),
                                     softWrap:
                                         true, // Ensures text wraps instead of truncating
@@ -310,14 +310,14 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                                   style: TextStyle(
                                       color: kColorBlack,
                                       fontSize: 14,
-                                      fontFamily: 'Kadaw'),
+                                      fontFamily: 'inter'),
                                 ),
                                 Text(
                                   widget.tripDistance,
                                   style: const TextStyle(
                                       color: kColorBlack,
                                       fontSize: 14,
-                                      fontFamily: 'Kadaw'),
+                                      fontFamily: 'inter'),
                                 ),
                               ],
                             ),
@@ -334,7 +334,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                                   style: TextStyle(
                                       color: kColorBlack,
                                       fontSize: 14,
-                                      fontFamily: 'Kadaw'),
+                                      fontFamily: 'inter'),
                                 ),
                                 Text(
                                   edit_playlist,
@@ -343,7 +343,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                                       fontSize: 14,
                                       decoration: TextDecoration.underline,
                                       decorationColor: kColorButtonPrimary,
-                                      fontFamily: 'Kadaw'),
+                                      fontFamily: 'inter'),
                                 ),
                               ],
                             ),
@@ -450,7 +450,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                                                                       color: Colors
                                                                           .grey,
                                                                       fontFamily:
-                                                                          'Kadaw',
+                                                                          'inter',
                                                                     ),
                                                                   ),
                                                                   IconButton(
@@ -588,7 +588,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                             'Travel. Share.',
                             style: TextStyle(
                                 fontSize: 16,
-                                fontFamily: 'KadawBold',
+                                fontFamily: 'interBold',
                                 color: Colors.grey),
                           ),
                           const SizedBox(height: 15),
@@ -597,7 +597,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                             style: TextStyle(
                                 fontSize: 14,
                                 color: Colors.black,
-                                fontFamily: 'Kadaw'),
+                                fontFamily: 'inter'),
                           ),
                           const SizedBox(height: 10),
                         ],
@@ -609,7 +609,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                       children: [
                         const Text(
                           'Post this travel:',
-                          style: TextStyle(fontSize: 16, fontFamily: 'Kadaw'),
+                          style: TextStyle(fontSize: 16, fontFamily: 'inter'),
                         ),
                         GestureDetector(
                           onTap: () {

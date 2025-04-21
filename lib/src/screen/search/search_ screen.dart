@@ -191,7 +191,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
             labelColor: Colors.black, // Active tab text color
             unselectedLabelColor: Colors.grey, // Inactive tab text color
             labelStyle: const TextStyle(
-              fontFamily: 'Kadaw',
+              fontFamily: 'inter',
               fontSize: 16,
               fontWeight: FontWeight.bold, // Bold text for active tab
             ),
@@ -218,7 +218,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                 hintText: 'Search ...',
                 hintStyle: const TextStyle(
                   fontSize: 15,
-                  fontFamily: 'Kadaw',
+                  fontFamily: 'inter',
                 ),
                 contentPadding:
                     const EdgeInsets.symmetric(vertical: 0.0, horizontal: 16.0),
@@ -239,7 +239,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
               ),
               style: const TextStyle(
                 fontSize: 15,
-                fontFamily: 'Kadaw',
+                fontFamily: 'inter',
               ),
             ),
           ),
@@ -331,7 +331,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            fontFamily: 'Kadaw',
+                            fontFamily: 'inter',
                           ),
                         ),
 
@@ -341,7 +341,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                           imageCaption,
                           style: const TextStyle(
                             fontSize: 14,
-                            fontFamily: 'Kadaw',
+                            fontFamily: 'inter',
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -351,7 +351,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                           style: const TextStyle(
                             fontSize: 12,
                             color: Colors.grey,
-                            fontFamily: 'Kadaw',
+                            fontFamily: 'inter',
                           ),
                         ),
                       ],
@@ -447,7 +447,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                           style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
-                            fontFamily: 'Kadaw',
+                            fontFamily: 'inter',
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -456,7 +456,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                           email,
                           style: const TextStyle(
                             fontSize: 14,
-                            fontFamily: 'Kadaw',
+                            fontFamily: 'inter',
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -466,7 +466,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                           style: const TextStyle(
                             fontSize: 12,
                             color: Colors.grey,
-                            fontFamily: 'Kadaw',
+                            fontFamily: 'inter',
                           ),
                         ),
                       ],

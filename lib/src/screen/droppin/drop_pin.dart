@@ -43,7 +43,7 @@ class DropPinScreenState extends ConsumerState<DropPinScreen> {
           Text(
             '$number. ',
             style: TextStyle(
-                fontSize: 16, color: Colors.grey[600], fontFamily: 'Kadaw'),
+                fontSize: 16, color: Colors.grey[600], fontFamily: 'inter'),
           ),
           Expanded(
             child: RichText(
@@ -65,7 +65,7 @@ class DropPinScreenState extends ConsumerState<DropPinScreen> {
         children.add(TextSpan(
           text: parts[i],
           style: TextStyle(
-              fontSize: 16, color: Colors.grey[600], fontFamily: 'Kadaw'),
+              fontSize: 16, color: Colors.grey[600], fontFamily: 'inter'),
         ));
       }
 
@@ -128,7 +128,7 @@ class DropPinScreenState extends ConsumerState<DropPinScreen> {
                         fontSize: 16,
                         fontStyle: FontStyle.italic,
                         color: Colors.black, // Set the text color
-                        fontFamily: 'KadawBold'),
+                        fontFamily: 'interBold'),
                     children: [
                       const TextSpan(
                           text: 'Note: You must start trip under the '),

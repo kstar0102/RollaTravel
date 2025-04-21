@@ -7,11 +7,11 @@ import 'package:RollaTravel/src/utils/index.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
 import 'package:logger/logger.dart';
 
-class HomeFollowScreen extends ConsumerStatefulWidget  {
+class HomeFollowScreen extends ConsumerStatefulWidget {
   const HomeFollowScreen({super.key});
 
   @override
-   ConsumerState<HomeFollowScreen> createState() => HomeFollowScreenState();
+  ConsumerState<HomeFollowScreen> createState() => HomeFollowScreenState();
 }
 
 class HomeFollowScreenState extends ConsumerState<HomeFollowScreen> {
@@ -40,27 +40,29 @@ class HomeFollowScreenState extends ConsumerState<HomeFollowScreen> {
       final apiservice = ApiService();
       followers = await apiservice.fetchFollowers(GlobalVariables.userId!);
       logger.i(followers);
-      setState(() {}); // Refresh the UI with the fetched data
+      setState(() {});
     } catch (e) {
-      // Handle errors here
       logger.i('Error loading followers: $e');
     }
   }
 
-  Future<bool> _onWillPop() async {
-    return false;
-  }
-
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: _onWillPop,
+    return PopScope(
+      canPop: false, // Prevents default back navigation
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          return; // Prevent pop action
+        }
+      },
       child: Scaffold(
         backgroundColor: kColorWhite,
         body: Center(
           child: Column(
             children: [
-              SizedBox(height: vhh(context, 6),),
+              SizedBox(
+                height: vhh(context, 6),
+              ),
               Row(
                 children: [
                   const SizedBox(width: 16),
@@ -82,7 +84,8 @@ class HomeFollowScreenState extends ConsumerState<HomeFollowScreen> {
                             'Followers',
                             style: TextStyle(
                               fontSize: 20,
-                              fontFamily: 'KadawBold',
+                              letterSpacing: -0.1,
+                              fontFamily: 'interBold',
                             ),
                           ),
                           Text(
@@ -90,24 +93,25 @@ class HomeFollowScreenState extends ConsumerState<HomeFollowScreen> {
                             style: TextStyle(
                               fontSize: 15,
                               color: Colors.grey,
-                              fontFamily: 'Kadaw',
+                              letterSpacing: -0.1,
+                              fontFamily: 'inter',
                             ),
                           ),
                         ],
                       ),
-                      
                     ),
                   ),
-                  const SizedBox(width: 48), // To balance the space taken by the IconButton
+                  const SizedBox(width: 48),
                 ],
               ),
               Expanded(
                 child: ListView.builder(
                   itemCount: followers.length,
                   itemBuilder: (context, index) {
-                  final follower = followers[index];
+                    final follower = followers[index];
                     return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 20),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 4.0, horizontal: 20),
                       child: Row(
                         children: [
                           Container(
@@ -125,7 +129,9 @@ class HomeFollowScreenState extends ConsumerState<HomeFollowScreen> {
                                   ? Image.network(
                                       follower['photo'],
                                       fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              const Icon(Icons.error),
                                     )
                                   : const Icon(Icons.person),
                             ),
@@ -139,17 +145,25 @@ class HomeFollowScreenState extends ConsumerState<HomeFollowScreen> {
                                   Text(
                                     follower['rolla_username'] ?? ' ',
                                     style: const TextStyle(
-                                      fontFamily: 'KadawBold',
-                                      fontSize: 15
+                                      fontFamily: 'interBold',
+                                      fontSize: 15,
+                                      letterSpacing: -0.1,
                                     ),
                                   ),
                                   const SizedBox(width: 5),
-                                  const Icon(Icons.verified, color: Colors.blue, size: 16),
+                                  const Icon(Icons.verified,
+                                      color: Colors.blue, size: 16),
                                 ],
                               ),
                               Text(
-                                follower['first_name'] + " " + follower['last_name'], 
-                                style: const  TextStyle(fontSize: 15, color: Colors.grey, fontFamily: 'Kadaw',),)
+                                '${follower['first_name'] ?? ''} ${follower['last_name'] ?? ''}',
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.grey,
+                                  fontFamily: 'inter',
+                                  letterSpacing: -0.1,
+                                ),
+                              )
                             ],
                           ),
                           const Spacer(),
@@ -168,4 +182,3 @@ class HomeFollowScreenState extends ConsumerState<HomeFollowScreen> {
     );
   }
 }
-

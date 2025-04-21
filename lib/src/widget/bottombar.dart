@@ -112,9 +112,9 @@ class BottomNavBar extends ConsumerWidget {
                               color: currentIndex == 0
                                   ? kColorButtonPrimary
                                   : kColorBlack,
-                              fontFamily: 'Kadaw',
+                              fontFamily: 'inter',
                               fontWeight: FontWeight.w500,
-                              letterSpacing: 0.1,
+                              letterSpacing: -0.5,
                               fontSize: 38.sp),
                         ),
                       ],
@@ -131,10 +131,10 @@ class BottomNavBar extends ConsumerWidget {
                           color: currentIndex == 1
                               ? kColorButtonPrimary
                               : kColorBlack,
-                          fontFamily: 'Kadaw',
+                          fontFamily: 'inter',
                           fontSize: 38.sp,
                           fontWeight: FontWeight.w500,
-                          letterSpacing: 0.1,
+                          letterSpacing: -0.5,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -185,7 +185,8 @@ class BottomNavBar extends ConsumerWidget {
                               color: currentIndex == 3
                                   ? kColorButtonPrimary
                                   : kColorBlack,
-                              fontFamily: 'Kadaw',
+                              fontFamily: 'inter',
+                              letterSpacing: -0.5,
                               fontSize: 39.sp),
                         ),
                       ],

@@ -266,7 +266,7 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
                                 hintStyle: const TextStyle(
                                     fontSize: 16,
                                     fontFamily:
-                                        'Kadaw'), // Set font size for hint text
+                                        'inter'), // Set font size for hint text
                                 contentPadding: const EdgeInsets.symmetric(
                                     vertical: 0.0,
                                     horizontal: 16.0), // Set inner padding
@@ -291,7 +291,7 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
                               style: const TextStyle(
                                   fontSize: 14,
                                   fontFamily:
-                                      'Kadaw'), // Set font size for input text
+                                      'inter'), // Set font size for input text
                             ),
                             suggestionsCallback: (pattern) async {
                               return await fetchAddressSuggestions(pattern);
@@ -429,7 +429,7 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
                                                 .withValues(alpha: 0.9),
                                             fontSize: 14,
                                             fontStyle: FontStyle.italic,
-                                            fontFamily: 'Kadaw'),
+                                            fontFamily: 'inter'),
                                         textAlign: TextAlign.center,
                                       ),
                                     ),
@@ -463,7 +463,7 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
                                               alpha:
                                                   0.95), // Semi-transparent text color
                                           fontSize: 14,
-                                          fontFamily: 'KadawBold',
+                                          fontFamily: 'interBold',
                                         ),
                                         textAlign: TextAlign.center,
                                       ),

@@ -111,7 +111,7 @@ class DestinationScreenState extends ConsumerState<DestinationScreen> {
                         'Destination',
                         style: TextStyle(
                           fontSize: 22,
-                          fontFamily: 'KadawBold',
+                          fontFamily: 'interBold',
                         ),
                       ),
                     ),
@@ -138,7 +138,7 @@ class DestinationScreenState extends ConsumerState<DestinationScreen> {
                             hintStyle: const TextStyle(
                                 fontSize: 16,
                                 fontFamily:
-                                    'Kadaw'), // Set font size for hint text
+                                    'inter'), // Set font size for hint text
                             contentPadding: const EdgeInsets.symmetric(
                                 vertical: 12.0,
                                 horizontal: 16.0), // Set inner padding
@@ -163,7 +163,7 @@ class DestinationScreenState extends ConsumerState<DestinationScreen> {
                           style: const TextStyle(
                               fontSize: 16,
                               fontFamily:
-                                  'Kadaw'), // Set font size for input text
+                                  'inter'), // Set font size for input text
                         ),
                         suggestionsCallback: (pattern) async {
                           return await fetchAddressSuggestions(pattern);
@@ -214,7 +214,7 @@ class DestinationScreenState extends ConsumerState<DestinationScreen> {
                             style: TextStyle(
                                 color: kColorWhite,
                                 fontSize: 13,
-                                fontFamily: 'Kadaw')),
+                                fontFamily: 'inter')),
                       ),
                     ),
                   ],

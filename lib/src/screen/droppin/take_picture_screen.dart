@@ -69,191 +69,193 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
       child: Scaffold(
         backgroundColor: kColorWhite,
         body: SizedBox.expand(
-              child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // Logo and close button aligned at the top
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Image.asset('assets/images/icons/logo.png',
-                        height: vhh(context, 12)),
-                    IconButton(
-                      icon: const Icon(Icons.close, size: 30),
-                      onPressed: () {
-                        Navigator.of(context).pop(); // Close the screen
-                      },
-                    ),
-                  ],
-                ),
-              ),
-
-              // Image with overlays in a constrained height
-              SizedBox(
-                height: vhh(context, 60),
-                width: vww(context, 96),
-                child: Stack(
-                  children: [
-                    // Display the image as the background with constrained height
-                    Center(
-                      child: widget.imagePath.isNotEmpty
-                          ? SizedBox(
-                              width: vww(context, 100), // Set width
-                              height: vhh(context, 100), // Set height
-                              child: Image.file(
-                                File(widget.imagePath),
-                                fit: BoxFit.cover,
-                              ),
-                            )
-                          : const Center(
-                              child: Text(
-                              'No image selected.',
-                              style: TextStyle(fontFamily: 'Kadaw'),
-                            )),
-                    ),
-
-                    // Overlay elements on top of the image
-                    Column(
-                      children: [
-                        // Caption text field with padding and blue border
-                        Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Container(
-                            color: Colors
-                                .transparent, // Semi-transparent background
-                            child: TextField(
-                              controller: _captionController,
-                              decoration: InputDecoration(
-                                hintText: 'Caption...',
-                                hintStyle: const TextStyle(fontFamily: 'Kadaw'),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  borderSide: const BorderSide(
-                                      color: Colors.blue, width: 2.0),
-                                ),
-                                filled: true,
-                                // ignore: deprecated_member_use
-                                fillColor: Colors.white.withOpacity(0.9),
-                              ),
-                              style: const TextStyle(fontFamily: 'Kadaw'),
-                            ),
-                          ),
-                        ),
-
-                        const Spacer(),
-                        // Radio buttons for "hide likes" and "show likes"
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16.0, vertical: 8.0),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  // ignore: deprecated_member_use
-                                  color: Colors.white.withOpacity(0.9),
-                                  width: vww(context, 40),
-                                  height: vhh(context, 4),
-                                  padding: EdgeInsets.zero,
-                                  child: Row(
-                                    children: [
-                                      Radio<bool>(
-                                        value: false,
-                                        groupValue: showLikes,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            showLikes = value!;
-                                          });
-                                        },
-                                        activeColor: Colors.blue,
-                                      ),
-                                      const Text(
-                                        'hide likes',
-                                        style: TextStyle(
-                                            color: Colors.black,
-                                            fontWeight: FontWeight.w500,
-                                            fontFamily: 'Kadaw'),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 10),
-                                Container(
-                                  // ignore: deprecated_member_use
-                                  color: Colors.white.withOpacity(0.9),
-                                  width: vww(context, 40),
-                                  height: vhh(context, 4),
-                                  child: Row(
-                                    children: [
-                                      Radio<bool>(
-                                        value: true,
-                                        groupValue: showLikes,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            showLikes = value!;
-                                          });
-                                        },
-                                        activeColor: Colors.blue,
-                                      ),
-                                      const Text(
-                                        'show likes',
-                                        style: TextStyle(
-                                            color: Colors.black,
-                                            fontWeight: FontWeight.w500,
-                                            fontFamily: 'Kadaw'),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              // Select Location button
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: ElevatedButton(
-                    onPressed: _handleLocationSelection,
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      backgroundColor: kColorButtonPrimary, // Button color
-                      minimumSize:
-                          const Size(150, 30), // Set button width and height
-                      shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(20), // Rounded corners
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                // Logo and close button aligned at the top
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Image.asset('assets/images/icons/logo.png',
+                          height: vhh(context, 12)),
+                      IconButton(
+                        icon: const Icon(Icons.close, size: 30),
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Close the screen
+                        },
                       ),
-                      elevation: 4, // Shadow depth
-                      shadowColor:
-                          // ignore: deprecated_member_use
-                          Colors.black.withOpacity(0.25), // Shadow color
-                    ),
-                    child: const Text(
-                      'Select Location',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontFamily: 'Kadaw',
-                          fontSize: 14),
+                    ],
+                  ),
+                ),
+
+                // Image with overlays in a constrained height
+                SizedBox(
+                  height: vhh(context, 60),
+                  width: vww(context, 96),
+                  child: Stack(
+                    children: [
+                      // Display the image as the background with constrained height
+                      Center(
+                        child: widget.imagePath.isNotEmpty
+                            ? SizedBox(
+                                width: vww(context, 100), // Set width
+                                height: vhh(context, 100), // Set height
+                                child: Image.file(
+                                  File(widget.imagePath),
+                                  fit: BoxFit.cover,
+                                ),
+                              )
+                            : const Center(
+                                child: Text(
+                                'No image selected.',
+                                style: TextStyle(fontFamily: 'inter'),
+                              )),
+                      ),
+
+                      // Overlay elements on top of the image
+                      Column(
+                        children: [
+                          // Caption text field with padding and blue border
+                          Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Container(
+                              color: Colors
+                                  .transparent, // Semi-transparent background
+                              child: TextField(
+                                controller: _captionController,
+                                decoration: InputDecoration(
+                                  hintText: 'Caption...',
+                                  hintStyle:
+                                      const TextStyle(fontFamily: 'inter'),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                    borderSide: const BorderSide(
+                                        color: Colors.blue, width: 2.0),
+                                  ),
+                                  filled: true,
+                                  // ignore: deprecated_member_use
+                                  fillColor: Colors.white.withOpacity(0.9),
+                                ),
+                                style: const TextStyle(fontFamily: 'inter'),
+                              ),
+                            ),
+                          ),
+
+                          const Spacer(),
+                          // Radio buttons for "hide likes" and "show likes"
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16.0, vertical: 8.0),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    // ignore: deprecated_member_use
+                                    color: Colors.white.withOpacity(0.9),
+                                    width: vww(context, 40),
+                                    height: vhh(context, 4),
+                                    padding: EdgeInsets.zero,
+                                    child: Row(
+                                      children: [
+                                        Radio<bool>(
+                                          value: false,
+                                          groupValue: showLikes,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              showLikes = value!;
+                                            });
+                                          },
+                                          activeColor: Colors.blue,
+                                        ),
+                                        const Text(
+                                          'hide likes',
+                                          style: TextStyle(
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.w500,
+                                              fontFamily: 'inter'),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Container(
+                                    // ignore: deprecated_member_use
+                                    color: Colors.white.withOpacity(0.9),
+                                    width: vww(context, 40),
+                                    height: vhh(context, 4),
+                                    child: Row(
+                                      children: [
+                                        Radio<bool>(
+                                          value: true,
+                                          groupValue: showLikes,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              showLikes = value!;
+                                            });
+                                          },
+                                          activeColor: Colors.blue,
+                                        ),
+                                        const Text(
+                                          'show likes',
+                                          style: TextStyle(
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.w500,
+                                              fontFamily: 'inter'),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                // Select Location button
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: ElevatedButton(
+                      onPressed: _handleLocationSelection,
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        backgroundColor: kColorButtonPrimary, // Button color
+                        minimumSize:
+                            const Size(150, 30), // Set button width and height
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(20), // Rounded corners
+                        ),
+                        elevation: 4, // Shadow depth
+                        shadowColor:
+                            // ignore: deprecated_member_use
+                            Colors.black.withOpacity(0.25), // Shadow color
+                      ),
+                      child: const Text(
+                        'Select Location',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: 'inter',
+                            fontSize: 14),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),),
+                const SizedBox(height: 16),
+              ],
+            ),
+          ),
         ),
         bottomNavigationBar: BottomNavBar(currentIndex: _currentIndex),
       ),

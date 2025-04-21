@@ -234,7 +234,7 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
               const Text(
                 'Select photo to drop \non your map',
                 style: TextStyle(
-                    fontSize: 20, color: Colors.black, fontFamily: 'Kadaw'),
+                    fontSize: 20, color: Colors.black, fontFamily: 'inter'),
                 textAlign: TextAlign.center,
               ),
               Center(
@@ -298,7 +298,7 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
                 onPressed: _pickImageFromGallery,
                 child: const Text(
                   'Photo Library',
-                  style: TextStyle(fontFamily: 'Kadaw'),
+                  style: TextStyle(fontFamily: 'inter'),
                 ),
               ),
             ],

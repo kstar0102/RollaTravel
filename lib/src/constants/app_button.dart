@@ -96,7 +96,7 @@ class _ButtonWidgetState extends State<ButtonWidget> {
                     style: TextStyle(
                         color: widget.textColor!,
                         fontSize: 13,
-                        fontFamily: 'KadawBold'),
+                        fontFamily: 'interBold'),
                   ),
                 ],
               )),

@@ -50,10 +50,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     super.dispose();
   }
 
-  Future<bool> _onWillPop() async {
-    return false;
-  }
-
   void _showConfirmationDialog({
     required String title,
     required String message,
@@ -64,11 +60,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         return AlertDialog(
           title: Text(
             title,
-            style: const TextStyle(fontFamily: 'Kadaw'),
+            style: const TextStyle(
+              fontFamily: 'inter',
+              letterSpacing: -0.1,
+            ),
           ),
           content: Text(
             message,
-            style: const TextStyle(fontFamily: 'Kadaw'),
+            style: const TextStyle(
+              fontFamily: 'inter',
+              letterSpacing: -0.1,
+            ),
           ),
           actions: [
             TextButton(
@@ -77,7 +79,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               },
               child: const Text(
                 "No",
-                style: TextStyle(fontFamily: 'Kadaw'),
+                style: TextStyle(
+                  fontFamily: 'inter',
+                  letterSpacing: -0.1,
+                ),
               ),
             ),
             TextButton(
@@ -90,7 +95,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               },
               child: const Text(
                 "Yes",
-                style: TextStyle(fontFamily: 'Kadaw'),
+                style: TextStyle(
+                  fontFamily: 'inter',
+                  letterSpacing: -0.1,
+                ),
               ),
             ),
           ],
@@ -102,8 +110,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: WillPopScope(
-        onWillPop: _onWillPop,
+      body: PopScope(
+        canPop: false, // Prevents default back navigation
+        onPopInvokedWithResult: (didPop, result) {
+          if (!didPop) {
+            return; // Prevent pop action
+          }
+        },
         child: Scaffold(
           backgroundColor: kColorWhite,
           resizeToAvoidBottomInset: true,
@@ -142,7 +155,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               style: TextStyle(
                                 color: kColorBlack,
                                 fontSize: 21,
-                                fontFamily: 'Kadaw',
+                                letterSpacing: -0.1,
+                                fontFamily: 'inter',
                               ),
                             ),
                             SizedBox(width: vww(context, 3)),
@@ -161,7 +175,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 private_account,
                                 style: TextStyle(
                                   fontSize: 18,
-                                  fontFamily: 'Kadaw',
+                                  letterSpacing: -0.1,
+                                  fontFamily: 'inter',
                                 ),
                               ),
                               SizedBox(height: vhh(context, 1)),
@@ -171,20 +186,25 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 style: TextStyle(
                                   fontSize: 13,
                                   color: Colors.grey[600],
-                                  fontFamily: 'Kadaw',
+                                  fontFamily: 'inter',
+                                  letterSpacing: -0.1,
                                   fontStyle: FontStyle.italic,
                                 ),
                               ),
                               SizedBox(height: vhh(context, 2)),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Ensures equal spacing between items
+                                mainAxisAlignment: MainAxisAlignment
+                                    .spaceEvenly, // Ensures equal spacing between items
                                 children: [
                                   Column(
                                     children: [
                                       const Text(
                                         "Private\naccount", // Line break for multi-line text
                                         textAlign: TextAlign.center,
-                                        style: TextStyle(fontFamily: 'Kadaw', fontWeight: FontWeight.bold),
+                                        style: TextStyle(
+                                            fontFamily: 'inter',
+                                            letterSpacing: -0.1,
+                                            fontWeight: FontWeight.bold),
                                       ),
                                       Radio<bool>(
                                         value: true,
@@ -203,7 +223,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                       const Text(
                                         "Public\naccount", // Line break for multi-line text
                                         textAlign: TextAlign.center,
-                                        style: TextStyle(fontFamily: 'Kadaw', fontWeight: FontWeight.bold),
+                                        style: TextStyle(
+                                            fontFamily: 'inter',
+                                            letterSpacing: -0.1,
+                                            fontWeight: FontWeight.bold),
                                       ),
                                       Radio<bool>(
                                         value: false,
@@ -218,8 +241,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                     ],
                                   ),
                                 ],
-                              ),      
-
+                              ),
                             ],
                           ),
                         ),
@@ -233,16 +255,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             style: TextStyle(
                               fontSize: 16,
                               decoration: TextDecoration.underline,
-                              fontFamily: 'KadawBold',
+                              letterSpacing: -0.1,
+                              fontFamily: 'interBold',
                             ),
                           ),
                           subtitle: Text(
                             logout_description,
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                                color: Colors.grey[600], 
-                                fontFamily: 'Kadaw', 
-                                fontStyle: FontStyle.italic, 
+                                color: Colors.grey[600],
+                                fontFamily: 'inter',
+                                letterSpacing: -0.1,
+                                fontStyle: FontStyle.italic,
                                 fontSize: 13),
                           ),
                           onTap: () {
@@ -257,16 +281,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             style: TextStyle(
                               fontSize: 16,
                               decoration: TextDecoration.underline,
-                              fontFamily: 'KadawBold',
+                              letterSpacing: -0.1,
+                              fontFamily: 'interBold',
                             ),
                           ),
                           subtitle: Text(
                             delete_description,
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                                color: Colors.grey[600], 
+                                color: Colors.grey[600],
                                 fontSize: 13,
-                                fontFamily: 'Kadaw', fontStyle: FontStyle.italic),
+                                fontFamily: 'inter',
+                                letterSpacing: -0.1,
+                                fontStyle: FontStyle.italic),
                           ),
                           onTap: () {
                             _showConfirmationDialog(

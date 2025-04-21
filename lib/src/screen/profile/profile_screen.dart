@@ -70,20 +70,16 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
       GlobalVariables.garageLogoUrl =
           trips[0]['user']['garage'][0]['logo_path'];
       List<dynamic> allDroppins = [];
-
       for (var trip in trips) {
         if (trip['droppins'] != null) {
           allDroppins.addAll(trip['droppins'] as List<dynamic>);
         }
       }
-
       setState(() {
         userTrips = trips;
         dropPinsData = allDroppins.isNotEmpty ? allDroppins : [];
         isLoadingTrips = false;
       });
-      // logger.i(dropPinsData);
-      // if (userTrips != null && userTrips!.isNotEmpty) {}
     } catch (error) {
       logger.e('Error fetching user trips: $error');
       setState(() {
@@ -97,10 +93,6 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   void dispose() {
     super.dispose();
   }
-
-  // Future<bool> _onWillPop() async {
-  //   return false;
-  // }
 
   void _onFollowers() {
     Navigator.push(context,
@@ -161,7 +153,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: Colors.grey,
-                            fontFamily: 'Kadaw',
+                            fontFamily: 'inter',
                           ),
                         ),
                         IconButton(
@@ -243,7 +235,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
-                              fontFamily: 'Kadaw',
+                              fontFamily: 'inter',
                             ),
                           ),
                         ),
@@ -294,7 +286,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 13,
-                                      fontFamily: 'Kadaw',
+                                      fontFamily: 'inter',
                                       color: Colors.black,
                                     ),
                                   ),
@@ -303,7 +295,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     style: const TextStyle(
                                       fontSize: 12,
                                       color: Colors.grey,
-                                      fontFamily: 'Kadaw',
+                                      fontFamily: 'inter',
                                     ),
                                   ),
                                 ],
@@ -355,9 +347,11 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                               Text(
                                 '@${GlobalVariables.userName}',
                                 style: const TextStyle(
-                                    color: kColorBlack,
-                                    fontSize: 18,
-                                    fontFamily: 'Kadaw'),
+                                  color: kColorBlack,
+                                  fontSize: 18,
+                                  fontFamily: 'inter',
+                                  letterSpacing: -0.1,
+                                ),
                               ),
                               Image.asset(
                                 'assets/images/icons/verify.png',
@@ -386,7 +380,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 style: const TextStyle(
                                     fontSize: 20,
                                     color: kColorButtonPrimary,
-                                    fontFamily: 'KadawBold'),
+                                    fontFamily: 'interBold'),
                               ),
                             ],
                           ),
@@ -487,7 +481,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   style: const TextStyle(
                                       fontSize: 20,
                                       color: kColorButtonPrimary,
-                                      fontFamily: 'KadawBold'),
+                                      fontFamily: 'interBold'),
                                 ),
                               ),
                             ],
@@ -501,7 +495,8 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                         style: const TextStyle(
                             color: kColorBlack,
                             fontSize: 20,
-                            fontFamily: 'Kadaw'),
+                            letterSpacing: -0.5,
+                            fontFamily: 'inter'),
                       ),
                       SizedBox(height: vhh(context, 1)),
 
@@ -512,7 +507,8 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                         style: const TextStyle(
                             color: kColorGrey,
                             fontSize: 18,
-                            fontFamily: 'Kadaw'),
+                            letterSpacing: -0.5,
+                            fontFamily: 'inter'),
                       ),
                       SizedBox(height: vhh(context, 2)),
                       Row(
@@ -544,7 +540,8 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   style: TextStyle(
                                       color: kColorWhite,
                                       fontSize: 34.sp,
-                                      fontFamily: 'Kadaw')),
+                                      letterSpacing: -0.1,
+                                      fontFamily: 'inter')),
                             ),
                           ),
                           SizedBox(width: vww(context, 1)),
@@ -553,17 +550,12 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             height: 28,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    kColorStrongGrey, // Button background color
+                                backgroundColor: kColorStrongGrey,
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      30), // Rounded corners
+                                  borderRadius: BorderRadius.circular(30),
                                 ),
                                 shadowColor:
-                                    // ignore: deprecated_member_use
-                                    Colors.black
-                                        // ignore: deprecated_member_use
-                                        .withOpacity(0.9), // Shadow color
+                                    Colors.black.withValues(alpha: 0.9),
                                 elevation: 6,
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 2, vertical: 2),
@@ -575,7 +567,8 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   style: TextStyle(
                                       color: kColorWhite,
                                       fontSize: 34.sp,
-                                      fontFamily: 'Kadaw')),
+                                      letterSpacing: -0.1,
+                                      fontFamily: 'inter')),
                             ),
                           ),
                           SizedBox(width: vww(context, 1)),
@@ -619,8 +612,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                         color:
                                             kColorWhite, // Matches the text color to the button theme
                                         fontSize: 34.sp,
+                                        letterSpacing: -0.1,
                                         fontFamily:
-                                            'Kadaw' // Customize font size
+                                            'inter' // Customize font size
                                         ),
                                   ),
                                 ],
@@ -640,7 +634,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                           //       style: TextStyle(
                           //           color: kColorBlack,
                           //           fontSize: 14,
-                          //           fontFamily: 'Kadaw'),
+                          //           fontFamily: 'inter'),
                           //     ),
                           //     Container(
                           //       padding: const EdgeInsets.symmetric(
@@ -662,7 +656,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                           //         style: const TextStyle(
                           //           color: kColorButtonPrimary,
                           //           fontSize: 14,
-                          //           fontFamily: 'Kadaw',
+                          //           fontFamily: 'inter',
                           //         ),
                           //       ),
                           //     ),
@@ -676,7 +670,8 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 style: TextStyle(
                                     color: kColorBlack,
                                     fontSize: 14,
-                                    fontFamily: 'Kadaw'),
+                                    letterSpacing: -0.1,
+                                    fontFamily: 'inter'),
                               ),
                               Text(
                                 GlobalVariables.happyPlace != null
@@ -685,7 +680,8 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 style: const TextStyle(
                                     color: kColorButtonPrimary,
                                     fontSize: 14,
-                                    fontFamily: 'Kadaw'),
+                                    letterSpacing: -0.1,
+                                    fontFamily: 'inter'),
                               ),
                             ],
                           ),
@@ -697,7 +693,8 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 style: TextStyle(
                                     color: kColorBlack,
                                     fontSize: 14,
-                                    fontFamily: 'Kadaw'),
+                                    letterSpacing: -0.1,
+                                    fontFamily: 'inter'),
                               ),
                               garageImageUrl != null
                                   ? Image.network(
@@ -716,7 +713,10 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                         child: (dropPinsData).isEmpty
                             ? const Center(
                                 child: Text("No drop pins available",
-                                    style: TextStyle(color: Colors.grey)),
+                                    style: TextStyle(
+                                        color: Colors.grey,
+                                        letterSpacing: -0.1,
+                                        fontFamily: 'inter')),
                               )
                             : ListView.builder(
                                 scrollDirection: Axis.horizontal,
@@ -748,10 +748,8 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                     BorderRadius.circular(8),
                                                 gradient: LinearGradient(
                                                   colors: [
-                                                    // ignore: deprecated_member_use
                                                     Colors.black
-                                                        // ignore: deprecated_member_use
-                                                        .withOpacity(0.5),
+                                                        .withValues(alpha: 0.5),
                                                     Colors.transparent
                                                   ],
                                                   begin: Alignment.bottomCenter,

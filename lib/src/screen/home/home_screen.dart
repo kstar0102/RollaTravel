@@ -442,7 +442,7 @@ class PostWidgetState extends State<PostWidget> {
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: Colors.grey,
-                            fontFamily: 'Kadaw',
+                            fontFamily: 'inter',
                           ),
                         ),
                         IconButton(
@@ -502,7 +502,7 @@ class PostWidgetState extends State<PostWidget> {
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
-                              fontFamily: 'Kadaw',
+                              fontFamily: 'inter',
                             ),
                           )
                         : const SizedBox.shrink(),
@@ -578,7 +578,7 @@ class PostWidgetState extends State<PostWidget> {
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
-                              fontFamily: 'Kadaw',
+                              fontFamily: 'inter',
                             ),
                           ),
                         ),
@@ -588,7 +588,7 @@ class PostWidgetState extends State<PostWidget> {
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
-                            fontFamily: 'Kadaw',
+                            fontFamily: 'inter',
                           ),
                         ),
                       ],
@@ -638,7 +638,7 @@ class PostWidgetState extends State<PostWidget> {
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 13,
-                                      fontFamily: 'Kadaw',
+                                      fontFamily: 'inter',
                                       color: Colors.black,
                                     ),
                                   ),
@@ -647,7 +647,7 @@ class PostWidgetState extends State<PostWidget> {
                                     style: const TextStyle(
                                       fontSize: 12,
                                       color: Colors.grey,
-                                      fontFamily: 'Kadaw',
+                                      fontFamily: 'inter',
                                     ),
                                   ),
                                 ],
@@ -787,7 +787,7 @@ class PostWidgetState extends State<PostWidget> {
             ),
             const SizedBox(width: 10),
             Text(widget.post['user']['rolla_username'],
-                style: const TextStyle(fontSize: 18, fontFamily: 'KadawBold')),
+                style: const TextStyle(fontSize: 18, fontFamily: 'interBold')),
             const SizedBox(width: 10),
             const Icon(Icons.verified, color: Colors.blue, size: 16),
             const Spacer(),
@@ -803,13 +803,13 @@ class PostWidgetState extends State<PostWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Destination',
-                    style: TextStyle(fontSize: 15, fontFamily: 'KadawBold')),
+                    style: TextStyle(fontSize: 15, fontFamily: 'interBold')),
                 SizedBox(height: 3),
                 Text('Miles traveled',
-                    style: TextStyle(fontSize: 15, fontFamily: 'KadawBold')),
+                    style: TextStyle(fontSize: 15, fontFamily: 'interBold')),
                 SizedBox(height: 3),
                 Text('Soundtrack',
-                    style: TextStyle(fontSize: 15, fontFamily: 'KadawBold')),
+                    style: TextStyle(fontSize: 15, fontFamily: 'interBold')),
               ],
             ),
             Column(
@@ -828,7 +828,7 @@ class PostWidgetState extends State<PostWidget> {
                       fontSize: 16,
                       color: Colors.brown,
                       decoration: TextDecoration.underline,
-                      fontFamily: 'Kadaw',
+                      fontFamily: 'inter',
                     ),
                     maxLines: 1, // Limit to one line
                     overflow: TextOverflow.ellipsis,
@@ -840,14 +840,14 @@ class PostWidgetState extends State<PostWidget> {
                     style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        fontFamily: 'Kadaw')),
+                        fontFamily: 'inter')),
                 const SizedBox(height: 3),
                 const Text("Spotify Playlist",
                     style: TextStyle(
                         fontSize: 16,
                         color: Colors.brown,
                         decoration: TextDecoration.underline,
-                        fontFamily: 'Kadaw')),
+                        fontFamily: 'inter')),
               ],
             ),
           ],
@@ -1072,7 +1072,7 @@ class PostWidgetState extends State<PostWidget> {
                       hintStyle: TextStyle(
                           color: Colors.grey,
                           fontSize: 15,
-                          fontFamily: 'Kadaw'),
+                          fontFamily: 'inter'),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
                         borderSide: BorderSide(
@@ -1101,7 +1101,7 @@ class PostWidgetState extends State<PostWidget> {
                       ),
                     ),
                     style: const TextStyle(
-                      fontFamily: 'Kadaw',
+                      fontFamily: 'inter',
                       fontSize: 15,
                       color: Colors.black,
                     ),
@@ -1137,7 +1137,7 @@ class PostWidgetState extends State<PostWidget> {
                           ? Colors.red
                           : Colors.grey,
                       fontSize: 16,
-                      fontFamily: 'Kadaw',
+                      fontFamily: 'inter',
                     ),
                   ),
                 ),
@@ -1170,14 +1170,14 @@ class PostWidgetState extends State<PostWidget> {
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
-                      fontFamily: 'Kadaw',
+                      fontFamily: 'inter',
                     )),
                 const SizedBox(width: 15),
                 Text(widget.post['trip_caption'] ?? " ",
                     style: const TextStyle(
                       color: kColorButtonPrimary,
                       fontSize: 15,
-                      fontFamily: 'Kadaw',
+                      fontFamily: 'inter',
                     )),
               ],
             ),
@@ -1195,7 +1195,7 @@ class PostWidgetState extends State<PostWidget> {
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
-                    fontFamily: 'Kadaw',
+                    fontFamily: 'inter',
                   ),
                 ),
               ),
@@ -1234,7 +1234,7 @@ class PostWidgetState extends State<PostWidget> {
                             fontWeight: FontWeight.bold,
                             color: kColorHereButton,
                             fontSize: 13,
-                            fontFamily: 'Kadaw',
+                            fontFamily: 'inter',
                           ),
                         ),
                         const SizedBox(width: 5),
@@ -1249,7 +1249,7 @@ class PostWidgetState extends State<PostWidget> {
                           child: Text(
                             comment['content'] ?? '',
                             style: const TextStyle(
-                              fontFamily: 'Kadaw',
+                              fontFamily: 'inter',
                               fontSize: 14,
                             ),
                           ),
@@ -1260,7 +1260,7 @@ class PostWidgetState extends State<PostWidget> {
                 }).toList(),
               ),
             const SizedBox(height: 8),
-            // Text(widget.post.lastUpdated, style: const TextStyle(color: Colors.grey, fontSize: 12, fontFamily: 'Kadaw')),
+            // Text(widget.post.lastUpdated, style: const TextStyle(color: Colors.grey, fontSize: 12, fontFamily: 'inter')),
           ],
         ),
         const SizedBox(height: 20),

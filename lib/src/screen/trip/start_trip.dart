@@ -470,14 +470,14 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
         return AlertDialog(
           title: const Text(
             "Edit Destination",
-            style: TextStyle(fontFamily: 'KadawBold'),
+            style: TextStyle(fontFamily: 'interBold'),
           ),
           content: TextField(
             controller: textController,
             decoration: const InputDecoration(
                 hintText: "Enter destination",
-                hintStyle: TextStyle(fontFamily: 'Kadaw')),
-            style: const TextStyle(fontFamily: 'Kadaw', fontSize: 14),
+                hintStyle: TextStyle(fontFamily: 'inter')),
+            style: const TextStyle(fontFamily: 'inter', fontSize: 14),
           ),
           actions: [
             TextButton(
@@ -487,7 +487,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
               child: const Text(
                 "Cancel",
                 style:
-                    TextStyle(fontFamily: 'Kadaw', color: kColorButtonPrimary),
+                    TextStyle(fontFamily: 'inter', color: kColorButtonPrimary),
               ),
             ),
             TextButton(
@@ -500,7 +500,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
               child: const Text(
                 "OK",
                 style:
-                    TextStyle(fontFamily: 'Kadaw', color: kColorCreateButton),
+                    TextStyle(fontFamily: 'inter', color: kColorCreateButton),
               ),
             ),
           ],
@@ -593,7 +593,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                             style: TextStyle(
                                 color: kColorBlack,
                                 fontSize: 14,
-                                fontFamily: 'Kadaw'),
+                                fontFamily: 'inter'),
                           ),
                           GestureDetector(
                             onTap: () {
@@ -611,7 +611,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                               style: const TextStyle(
                                 color: kColorButtonPrimary,
                                 fontSize: 14,
-                                fontFamily: 'Kadaw',
+                                fontFamily: 'inter',
                                 decoration: TextDecoration.underline,
                                 decorationColor: kColorButtonPrimary,
                               ),
@@ -630,14 +630,14 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                       //       style: TextStyle(
                       //           color: kColorBlack,
                       //           fontSize: 14,
-                      //           fontFamily: 'Kadaw'),
+                      //           fontFamily: 'inter'),
                       //     ),
                       //     Text(
                       //       "0",
                       //       style: TextStyle(
                       //           color: kColorBlack,
                       //           fontSize: 14,
-                      //           fontFamily: 'Kadaw'),
+                      //           fontFamily: 'inter'),
                       //     ),
                       //   ],
                       // ),
@@ -649,7 +649,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                             style: TextStyle(
                                 color: kColorBlack,
                                 fontSize: 14,
-                                fontFamily: 'Kadaw'),
+                                fontFamily: 'inter'),
                           ),
                           GestureDetector(
                             onTap: () async {
@@ -676,7 +676,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                   fontSize: 14,
                                   decoration: TextDecoration.underline,
                                   decorationColor: kColorButtonPrimary,
-                                  fontFamily: 'Kadaw'),
+                                  fontFamily: 'inter'),
                             ),
                           ),
                         ],
@@ -707,7 +707,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                           style: TextStyle(
                               color: kColorBlack,
                               fontSize: 14,
-                              fontFamily: 'Kadaw'),
+                              fontFamily: 'inter'),
                         ),
                         const SizedBox(
                             width:
@@ -726,7 +726,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                             style: const TextStyle(
                                 fontSize: 14,
                                 color: kColorBlack,
-                                fontFamily: 'Kadaw'),
+                                fontFamily: 'inter'),
                           ),
                         ),
                       ],
@@ -843,7 +843,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                                                 color:
                                                                     Colors.grey,
                                                                 fontFamily:
-                                                                    'Kadaw',
+                                                                    'inter',
                                                               ),
                                                             ),
                                                             IconButton(
@@ -954,7 +954,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                                     color: Colors.black,
                                                     fontSize: 14,
                                                     fontStyle: FontStyle.italic,
-                                                    fontFamily: 'KadawBold'),
+                                                    fontFamily: 'interBold'),
                                                 textAlign: TextAlign.center,
                                               ),
                                               Text(
@@ -963,7 +963,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                                     color: Colors.black,
                                                     fontSize: 14,
                                                     fontStyle: FontStyle.italic,
-                                                    fontFamily: 'Kadaw'),
+                                                    fontFamily: 'inter'),
                                                 textAlign: TextAlign.center,
                                               ),
                                             ],
@@ -1058,7 +1058,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                         color: Colors.black,
                                         fontSize: 14,
                                         fontStyle: FontStyle.italic,
-                                        fontFamily: 'Kadaw',
+                                        fontFamily: 'inter',
                                       ),
                                       textAlign: TextAlign.center,
                                     ),

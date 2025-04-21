@@ -549,7 +549,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                         'Select Location',
                         style: TextStyle(
                           fontSize: 24,
-                          fontFamily: 'Kadaw',
+                          fontFamily: 'inter',
                           color: Colors.black,
                         ),
                       ),
@@ -667,7 +667,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                                                   Colors.black.withOpacity(0.8),
                                               fontSize: 14,
                                               fontStyle: FontStyle.italic,
-                                              fontFamily: 'Kadaw'),
+                                              fontFamily: 'inter'),
                                           textAlign: TextAlign.center,
                                         ),
                                       ),
@@ -703,7 +703,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                               style: TextStyle(
                                   fontSize: 16,
                                   color: Colors.white,
-                                  fontFamily: 'Kadaw')),
+                                  fontFamily: 'inter')),
                         ),
                       ),
                     ),
@@ -716,7 +716,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                         style: TextStyle(
                             color: Colors.grey,
                             fontSize: 16,
-                            fontFamily: 'Kadaw'),
+                            fontFamily: 'inter'),
                       ),
                     ),
                     SizedBox(
@@ -734,7 +734,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                             fontSize: 16,
                             decoration: TextDecoration.underline,
                             decorationColor: Colors.black,
-                            fontFamily: 'Kadaw'),
+                            fontFamily: 'inter'),
                       ),
                     ),
                     // BackdropFilter for uploading state

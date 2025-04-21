@@ -189,7 +189,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                             style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
-                                fontFamily: 'Kadaw'),
+                                fontFamily: 'inter'),
                           ),
                         ),
                       ],
@@ -229,7 +229,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                             fontWeight: FontWeight.bold,
                                             color: kColorHereButton,
                                             fontSize: 13,
-                                            fontFamily: 'Kadaw'),
+                                            fontFamily: 'inter'),
                                       ),
                                       const SizedBox(width: 5),
                                       const Icon(Icons.verified,
@@ -238,7 +238,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                   ),
                                   const Text(
                                     "Brain Smith",
-                                    style: TextStyle(fontFamily: 'Kadaw'),
+                                    style: TextStyle(fontFamily: 'inter'),
                                   )
                                 ],
                               ),
@@ -319,7 +319,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                   style: const TextStyle(
                                       color: kColorBlack,
                                       fontSize: 18,
-                                      fontFamily: 'KadawBold'),
+                                      fontFamily: 'interBold'),
                                 ),
                                 Image.asset(
                                   'assets/images/icons/verify.png',
@@ -346,7 +346,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                   style: const TextStyle(
                                     fontSize: 20,
                                     color: kColorButtonPrimary,
-                                    fontFamily: 'KadawBold',
+                                    fontFamily: 'interBold',
                                   ),
                                 ),
                               ],
@@ -383,7 +383,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                     style: const TextStyle(
                                       fontSize: 20,
                                       color: kColorButtonPrimary,
-                                      fontFamily: 'KadawBold',
+                                      fontFamily: 'interBold',
                                     ),
                                   ),
                                 ),
@@ -399,7 +399,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                             style: const TextStyle(
                               color: kColorBlack,
                               fontSize: 20,
-                              fontFamily: 'KadawBold',
+                              fontFamily: 'interBold',
                             ),
                           ),
                           Text(
@@ -407,7 +407,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                             style: const TextStyle(
                               color: kColorGrey,
                               fontSize: 18,
-                              fontFamily: 'Kadaw',
+                              fontFamily: 'inter',
                             ),
                           ),
                           // Add more fields as needed
@@ -449,7 +449,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                     style: TextStyle(
                                       color: Colors.white, // Text color
                                       fontSize: 14, // Font size
-                                      fontFamily: 'KadawBold', // Font weight
+                                      fontFamily: 'interBold', // Font weight
                                     ),
                                   ),
                                 ),
@@ -496,7 +496,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                           color: Colors.white, // Text color
                                           fontSize: 14, // Font size
                                           fontFamily:
-                                              'KadawBold', // Font weight
+                                              'interBold', // Font weight
                                         ),
                                       ),
                                     ],
@@ -518,7 +518,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                   style: TextStyle(
                                     color: kColorBlack,
                                     fontSize: 14,
-                                    fontFamily: 'Kadaw',
+                                    fontFamily: 'inter',
                                   ),
                                 ),
                                 Text(
@@ -526,7 +526,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                   style: TextStyle(
                                     color: kColorButtonPrimary,
                                     fontSize: 14,
-                                    fontFamily: 'Kadaw',
+                                    fontFamily: 'inter',
                                   ),
                                 ),
                               ],
@@ -539,7 +539,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                   style: TextStyle(
                                     color: kColorBlack,
                                     fontSize: 14,
-                                    fontFamily: 'Kadaw',
+                                    fontFamily: 'inter',
                                   ),
                                 ),
                                 Text(
@@ -547,7 +547,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                   style: TextStyle(
                                     color: kColorButtonPrimary,
                                     fontSize: 14,
-                                    fontFamily: 'Kadaw',
+                                    fontFamily: 'inter',
                                   ),
                                 ),
                               ],
@@ -560,7 +560,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                   style: TextStyle(
                                     color: kColorBlack,
                                     fontSize: 14,
-                                    fontFamily: 'Kadaw',
+                                    fontFamily: 'inter',
                                   ),
                                 ),
                                 Text(
@@ -568,7 +568,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                   style: TextStyle(
                                     color: kColorButtonPrimary,
                                     fontSize: 14,
-                                    fontFamily: 'Kadaw',
+                                    fontFamily: 'inter',
                                   ),
                                 ),
                               ],
@@ -619,7 +619,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                     "Map Route Here",
                                     style: TextStyle(
                                       color: Colors.black,
-                                      fontFamily: 'Kadaw',
+                                      fontFamily: 'inter',
                                     ),
                                   ),
                                 ),

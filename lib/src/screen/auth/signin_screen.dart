@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/gestures.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-// import 'dart:convert';
 import 'package:logger/logger.dart';
 
 class SigninScreen extends ConsumerStatefulWidget {
@@ -244,7 +243,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                             style: const TextStyle(
                                 color: kColorBlack,
                                 fontSize: 16,
-                                fontFamily: 'Kadaw'),
+                                fontFamily: 'inter'),
                             decoration: InputDecoration(
                               floatingLabelBehavior:
                                   FloatingLabelBehavior.always,
@@ -264,7 +263,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                               hintStyle: const TextStyle(
                                   color: kColorGrey,
                                   fontSize: 14,
-                                  fontFamily: 'Kadaw'),
+                                  fontFamily: 'inter'),
                               contentPadding: const EdgeInsets.only(
                                 top: -8, // Push hint closer to the top
                                 bottom:
@@ -277,7 +276,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                                       12, // Reduce font size of the error message
                                   height:
                                       0.5, // Adjust line height for tighter spacing
-                                  fontFamily: 'Kadaw'),
+                                  fontFamily: 'inter'),
                               counterText: '',
                             ),
                           ),
@@ -294,7 +293,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                             style: const TextStyle(
                                 color: kColorBlack,
                                 fontSize: 16,
-                                fontFamily: 'Kadaw'),
+                                fontFamily: 'inter'),
                             decoration: InputDecoration(
                               floatingLabelBehavior:
                                   FloatingLabelBehavior.always,
@@ -314,7 +313,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                               hintStyle: const TextStyle(
                                   color: kColorGrey,
                                   fontSize: 14,
-                                  fontFamily: 'Kadaw'),
+                                  fontFamily: 'inter'),
                               contentPadding: const EdgeInsets.only(
                                 top: -8, // Push hint closer to the top
                                 bottom:
@@ -327,7 +326,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                                       12, // Reduce font size of the error message
                                   height:
                                       0.5, // Adjust line height for tighter spacing
-                                  fontFamily: 'Kadaw'),
+                                  fontFamily: 'inter'),
                               counterText: '',
                             ),
                           ),
@@ -372,7 +371,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                                   style: TextStyle(
                                       color: kColorGrey,
                                       fontSize: 14,
-                                      fontFamily: 'Kadaw'),
+                                      fontFamily: 'inter'),
                                 ),
                                 TextSpan(
                                   text: here_title,
@@ -382,7 +381,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                                       fontWeight: FontWeight.bold,
                                       decoration: TextDecoration.underline,
                                       decorationColor: kColorHereButton,
-                                      fontFamily: 'Kadaw'),
+                                      fontFamily: 'inter'),
                                   recognizer: TapGestureRecognizer()
                                     ..onTap = () {
                                       Navigator.push(
@@ -414,7 +413,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                                   style: TextStyle(
                                       color: kColorGrey,
                                       fontSize: 14,
-                                      fontFamily: 'Kadaw'),
+                                      fontFamily: 'inter'),
                                 ),
                                 TextSpan(
                                   text: hereTitleNo,
@@ -424,7 +423,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                                       fontWeight: FontWeight.bold,
                                       decoration: TextDecoration.underline,
                                       decorationColor: kColorHereButton,
-                                      fontFamily: 'Kadaw'),
+                                      fontFamily: 'inter'),
                                   recognizer: TapGestureRecognizer()
                                     ..onTap = () {},
                                 ),
@@ -433,7 +432,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                                   style: TextStyle(
                                       color: kColorGrey,
                                       fontSize: 14,
-                                      fontFamily: 'Kadaw'),
+                                      fontFamily: 'inter'),
                                 ),
                               ],
                             ),

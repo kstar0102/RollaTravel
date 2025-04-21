@@ -103,9 +103,18 @@ flutter:
   - assets/images/background/
 
   fonts:
-    - family: Kadaw
+    - family: Kadwa
       fonts:
         - asset: assets/font/kadwa/Kadwa-Regular.ttf
-    - family: KadawBold
+    - family: KadwaBold
       fonts:
         - asset: assets/font/kadwa/Kadwa-Bold.ttf
+    - family: inter
+      fonts:
+        - asset: assets/font/inter/Inter-Medium.ttf
+    - family: interBold
+      fonts:
+        - asset: assets/font/kadwa/Inter-Bold.ttf
+
+
+        

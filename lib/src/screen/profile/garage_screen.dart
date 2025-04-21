@@ -53,47 +53,50 @@ class _GarageScreenState extends ConsumerState<GarageScreen> {
               children: [
                 InkWell(
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const EditProfileScreen()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const EditProfileScreen()));
                   },
                   child: Image.asset(
                     'assets/images/icons/allow-left.png',
                     width: vww(context, 3),
                   ),
                 ),
-                
                 const Text(
                   'My Garage',
                   style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'KadawBold'
-                  ),
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'interBold'),
                 ),
-
                 Container(),
               ],
             ),
             const SizedBox(height: 18),
             const Center(
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0), // Add horizontal padding
+                padding: EdgeInsets.symmetric(
+                    horizontal: 16.0), // Add horizontal padding
                 child: Column(
-                  mainAxisSize: MainAxisSize.min, // Center the column vertically
+                  mainAxisSize:
+                      MainAxisSize.min, // Center the column vertically
                   children: [
                     Text(
                       'Adding a vehicle to your garage will result in the vehicle maker\'s logo appearing in your profile.',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey,
-                        fontFamily: 'Kadaw',
+                        fontFamily: 'inter',
                       ),
-                      textAlign: TextAlign.center, // Center-align the text within the column
+                      textAlign: TextAlign
+                          .center, // Center-align the text within the column
                     ),
                   ],
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 16), // Spacing before the list
             Expanded(
               child: carData.isEmpty
@@ -119,7 +122,8 @@ class _GarageScreenState extends ConsumerState<GarageScreen> {
                                       size: 40,
                                     );
                                   },
-                                  loadingBuilder: (context, child, loadingProgress) {
+                                  loadingBuilder:
+                                      (context, child, loadingProgress) {
                                     // Show a progress indicator while the image is loading
                                     if (loadingProgress == null) {
                                       return child;
@@ -132,20 +136,24 @@ class _GarageScreenState extends ConsumerState<GarageScreen> {
                                       ),
                                     );
                                   },
-                                  fit: BoxFit.cover, // Ensures the image fits within the specified size
+                                  fit: BoxFit
+                                      .cover, // Ensures the image fits within the specified size
                                 ),
                                 title: Text(
                                   car['car_type'],
                                   style: const TextStyle(fontSize: 16),
                                 ),
                                 trailing: selectedCarId == car['id']
-                                    ? const Icon(Icons.check, color: Colors.blue)
+                                    ? const Icon(Icons.check,
+                                        color: Colors.blue)
                                     : null,
                                 onTap: () {
                                   setState(() {
                                     selectedCarId = car['id'];
-                                    GlobalVariables.garage = car['id'].toString();
-                                    GlobalVariables.garageLogoUrl = car['logo_path'];
+                                    GlobalVariables.garage =
+                                        car['id'].toString();
+                                    GlobalVariables.garageLogoUrl =
+                                        car['logo_path'];
                                   });
                                 },
                               ),

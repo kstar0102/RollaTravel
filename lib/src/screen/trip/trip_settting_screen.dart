@@ -12,7 +12,7 @@ class TripSetttingScreen extends StatefulWidget {
 
 class TripSetttingScreenState extends State<TripSetttingScreen> {
   int _privacySelected = 0;
-  int _mapStyleSelected = 2; 
+  int _mapStyleSelected = 2;
   int _selectedUnit = 1;
   final int _currentIndex = 2;
 
@@ -20,18 +20,16 @@ class TripSetttingScreenState extends State<TripSetttingScreen> {
     return false;
   }
 
-  Widget _buildRadioOption(String label, int value, int groupValue, Function(int) onChanged) {
+  Widget _buildRadioOption(
+      String label, int value, int groupValue, Function(int) onChanged) {
     return Flexible(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 25), 
+        padding: const EdgeInsets.symmetric(horizontal: 25),
         child: Column(
           children: [
             Text(
               label,
-              style: const TextStyle(
-                fontSize: 12,
-                fontFamily: "Kadaw"
-              ),
+              style: const TextStyle(fontSize: 12, fontFamily: "inter"),
             ),
             Radio<int>(
               value: value,
@@ -52,10 +50,7 @@ class TripSetttingScreenState extends State<TripSetttingScreen> {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 14,
-            fontFamily: "Kadaw"
-          ),
+          style: const TextStyle(fontSize: 14, fontFamily: "inter"),
         ),
         Radio<int>(
           value: value,
@@ -97,13 +92,11 @@ class TripSetttingScreenState extends State<TripSetttingScreen> {
                           'assets/images/icons/setting.png',
                           height: vhh(context, 2.5),
                         ),
-                        const SizedBox(width: 5), // Spacing between icon and text
+                        const SizedBox(
+                            width: 5), // Spacing between icon and text
                         const Text(
                           'Trip Settings',
-                          style: TextStyle(
-                            fontSize: 21,
-                            fontFamily: "Kadaw"
-                          ),
+                          style: TextStyle(fontSize: 21, fontFamily: "inter"),
                         ),
                       ],
                     ),
@@ -129,10 +122,7 @@ class TripSetttingScreenState extends State<TripSetttingScreen> {
 
               const Text(
                 'Privacy',
-                style: TextStyle(
-                  fontSize: 17,
-                  fontFamily: "Kadaw"
-                ),
+                style: TextStyle(fontSize: 17, fontFamily: "inter"),
                 textAlign: TextAlign.left,
               ),
               const SizedBox(height: 8),
@@ -143,12 +133,12 @@ class TripSetttingScreenState extends State<TripSetttingScreen> {
                   'Delay display of dropped pins on my map for:',
                   style: TextStyle(
                     fontSize: 14,
-                    fontFamily: "Kadaw",
+                    fontFamily: "inter",
                     decoration: TextDecoration.underline,
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 16),
 
               // Privacy radio buttons
@@ -169,16 +159,13 @@ class TripSetttingScreenState extends State<TripSetttingScreen> {
                   }),
                 ],
               ),
- 
+
               const SizedBox(height: 30),
 
               // Map Style Section
               const Text(
                 'Map Style',
-                style: TextStyle(
-                  fontSize: 17,
-                  fontFamily: "Kadaw"
-                ),
+                style: TextStyle(fontSize: 17, fontFamily: "inter"),
               ),
 
               const SizedBox(height: 10),
@@ -186,15 +173,15 @@ class TripSetttingScreenState extends State<TripSetttingScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: List.generate(4, (index) {
-                  return 
-                  Padding(
+                  return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: Column(
                       children: [
                         Container(
                           height: vhh(context, 10),
                           width: vww(context, 18),
-                          color: Colors.grey[300], // Placeholder for the map image
+                          color:
+                              Colors.grey[300], // Placeholder for the map image
                         ),
                         Radio<int>(
                           value: index,
@@ -215,16 +202,14 @@ class TripSetttingScreenState extends State<TripSetttingScreen> {
               const SizedBox(height: 30),
               const Text(
                 'Units of distance',
-                style: TextStyle(
-                  fontSize: 17,
-                  fontFamily: "Kadaw"
-                ),
+                style: TextStyle(fontSize: 17, fontFamily: "inter"),
               ),
 
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround, // Distribute items evenly
+                  mainAxisAlignment:
+                      MainAxisAlignment.spaceAround, // Distribute items evenly
                   children: [
                     _buildunitsOption("Miles", 0, _selectedUnit, (value) {
                       setState(() => _selectedUnit = value);

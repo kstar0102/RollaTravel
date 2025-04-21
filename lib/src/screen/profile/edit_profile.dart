@@ -139,7 +139,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 leading: const Icon(Icons.camera_alt),
                 title: const Text(
                   'Take a Photo',
-                  style: TextStyle(fontFamily: 'Kadaw'),
+                  style: TextStyle(
+                    fontFamily: 'inter',
+                    letterSpacing: -0.1,
+                  ),
                 ),
                 onTap: () async {
                   Navigator.of(context).pop();
@@ -164,7 +167,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 leading: const Icon(Icons.photo),
                 title: const Text(
                   'Choose from Gallery',
-                  style: TextStyle(fontFamily: 'Kadaw'),
+                  style: TextStyle(
+                    fontFamily: 'inter',
+                    letterSpacing: -0.1,
+                  ),
                 ),
                 onTap: () async {
                   Navigator.of(context).pop();
@@ -333,7 +339,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                               style: TextStyle(
                                   color: kColorBlack,
                                   fontSize: 20,
-                                  fontFamily: 'Kadaw'),
+                                  letterSpacing: -0.5,
+                                  fontFamily: 'inter'),
                             ),
                             SizedBox(width: vww(context, 7)),
                           ],
@@ -382,7 +389,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 fontSize: 18,
                                 decoration: TextDecoration.underline,
                                 fontWeight: FontWeight.w500,
-                                fontFamily: 'Kadaw'),
+                                letterSpacing: -0.5,
+                                fontFamily: 'inter'),
                           ),
                         ),
                         if (_ischangeimage)
@@ -394,7 +402,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 children: [
                                   CircularProgressIndicator(),
                                   SizedBox(height: 16),
-                                  Text('Changing user avatar now...'),
+                                  Text(
+                                    'Changing user avatar now...',
+                                    style: TextStyle(
+                                      fontFamily: 'inter',
+                                      letterSpacing: -0.1,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -415,7 +429,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                       color: kColorGrey,
                                       fontSize: 14,
                                       fontWeight: FontWeight.w400,
-                                      fontFamily: 'Kadaw'),
+                                      letterSpacing: -0.1,
+                                      fontFamily: 'inter'),
                                 ),
                                 SizedBox(
                                   width: 200, // Adjust width as needed
@@ -439,7 +454,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                             .black, // Replace with kColorBlack
                                         fontSize: 15,
                                         fontWeight: FontWeight.w500,
-                                        fontFamily: 'Kadaw'),
+                                        letterSpacing: -0.1,
+                                        fontFamily: 'inter'),
                                     textAlignVertical: TextAlignVertical.center,
                                     textInputAction: TextInputAction.done,
                                   ),
@@ -456,7 +472,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                       color: kColorGrey,
                                       fontSize: 14,
                                       fontWeight: FontWeight.w400,
-                                      fontFamily: 'Kadaw'),
+                                      letterSpacing: -0.1,
+                                      fontFamily: 'inter'),
                                 ),
                                 SizedBox(
                                   width: 200, // Adjust width as needed
@@ -479,7 +496,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                             .black, // Replace with kColorBlack
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
-                                        fontFamily: 'Kadaw'),
+                                        letterSpacing: -0.1,
+                                        fontFamily: 'inter'),
                                     textAlignVertical: TextAlignVertical.center,
                                     textInputAction: TextInputAction.done,
                                   ),
@@ -497,7 +515,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                       color: kColorGrey,
                                       fontSize: 14,
                                       fontWeight: FontWeight.w400,
-                                      fontFamily: 'Kadaw'),
+                                      letterSpacing: -0.1,
+                                      fontFamily: 'inter'),
                                 ),
                                 SizedBox(
                                   width: 200, // Adjust width as needed
@@ -518,7 +537,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                           color: Colors.grey,
                                           fontSize: 14,
                                           fontWeight: FontWeight.w500,
-                                          fontFamily: 'Kadaw'),
+                                          letterSpacing: -0.1,
+                                          fontFamily: 'inter'),
                                       counterText:
                                           '', // Removes the counter text (10/10)
                                     ),
@@ -527,7 +547,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                             .black, // Replace with kColorBlack
                                         fontSize: 15,
                                         fontWeight: FontWeight.w500,
-                                        fontFamily: 'Kadaw'),
+                                        letterSpacing: -0.1,
+                                        fontFamily: 'inter'),
                                     textAlignVertical: TextAlignVertical.center,
                                     textInputAction: TextInputAction.done,
                                   ),
@@ -546,7 +567,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                       color: kColorGrey,
                                       fontSize: 14,
                                       fontWeight: FontWeight.w400,
-                                      fontFamily: 'Kadaw'),
+                                      letterSpacing: -0.1,
+                                      fontFamily: 'inter'),
                                 ),
                                 GlobalVariables.garageLogoUrl != null &&
                                         GlobalVariables
@@ -582,7 +604,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                       color: kColorGrey,
                                       fontSize: 14,
                                       fontWeight: FontWeight.w400,
-                                      fontFamily: 'Kadaw'),
+                                      letterSpacing: -0.1,
+                                      fontFamily: 'inter'),
                                 ),
                                 SizedBox(
                                   width: 200, // Adjust width as needed
@@ -604,14 +627,16 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                           color: Colors.grey,
                                           fontSize: 14,
                                           fontWeight: FontWeight.w500,
-                                          fontFamily: 'Kadaw'),
+                                          letterSpacing: -0.1,
+                                          fontFamily: 'inter'),
                                     ),
                                     style: const TextStyle(
                                         color: Colors
                                             .black, // Replace with kColorBlack
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
-                                        fontFamily: 'Kadaw'),
+                                        letterSpacing: -0.1,
+                                        fontFamily: 'inter'),
                                     textAlignVertical: TextAlignVertical.center,
                                     textInputAction: TextInputAction.done,
                                   ),
@@ -628,7 +653,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                     children: [
                                       CircularProgressIndicator(),
                                       SizedBox(height: 16),
-                                      Text('Updating changed data now...'),
+                                      Text(
+                                        'Updating changed data now...',
+                                        style: TextStyle(
+                                          fontFamily: 'inter',
+                                          letterSpacing: -0.1,
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -648,7 +679,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                         30), // Rounded corners
                                   ),
                                   shadowColor: Colors.black
-                                      .withOpacity(0.9), // Shadow color
+                                      .withValues(alpha: 0.9), // Shadow color
                                   elevation:
                                       6, // Elevation to create the shadow effect
                                   padding: const EdgeInsets.symmetric(
@@ -661,7 +692,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                     style: TextStyle(
                                         color: kColorWhite,
                                         fontSize: 13,
-                                        fontFamily: 'Kadaw')),
+                                        letterSpacing: -0.1,
+                                        fontFamily: 'inter')),
                               ),
                             ),
                           ],

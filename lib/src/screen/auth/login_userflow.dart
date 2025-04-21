@@ -82,7 +82,7 @@ class _LoginUserFlowScreenState extends ConsumerState<LoginUserFlowScreen> {
                           style: TextStyle(
                               color: kColorGrey,
                               fontSize: 16,
-                              fontFamily: 'Kadaw'),
+                              fontFamily: 'inter'),
                         ),
                         SizedBox(
                           height: vhh(context, 2),

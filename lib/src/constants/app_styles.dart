@@ -10,7 +10,6 @@ const Color kColorHereButton = Color(0XFF19B4D7);
 const Color kColorCreateButton = Color(0XFF4D9750);
 const Color kColorStrongGrey = Color(0XFF95989C);
 
-
 // ------------------------ Message -------------------------------- //
 
 const Color mColorIcon = Color(0XFF9095A0);
@@ -37,5 +36,5 @@ const kFocusBorder = OutlineInputBorder(
 const TextStyle iamgeModalCaptionTextStyle = TextStyle(
   fontSize: 15,
   color: Colors.grey,
-  fontFamily: 'KadawBold',
+  fontFamily: 'interBold',
 );

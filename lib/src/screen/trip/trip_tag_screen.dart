@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:RollaTravel/src/utils/index.dart';
+
 class TripTagSearchScreen extends StatefulWidget {
   const TripTagSearchScreen({super.key});
 
@@ -45,7 +46,7 @@ class TripTagSettingScreenState extends State<TripTagSearchScreen> {
                         'Tag Rolla users',
                         style: TextStyle(
                           fontSize: 22,
-                          fontFamily: 'KadawBold',
+                          fontFamily: 'interBold',
                         ),
                       ),
                     ),
@@ -63,40 +64,58 @@ class TripTagSettingScreenState extends State<TripTagSearchScreen> {
                     'assets/images/icons/add_car1.png',
                     width: vww(context, 6),
                   ),
-                  const SizedBox(width: 30,)
+                  const SizedBox(
+                    width: 30,
+                  )
                 ],
               ),
 
               Row(
                 children: [
-                  const SizedBox(width: 20,),
+                  const SizedBox(
+                    width: 20,
+                  ),
                   const Icon(Icons.search, size: 24, color: Colors.black),
-                  const SizedBox(width: 5,),
+                  const SizedBox(
+                    width: 5,
+                  ),
                   SizedBox(
                     height: 30,
                     width: vww(context, 85),
                     child: TextField(
                       controller: _searchTagController,
                       decoration: InputDecoration(
-                          hintText: 'Search Rolla users and add them to your trip',
-                          hintStyle: const TextStyle(fontSize: 14, fontFamily: 'Kadaw',), // Set font size for hint text
-                          contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 16.0), // Set inner padding
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(4.0),
-                            borderSide: const BorderSide(color: Colors.black, width: 1.0),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(4.0),
-                            borderSide: const BorderSide(color: Colors.black, width: 1.0),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(4.0),
-                            borderSide: const BorderSide(color: Colors.black, width: 1.0),
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey[200],
+                        hintText:
+                            'Search Rolla users and add them to your trip',
+                        hintStyle: const TextStyle(
+                          fontSize: 14,
+                          fontFamily: 'inter',
+                        ), // Set font size for hint text
+                        contentPadding: const EdgeInsets.symmetric(
+                            vertical: 5.0,
+                            horizontal: 16.0), // Set inner padding
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(4.0),
+                          borderSide:
+                              const BorderSide(color: Colors.black, width: 1.0),
                         ),
-                        style: const TextStyle(fontSize: 15, fontFamily: 'Kadaw',),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(4.0),
+                          borderSide:
+                              const BorderSide(color: Colors.black, width: 1.0),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(4.0),
+                          borderSide:
+                              const BorderSide(color: Colors.black, width: 1.0),
+                        ),
+                        filled: true,
+                        fillColor: Colors.grey[200],
+                      ),
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontFamily: 'inter',
+                      ),
                     ),
                   ),
                 ],

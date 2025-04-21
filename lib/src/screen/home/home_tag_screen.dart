@@ -42,7 +42,7 @@ class HomeTagScreenState extends ConsumerState<HomeTagScreen> {
                             style: TextStyle(
                               color: Colors.grey,
                               fontSize: 15,
-                              fontFamily: 'Kadaw',
+                              fontFamily: 'inter',
                             ),
                           ),
                           Image.asset("assets/images/icons/add_car.png",
@@ -100,7 +100,7 @@ class HomeTagScreenState extends ConsumerState<HomeTagScreen> {
                                     "@smith",
                                     style: TextStyle(
                                       fontSize: 15,
-                                      fontFamily: 'KadawBold',
+                                      fontFamily: 'interBold',
                                     ),
                                   ),
                                   SizedBox(width: 5),
@@ -113,7 +113,7 @@ class HomeTagScreenState extends ConsumerState<HomeTagScreen> {
                                 style: TextStyle(
                                   fontSize: 15,
                                   color: Colors.grey,
-                                  fontFamily: 'Kadaw',
+                                  fontFamily: 'inter',
                                 ),
                               )
                             ],
