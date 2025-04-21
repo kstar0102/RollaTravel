@@ -1,5 +1,6 @@
 import 'package:RollaTravel/src/screen/home/home_tag_screen.dart';
 import 'package:RollaTravel/src/screen/home/home_user_screen.dart';
+import 'package:RollaTravel/src/screen/home/home_view_screen.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:flutter/material.dart';
@@ -224,7 +225,6 @@ class PostWidgetState extends State<PostWidget> {
     try {
       if (widget.post['start_location'] != null &&
           widget.post['start_location'].toString().contains("LatLng")) {
-        // Extracting coordinates from string format "LatLng(latitude:49.779318, longitude:-86.535325)"
         final regex =
             RegExp(r"LatLng\(latitude:([\d\.-]+), longitude:([\d\.-]+)\)");
         final match = regex.firstMatch(widget.post['start_location']);
@@ -237,7 +237,6 @@ class PostWidgetState extends State<PostWidget> {
           });
         }
       } else {
-        // Fetch Start Address Coordinates if `start_location` is not available
         final startCoordinates =
             await getCoordinates(widget.post['start_address']);
         setState(() {
@@ -249,7 +248,6 @@ class PostWidgetState extends State<PostWidget> {
       logger.e('Failed to fetch start address coordinates: $e');
     }
 
-    // Fetch Destination Address
     try {
       if (widget.post['destination_location'] != null) {
         final locationString = widget.post['destination_location'];
@@ -271,7 +269,6 @@ class PostWidgetState extends State<PostWidget> {
     }
   }
 
-  // Function to calculate total likes
   int _calculateTotalLikes(List<dynamic> droppins) {
     return droppins.fold<int>(
       0,
@@ -301,15 +298,12 @@ class PostWidgetState extends State<PostWidget> {
   }
 
   Future<void> _getlocaionts() async {
-    List<LatLng> tempLocations = []; // Temporary list to batch all locations
-
-    // Use Stop Locations directly
+    List<LatLng> tempLocations = [];
     if (widget.post['stop_locations'] != null) {
       try {
         final stopLocations =
             List<Map<String, dynamic>>.from(widget.post['stop_locations']);
         for (var location in stopLocations) {
-          // Safely convert the values to double
           final latitude = double.parse(location['latitude'].toString());
           final longitude = double.parse(location['longitude'].toString());
           tempLocations.add(LatLng(latitude, longitude));
@@ -318,8 +312,6 @@ class PostWidgetState extends State<PostWidget> {
         logger.e('Failed to process stop locations: $e');
       }
     }
-
-    // Update all locations in one go
     setState(() {
       locations = tempLocations;
     });
@@ -347,7 +339,6 @@ class PostWidgetState extends State<PostWidget> {
       return false;
     }
 
-    // Convert string to list of ints (e.g. "1, 9" -> [1, 9])
     List<int> viewedIds = viewlist
         .split(',')
         .map((e) => e.trim()) // Remove spaces
@@ -367,7 +358,6 @@ class PostWidgetState extends State<PostWidget> {
     String? viewlist,
     int droppinIndex,
   ) async {
-    logger.i("droppin Id : $droppinId");
     final apiservice = ApiService();
     if (likedUsers.map((user) => user['id']).contains(GlobalVariables.userId)) {
       isLiked = true;
@@ -386,6 +376,7 @@ class PostWidgetState extends State<PostWidget> {
     int currentUserId = GlobalVariables.userId!;
 
     bool viewed = hasUserViewed(viewlist, currentUserId);
+    logger.i(viewed);
 
     if (viewed == false) {
       final result = await apiservice.markDropinAsViewed(
@@ -399,9 +390,11 @@ class PostWidgetState extends State<PostWidget> {
           if (widget.post['droppins'][droppinIndex]['view_count'] != null) {
             widget.post['droppins'][droppinIndex]['view_count'] +=
                 ',${GlobalVariables.userId}';
+            viewlist = '${viewlist ?? ''},${GlobalVariables.userId}';
           } else {
             widget.post['droppins'][droppinIndex]['view_count'] =
                 '${GlobalVariables.userId}';
+            viewlist = '${GlobalVariables.userId}';
           }
 
           viewcount = widget.post['droppins'][droppinIndex]['view_count']
@@ -414,6 +407,7 @@ class PostWidgetState extends State<PostWidget> {
         });
       }
     }
+    logger.i(viewlist);
 
     if (!mounted) return;
     showDialog(
@@ -429,7 +423,6 @@ class PostWidgetState extends State<PostWidget> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Caption and Close Icon Row
                   Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 8.0, vertical: 4.0),
@@ -439,19 +432,18 @@ class PostWidgetState extends State<PostWidget> {
                         Text(
                           caption,
                           style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey,
-                            fontFamily: 'inter',
-                          ),
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey,
+                              fontFamily: 'inter',
+                              letterSpacing: -0.1),
                         ),
                         IconButton(
                           icon: const Icon(Icons.close, color: Colors.black),
                           onPressed: () {
                             Navigator.of(context).pop();
                             setState(() {
-                              showLikesDropdown =
-                                  false; // Hide the dropdown when the dialog is closed
+                              showLikesDropdown = false;
                             });
                           },
                         ),
@@ -461,7 +453,6 @@ class PostWidgetState extends State<PostWidget> {
                   Stack(
                     alignment: Alignment.center,
                     children: [
-                      // Image
                       Image.network(
                         imagePath,
                         fit: BoxFit.cover,
@@ -471,10 +462,8 @@ class PostWidgetState extends State<PostWidget> {
                             const Icon(Icons.broken_image, size: 100),
                         loadingBuilder: (context, child, loadingProgress) {
                           if (loadingProgress == null) {
-                            // Image has finished loading
                             return child;
                           } else {
-                            // Show a rotating loading indicator while the image loads
                             return Center(
                               child: CircularProgressIndicator(
                                 value: loadingProgress.expectedTotalBytes !=
@@ -490,24 +479,22 @@ class PostWidgetState extends State<PostWidget> {
                       ),
                     ],
                   ),
-
                   const Divider(height: 1, color: Colors.grey),
-
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 1.0, horizontal: 16.0),
-                    child: viewed
-                        ? const Text(
-                            "You've already seen this droppin.",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              fontFamily: 'inter',
-                            ),
-                          )
-                        : const SizedBox.shrink(),
-                  ),
-
+                  // Padding(
+                  //   padding: const EdgeInsets.symmetric(
+                  //       vertical: 1.0, horizontal: 16.0),
+                  //   child: viewed
+                  //       ? const Text(
+                  //           "You've already seen this droppin.",
+                  //           style: TextStyle(
+                  //             fontWeight: FontWeight.bold,
+                  //             fontSize: 16,
+                  //             letterSpacing: -0.1,
+                  //             fontFamily: 'inter',
+                  //           ),
+                  //         )
+                  //       : const SizedBox.shrink(),
+                  // ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Row(
@@ -520,7 +507,6 @@ class PostWidgetState extends State<PostWidget> {
                               droppinId: droppinId,
                               flag: !isLiked,
                             );
-
                             if (response != null &&
                                 response['statusCode'] == true) {
                               setState(() {
@@ -569,8 +555,7 @@ class PostWidgetState extends State<PostWidget> {
                         GestureDetector(
                           onTap: () {
                             setState(() {
-                              showLikesDropdown =
-                                  !showLikesDropdown; // Toggle the visibility of the dropdown
+                              showLikesDropdown = !showLikesDropdown;
                             });
                           },
                           child: Text(
@@ -578,19 +563,42 @@ class PostWidgetState extends State<PostWidget> {
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
+                              letterSpacing: -0.1,
                               fontFamily: 'inter',
                             ),
                           ),
                         ),
                         const Spacer(),
-                        Text(
-                          '$viewcount Views',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            fontFamily: 'inter',
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => HomeViewScreen(
+                                        viewdList: viewlist!,
+                                        imagePath: imagePath,
+                                      )),
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 2, horizontal: 8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF933F10),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Text(
+                              '$viewcount Views',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                                letterSpacing: -0.1,
+                                fontFamily: 'Inter',
+                              ),
+                            ),
                           ),
-                        ),
+                        )
                       ],
                     ),
                   ),
@@ -606,7 +614,6 @@ class PostWidgetState extends State<PostWidget> {
                           padding: const EdgeInsets.symmetric(vertical: 4.0),
                           child: Row(
                             children: [
-                              // User Profile Picture
                               Container(
                                 height: 40,
                                 width: 40,
@@ -624,12 +631,10 @@ class PostWidgetState extends State<PostWidget> {
                                       : null,
                                 ),
                                 child: photo.isEmpty
-                                    ? const Icon(Icons.person,
-                                        size: 20) // Placeholder icon
+                                    ? const Icon(Icons.person, size: 20)
                                     : null,
                               ),
                               const SizedBox(width: 5),
-                              // User Information
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -638,6 +643,7 @@ class PostWidgetState extends State<PostWidget> {
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 13,
+                                      letterSpacing: -0.1,
                                       fontFamily: 'inter',
                                       color: Colors.black,
                                     ),
@@ -646,6 +652,7 @@ class PostWidgetState extends State<PostWidget> {
                                     username,
                                     style: const TextStyle(
                                       fontSize: 12,
+                                      letterSpacing: -0.1,
                                       color: Colors.grey,
                                       fontFamily: 'inter',
                                     ),
@@ -664,7 +671,6 @@ class PostWidgetState extends State<PostWidget> {
         );
       },
     ).then((_) {
-      // Call the callback when the dialog is closed
       widget.onLikesUpdated(likes);
     });
   }
@@ -695,7 +701,7 @@ class PostWidgetState extends State<PostWidget> {
 
     setState(() {
       isAddComments = false;
-      isLoading = true; // Show loading indicator
+      isLoading = true;
     });
 
     final response = await apiService.sendComment(
@@ -705,14 +711,12 @@ class PostWidgetState extends State<PostWidget> {
     );
 
     setState(() {
-      isLoading = false; // Hide loading indicator
+      isLoading = false;
     });
 
     if (response != null) {
       _showAlert('Success', 'Comment sent successfully.');
       logger.i('Comment sent successfully: ${response['comment']}');
-
-      // Update local comments list
       setState(() {
         widget.post['comments'].add({
           'user': {
@@ -722,8 +726,6 @@ class PostWidgetState extends State<PostWidget> {
           'content': commentText,
         });
       });
-
-      // Clear the text field
       _addCommitController.clear();
     } else {
       _showAlert('Error', 'Failed to send comment.');
@@ -756,7 +758,6 @@ class PostWidgetState extends State<PostWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Profile Section
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -777,9 +778,7 @@ class PostWidgetState extends State<PostWidget> {
                       ? DecorationImage(
                           image: NetworkImage(widget.post['user']['photo']),
                           fit: BoxFit.cover,
-                          onError: (exception, stackTrace) {
-                            // Handle image loading errors
-                          },
+                          onError: (exception, stackTrace) {},
                         )
                       : null,
                 ),
@@ -787,7 +786,10 @@ class PostWidgetState extends State<PostWidget> {
             ),
             const SizedBox(width: 10),
             Text(widget.post['user']['rolla_username'],
-                style: const TextStyle(fontSize: 18, fontFamily: 'interBold')),
+                style: const TextStyle(
+                    fontSize: 18,
+                    fontFamily: 'interBold',
+                    letterSpacing: -0.5)),
             const SizedBox(width: 10),
             const Icon(Icons.verified, color: Colors.blue, size: 16),
             const Spacer(),
@@ -795,7 +797,6 @@ class PostWidgetState extends State<PostWidget> {
           ],
         ),
         SizedBox(height: vhh(context, 2)),
-        // Trip Details
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -803,13 +804,21 @@ class PostWidgetState extends State<PostWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Destination',
-                    style: TextStyle(fontSize: 15, fontFamily: 'interBold')),
-                SizedBox(height: 3),
-                Text('Miles traveled',
-                    style: TextStyle(fontSize: 15, fontFamily: 'interBold')),
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontFamily: 'inter',
+                        letterSpacing: -0.1,
+                        fontWeight: FontWeight.bold)),
+                // SizedBox(height: 3),
+                // Text('Miles traveled',
+                //     style: TextStyle(fontSize: 15, fontFamily: 'interBold')),
                 SizedBox(height: 3),
                 Text('Soundtrack',
-                    style: TextStyle(fontSize: 15, fontFamily: 'interBold')),
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontFamily: 'inter',
+                        letterSpacing: -0.1,
+                        fontWeight: FontWeight.bold)),
               ],
             ),
             Column(
@@ -825,35 +834,36 @@ class PostWidgetState extends State<PostWidget> {
                         : widget.post['destination_text_address']
                             .replaceAll(RegExp(r'[\[\]"]'), ''),
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 15,
                       color: Colors.brown,
                       decoration: TextDecoration.underline,
                       fontFamily: 'inter',
+                      letterSpacing: -0.1,
                     ),
                     maxLines: 1, // Limit to one line
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.right,
                   ),
                 ),
+                // const SizedBox(height: 3),
+                // Text('${widget.post['trip_miles']}',
+                //     style: const TextStyle(
+                //         fontSize: 16,
+                //         fontWeight: FontWeight.bold,
+                //         fontFamily: 'inter')),
                 const SizedBox(height: 3),
-                Text('${widget.post['trip_miles']}',
+                Text(widget.post['trip_sound'],
                     style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'inter')),
-                const SizedBox(height: 3),
-                const Text("Spotify Playlist",
-                    style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 15,
                         color: Colors.brown,
                         decoration: TextDecoration.underline,
+                        letterSpacing: -0.1,
                         fontFamily: 'inter')),
               ],
             ),
           ],
         ),
         SizedBox(height: vhh(context, 2)),
-        // Trip Details Circles
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: List.generate(
@@ -893,7 +903,10 @@ class PostWidgetState extends State<PostWidget> {
                     backgroundColor: Colors.white,
                     child: Text('${index + 1}',
                         style: const TextStyle(
-                            color: Colors.black, fontWeight: FontWeight.bold)),
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'inter',
+                            letterSpacing: -0.1)),
                   ),
                 ),
               ),
@@ -1064,7 +1077,7 @@ class PostWidgetState extends State<PostWidget> {
             children: [
               Expanded(
                 child: SizedBox(
-                  height: 40, // Set your desired height here
+                  height: 40,
                   child: TextField(
                     controller: _addCommitController,
                     decoration: const InputDecoration(
@@ -1072,6 +1085,7 @@ class PostWidgetState extends State<PostWidget> {
                       hintStyle: TextStyle(
                           color: Colors.grey,
                           fontSize: 15,
+                          letterSpacing: -0.1,
                           fontFamily: 'inter'),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
@@ -1103,6 +1117,7 @@ class PostWidgetState extends State<PostWidget> {
                     style: const TextStyle(
                       fontFamily: 'inter',
                       fontSize: 15,
+                      letterSpacing: -0.1,
                       color: Colors.black,
                     ),
                   ),
@@ -1114,10 +1129,7 @@ class PostWidgetState extends State<PostWidget> {
               ),
             ],
           ),
-
         const SizedBox(height: 10),
-
-        // Likes and Comments Section
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1137,6 +1149,7 @@ class PostWidgetState extends State<PostWidget> {
                           ? Colors.red
                           : Colors.grey,
                       fontSize: 16,
+                      letterSpacing: -0.1,
                       fontFamily: 'inter',
                     ),
                   ),
@@ -1170,6 +1183,7 @@ class PostWidgetState extends State<PostWidget> {
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
+                      letterSpacing: -0.1,
                       fontFamily: 'inter',
                     )),
                 const SizedBox(width: 15),
@@ -1177,6 +1191,7 @@ class PostWidgetState extends State<PostWidget> {
                     style: const TextStyle(
                       color: kColorButtonPrimary,
                       fontSize: 15,
+                      letterSpacing: -0.1,
                       fontFamily: 'inter',
                     )),
               ],
@@ -1186,8 +1201,7 @@ class PostWidgetState extends State<PostWidget> {
               child: GestureDetector(
                 onTap: () {
                   setState(() {
-                    showComments =
-                        !showComments; // Toggle the visibility of comments
+                    showComments = !showComments;
                   });
                 },
                 child: Text(
@@ -1207,7 +1221,6 @@ class PostWidgetState extends State<PostWidget> {
                     padding: const EdgeInsets.symmetric(vertical: 4.0),
                     child: Row(
                       children: [
-                        // User photo or placeholder
                         Container(
                           height: vhh(context, 3),
                           width: vhh(context, 3),
@@ -1234,23 +1247,22 @@ class PostWidgetState extends State<PostWidget> {
                             fontWeight: FontWeight.bold,
                             color: kColorHereButton,
                             fontSize: 13,
+                            letterSpacing: -0.1,
                             fontFamily: 'inter',
                           ),
                         ),
                         const SizedBox(width: 5),
-                        // Verified icon (optional)
-                        if (comment['user']['rolla_username'] !=
-                            null) // Add condition if needed
+                        if (comment['user']['rolla_username'] != null)
                           const Icon(Icons.verified,
                               color: Colors.blue, size: 16),
                         const SizedBox(width: 8),
-                        // Comment content
                         Expanded(
                           child: Text(
                             comment['content'] ?? '',
                             style: const TextStyle(
                               fontFamily: 'inter',
                               fontSize: 14,
+                              letterSpacing: 0.1,
                             ),
                           ),
                         ),
@@ -1260,7 +1272,6 @@ class PostWidgetState extends State<PostWidget> {
                 }).toList(),
               ),
             const SizedBox(height: 8),
-            // Text(widget.post.lastUpdated, style: const TextStyle(color: Colors.grey, fontSize: 12, fontFamily: 'inter')),
           ],
         ),
         const SizedBox(height: 20),

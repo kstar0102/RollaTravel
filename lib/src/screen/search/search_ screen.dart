@@ -1,4 +1,5 @@
 import 'package:RollaTravel/src/constants/app_styles.dart';
+import 'package:RollaTravel/src/screen/home/home_user_screen.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/utils/index.dart';
 import 'package:flutter/material.dart';
@@ -122,7 +123,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
     });
   }
 
-  // Function to show image in a dialog
   void _showImageDialog(String imagePath) {
     showDialog(
       context: context,
@@ -135,7 +135,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Image in the dialog
               Image.network(
                 imagePath,
                 fit: BoxFit.cover,
@@ -145,10 +144,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                     const Icon(Icons.broken_image, size: 100),
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) {
-                    // Image has finished loading
                     return child;
                   } else {
-                    // Show a loading indicator while the image loads
                     return Center(
                       child: CircularProgressIndicator(
                         value: loadingProgress.expectedTotalBytes != null
@@ -188,12 +185,13 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
           ),
           TabBar(
             controller: _tabController,
-            labelColor: Colors.black, // Active tab text color
-            unselectedLabelColor: Colors.grey, // Inactive tab text color
+            labelColor: Colors.black,
+            unselectedLabelColor: Colors.grey,
             labelStyle: const TextStyle(
               fontFamily: 'inter',
               fontSize: 16,
-              fontWeight: FontWeight.bold, // Bold text for active tab
+              letterSpacing: -0.1,
+              fontWeight: FontWeight.bold,
             ),
             indicator: const UnderlineTabIndicator(
               borderSide: BorderSide(
@@ -219,6 +217,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                 hintStyle: const TextStyle(
                   fontSize: 15,
                   fontFamily: 'inter',
+                  letterSpacing: -0.1,
                 ),
                 contentPadding:
                     const EdgeInsets.symmetric(vertical: 0.0, horizontal: 16.0),
@@ -240,6 +239,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
               style: const TextStyle(
                 fontSize: 15,
                 fontFamily: 'inter',
+                letterSpacing: -0.1,
               ),
             ),
           ),
@@ -273,17 +273,15 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
         final imageCaption = dropPin['image_caption'];
         final createdAt = DateTime.parse(dropPin['created_at']);
         final formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(createdAt);
-
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 20.0),
           child: GestureDetector(
             onTap: () {
-              // Show the image in a dialog when tapped
               _showImageDialog(imagePath);
             },
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.grey[100], // Gray background
+                color: Colors.grey[100],
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: kColorGrey, width: 0.5),
               ),
@@ -302,10 +300,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                           const Icon(Icons.broken_image, size: 60),
                       loadingBuilder: (context, child, loadingProgress) {
                         if (loadingProgress == null) {
-                          // Image has finished loading
                           return child;
                         } else {
-                          // Show a loading indicator while the image loads
                           return Center(
                             child: CircularProgressIndicator(
                               value: loadingProgress.expectedTotalBytes != null
@@ -320,7 +316,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                   ),
 
                   const SizedBox(width: 12),
-                  // User Info and Caption
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -332,26 +327,27 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             fontFamily: 'inter',
+                            letterSpacing: -0.1,
                           ),
                         ),
 
                         const SizedBox(height: 4),
-                        // Caption
                         Text(
                           imageCaption,
                           style: const TextStyle(
                             fontSize: 14,
                             fontFamily: 'inter',
+                            letterSpacing: -0.1,
                           ),
                         ),
                         const SizedBox(height: 4),
-                        // Created At
                         Text(
                           formattedDate,
                           style: const TextStyle(
                             fontSize: 12,
                             color: Colors.grey,
                             fontFamily: 'inter',
+                            letterSpacing: -0.1,
                           ),
                         ),
                       ],
@@ -376,17 +372,23 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
         final userImageUrl = user['photo'];
         final createdAt = DateTime.parse(user['created_at']);
         final formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(createdAt);
+        final userid = user['id'];
 
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 20.0),
           child: GestureDetector(
             onTap: () {
-              // Show the image in a dialog when tapped
-              // _showImageDialog(userImageUrl);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => HomeUserScreen(
+                          userId: userid,
+                        )),
+              );
             },
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.grey[100], // Gray background
+                color: Colors.grey[100],
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: kColorGrey, width: 0.6),
               ),
@@ -431,41 +433,39 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                             },
                           )
                         : const Icon(Icons.person,
-                            size: 60, color: Colors.grey), // Placeholder
+                            size: 60, color: Colors.grey),
                   ),
-
                   const SizedBox(width: 12),
-                  // User Info and Caption
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 4),
-                        // Caption
                         Text(
                           fullName,
                           style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
+                            letterSpacing: -0.1,
                             fontFamily: 'inter',
                           ),
                         ),
                         const SizedBox(height: 4),
-                        // Caption
                         Text(
                           email,
                           style: const TextStyle(
                             fontSize: 14,
+                            letterSpacing: -0.1,
                             fontFamily: 'inter',
                           ),
                         ),
                         const SizedBox(height: 4),
-                        // Created At
                         Text(
                           formattedDate,
                           style: const TextStyle(
                             fontSize: 12,
                             color: Colors.grey,
+                            letterSpacing: -0.1,
                             fontFamily: 'inter',
                           ),
                         ),

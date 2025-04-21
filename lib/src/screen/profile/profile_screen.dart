@@ -65,10 +65,16 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     try {
       final apiService = ApiService();
       final trips = await apiService.fetchUserTrips(GlobalVariables.userId!);
-      // logger.i(trips);
-      garageImageUrl = trips[0]['user']['garage'][0]['logo_path'];
-      GlobalVariables.garageLogoUrl =
-          trips[0]['user']['garage'][0]['logo_path'];
+      if (trips[0]['user']['garage'] != null &&
+          trips[0]['user']['garage'].isNotEmpty) {
+        garageImageUrl = trips[0]['user']['garage'][0]['logo_path'];
+        GlobalVariables.garageLogoUrl =
+            trips[0]['user']['garage'][0]['logo_path'];
+      } else {
+        logger.i("Garage is empty or null");
+        // Handle the case when the garage is empty
+      }
+
       List<dynamic> allDroppins = [];
       for (var trip in trips) {
         if (trip['droppins'] != null) {

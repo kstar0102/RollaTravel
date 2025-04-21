@@ -43,7 +43,10 @@ class DropPinScreenState extends ConsumerState<DropPinScreen> {
           Text(
             '$number. ',
             style: TextStyle(
-                fontSize: 16, color: Colors.grey[600], fontFamily: 'inter'),
+                fontSize: 16,
+                color: Colors.grey[600],
+                fontFamily: 'inter',
+                letterSpacing: -0.1),
           ),
           Expanded(
             child: RichText(
@@ -65,7 +68,10 @@ class DropPinScreenState extends ConsumerState<DropPinScreen> {
         children.add(TextSpan(
           text: parts[i],
           style: TextStyle(
-              fontSize: 16, color: Colors.grey[600], fontFamily: 'inter'),
+              fontSize: 16,
+              color: Colors.grey[600],
+              fontFamily: 'inter',
+              letterSpacing: -0.1),
         ));
       }
 
@@ -119,24 +125,27 @@ class DropPinScreenState extends ConsumerState<DropPinScreen> {
 
               // Note text
               Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 20.0), // Adjust the value as needed
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: RichText(
                   textAlign: TextAlign.center,
                   text: TextSpan(
                     style: const TextStyle(
                         fontSize: 16,
                         fontStyle: FontStyle.italic,
-                        color: Colors.black, // Set the text color
+                        color: Colors.black,
+                        letterSpacing: -0.1,
                         fontFamily: 'interBold'),
                     children: [
                       const TextSpan(
-                          text: 'Note: You must start trip under the '),
+                          text: 'Note: You must start trip under the ',
+                          style: TextStyle(
+                            fontFamily: 'inter',
+                            letterSpacing: -0.5,
+                          )),
                       WidgetSpan(
                         alignment: PlaceholderAlignment.middle,
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 4.0), // Adjust spacing if needed
+                          padding: const EdgeInsets.symmetric(horizontal: 4.0),
                           child: Image.asset(
                             'assets/images/icons/home.png',
                             width:
@@ -146,9 +155,12 @@ class DropPinScreenState extends ConsumerState<DropPinScreen> {
                         ),
                       ),
                       const TextSpan(
-                        text:
-                            ' button before you can drop a pin and post your map.',
-                      ),
+                          text:
+                              ' button before you can drop a pin and post your map.',
+                          style: TextStyle(
+                            fontFamily: 'inter',
+                            letterSpacing: -0.5,
+                          )),
                     ],
                   ),
                 ),

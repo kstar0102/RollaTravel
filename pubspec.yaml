@@ -114,7 +114,7 @@ flutter:
         - asset: assets/font/inter/Inter-Medium.ttf
     - family: interBold
       fonts:
-        - asset: assets/font/kadwa/Inter-Bold.ttf
+        - asset: assets/font/inter/Inter-Bold.ttf
 
 
         
