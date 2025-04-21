@@ -675,6 +675,134 @@ class PostWidgetState extends State<PostWidget> {
     });
   }
 
+  Future<void> _showLikeDialog(BuildContext context, String imagePath) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0), // Rounded corners
+            side: const BorderSide(
+              color: Colors.transparent, // Border color (transparent)
+              width: 0.5,
+            ),
+          ),
+          child: SizedBox(
+            width: 200, // Set the width of the dialog here
+            child: Container(
+              padding: const EdgeInsets.all(16.0), // Padding inside the dialog
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Profile image at the top
+                  Container(
+                    height: 60, // Image height
+                    width: 60, // Image width
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(100),
+                      border: Border.all(
+                        color:
+                            kColorHereButton, // Border color around the image
+                        width: 2,
+                      ),
+                      image: imagePath.isNotEmpty
+                          ? DecorationImage(
+                              image: NetworkImage(imagePath),
+                              fit: BoxFit.cover,
+                            )
+                          : null,
+                    ),
+                    child: imagePath.isEmpty
+                        ? const Icon(Icons.person, size: 40) // Default icon
+                        : null,
+                  ),
+                  const SizedBox(
+                      height: 16), // Spacing between image and buttons
+
+                  // Mute Posts Button
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      side: const BorderSide(
+                          color: Colors.green, width: 1), // Border color
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(30), // Rounded corners
+                      ),
+                    ),
+                    onPressed: () {
+                      // Handle mute action here
+                      Navigator.pop(context);
+                    },
+                    child: const Text(
+                      'Mute Posts',
+                      style: TextStyle(
+                        fontFamily: 'inter',
+                        letterSpacing: -0.1,
+                        color:
+                            Colors.green, // Text color to match button border
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8), // Spacing between buttons
+
+                  // Unfollow Button
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      side: BorderSide(
+                          color: Colors.orange, width: 1), // Border color
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(30), // Rounded corners
+                      ),
+                    ),
+                    onPressed: () {
+                      // Handle unfollow action here
+                      Navigator.pop(context);
+                    },
+                    child: const Text(
+                      'Unfollow',
+                      style: TextStyle(
+                        fontFamily: 'inter',
+                        letterSpacing: -0.1,
+                        color:
+                            Colors.orange, // Text color to match button border
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8), // Spacing between buttons
+
+                  // Block User Button
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      side: BorderSide(
+                          color: Colors.red, width: 1), // Border color
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(30), // Rounded corners
+                      ),
+                    ),
+                    onPressed: () {
+                      // Handle block action here
+                      Navigator.pop(context);
+                    },
+                    child: const Text(
+                      'Block User',
+                      style: TextStyle(
+                        fontFamily: 'inter',
+                        letterSpacing: -0.1,
+                        color: Colors.red, // Text color to match button border
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   void _goTagScreen() {
     Navigator.push(
       context,
@@ -785,15 +913,29 @@ class PostWidgetState extends State<PostWidget> {
               ),
             ),
             const SizedBox(width: 10),
-            Text(widget.post['user']['rolla_username'],
-                style: const TextStyle(
-                    fontSize: 18,
-                    fontFamily: 'interBold',
-                    letterSpacing: -0.5)),
+            // User's username
+            Text(
+              widget.post['user']['rolla_username'],
+              style: const TextStyle(
+                fontSize: 18,
+                fontFamily: 'interBold',
+                letterSpacing: -0.5,
+              ),
+            ),
             const SizedBox(width: 10),
+            // Verified icon
             const Icon(Icons.verified, color: Colors.blue, size: 16),
             const Spacer(),
-            Image.asset("assets/images/icons/reference.png"),
+            GestureDetector(
+              onTap: () {
+                _showLikeDialog(context, widget.post['user']['photo']);
+              },
+              child: Image.asset(
+                "assets/images/icons/reference.png",
+                width: 24,
+                height: 24,
+              ),
+            ),
           ],
         ),
         SizedBox(height: vhh(context, 2)),
