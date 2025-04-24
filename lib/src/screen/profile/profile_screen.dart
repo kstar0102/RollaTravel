@@ -504,15 +504,14 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             letterSpacing: -0.5,
                             fontFamily: 'inter'),
                       ),
-                      SizedBox(height: vhh(context, 1)),
-
+                      SizedBox(height: vhh(context, 0.5)),
                       Text(
                         GlobalVariables.bio != null
                             ? GlobalVariables.bio!
                             : " ",
                         style: const TextStyle(
                             color: kColorGrey,
-                            fontSize: 18,
+                            fontSize: 16,
                             letterSpacing: -0.5,
                             fontFamily: 'inter'),
                       ),
@@ -525,16 +524,14 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor:
-                                    kColorStrongGrey, // Button background color
+                                    kColorStrongBlue,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(
-                                      30), // Rounded corners
+                                      30),
                                 ),
                                 shadowColor:
-                                    // ignore: deprecated_member_use
                                     Colors.black
-                                        // ignore: deprecated_member_use
-                                        .withOpacity(0.9), // Shadow color
+                                        .withValues(alpha: 0.9),
                                 elevation: 6,
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 2, vertical: 2),
@@ -556,7 +553,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             height: 28,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: kColorStrongGrey,
+                                backgroundColor: kColorStrongBlue,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(30),
                                 ),
@@ -584,16 +581,14 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor:
-                                    kColorStrongGrey, // Button background color
+                                    kColorStrongBlue, 
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(
-                                      30), // Rounded corners
+                                      30),
                                 ),
                                 shadowColor:
-                                    // ignore: deprecated_member_use
                                     Colors.black
-                                        // ignore: deprecated_member_use
-                                        .withOpacity(0.9), // Shadow color
+                                        .withValues(alpha: 0.9),
                                 elevation: 6,
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 2, vertical: 2),

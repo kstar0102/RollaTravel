@@ -9,6 +9,8 @@ const Color kColorButtonPrimary = Color(0XFF933F10);
 const Color kColorHereButton = Color(0XFF19B4D7);
 const Color kColorCreateButton = Color(0XFF4D9750);
 const Color kColorStrongGrey = Color(0XFF95989C);
+const Color kColorStrongBlue = Color(0XFF45B0E5);
+
 
 // ------------------------ Message -------------------------------- //
 

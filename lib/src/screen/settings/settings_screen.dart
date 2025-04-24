@@ -1,11 +1,13 @@
 import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/screen/auth/signin_screen.dart';
+import 'package:RollaTravel/src/screen/profile/block_screen.dart';
 import 'package:RollaTravel/src/translate/en.dart';
 import 'package:RollaTravel/src/utils/index.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:logger/logger.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -19,7 +21,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   double keyboardHeight = 0;
   final int _currentIndex = 0;
   bool isPrivateAccount = true;
-
+  final logger = Logger();
   @override
   void initState() {
     super.initState();
@@ -43,6 +45,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         MaterialPageRoute(builder: (context) => const SigninScreen()),
       );
     }
+  }
+
+  void _goBlockedAccountScreen () {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => const BlockedUserScreen()));
   }
 
   @override
@@ -156,6 +162,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 color: kColorBlack,
                                 fontSize: 21,
                                 letterSpacing: -0.1,
+                                fontWeight: FontWeight.w500,
                                 fontFamily: 'inter',
                               ),
                             ),
@@ -164,8 +171,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                         SizedBox(height: vhh(context, 1)),
                         const Divider(color: kColorGrey, thickness: 1),
-
-                        // Private Account Section
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 16.0),
                           child: Column(
@@ -174,7 +179,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               const Text(
                                 private_account,
                                 style: TextStyle(
-                                  fontSize: 18,
+                                  fontSize: 16,
                                   letterSpacing: -0.1,
                                   fontFamily: 'inter',
                                 ),
@@ -188,18 +193,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                   color: Colors.grey[600],
                                   fontFamily: 'inter',
                                   letterSpacing: -0.1,
-                                  fontStyle: FontStyle.italic,
                                 ),
                               ),
                               SizedBox(height: vhh(context, 2)),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment
-                                    .spaceEvenly, // Ensures equal spacing between items
+                                    .spaceEvenly,
                                 children: [
                                   Column(
                                     children: [
                                       const Text(
-                                        "Private\naccount", // Line break for multi-line text
+                                        "Private\naccount",
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                             fontFamily: 'inter',
@@ -221,7 +225,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                   Column(
                                     children: [
                                       const Text(
-                                        "Public\naccount", // Line break for multi-line text
+                                        "Public\naccount",
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                             fontFamily: 'inter',
@@ -245,63 +249,113 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             ],
                           ),
                         ),
-
                         SizedBox(
-                          height: vhh(context, 10),
+                          height: vhh(context, 3),
                         ),
-                        ListTile(
-                          title: const Text(
-                            logout,
-                            style: TextStyle(
-                              fontSize: 16,
-                              decoration: TextDecoration.underline,
-                              letterSpacing: -0.1,
-                              fontFamily: 'interBold',
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                _goBlockedAccountScreen();
+                              },
+                              child: const Text(
+                                'Blocked accounts',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  decoration: TextDecoration.underline,
+                                  letterSpacing: -0.1,
+                                  fontFamily: 'interBold',
+                                ),
+                              ),
                             ),
-                          ),
-                          subtitle: Text(
-                            logout_description,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                color: Colors.grey[600],
-                                fontFamily: 'inter',
-                                letterSpacing: -0.1,
-                                fontStyle: FontStyle.italic,
-                                fontSize: 13),
-                          ),
-                          onTap: () {
-                            _showConfirmationDialog(
-                                title: "Logout",
-                                message: "Are you sure you want to logout?");
-                          },
+                          ],
                         ),
-                        ListTile(
-                          title: const Text(
-                            delete_account,
-                            style: TextStyle(
-                              fontSize: 16,
-                              decoration: TextDecoration.underline,
-                              letterSpacing: -0.1,
-                              fontFamily: 'interBold',
+                        SizedBox(height: vh(context, 4),),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                _showConfirmationDialog(
+                                  title: "Logout",
+                                  message: "Are you sure you want to logout?");
+                              },
+                              child: const Text(
+                                'Log out',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  decoration: TextDecoration.underline,
+                                  letterSpacing: -0.1,
+                                  fontFamily: 'interBold',
+                                ),
+                              ),
                             ),
-                          ),
-                          subtitle: Text(
-                            delete_description,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 13,
-                                fontFamily: 'inter',
-                                letterSpacing: -0.1,
-                                fontStyle: FontStyle.italic),
-                          ),
-                          onTap: () {
-                            _showConfirmationDialog(
-                                title: "Delete Account",
-                                message:
-                                    "Are you sure you want to delete your account?");
-                          },
+                          ],
                         ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                logout_description,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontFamily: 'inter',
+                                  letterSpacing: -0.1,
+                                  fontSize: 13,
+                                ),
+                                softWrap: true, // Ensures the text wraps to the next line
+                                overflow: TextOverflow.visible, // Ensures overflow is handled
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: vh(context, 4),),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                _showConfirmationDialog(
+                                  title: "Delete Account",
+                                  message:
+                                      "Are you sure you want to delete your account?");
+                              },
+                              child: const Text(
+                                delete_account,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  decoration: TextDecoration.underline,
+                                  letterSpacing: -0.1,
+                                  fontFamily: 'interBold',
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                delete_description,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontFamily: 'inter',
+                                  letterSpacing: -0.1,
+                                  fontSize: 13,
+                                ),
+                                softWrap: true, // Ensures the text wraps to the next line
+                                overflow: TextOverflow.visible, // Ensures overflow is handled
+                              ),
+                            ),
+                          ],
+                        ),
+
+                      
                       ],
                     ),
                   ),

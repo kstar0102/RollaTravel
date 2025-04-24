@@ -104,6 +104,10 @@ class HomeFollowScreenState extends ConsumerState<HomeFollowScreen> {
                   const SizedBox(width: 48),
                 ],
               ),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: Divider(),),
+
               Expanded(
                 child: ListView.builder(
                   itemCount: followers.length,

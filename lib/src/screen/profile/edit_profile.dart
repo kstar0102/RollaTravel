@@ -296,7 +296,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     return Scaffold(
       backgroundColor: kColorWhite,
       body: PopScope(
-        canPop: false, // Prevents default back navigation
+        canPop: false,
         onPopInvokedWithResult: (didPop, result) {
           if (!didPop) {
             return; // Prevent pop action
@@ -338,8 +338,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                               edit_profile,
                               style: TextStyle(
                                   color: kColorBlack,
-                                  fontSize: 20,
-                                  letterSpacing: -0.5,
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w500,
+                                  letterSpacing: -0.1,
                                   fontFamily: 'inter'),
                             ),
                             SizedBox(width: vww(context, 7)),
@@ -382,14 +383,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                             _showPicker(context);
                           },
                           child: const Text(
-                            'Change Profile Photo',
+                            'Change profile photo',
                             style: TextStyle(
                                 color: Colors
                                     .black, // Replace with `kColorBlack` if defined
                                 fontSize: 18,
                                 decoration: TextDecoration.underline,
                                 fontWeight: FontWeight.w500,
-                                letterSpacing: -0.5,
+                                letterSpacing: -0.1,
                                 fontFamily: 'inter'),
                           ),
                         ),
