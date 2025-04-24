@@ -592,7 +592,9 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                             destination,
                             style: TextStyle(
                                 color: kColorBlack,
-                                fontSize: 14,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: -0.1,
                                 fontFamily: 'inter'),
                           ),
                           GestureDetector(
@@ -610,7 +612,9 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                   : "Edit Destination",
                               style: const TextStyle(
                                 color: kColorButtonPrimary,
-                                fontSize: 14,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: -0.1,
                                 fontFamily: 'inter',
                                 decoration: TextDecoration.underline,
                                 decorationColor: kColorButtonPrimary,
@@ -622,25 +626,9 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                           ),
                         ],
                       ),
-                      // const Row(
-                      //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      //   children: [
-                      //     Text(
-                      //       miles_traveled,
-                      //       style: TextStyle(
-                      //           color: kColorBlack,
-                      //           fontSize: 14,
-                      //           fontFamily: 'inter'),
-                      //     ),
-                      //     Text(
-                      //       "0",
-                      //       style: TextStyle(
-                      //           color: kColorBlack,
-                      //           fontSize: 14,
-                      //           fontFamily: 'inter'),
-                      //     ),
-                      //   ],
-                      // ),
+                      SizedBox(
+                        height: vh(context, 2),
+                      ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -648,7 +636,9 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                             soundtrack,
                             style: TextStyle(
                                 color: kColorBlack,
-                                fontSize: 14,
+                                fontSize: 13,
+                                letterSpacing: -0.1,
+                                fontWeight: FontWeight.w600,
                                 fontFamily: 'inter'),
                           ),
                           GestureDetector(
@@ -673,7 +663,9 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                               edit_playlist,
                               style: TextStyle(
                                   color: kColorButtonPrimary,
-                                  fontSize: 14,
+                                  fontSize: 13,
+                                  letterSpacing: -0.1,
+                                  fontWeight: FontWeight.w600,
                                   decoration: TextDecoration.underline,
                                   decorationColor: kColorButtonPrimary,
                                   fontFamily: 'inter'),
@@ -693,12 +685,10 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                   padding: EdgeInsets.symmetric(horizontal: vww(context, 4)),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors
-                          .grey[200], // Background color similar to the image
-                      border: Border.all(color: Colors.black), // Black border
+                      color: Colors.grey[200],
+                      border: Border.all(color: Colors.black),
                     ),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8.0), // Inner padding
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -706,36 +696,31 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                           'Caption:',
                           style: TextStyle(
                               color: kColorBlack,
-                              fontSize: 14,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: -0.1,
                               fontFamily: 'inter'),
                         ),
-                        const SizedBox(
-                            width:
-                                8), // Spacing between the label and input field
+                        const SizedBox(width: 8),
                         Expanded(
                           child: TextField(
                             controller: _captionController,
                             decoration: const InputDecoration(
-                              isDense:
-                                  true, // Reduces padding inside the TextField
-                              border: InputBorder
-                                  .none, // Removes default TextField border
-                              hintText:
-                                  '', // Empty hint text for a cleaner look
+                              isDense: true,
+                              border: InputBorder.none,
+                              hintText: '',
                             ),
                             style: const TextStyle(
                                 fontSize: 14,
                                 color: kColorBlack,
                                 fontFamily: 'inter'),
+                            minLines: 2,
+                            maxLines: 2,
                           ),
                         ),
                       ],
                     ),
                   ),
-                ),
-
-                SizedBox(
-                  height: vhh(context, 1),
                 ),
 
                 // MapBox integration with a customized size

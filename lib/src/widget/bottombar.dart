@@ -110,7 +110,7 @@ class BottomNavBar extends ConsumerWidget {
                           bottom_home,
                           style: TextStyle(
                               color: currentIndex == 0
-                                  ? kColorButtonPrimary
+                                  ? kColorHereButton
                                   : kColorBlack,
                               fontFamily: 'inter',
                               fontWeight: FontWeight.bold,
@@ -129,7 +129,7 @@ class BottomNavBar extends ConsumerWidget {
                         bottom_search,
                         style: TextStyle(
                           color: currentIndex == 1
-                              ? kColorButtonPrimary
+                              ? kColorHereButton
                               : kColorBlack,
                           fontFamily: 'inter',
                           fontSize: 38.sp,
@@ -154,7 +154,7 @@ class BottomNavBar extends ConsumerWidget {
                             shape: BoxShape.circle,
                             border: Border.all(
                               color: currentIndex == 2
-                                  ? Colors.blue
+                                  ? kColorHereButton
                                   : Colors.transparent,
                               width: 0,
                             ),
@@ -183,7 +183,7 @@ class BottomNavBar extends ConsumerWidget {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                               color: currentIndex == 3
-                                  ? kColorButtonPrimary
+                                  ? kColorHereButton
                                   : kColorBlack,
                               fontFamily: 'inter',
                               letterSpacing: -0.1,
@@ -205,8 +205,9 @@ class BottomNavBar extends ConsumerWidget {
                           height: 45,
                           decoration: BoxDecoration(
                             border: Border.all(
-                              color:
-                                  currentIndex == 4 ? Colors.blue : Colors.grey,
+                              color: currentIndex == 4
+                                  ? kColorHereButton
+                                  : Colors.grey,
                               width: 2.0,
                             ),
                             borderRadius: BorderRadius.circular(50),

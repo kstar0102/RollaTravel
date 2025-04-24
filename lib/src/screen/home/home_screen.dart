@@ -355,6 +355,7 @@ class PostWidgetState extends State<PostWidget> {
     int droppinlikes,
     List<dynamic> likedUsers,
     int droppinId,
+    int userId,
     String? viewlist,
     int droppinIndex,
   ) async {
@@ -372,19 +373,14 @@ class PostWidgetState extends State<PostWidget> {
       logger.i("viewlist is null");
       viewcount = 0;
     }
-
     int currentUserId = GlobalVariables.userId!;
-
     bool viewed = hasUserViewed(viewlist, currentUserId);
-    logger.i(viewed);
-
     if (viewed == false) {
       final result = await apiservice.markDropinAsViewed(
         userId: GlobalVariables.userId!,
         dropinId: droppinId,
       );
       final status = result['statusCode'];
-
       if (status == true) {
         setState(() {
           if (widget.post['droppins'][droppinIndex]['view_count'] != null) {
@@ -407,8 +403,6 @@ class PostWidgetState extends State<PostWidget> {
         });
       }
     }
-    logger.i(viewlist);
-
     if (!mounted) return;
     showDialog(
       context: context,
@@ -480,21 +474,6 @@ class PostWidgetState extends State<PostWidget> {
                     ],
                   ),
                   const Divider(height: 1, color: Colors.grey),
-                  // Padding(
-                  //   padding: const EdgeInsets.symmetric(
-                  //       vertical: 1.0, horizontal: 16.0),
-                  //   child: viewed
-                  //       ? const Text(
-                  //           "You've already seen this droppin.",
-                  //           style: TextStyle(
-                  //             fontWeight: FontWeight.bold,
-                  //             fontSize: 16,
-                  //             letterSpacing: -0.1,
-                  //             fontFamily: 'inter',
-                  //           ),
-                  //         )
-                  //       : const SizedBox.shrink(),
-                  // ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Row(
@@ -571,14 +550,16 @@ class PostWidgetState extends State<PostWidget> {
                         const Spacer(),
                         GestureDetector(
                           onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => HomeViewScreen(
-                                        viewdList: viewlist!,
-                                        imagePath: imagePath,
-                                      )),
-                            );
+                            if (GlobalVariables.userId == userId) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => HomeViewScreen(
+                                          viewdList: viewlist!,
+                                          imagePath: imagePath,
+                                        )),
+                              );
+                            }
                           },
                           child: Container(
                             padding: const EdgeInsets.symmetric(
@@ -730,7 +711,6 @@ class PostWidgetState extends State<PostWidget> {
                       ),
                     ),
                     onPressed: () {
-                      // Handle mute action here
                       Navigator.pop(context);
                     },
                     child: const Text(
@@ -738,18 +718,15 @@ class PostWidgetState extends State<PostWidget> {
                       style: TextStyle(
                         fontFamily: 'inter',
                         letterSpacing: -0.1,
-                        color:
-                            Colors.green, // Text color to match button border
+                        color: Colors.green,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 8), // Spacing between buttons
+                  const SizedBox(height: 8),
 
-                  // Unfollow Button
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      side: BorderSide(
-                          color: Colors.orange, width: 1), // Border color
+                      side: const BorderSide(color: Colors.orange, width: 1),
                       shape: RoundedRectangleBorder(
                         borderRadius:
                             BorderRadius.circular(30), // Rounded corners
@@ -774,11 +751,9 @@ class PostWidgetState extends State<PostWidget> {
                   // Block User Button
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      side: BorderSide(
-                          color: Colors.red, width: 1), // Border color
+                      side: const BorderSide(color: Colors.red, width: 1),
                       shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(30), // Rounded corners
+                        borderRadius: BorderRadius.circular(30),
                       ),
                     ),
                     onPressed: () {
@@ -790,7 +765,7 @@ class PostWidgetState extends State<PostWidget> {
                       style: TextStyle(
                         fontFamily: 'inter',
                         letterSpacing: -0.1,
-                        color: Colors.red, // Text color to match button border
+                        color: Colors.red,
                       ),
                     ),
                   ),
@@ -915,16 +890,16 @@ class PostWidgetState extends State<PostWidget> {
             const SizedBox(width: 10),
             // User's username
             Text(
-              widget.post['user']['rolla_username'],
+              "@${widget.post['user']['rolla_username']}",
               style: const TextStyle(
-                fontSize: 18,
-                fontFamily: 'interBold',
-                letterSpacing: -0.5,
-              ),
+                  fontSize: 15,
+                  fontFamily: 'inter',
+                  letterSpacing: -0.1,
+                  fontWeight: FontWeight.bold),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 5),
             // Verified icon
-            const Icon(Icons.verified, color: Colors.blue, size: 16),
+            const Icon(Icons.verified, color: kColorHereButton, size: 18),
             const Spacer(),
             GestureDetector(
               onTap: () {
@@ -945,19 +920,16 @@ class PostWidgetState extends State<PostWidget> {
             const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Destination',
+                Text('destination',
                     style: TextStyle(
-                        fontSize: 15,
+                        fontSize: 13,
                         fontFamily: 'inter',
                         letterSpacing: -0.1,
                         fontWeight: FontWeight.bold)),
-                // SizedBox(height: 3),
-                // Text('Miles traveled',
-                //     style: TextStyle(fontSize: 15, fontFamily: 'interBold')),
                 SizedBox(height: 3),
-                Text('Soundtrack',
+                Text('soundtrack',
                     style: TextStyle(
-                        fontSize: 15,
+                        fontSize: 13,
                         fontFamily: 'inter',
                         letterSpacing: -0.1,
                         fontWeight: FontWeight.bold)),
@@ -976,31 +948,41 @@ class PostWidgetState extends State<PostWidget> {
                         : widget.post['destination_text_address']
                             .replaceAll(RegExp(r'[\[\]"]'), ''),
                     style: const TextStyle(
-                      fontSize: 15,
+                      fontSize: 13,
                       color: Colors.brown,
-                      decoration: TextDecoration.underline,
                       fontFamily: 'inter',
                       letterSpacing: -0.1,
                     ),
-                    maxLines: 1, // Limit to one line
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.right,
                   ),
                 ),
-                // const SizedBox(height: 3),
-                // Text('${widget.post['trip_miles']}',
-                //     style: const TextStyle(
-                //         fontSize: 16,
-                //         fontWeight: FontWeight.bold,
-                //         fontFamily: 'inter')),
                 const SizedBox(height: 3),
-                Text(widget.post['trip_sound'],
-                    style: const TextStyle(
-                        fontSize: 15,
-                        color: Colors.brown,
-                        decoration: TextDecoration.underline,
-                        letterSpacing: -0.1,
-                        fontFamily: 'inter')),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.brown),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.music_note, size: 16, color: Colors.black),
+                      SizedBox(width: 4),
+                      Text(
+                        'playlist',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.black,
+                          letterSpacing: -0.1,
+                          fontFamily: 'inter',
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ],
@@ -1011,8 +993,8 @@ class PostWidgetState extends State<PostWidget> {
           children: List.generate(
             widget.post['droppins'].length,
             (index) => Container(
-              margin: const EdgeInsets.symmetric(horizontal: 6),
-              padding: const EdgeInsets.all(2),
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              padding: const EdgeInsets.all(1),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
@@ -1028,25 +1010,18 @@ class PostWidgetState extends State<PostWidget> {
                       widget.post['droppins'][index]['liked_users'].length,
                       widget.post['droppins'][index]['liked_users'],
                       widget.post['droppins'][index]['id'],
+                      widget.post['user_id'],
                       widget.post['droppins'][index]['view_count'],
                       index);
                 },
                 child: Container(
                   padding: const EdgeInsets.all(1),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: index >= 3 ? Colors.blue : Colors.black,
-                      width: 2,
-                    ),
-                  ),
                   child: CircleAvatar(
                     radius: 10,
                     backgroundColor: Colors.white,
                     child: Text('${index + 1}',
                         style: const TextStyle(
                             color: Colors.black,
-                            fontWeight: FontWeight.bold,
                             fontFamily: 'inter',
                             letterSpacing: -0.1)),
                   ),
@@ -1056,7 +1031,6 @@ class PostWidgetState extends State<PostWidget> {
           ),
         ),
         const SizedBox(height: 10),
-        // Map Section
         Container(
           height: 200,
           decoration: BoxDecoration(
@@ -1129,28 +1103,28 @@ class PostWidgetState extends State<PostWidget> {
                                       droppin['liked_users'].length,
                                       droppin['liked_users'],
                                       droppin['id'],
+                                      widget.post['user_id'],
                                       droppin['view_count'],
                                       index,
                                     );
                                   },
                                   child: Container(
-                                    width: 12, // Smaller width
-                                    height: 12, // Smaller height
+                                    width: 14, // Smaller width
+                                    height: 14, // Smaller height
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
                                       color: Colors.white,
                                       border: Border.all(
                                         color: kColorBlack, // Border color
-                                        width: 2, // Border width
+                                        width: 1, // Border width
                                       ),
                                     ),
                                     child: Center(
                                       child: Text(
-                                        '${locations.indexOf(location) + 1}', // Display index + 1 inside the circle
+                                        '${locations.indexOf(location) + 1}',
                                         style: const TextStyle(
-                                          color: Colors
-                                              .black, // Text color to match border
-                                          fontSize: 13, // Smaller font size
+                                          color: Colors.black,
+                                          fontSize: 13,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -1349,8 +1323,8 @@ class PostWidgetState extends State<PostWidget> {
                 child: Text(
                   '${widget.post["comments"].length} comments',
                   style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
+                    fontWeight: FontWeight.w400,
+                    fontSize: 13,
                     fontFamily: 'inter',
                   ),
                 ),
