@@ -135,7 +135,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
                 ],
               ),
               const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 0),
                 child: Divider(),
               ),
 
@@ -590,7 +590,6 @@ class PostWidgetState extends State<PostWidget> {
                         final firstName = user['first_name'] ?? 'Unknown';
                         final lastName = user['last_name'] ?? '';
                         final username = user['rolla_username'] ?? '@unknown';
-
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 4.0),
                           child: Row(
@@ -875,7 +874,7 @@ class PostWidgetState extends State<PostWidget> {
                   borderRadius: BorderRadius.circular(100),
                   border: Border.all(
                     color: kColorHereButton,
-                    width: 2,
+                    width: 1,
                   ),
                   image: widget.post['user']['photo'] != null
                       ? DecorationImage(
@@ -913,7 +912,7 @@ class PostWidgetState extends State<PostWidget> {
             ),
           ],
         ),
-        SizedBox(height: vhh(context, 2)),
+        SizedBox(height: vhh(context, 0.5)),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -987,7 +986,7 @@ class PostWidgetState extends State<PostWidget> {
             ),
           ],
         ),
-        SizedBox(height: vhh(context, 2)),
+        SizedBox(height: vhh(context, 1)),
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: List.generate(
@@ -1032,10 +1031,13 @@ class PostWidgetState extends State<PostWidget> {
         ),
         const SizedBox(height: 10),
         Container(
-          height: 200,
+          height: 250,
           decoration: BoxDecoration(
-            color: Colors.grey.shade200,
-            borderRadius: BorderRadius.circular(10),
+            color: Colors.black,
+            border: Border.all(
+              color: Colors.black, // or any color you prefer
+              width: 0.5, // set the border width
+            ),
           ),
           child: Stack(
             children: [
@@ -1088,8 +1090,8 @@ class PostWidgetState extends State<PostWidget> {
                               ),
                             ...locations.map((location) {
                               return Marker(
-                                width: 20.0,
-                                height: 20.0,
+                                width: 25.0,
+                                height: 25.0,
                                 point: location,
                                 child: GestureDetector(
                                   onTap: () {
@@ -1135,7 +1137,6 @@ class PostWidgetState extends State<PostWidget> {
                             }),
                           ],
                         ),
-                        // Polyline layer for the route
                         PolylineLayer(
                           polylines: [
                             Polyline(
@@ -1147,8 +1148,6 @@ class PostWidgetState extends State<PostWidget> {
                         ),
                       ],
                     ),
-
-              // Zoom controls
               Positioned(
                 right: 10,
                 top: 10,
@@ -1245,7 +1244,6 @@ class PostWidgetState extends State<PostWidget> {
               ),
             ],
           ),
-        const SizedBox(height: 10),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1260,11 +1258,11 @@ class PostWidgetState extends State<PostWidget> {
                   child: Text(
                     '$likes likes',
                     style: TextStyle(
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w400,
                       color: widget.post['userId'] == GlobalVariables.userId
                           ? Colors.red
                           : Colors.grey,
-                      fontSize: 16,
+                      fontSize: 13,
                       letterSpacing: -0.1,
                       fontFamily: 'inter',
                     ),
@@ -1279,7 +1277,7 @@ class PostWidgetState extends State<PostWidget> {
                     });
                   },
                   child: Image.asset("assets/images/icons/messageicon.png",
-                      width: vww(context, 5)),
+                      width: vww(context, 4)),
                 ),
                 const SizedBox(width: 15),
                 GestureDetector(
@@ -1287,31 +1285,31 @@ class PostWidgetState extends State<PostWidget> {
                     _goTagScreen();
                   },
                   child: Image.asset("assets/images/icons/add_car.png",
-                      width: vww(context, 9)),
+                      width: vww(context, 7)),
                 ),
               ],
             ),
-            const SizedBox(height: 5),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(widget.post['user']['rolla_username'],
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                      letterSpacing: -0.1,
-                      fontFamily: 'inter',
-                    )),
-                const SizedBox(width: 15),
-                Text(widget.post['trip_caption'] ?? " ",
-                    style: const TextStyle(
-                      color: kColorButtonPrimary,
-                      fontSize: 15,
-                      letterSpacing: -0.1,
-                      fontFamily: 'inter',
-                    )),
-              ],
-            ),
+            const SizedBox(height: 1),
+            // Row(
+            //   crossAxisAlignment: CrossAxisAlignment.start,
+            //   children: [
+            //     Text(widget.post['user']['rolla_username'],
+            //         style: const TextStyle(
+            //           fontWeight: FontWeight.bold,
+            //           fontSize: 15,
+            //           letterSpacing: -0.1,
+            //           fontFamily: 'inter',
+            //         )),
+            //     const SizedBox(width: 15),
+            //     Text(widget.post['trip_caption'] ?? " ",
+            //         style: const TextStyle(
+            //           color: kColorButtonPrimary,
+            //           fontSize: 15,
+            //           letterSpacing: -0.1,
+            //           fontFamily: 'inter',
+            //         )),
+            //   ],
+            // ),
             const SizedBox(height: 10),
             Center(
               child: GestureDetector(
@@ -1387,10 +1385,10 @@ class PostWidgetState extends State<PostWidget> {
                   );
                 }).toList(),
               ),
-            const SizedBox(height: 8),
+            Text("last upadtea"),
           ],
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 2),
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.0),
           child: Divider(),

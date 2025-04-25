@@ -688,18 +688,24 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                       color: Colors.grey[200],
                       border: Border.all(color: Colors.black),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8.0, vertical: 1.0),
                     child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment
+                          .start, // Remove vertical misalignment
                       children: [
-                        const Text(
-                          'Caption:',
-                          style: TextStyle(
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 5),
+                          child: Text(
+                            'Caption:',
+                            style: TextStyle(
                               color: kColorBlack,
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
                               letterSpacing: -0.1,
-                              fontFamily: 'inter'),
+                              fontFamily: 'inter',
+                            ),
+                          ),
                         ),
                         const SizedBox(width: 8),
                         Expanded(
@@ -711,9 +717,10 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                               hintText: '',
                             ),
                             style: const TextStyle(
-                                fontSize: 14,
-                                color: kColorBlack,
-                                fontFamily: 'inter'),
+                              fontSize: 14,
+                              color: kColorBlack,
+                              fontFamily: 'inter',
+                            ),
                             minLines: 2,
                             maxLines: 2,
                           ),
