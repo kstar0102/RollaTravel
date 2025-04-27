@@ -7,6 +7,7 @@ import 'package:RollaTravel/src/screen/trip/trip_settting_screen.dart';
 import 'package:RollaTravel/src/screen/trip/trip_tag_screen.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/translate/en.dart';
+import 'package:RollaTravel/src/utils/common.dart';
 import 'package:RollaTravel/src/utils/index.dart';
 import 'package:RollaTravel/src/utils/location.permission.dart';
 import 'package:RollaTravel/src/utils/stop_marker_provider.dart';
@@ -44,6 +45,10 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   List<LatLng> pathCoordinates = [];
   bool isStateRestored = false;
   bool _isLoading = false;
+  String? startAddress;
+  String? endAddress;
+  String stopAddressesString = "";
+  List<String> formattedStopAddresses = [];
 
   static const String mapboxAccessToken =
       "pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw";
@@ -298,7 +303,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   void toggleTrip() {
     if (GlobalVariables.isTripStarted) {
       // ✅ End the trip
-      _endTrip();
+      sendTripData();
     } else {
       // ✅ Start the trip
       // _startTrip();
@@ -341,7 +346,86 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     );
   }
 
-  void _endTrip() async {
+  // void _endTrip() async {
+  //   Position position = await Geolocator.getCurrentPosition(
+  //     locationSettings: const LocationSettings(
+  //       accuracy: LocationAccuracy.high,
+  //     ),
+  //   );
+
+  //   LatLng? startLocation = ref.read(staticStartingPointProvider);
+  //   LatLng? endLocation = LatLng(position.latitude, position.longitude);
+  //   List<MarkerData> stopMarkers = ref.read(markersProvider);
+
+  //   logger.i("endlocation : $endLocation");
+
+  //   if (stopMarkers.isEmpty) {
+  //     if (!mounted) return;
+  //     showDialog(
+  //       context: context,
+  //       builder: (BuildContext context) {
+  //         return AlertDialog(
+  //           title: const Text("Warning"),
+  //           content: const Text(
+  //               "You need to add at least one stop marker (drop pin) before ending the trip."),
+  //           actions: [
+  //             TextButton(
+  //               onPressed: () {
+  //                 Navigator.of(context).pop();
+  //               },
+  //               child: const Text("OK"),
+  //             ),
+  //           ],
+  //         );
+  //       },
+  //     );
+  //     return;
+  //   }
+
+  //   DateTime now = DateTime.now();
+  //   String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
+  //   GlobalVariables.tripEndDate = formattedDate;
+
+  //   String tripMiles =
+  //       "${GlobalVariables.totalDistance.toStringAsFixed(3)} miles";
+
+  //   if (GlobalVariables.tripStartDate != null &&
+  //       GlobalVariables.tripEndDate != null) {
+  //     if (!mounted) return;
+  //     Navigator.push(
+  //       context,
+  //       MaterialPageRoute(
+  //         builder: (context) => EndTripScreen(
+  //           startLocation: startLocation,
+  //           endLocation: endLocation,
+  //           stopMarkers: stopMarkers,
+  //           tripStartDate: GlobalVariables.tripStartDate!,
+  //           tripEndDate: GlobalVariables.tripEndDate!,
+  //           tripDistance: tripMiles,
+  //           endDestination: GlobalVariables.editDestination!,
+  //         ),
+  //       ),
+  //     );
+
+  //     // ✅ Reset the trip state
+  //     ref.read(isTripStartedProvider.notifier).state = false;
+  //     GlobalVariables.isTripStarted = false;
+
+  //     // ✅ Reset all trip-related data
+  //     ref.read(staticStartingPointProvider.notifier).state =
+  //         ref.read(movingLocationProvider);
+  //     ref.read(movingLocationProvider.notifier).state = null;
+  //     ref.read(markersProvider.notifier).state = [];
+  //     ref.read(totalDistanceProvider.notifier).state = 0.0;
+  //     GlobalVariables.totalDistance = 0.0;
+  //   } else {
+  //     logger.i("tripStartDate is null.");
+  //   }
+  // }
+
+  Future<void> sendTripData() async {
+    _showLoadingDialog();
+    final apiserice = ApiService();
     Position position = await Geolocator.getCurrentPosition(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.high,
@@ -351,10 +435,19 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     LatLng? startLocation = ref.read(staticStartingPointProvider);
     LatLng? endLocation = LatLng(position.latitude, position.longitude);
     List<MarkerData> stopMarkers = ref.read(markersProvider);
+    logger.i("stopmakers : $stopMarkers");
+    await _fetchAddresses(startLocation, endLocation, stopMarkers);
 
-    logger.i("endlocation : $endLocation");
+    final tripCoordinates = ref
+        .read(pathCoordinatesProvider)
+        .map((latLng) => {
+              'latitude': latLng.latitude,
+              'longitude': latLng.longitude,
+            })
+        .toList();
 
     if (stopMarkers.isEmpty) {
+      _hideLoadingDialog();
       if (!mounted) return;
       showDialog(
         context: context,
@@ -384,8 +477,46 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     String tripMiles =
         "${GlobalVariables.totalDistance.toStringAsFixed(3)} miles";
 
-    if (GlobalVariables.tripStartDate != null &&
-        GlobalVariables.tripEndDate != null) {
+    final stopLocations = stopMarkers
+        .map((marker) => {
+              'latitude': marker.location.latitude,
+              'longitude': marker.location.longitude,
+            })
+        .toList();
+
+    String formattedDestination = '["${GlobalVariables.editDestination}"]';
+
+    final prefs = await SharedPreferences.getInstance();
+    int? tripId = prefs.getInt("tripId");
+
+    logger.i("end trip location : ${endLocation.toString()}");
+
+    final response = await apiserice.updateTrip(
+      tripId: tripId!,
+      userId: GlobalVariables.userId!,
+      startAddress: startAddress!,
+      stopAddresses: stopAddressesString,
+      destinationAddress: endAddress!,
+      destinationTextAddress: formattedDestination,
+      tripStartDate: GlobalVariables.tripStartDate!,
+      tripEndDate: GlobalVariables.tripEndDate!,
+      tripMiles: tripMiles,
+      tripSound: "tripSound",
+      stopLocations: stopLocations,
+      tripCoordinates: tripCoordinates,
+      startLocation: startLocation.toString(),
+      destinationLocation: endLocation.toString(),
+      droppins: [],
+    );
+
+    if (!mounted) return;
+
+    if (response['success'] == true) {
+      
+      await prefs.remove("tripId");
+      await prefs.remove("dropcount");
+      
+      _hideLoadingDialog();
       if (!mounted) return;
       Navigator.push(
         context,
@@ -396,12 +527,10 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
             stopMarkers: stopMarkers,
             tripStartDate: GlobalVariables.tripStartDate!,
             tripEndDate: GlobalVariables.tripEndDate!,
-            tripDistance: tripMiles,
             endDestination: GlobalVariables.editDestination!,
           ),
         ),
       );
-
       // ✅ Reset the trip state
       ref.read(isTripStartedProvider.notifier).state = false;
       GlobalVariables.isTripStarted = false;
@@ -413,11 +542,67 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
       ref.read(markersProvider.notifier).state = [];
       ref.read(totalDistanceProvider.notifier).state = 0.0;
       GlobalVariables.totalDistance = 0.0;
+      ref.read(pathCoordinatesProvider.notifier).state = [];
     } else {
-      logger.i("tripStartDate is null.");
+      _hideLoadingDialog();
+      String errorMessage =
+          response['error'] ?? 'Failed to create the trip. Please try again.';
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Error"),
+            content: Text(errorMessage),
+            actions: [
+              TextButton(
+                child: const Text("OK"),
+                onPressed: () {
+                  ref.read(pathCoordinatesProvider.notifier).state = [];
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
+  Future<void> _fetchAddresses(
+    LatLng? startLocation,
+    LatLng? endLocation,
+    List<MarkerData> stopMarkers,
+  ) async {
+    logger.i(stopMarkers);
+    
+    if (startLocation != null) {
+      startAddress = await Common.getAddressFromLocation(startLocation);
+    }
+
+    if (endLocation != null) {
+      endAddress = await Common.getAddressFromLocation(endLocation);
+    }
+
+    if (stopMarkers.isNotEmpty) {
+      List<String?> stopMarkerAddresses = await Future.wait(
+        stopMarkers.map((marker) async {
+          try {
+            final address = await Common.getAddressFromLocation(marker.location);
+            return address ?? "";
+          } catch (e) {
+            logger.e("Error fetching address for marker at ${marker.location}: $e");
+            return "";
+          }
+        }).toList(),
+      );
+
+      formattedStopAddresses = stopMarkerAddresses.map((address) => '"$address"').toList();
+      stopAddressesString = '[${formattedStopAddresses.join(', ')}]';
+    }
+  }
+
+
+  
   void _showPermissionDeniedDialog() {
     showDialog(
       context: context,
@@ -731,7 +916,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                 ),
 
                 // MapBox integration with a customized size
-                !isStateRestored
+                !isStateRestored || (movingLocation == null && staticStartingPoint == null)
                     ? const Center(child: CircularProgressIndicator())
                     : Padding(
                         padding:

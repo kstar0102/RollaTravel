@@ -14,6 +14,8 @@ import 'package:logger/logger.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:timeago/timeago.dart' as timeago;
+
 final logger = Logger();
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -857,6 +859,9 @@ class PostWidgetState extends State<PostWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final updatedAt = DateTime.parse(widget.post["updated_at"]);
+    final now = DateTime.now();
+    final difference = now.difference(updatedAt);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1385,7 +1390,14 @@ class PostWidgetState extends State<PostWidget> {
                   );
                 }).toList(),
               ),
-            Text("last upadtea"),
+            SizedBox(height: vh(context, 3),),
+            Text(
+              'last updated ${timeago.format(now.subtract(difference), locale: 'en_short')} ago',
+              style: const TextStyle(
+                fontFamily: 'inter',
+                color: Color(0xFF95989C),
+                fontSize: 11, 
+              )),
           ],
         ),
         const SizedBox(height: 2),

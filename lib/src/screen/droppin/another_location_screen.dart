@@ -137,6 +137,67 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
     );
   }
 
+  Future<void> _checkLocationServices() async {
+    bool isLocationEnabled = await Geolocator.isLocationServiceEnabled();
+    LocationPermission permission = await Geolocator.checkPermission();
+
+    if (!isLocationEnabled) {
+      logger.e("Location services are disabled!");
+      _showLocationDisabledDialog();
+      return;
+    }
+
+    // ✅ If permission is denied, request it
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        logger.e("Location permission denied!");
+        _showPermissionDeniedDialog();
+        return;
+      }
+    }
+
+    // ✅ If permission is permanently denied, open settings
+    if (permission == LocationPermission.deniedForever) {
+      logger.e("Location permission permanently denied!");
+      _showPermissionDeniedDialog();
+      return;
+    }
+
+    // ✅ If everything is enabled, log success
+    logger.i("Location services and permissions are enabled.");
+  }
+
+  void _showLocationDisabledDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Location Services Disabled"),
+          content: const Text(
+            "Please enable location services to track your movement.",
+          ),
+          actions: [
+            TextButton(
+              child: const Text("Open Settings"),
+              onPressed: () async {
+                await Geolocator.openLocationSettings(); // ✅ Opens GPS settings
+                // ignore: use_build_context_synchronously
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text("Cancel"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   // void _selectMarker(LatLng location){
   //   Navigator.push(context, MaterialPageRoute(builder: (context) => SelectLocationScreen(selectedLocation: location,)));
   // }

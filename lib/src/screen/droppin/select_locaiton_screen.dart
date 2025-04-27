@@ -6,7 +6,6 @@ import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/screen/droppin/another_location_screen.dart';
 import 'package:RollaTravel/src/screen/droppin/choosen_location_screen.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
-// import 'package:RollaTravel/src/services/databasehelper.dart';
 import 'package:RollaTravel/src/utils/common.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:RollaTravel/src/utils/location.permission.dart';
@@ -255,7 +254,6 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
         imagePath: imageUrl,
         caption: widget.caption);
 
-// Add the marker to the provider
     ref.read(markersProvider.notifier).state = [
       ...ref.read(markersProvider),
       markerData,
