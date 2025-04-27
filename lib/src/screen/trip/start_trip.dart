@@ -866,18 +866,20 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                   height: vhh(context, 1),
                 ),
 
-                Padding(
+                GestureDetector(
+                onTap: () {
+                  FocusScope.of(context).unfocus();
+                },
+                child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: vww(context, 4)),
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.grey[200],
                       border: Border.all(color: Colors.black),
                     ),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8.0, vertical: 1.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 1.0),
                     child: Row(
-                      crossAxisAlignment: CrossAxisAlignment
-                          .start, // Remove vertical misalignment
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Padding(
                           padding: EdgeInsets.symmetric(vertical: 5),
@@ -914,6 +916,8 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                     ),
                   ),
                 ),
+              ),
+
 
                 // MapBox integration with a customized size
                 !isStateRestored || (movingLocation == null && staticStartingPoint == null)

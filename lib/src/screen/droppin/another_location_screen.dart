@@ -50,6 +50,7 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
         });
       }
     });
+    _checkLocationServices();
     _getCurrentLocation();
   }
 
@@ -64,42 +65,45 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
     setState(() {
       _isLoading = true; // Start loading
     });
-
-    logger.i("Checking location permission...");
-
-    final permissionStatus = await Permission.location.request();
-
-    if (permissionStatus.isGranted) {
-      // Permission granted, fetch current location
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.whileInUse ||
+        permission == LocationPermission.always) {
       Position position = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.high,
         ),
       );
-
       setState(() {
         _currentLocation = LatLng(position.latitude, position.longitude);
         logger.i("_currentLocation: $_currentLocation");
         _isLoading = false; // Stop loading
       });
-
-      if (_currentLocation != null) {
-        // Move map to current location
-        _mapController.move(_currentLocation!, 13.0);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (mounted) {
+            try {
+              _mapController.move(_currentLocation!, 12.0);
+            } catch (e) {
+              logger.e("Error moving map: $e");
+            }
+          }
+        });
+      });
+      return;
+    } 
+     if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        logger.i("Location permission denied.");
+        _showPermissionDeniedDialog();
+        return;
       }
-    } else if (permissionStatus.isDenied ||
-        permissionStatus.isPermanentlyDenied) {
-      // Permission denied - prompt user to open settings
-      logger.i("Location permission denied. Redirecting to settings.");
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      logger.i("Location permission permanently denied.");
       _showPermissionDeniedDialog();
-      setState(() {
-        _isLoading = false; // Stop loading
-      });
-    } else {
-      logger.i("Location permission status: $permissionStatus");
-      setState(() {
-        _isLoading = false; // Stop loading
-      });
+      return;
     }
   }
 

@@ -38,7 +38,6 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // logger.i(GlobalVariables.homeTripID);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
       if (mounted) {
@@ -116,7 +115,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
       body: WillPopScope(
         onWillPop: () async => false,
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -868,6 +867,7 @@ class PostWidgetState extends State<PostWidget> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            const SizedBox(width: 10,),
             GestureDetector(
               onTap: () {
                 _goUserScreen();
@@ -915,6 +915,7 @@ class PostWidgetState extends State<PostWidget> {
                 height: 24,
               ),
             ),
+            const SizedBox(width: 10,),
           ],
         ),
         SizedBox(height: vhh(context, 0.5)),
@@ -953,7 +954,7 @@ class PostWidgetState extends State<PostWidget> {
                             .replaceAll(RegExp(r'[\[\]"]'), ''),
                     style: const TextStyle(
                       fontSize: 13,
-                      color: Colors.brown,
+                      color: kColorButtonPrimary,
                       fontFamily: 'inter',
                       letterSpacing: -0.1,
                     ),
@@ -964,24 +965,40 @@ class PostWidgetState extends State<PostWidget> {
                 ),
                 const SizedBox(height: 3),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.brown),
                     borderRadius: BorderRadius.circular(20),
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.3),
+                        spreadRadius: 0.5,
+                        blurRadius: 6,
+                        offset: const Offset(-3, 5),
+                      ),
+                    ],
+                    border: Border.all(
+                      color: Colors.brown, // Border color
+                      width: 1, // Thin border
+                    ),
                   ),
-                  child: const Row(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.music_note, size: 16, color: Colors.black),
-                      SizedBox(width: 4),
-                      Text(
+                       Image.asset(
+                        "assets/images/icons/music.png",
+                        width: 12,
+                        height: 12,
+                      ),
+                      const SizedBox(width: 3),
+                      const Text(
                         'playlist',
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 11,
                           color: Colors.black,
+                          fontWeight: FontWeight.bold,
                           letterSpacing: -0.1,
-                          fontFamily: 'inter',
+                          fontFamily: 'Inter',
                         ),
                       ),
                     ],
@@ -1002,7 +1019,7 @@ class PostWidgetState extends State<PostWidget> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: index >= 3 ? Colors.red : Colors.black,
+                  color: Colors.black,
                   width: 1,
                 ),
               ),
@@ -1020,6 +1037,18 @@ class PostWidgetState extends State<PostWidget> {
                 },
                 child: Container(
                   padding: const EdgeInsets.all(1),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.white, // Background color
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.4),
+                        spreadRadius: 0.5,
+                        blurRadius: 6,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
                   child: CircleAvatar(
                     radius: 10,
                     backgroundColor: Colors.white,
@@ -1027,6 +1056,8 @@ class PostWidgetState extends State<PostWidget> {
                         style: const TextStyle(
                             color: Colors.black,
                             fontFamily: 'inter',
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
                             letterSpacing: -0.1)),
                   ),
                 ),
@@ -1116,6 +1147,7 @@ class PostWidgetState extends State<PostWidget> {
                                     );
                                   },
                                   child: Container(
+                                    
                                     width: 14, // Smaller width
                                     height: 14, // Smaller height
                                     decoration: BoxDecoration(
@@ -1125,6 +1157,14 @@ class PostWidgetState extends State<PostWidget> {
                                         color: kColorBlack, // Border color
                                         width: 1, // Border width
                                       ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withValues(alpha: 0.4),
+                                          spreadRadius: 0.5,
+                                          blurRadius: 6,
+                                          offset: const Offset(0, 5),
+                                        ),
+                                      ],
                                     ),
                                     child: Center(
                                       child: Text(
@@ -1254,6 +1294,7 @@ class PostWidgetState extends State<PostWidget> {
           children: [
             Row(
               children: [
+                const SizedBox(width: 10,),
                 GestureDetector(
                   onTap: () {
                     setState(() {
@@ -1292,6 +1333,7 @@ class PostWidgetState extends State<PostWidget> {
                   child: Image.asset("assets/images/icons/add_car.png",
                       width: vww(context, 7)),
                 ),
+                const SizedBox(width: 5,),
               ],
             ),
             const SizedBox(height: 1),
@@ -1315,7 +1357,19 @@ class PostWidgetState extends State<PostWidget> {
             //         )),
             //   ],
             // ),
-            const SizedBox(height: 10),
+            const Padding(
+              padding: EdgeInsets.only(left: 10),
+              child: Text(
+                "Adventure bound..", 
+                style: TextStyle(
+                  fontFamily: 'inter', 
+                  fontWeight: FontWeight.w500,
+                  fontSize: 13,
+                  letterSpacing: -0.1
+                  ),
+                ),
+            ),
+            const SizedBox(height: 12),
             Center(
               child: GestureDetector(
                 onTap: () {
@@ -1390,14 +1444,19 @@ class PostWidgetState extends State<PostWidget> {
                   );
                 }).toList(),
               ),
-            SizedBox(height: vh(context, 3),),
-            Text(
-              'last updated ${timeago.format(now.subtract(difference), locale: 'en_short')} ago',
-              style: const TextStyle(
-                fontFamily: 'inter',
-                color: Color(0xFF95989C),
-                fontSize: 11, 
-              )),
+            SizedBox(height: vh(context, 4),),
+            Padding(
+              padding: const EdgeInsets.only(left: 7),
+              child: Text(
+                'last updated ${timeago.format(now.subtract(difference), locale: 'en_short')} ago',
+                style: const TextStyle(
+                  fontFamily: 'inter',
+                  color: Color(0xFF95989C),
+                  fontSize: 11, 
+                )
+              ),
+            ),
+            
           ],
         ),
         const SizedBox(height: 2),

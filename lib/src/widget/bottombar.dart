@@ -1,4 +1,4 @@
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+// import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/screen/droppin/drop_pin.dart';
 import 'package:RollaTravel/src/screen/droppin/photo_select_screen.dart';
@@ -86,7 +86,7 @@ class BottomNavBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return SafeArea(
       child: SizedBox(
-        height: 110,
+        height: 105,
         child: BottomAppBar(
           color: Colors.white,
           child: Container(
@@ -115,7 +115,7 @@ class BottomNavBar extends ConsumerWidget {
                               fontFamily: 'inter',
                               fontWeight: FontWeight.bold,
                               letterSpacing: -0.1,
-                              fontSize: 38.sp),
+                              fontSize: 17),
                         ),
                       ],
                     ),
@@ -132,7 +132,7 @@ class BottomNavBar extends ConsumerWidget {
                               ? kColorHereButton
                               : kColorBlack,
                           fontFamily: 'inter',
-                          fontSize: 38.sp,
+                          fontSize: 17,
                           fontWeight: FontWeight.bold,
                           letterSpacing: -0.1,
                         ),
@@ -163,7 +163,7 @@ class BottomNavBar extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(50),
                             child: const Image(
                               fit: BoxFit.cover,
-                              image: AssetImage("assets/images/icons/home.png"),
+                              image: AssetImage("assets/images/icons/car_bottom_icon.png"),
                             ),
                           ),
                         ),
@@ -188,7 +188,7 @@ class BottomNavBar extends ConsumerWidget {
                               fontFamily: 'inter',
                               letterSpacing: -0.1,
                               fontWeight: FontWeight.bold,
-                              fontSize: 38.sp),
+                              fontSize: 17),
                         ),
                       ],
                     ),
