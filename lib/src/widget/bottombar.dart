@@ -84,170 +84,163 @@ class BottomNavBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return SafeArea(
-      child: SizedBox(
-        height: 105,
-        child: BottomAppBar(
-          color: Colors.white,
-          child: Container(
-            decoration: const BoxDecoration(
-              border: Border(
-                top: BorderSide(
-                    color: kColorBlack,
-                    width: 1.5), // Black line at the very top
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Expanded(
-                  child: InkWell(
-                    onTap: () => onTabTapped(context, ref, 0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          bottom_home,
-                          style: TextStyle(
-                              color: currentIndex == 0
-                                  ? kColorHereButton
-                                  : kColorBlack,
-                              fontFamily: 'inter',
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: -0.1,
-                              fontSize: 17),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: InkWell(
-                    onTap: () => onTabTapped(context, ref, 1),
-                    child: Center(
-                      child: Text(
-                        bottom_search,
-                        style: TextStyle(
-                          color: currentIndex == 1
-                              ? kColorHereButton
-                              : kColorBlack,
-                          fontFamily: 'inter',
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: -0.1,
-                        ),
-                        textAlign: TextAlign.center,
+     return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: MediaQuery.of(context).size.width,
+          height: 1,
+          color: kColorStrongGrey,
+        ),
+        SafeArea(
+          top: false,
+          bottom: false,
+          child: BottomAppBar(
+             height: 80,
+            color: Colors.white,
+            elevation: 1,
+            child: SizedBox(
+              width: double.infinity,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      onTap: () => onTabTapped(context, ref, 0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            bottom_home,
+                            style: TextStyle(
+                                color: currentIndex == 0
+                                    ? kColorHereButton
+                                    : kColorBlack,
+                                fontFamily: 'inter',
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: -0.1,
+                                fontSize: 17),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                ),
-                Expanded(
-                  child: InkWell(
-                    onTap: () => onTabTapped(context, ref, 2),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 75,
-                          height: 75,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: currentIndex == 2
-                                  ? kColorHereButton
-                                  : Colors.transparent,
-                              width: 0,
-                            ),
+                  Expanded(
+                    child: InkWell(
+                      onTap: () => onTabTapped(context, ref, 1),
+                      child: Center(
+                        child: Text(
+                          bottom_search,
+                          style: TextStyle(
+                            color: currentIndex == 1
+                                ? kColorHereButton
+                                : kColorBlack,
+                            fontFamily: 'inter',
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: -0.1,
                           ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: InkWell(
+                      onTap: () => onTabTapped(context, ref, 2),
+                      child: Center(
+                        child: SizedBox(
+                          width: 63,  // Set desired width
+                          height: 63, // Set desired height
                           child: ClipRRect(
-                            borderRadius: BorderRadius.circular(50),
+                            borderRadius: BorderRadius.circular(20),
                             child: const Image(
                               fit: BoxFit.cover,
                               image: AssetImage("assets/images/icons/car_bottom_icon.png"),
                             ),
                           ),
                         ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-                Expanded(
-                  child: InkWell(
-                    onTap: () => onTabTapped(context, ref, 3),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          bottom_drop_pin,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              color: currentIndex == 3
-                                  ? kColorHereButton
-                                  : kColorBlack,
-                              fontFamily: 'inter',
-                              letterSpacing: -0.1,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 17),
-                        ),
-                      ],
+                  Expanded(
+                    child: InkWell(
+                      onTap: () => onTabTapped(context, ref, 3),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            bottom_drop_pin,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                color: currentIndex == 3
+                                    ? kColorHereButton
+                                    : kColorBlack,
+                                fontFamily: 'inter',
+                                letterSpacing: -0.1,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 17),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                Expanded(
-                  child: InkWell(
-                    onTap: () => onTabTapped(context, ref, 4),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 45,
-                          height: 45,
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: currentIndex == 4
-                                  ? kColorHereButton
-                                  : Colors.grey,
-                              width: 2.0,
+                  Expanded(
+                    child: InkWell(
+                      onTap: () => onTabTapped(context, ref, 4),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 45,
+                            height: 45,
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: currentIndex == 4
+                                    ? kColorHereButton
+                                    : Colors.grey,
+                                width: 2.0,
+                              ),
+                              borderRadius: BorderRadius.circular(50),
                             ),
-                            borderRadius: BorderRadius.circular(50),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(50),
+                              child: GlobalVariables.userImageUrl != null
+                                  ? Image.network(
+                                      GlobalVariables
+                                          .userImageUrl!, // Dynamic URL
+                                      width: 45,
+                                      height: 45,
+                                      fit: BoxFit.cover,
+                                      loadingBuilder:
+                                          (context, child, loadingProgress) {
+                                        if (loadingProgress == null) return child;
+                                        return const SizedBox(
+                                          width: 45,
+                                          height: 45,
+                                          child: Center(
+                                              child:
+                                                  CircularProgressIndicator()), // Loading indicator
+                                        );
+                                      },
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return const Icon(Icons.person);
+                                      },
+                                    )
+                                  : const Icon(Icons.person),
+                            ),
                           ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(50),
-                            child: GlobalVariables.userImageUrl != null
-                                ? Image.network(
-                                    GlobalVariables
-                                        .userImageUrl!, // Dynamic URL
-                                    width: 45,
-                                    height: 45,
-                                    fit: BoxFit.cover,
-                                    loadingBuilder:
-                                        (context, child, loadingProgress) {
-                                      if (loadingProgress == null) return child;
-                                      return const SizedBox(
-                                        width: 45,
-                                        height: 45,
-                                        child: Center(
-                                            child:
-                                                CircularProgressIndicator()), // Loading indicator
-                                      );
-                                    },
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return const Icon(Icons.person);
-                                    },
-                                  )
-                                : const Icon(Icons.person),
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
-      ),
+      ],
     );
   }
 }
