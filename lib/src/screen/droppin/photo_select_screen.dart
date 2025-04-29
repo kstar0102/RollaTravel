@@ -240,7 +240,7 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
               Center(
                 child: SizedBox(
                   width: double.infinity,
-                  height: vhh(context, 50),
+                  height: vhh(context, 45),
                   child: Stack(
                     alignment: Alignment.center,
                     children: [

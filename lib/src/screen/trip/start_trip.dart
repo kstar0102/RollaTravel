@@ -49,7 +49,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   String? endAddress;
   String stopAddressesString = "";
   List<String> formattedStopAddresses = [];
-  FocusNode _captionFocusNode = FocusNode();
+  final FocusNode _captionFocusNode = FocusNode();
   static const String mapboxAccessToken =
       "pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw";
 
@@ -66,6 +66,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     _mapController.dispose();
     _positionStreamSubscription?.cancel();
     _captionFocusNode.dispose();
+    _captionController.dispose();
   }
 
   @override
@@ -501,6 +502,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
       destinationTextAddress: formattedDestination,
       tripStartDate: GlobalVariables.tripStartDate!,
       tripEndDate: GlobalVariables.tripEndDate!,
+      tripCaption: GlobalVariables.tripCaption!,
       tripMiles: tripMiles,
       tripSound: "tripSound",
       stopLocations: stopLocations,
@@ -602,8 +604,6 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     }
   }
 
-
-  
   void _showPermissionDeniedDialog() {
     showDialog(
       context: context,
@@ -756,19 +756,13 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                     ],
                   ),
                 ),
-
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: vww(context, 4)),
                   child: const Divider(color: kColorGrey, thickness: 1),
                 ),
-
                 SizedBox(height: vhh(context, 1)),
-
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: vww(context, 4)),
-                  // child: Container(
-
-                  // )
                   child: Column(
                     children: [
                       Row(
@@ -862,11 +856,9 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                     ],
                   ),
                 ),
-
                 SizedBox(
                   height: vhh(context, 1),
                 ),
-
                 GestureDetector(
                   onTap: () {
                     FocusScope.of(context).unfocus();
@@ -912,9 +904,12 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                               ),
                               minLines: 2,
                               maxLines: 2,
-                              textInputAction: TextInputAction.done,  // Set "Done" action
+                              textInputAction: TextInputAction.done,
                               onEditingComplete: () {
-                                _captionFocusNode.unfocus();  // Hide the keyboard when "Done" is pressed
+                                _captionFocusNode.unfocus();
+                              },
+                                onChanged: (value) {
+                                GlobalVariables.tripCaption = value;
                               },
                             ),
                           ),

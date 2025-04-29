@@ -62,9 +62,9 @@ class SoundScreenState extends ConsumerState<SoundScreen> {
                     const Expanded(
                       child: Center(
                         child: Text(
-                          'My soundtrack',
+                          'Playlist',
                           style:
-                              TextStyle(fontSize: 22, fontFamily: 'interBold'),
+                              TextStyle(fontSize: 22, fontFamily: 'inter', fontWeight: FontWeight.w500),
                         ),
                       ),
                     ),
@@ -84,13 +84,13 @@ class SoundScreenState extends ConsumerState<SoundScreen> {
                         child: TextField(
                           controller: _soundController,
                           decoration: InputDecoration(
-                            hintText: 'Search locations',
+                            hintText: 'Search....',
                             hintStyle: const TextStyle(
-                                fontSize: 16,
+                                fontSize: 14,
                                 fontFamily:
                                     'inter'), // Set font size for hint text
                             contentPadding: const EdgeInsets.symmetric(
-                                vertical: 12.0,
+                                vertical: 10.0,
                                 horizontal: 16.0), // Set inner padding
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(4.0),

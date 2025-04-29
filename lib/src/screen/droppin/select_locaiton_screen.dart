@@ -363,6 +363,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
           destinationAddress: "Destination address for DropPin",
           destinationTextAddress: formattedDestination,
           tripStartDate: GlobalVariables.tripStartDate!,
+          tripCaption: GlobalVariables.tripCaption!,
           tripEndDate: formattedDate,
           tripMiles: tripMiles!,
           tripSound: "tripSound",
@@ -436,6 +437,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
           tripStartDate: GlobalVariables.tripStartDate!,
           tripEndDate: formattedDate,
           tripMiles: tripMiles!,
+          tripCaption: GlobalVariables.tripCaption!,
           tripSound: "tripSound",
           stopLocations: stopLocations,
           tripCoordinates: tripCoordinates,
@@ -569,6 +571,9 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                                       initialZoom: 12.0,
                                       onMapReady: () {
                                         _mapReadyCompleter.complete();
+                                        if (widget.selectedLocation != const LatLng(0, 0)) {
+                                          _mapController.move(widget.selectedLocation!, 12.0); // Move the map to the selected location
+                                        }
                                       },
                                     ),
                                     children: [

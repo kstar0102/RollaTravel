@@ -316,6 +316,35 @@ class PostWidgetState extends State<PostWidget> {
     setState(() {
       locations = tempLocations;
     });
+    _autoZoomMap();
+  }
+
+   // Calculate bounds and adjust zoom level
+  void _autoZoomMap() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Ensure the map has been rendered before interacting with it
+      List<LatLng> allLocations = [startPoint, endPoint].whereType<LatLng>().toList();
+      allLocations.addAll(locations);
+
+      if (allLocations.isEmpty) return;
+
+      LatLngBounds bounds = LatLngBounds.fromPoints(allLocations);
+      mapController.move(bounds.center, _calculateZoom(bounds));
+    });
+  }
+
+  double _calculateZoom(LatLngBounds bounds) {
+    double latDiff = bounds.northEast.latitude - bounds.southWest.latitude;
+    double lonDiff = bounds.northEast.longitude - bounds.southWest.longitude;
+
+    double zoom = 12.0; // Default zoom level
+    if (latDiff > lonDiff) {
+      zoom -= latDiff * 0.1;
+    } else {
+      zoom -= lonDiff * 0.1;
+    }
+
+    return zoom < 5 ? 5 : zoom > 18 ? 18 : zoom;
   }
 
   Future<Map<String, double>> getCoordinates(String address) async {
@@ -1357,11 +1386,11 @@ class PostWidgetState extends State<PostWidget> {
             //         )),
             //   ],
             // ),
-            const Padding(
-              padding: EdgeInsets.only(left: 10),
+            Padding(
+              padding: const EdgeInsets.only(left: 10),
               child: Text(
-                "Adventure bound..", 
-                style: TextStyle(
+                widget.post['trip_caption'] ?? "", 
+                style: const TextStyle(
                   fontFamily: 'inter', 
                   fontWeight: FontWeight.w500,
                   fontSize: 13,

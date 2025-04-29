@@ -1,4 +1,3 @@
-// import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/screen/droppin/drop_pin.dart';
 import 'package:RollaTravel/src/screen/droppin/photo_select_screen.dart';
@@ -84,6 +83,11 @@ class BottomNavBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Get screen width for responsiveness
+    double screenWidth = MediaQuery.of(context).size.width;
+
+    // Dynamically adjust font size and icon size based on screen width
+    double customfontSize = screenWidth > 600 ? 17 : 14; // Font size for smaller screens
      return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -104,10 +108,10 @@ class BottomNavBar extends ConsumerWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  buildTab(context, ref, bottom_home, 0),
-                  buildTab(context, ref, bottom_search, 1),
+                  buildTab(context, ref, bottom_home, 0, customfontSize),
+                  buildTab(context, ref, bottom_search, 1, customfontSize),
                   buildCarTab(context, ref, 2),
-                  buildTab(context, ref, bottom_drop_pin, 3),
+                  buildTab(context, ref, bottom_drop_pin, 3,customfontSize),
                   buildProfileTab(context, ref, 4),
                 ],
               ),
@@ -139,7 +143,7 @@ class BottomNavBar extends ConsumerWidget {
     );
   }
 
-  Widget buildTab(BuildContext context, WidgetRef ref, String text, int index) {
+  Widget buildTab(BuildContext context, WidgetRef ref, String text, int index, double fontSize) {
     return Expanded(
       child: InkWell(
         onTap: () => onTabTapped(context, ref, index),
@@ -147,7 +151,7 @@ class BottomNavBar extends ConsumerWidget {
           child: Text(
             text,
             style: TextStyle(
-              fontSize: 17,
+              fontSize: fontSize, 
               fontFamily: 'inter',
               fontWeight: FontWeight.bold,
               color: currentIndex == index ? kColorHereButton : kColorBlack,
