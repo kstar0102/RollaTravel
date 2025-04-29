@@ -1,11 +1,19 @@
+import 'dart:convert';
+
 import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/screen/home/home_follower_screen.dart';
+import 'package:RollaTravel/src/screen/home/home_screen.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/translate/en.dart';
+import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:RollaTravel/src/utils/index.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:http/http.dart' as http;
+import 'package:latlong2/latlong.dart';
 import 'package:logger/logger.dart';
 
 class HomeUserScreen extends ConsumerStatefulWidget {
@@ -20,6 +28,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
   double screenHeight = 0;
   double keyboardHeight = 0;
   final int _currentIndex = 0;
+  int? userid;
   bool isLiked = false;
   bool showLikesDropdown = false;
   Map<String, dynamic>? userProfile;
@@ -27,32 +36,18 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
   String? rollaUserImage;
   String? tripCount;
   String? followingCount;
+  String? happlyPlace;
+  String? garageLogoUrl;
   final logger = Logger();
   bool isloding = true;
-
-  final List<String> imagePaths = [
-    'assets/images/background/Lake1.png',
-    'assets/images/background/Lake2.png',
-    'assets/images/background/Lake3.png',
-    'assets/images/background/yellowstone1.png',
-    'assets/images/background/yellowstone2.png',
-    'assets/images/background/yellowstone3.png',
-  ];
-
-  final List<String> locationDecription = [
-    "Lake Placid, NY 1",
-    "Lake Placid, NY 2",
-    "Lake Placid, NY 3",
-    "Yellowstone, WY 1",
-    "Yellowstone, WY 2",
-    "Yellowstone, WY 3",
-  ];
-
-  final List<Map<String, String>> commentsList = [
-    {"user": "@User13", "comment": "Example 1 Great place!"},
-    {"user": "@User23", "comment": "Example 2 Looks amazing!"},
-    {"user": "@User13", "comment": "Example 3 I want to visit!"},
-  ];
+  bool isfollow = false;
+  bool isMefollow = false;
+  List<Map<String, dynamic>>? userTrips;
+  bool isLoadingTrips = true;
+  LatLng? startPoint;
+  LatLng? endPoint;
+  List<LatLng> locations = [];
+  late List<dynamic> dropPinsData = [];
 
   @override
   void initState() {
@@ -74,34 +69,71 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
   }
 
   Future<void> _fetchUserProfile() async {
-    setState(() {
-      isloding = true;
-    });
-    final userProfile = await ApiService().fetchUserTrips(widget.userId);
-    logger.i(userProfile[0]['user']);
-    rollaUserName = userProfile[0]['user']['rolla_username'] ?? " ";
-    rollaUserImage = userProfile[0]['user']['photo'];
+    try {
+      setState(() {
+        isloding = true;
+      });
 
-    int triplenght;
-    if (userProfile.isNotEmpty) {
-      triplenght = userProfile.length;
-      tripCount = triplenght.toString();
-    } else {
-      tripCount = "0";
-    }
+      final userProfile = await ApiService().fetchUserTrips(widget.userId);
+      // logger.i(userProfile);
 
-    int? followcount;
-    if (userProfile[0]['user']['following_user_id'] != "") {
-      followcount =
-          userProfile[0]['user']['following_user_id'].split(',').length;
-    } else {
-      logger.i("viewlist is null");
-      followcount = 0;
+      rollaUserName = userProfile[0]['user']['rolla_username'] ?? " ";
+      rollaUserImage = userProfile[0]['user']['photo'];
+      userid = userProfile[0]['user']['id'];
+
+      if (userProfile[0]['user']['happy_place'] != null) {
+        happlyPlace = userProfile[0]['user']['happy_place'];
+      }
+
+      if(userProfile[0]['user']['id'] == GlobalVariables.userId){
+        isMefollow = true;
+      }
+
+      if (userProfile[0]['user']['garage'] != null && userProfile[0]['user']['garage'].isNotEmpty) {
+        garageLogoUrl = userProfile[0]['user']['garage'][0]['logo_path'];
+      }
+
+      int triplenght;
+      if (userProfile.isNotEmpty) {
+        triplenght = userProfile.length;
+        tripCount = triplenght.toString();
+      } else {
+        tripCount = "0";
+      }
+
+      int? followcount;
+      if (userProfile[0]['user']['following_user_id'] != "") {
+        followcount = userProfile[0]['user']['following_user_id'].split(',').length;
+
+        String userIdString = GlobalVariables.userId.toString();
+        List<String> followingUserIds = userProfile[0]['user']['following_user_id'].split(',');
+        if (followingUserIds.contains(userIdString)) {
+          isfollow = true;
+        }
+      } else {
+        followcount = 0;
+      }
+      followingCount = followcount.toString();
+
+      List<dynamic> allDroppins = [];
+      for (var trip in userProfile) {
+        if (trip['droppins'] != null) {
+          allDroppins.addAll(trip['droppins'] as List<dynamic>);
+        }
+      }
+      setState(() {
+        userTrips = userProfile;
+        dropPinsData = allDroppins.isNotEmpty ? allDroppins : [];
+        isLoadingTrips = false;
+      });
+
+    } catch (e) {
+      logger.e("Error fetching user profile: $e");
+    } finally {
+      setState(() {
+        isloding = false;
+      });
     }
-    followingCount = followcount.toString();
-    setState(() {
-      isloding = false;
-    });
   }
 
   void _onFollowers() {
@@ -109,22 +141,41 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
         MaterialPageRoute(builder: (context) => const HomeFollowScreen()));
   }
 
-  void _showImageDialog(String imagePath, String caption, int likes) {
+  void follow() async {
+    try {
+      final apiservice = ApiService();
+      final result = await apiservice.followUser(userid!, GlobalVariables.userId!);
+
+      if (result['statusCode'] == true) {
+        setState(() {
+          isfollow = !isfollow;
+          if (isfollow) {
+            followingCount = (int.parse(followingCount!) + 1).toString();
+          } else {
+            followingCount = (int.parse(followingCount!) - 1).toString();
+          }
+        });
+      }
+    } catch (e) {
+      logger.i('Error: $e');
+    }
+  }
+
+  void _showImageDialog(
+      String imagePath, String caption, int likes, List<dynamic> likedUsers) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return Dialog(
-              insetPadding: const EdgeInsets.symmetric(
-                  horizontal: 30), // Adjust padding to match the screenshot
+              insetPadding: const EdgeInsets.symmetric(horizontal: 30),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Caption and Close Icon Row
                   Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 8.0, vertical: 4.0),
@@ -133,33 +184,57 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                       children: [
                         Text(
                           caption,
-                          style: iamgeModalCaptionTextStyle,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey,
+                            fontFamily: 'inter',
+                          ),
                         ),
                         IconButton(
-                            icon: const Icon(Icons.close, color: Colors.black),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                              setState(() {
-                                showLikesDropdown =
-                                    false; // Hide the likes dropdown when the dialog is closed
-                              });
-                            }),
+                          icon: const Icon(Icons.close, color: Colors.black),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            setState(() {
+                              showLikesDropdown = false; 
+                            });
+                          },
+                        ),
                       ],
                     ),
                   ),
-                  // Image
-                  Image.asset(
-                    imagePath,
-                    fit: BoxFit.cover,
-                    width:
-                        MediaQuery.of(context).size.width * 0.9, // Replace vww
-                    height:
-                        MediaQuery.of(context).size.height * 0.5, // Replace vhh
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Image.network(
+                        imagePath,
+                        fit: BoxFit.cover,
+                        width: MediaQuery.of(context).size.width * 0.9,
+                        height: MediaQuery.of(context).size.height * 0.5,
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Icon(Icons.broken_image, size: 100),
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) {
+                            return child;
+                          } else {
+                            return Center(
+                              child: CircularProgressIndicator(
+                                value: loadingProgress.expectedTotalBytes !=
+                                        null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                        (loadingProgress.expectedTotalBytes ??
+                                            1)
+                                    : null,
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                    ],
                   ),
                   const Divider(
                       height: 1,
-                      color: Colors.grey), // Divider between image and footer
-                  // Footer with Like Icon and Likes Count
+                      color: Colors.grey), 
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Row(
@@ -167,7 +242,6 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                         GestureDetector(
                           behavior: HitTestBehavior.opaque,
                           onTap: () {
-                            // Update dialog state
                             setState(() {
                               isLiked = !isLiked;
                             });
@@ -181,15 +255,16 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                         GestureDetector(
                           onTap: () {
                             setState(() {
-                              showLikesDropdown = !showLikesDropdown;
+                              showLikesDropdown = !showLikesDropdown; 
                             });
                           },
                           child: Text(
                             '$likes likes',
                             style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                                fontFamily: 'inter'),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              fontFamily: 'inter',
+                            ),
                           ),
                         ),
                       ],
@@ -197,49 +272,57 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                   ),
                   if (showLikesDropdown)
                     Column(
-                      children: commentsList.map((comment) {
+                      children: likedUsers.map((user) {
+                        final photo = user['photo'] ?? '';
+                        final firstName = user['first_name'] ?? 'Unknown';
+                        final lastName = user['last_name'] ?? '';
+                        final username = user['rolla_username'] ?? '@unknown';
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 4.0),
                           child: Row(
                             children: [
                               Container(
-                                height: vhh(context, 4),
-                                width: vhh(context, 4),
+                                height: 40,
+                                width: 40,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(100),
                                   border: Border.all(
-                                    color: kColorHereButton,
+                                    color: Colors.grey,
                                     width: 2,
                                   ),
-                                  image: const DecorationImage(
-                                    image: AssetImage(
-                                        "assets/images/background/image1.png"),
-                                    fit: BoxFit.cover,
-                                  ),
+                                  image: photo.isNotEmpty
+                                      ? DecorationImage(
+                                          image: NetworkImage(photo),
+                                          fit: BoxFit.cover,
+                                        )
+                                      : null,
                                 ),
+                                child: photo.isEmpty
+                                    ? const Icon(Icons.person,
+                                        size: 20)
+                                    : null,
                               ),
                               const SizedBox(width: 5),
                               Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        comment['user']!,
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: kColorHereButton,
-                                            fontSize: 13,
-                                            fontFamily: 'inter'),
-                                      ),
-                                      const SizedBox(width: 5),
-                                      const Icon(Icons.verified,
-                                          color: Colors.blue, size: 16),
-                                    ],
+                                  Text(
+                                    '$firstName $lastName',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13,
+                                      fontFamily: 'inter',
+                                      color: Colors.black,
+                                    ),
                                   ),
-                                  const Text(
-                                    "Brain Smith",
-                                    style: TextStyle(fontFamily: 'inter'),
-                                  )
+                                  Text(
+                                    username,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey,
+                                      fontFamily: 'inter',
+                                    ),
+                                  ),
                                 ],
                               ),
                             ],
@@ -410,51 +493,45 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                               fontFamily: 'inter',
                             ),
                           ),
-                          // Add more fields as needed
                         ],
                         SizedBox(height: vhh(context, 2)),
                         Row(
                           mainAxisAlignment:
-                              MainAxisAlignment.center, // Center the buttons
+                              MainAxisAlignment.center,
                           children: [
                             GestureDetector(
-                              onTap: () {
-                                // Add functionality for Unfollow button
+                              onTap: isMefollow ? null : () {
+                                follow();
                               },
                               child: Container(
                                 width: vww(context, 40),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 3),
-                                margin: const EdgeInsets.only(
-                                    right: 5), // Add spacing between buttons
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                                margin: const EdgeInsets.only(right: 5), 
                                 decoration: BoxDecoration(
-                                  color: Colors
-                                      .brown, // Brown color for the Unfollow button
-                                  borderRadius: BorderRadius.circular(
-                                      20), // Rounded corners
+                                  color: isMefollow ? Colors.grey : kColorButtonPrimary, // Make it grey when disabled
+                                  borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
                                     BoxShadow(
-                                      color:
-                                          Colors.black.withValues(alpha: 0.2),
-                                      offset:
-                                          const Offset(0, 2), // Shadow offset
-                                      blurRadius: 4, // Blur radius for shadow
+                                      color: Colors.black.withValues(alpha: 0.2),
+                                      offset: const Offset(0, 2),
+                                      blurRadius: 4, 
                                     ),
                                   ],
                                 ),
-                                child: const Center(
-                                  // Ensures text is centered
+                                child: Center(
                                   child: Text(
-                                    'Unfollow',
-                                    style: TextStyle(
-                                      color: Colors.white, // Text color
-                                      fontSize: 14, // Font size
-                                      fontFamily: 'interBold', // Font weight
+                                    isfollow ? 'Unfollow' : "Follow",
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14, 
+                                      fontFamily: 'inter',
+                                      fontWeight: FontWeight.bold
                                     ),
                                   ),
                                 ),
                               ),
                             ),
+
                             GestureDetector(
                               onTap: () {
                                 // Add functionality for Send Message button
@@ -464,17 +541,13 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 10, vertical: 3),
                                 decoration: BoxDecoration(
-                                  color: Colors
-                                      .blue, // Blue color for the Send Message button
-                                  borderRadius: BorderRadius.circular(
-                                      20), // Rounded corners
+                                  color: kColorHereButton,
+                                  borderRadius: BorderRadius.circular(20), 
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(
-                                          alpha: 0.2), // Shadow color
-                                      offset:
-                                          const Offset(0, 2), // Shadow offset
-                                      blurRadius: 4, // Blur radius for shadow
+                                      color: Colors.black.withValues(alpha: 0.2),
+                                      offset: const Offset(0, 2),
+                                      blurRadius: 4,
                                     ),
                                   ],
                                 ),
@@ -488,8 +561,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                         size: 16, // Icon size
                                       ),
                                       SizedBox(
-                                          width:
-                                              2), // Spacing between icon and text
+                                          width: 2),
                                       Text(
                                         'Send Message',
                                         style: TextStyle(
@@ -508,33 +580,12 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                         ),
 
                         SizedBox(height: vhh(context, 1)),
-                        const Column(
+                        Column(
                           children: [
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  odometer,
-                                  style: TextStyle(
-                                    color: kColorBlack,
-                                    fontSize: 14,
-                                    fontFamily: 'inter',
-                                  ),
-                                ),
-                                Text(
-                                  "00000314",
-                                  style: TextStyle(
-                                    color: kColorButtonPrimary,
-                                    fontSize: 14,
-                                    fontFamily: 'inter',
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
+                                const Text(
                                   happy_place,
                                   style: TextStyle(
                                     color: kColorBlack,
@@ -543,8 +594,8 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                   ),
                                 ),
                                 Text(
-                                  "Lake Placid, NY",
-                                  style: TextStyle(
+                                  happlyPlace ?? "",
+                                  style: const TextStyle(
                                     color: kColorButtonPrimary,
                                     fontSize: 14,
                                     fontFamily: 'inter',
@@ -555,7 +606,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
+                                const Text(
                                   my_garage,
                                   style: TextStyle(
                                     color: kColorBlack,
@@ -563,114 +614,215 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                     fontFamily: 'inter',
                                   ),
                                 ),
-                                Text(
-                                  "Lexus, Toyota",
-                                  style: TextStyle(
-                                    color: kColorButtonPrimary,
-                                    fontSize: 14,
-                                    fontFamily: 'inter',
-                                  ),
-                                ),
+                                garageLogoUrl != null
+                                  ? Image.network(
+                                      garageLogoUrl!,
+                                      width: 25,
+                                      height: 25,
+                                    )
+                                  : const Text(""),
                               ],
                             ),
                           ],
                         ),
                         SizedBox(height: vhh(context, 1)),
+
                         SizedBox(
-                          height: 100,
-                          child: ListView(
+                        height: 100,
+                        child: (dropPinsData).isEmpty
+                        ? const Center(
+                            child: Text("No drop pins available",
+                                style: TextStyle(
+                                    color: Colors.grey,
+                                    letterSpacing: -0.1,
+                                    fontFamily: 'inter')),
+                          )
+                        : ListView.builder(
                             scrollDirection: Axis.horizontal,
-                            children: List.generate(imagePaths.length, (index) {
+                            itemCount: dropPinsData.length,
+                            itemBuilder: (context, index) {
+                              final dropPin = dropPinsData[index]
+                                  as Map<String, dynamic>;
+                              final String imagePath =
+                                  dropPin['image_path'] ?? '';
+                              final String caption =
+                                  dropPin['image_caption'] ?? 'No caption';
+                              final List<dynamic> likedUsers =
+                                  dropPin['liked_users'] ?? [];
+
                               return Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 3),
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      // Handle the click event here
-                                      _showImageDialog(imagePaths[index],
-                                          locationDecription[index], 4);
-                                    },
-                                    child: Image.asset(
-                                      imagePaths[index],
-                                      width: 100,
-                                      height: 100,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ));
-                            }),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 3),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    _showImageDialog(imagePath, caption,
+                                        likedUsers.length, likedUsers);
+                                  },
+                                  child: imagePath.isNotEmpty
+                                      ? Container(
+                                          width: 100,
+                                          height: 100,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                Colors.black
+                                                    .withValues(alpha: 0.5),
+                                                Colors.transparent
+                                              ],
+                                              begin: Alignment.bottomCenter,
+                                              end: Alignment.topCenter,
+                                            ),
+                                          ),
+                                          child: Image.network(
+                                            imagePath,
+                                            fit: BoxFit.cover,
+                                            loadingBuilder: (context, child,
+                                                loadingProgress) {
+                                              if (loadingProgress == null) {
+                                                return child;
+                                              } else {
+                                                return const Center(
+                                                    child:
+                                                        CircularProgressIndicator());
+                                              }
+                                            },
+                                            errorBuilder: (context, error,
+                                                stackTrace) {
+                                              return const Icon(
+                                                  Icons.broken_image,
+                                                  size: 100);
+                                            },
+                                          ),
+                                        )
+                                      : const Icon(
+                                          Icons.image_not_supported,
+                                          size: 100),
+                                ),
+                              );
+                            },
                           ),
                         ),
                         SizedBox(height: vhh(context, 1)),
 
                         // Map and Route Section with Dividers
                         Container(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          child: Column(
-                            children: [
-                              // Map Image Placeholder
-                              Container(
-                                height: 150,
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey),
-                                ),
-                                child: const Center(
-                                  child: Text(
-                                    "Map Route Here",
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontFamily: 'inter',
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              SizedBox(height: vhh(context, 1)),
-
-                              // Dividers and Sections
-                              const Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  // Left Divider
-                                  Expanded(
-                                    child: Divider(
-                                      color: Colors.grey,
-                                      thickness: 1,
-                                      indent: 20,
-                                      endIndent: 10,
-                                    ),
-                                  ),
-
-                                  // Center Vertical Divider
-                                  Column(
-                                    children: [
-                                      VerticalDivider(
-                                        color: Colors.grey,
-                                        thickness: 1,
-                                        width: 20,
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        color: kColorWhite,
+                        child: Column(
+                          children: [
+                            const Divider(
+                              height: 1,
+                              thickness: 2,
+                              color: Colors.blue,
+                            ),
+                            SizedBox(height: vhh(context, 2)),
+                            userTrips == null
+                                ? const Center(
+                                    child: CircularProgressIndicator())
+                                : userTrips!.isEmpty
+                                    ? const Center(
+                                        child: Text("No trips to display"))
+                                    : Column(
+                                        children: List.generate(
+                                          (userTrips!.length / 2).ceil(),
+                                          (rowIndex) => Column(
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Container(
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.4,
+                                                    height: 150,
+                                                    decoration: BoxDecoration(
+                                                      border: Border.all(
+                                                        color: Colors.grey,
+                                                        width: 2,
+                                                      ),
+                                                    ),
+                                                    child: TripMapWidget(
+                                                      trip: userTrips![
+                                                          rowIndex * 2],
+                                                      index: rowIndex * 2,
+                                                    ),
+                                                  ),
+                                                  SizedBox(
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.05,
+                                                    height: 150,
+                                                    child:
+                                                        const VerticalDivider(
+                                                      width: 2,
+                                                      thickness: 2,
+                                                      color: Colors.grey,
+                                                    ),
+                                                  ),
+                                                  if (rowIndex * 2 + 1 <
+                                                      userTrips!.length)
+                                                    Container(
+                                                      width:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width *
+                                                              0.4,
+                                                      height: 150,
+                                                      decoration: BoxDecoration(
+                                                        border: Border.all(
+                                                          color: Colors.grey,
+                                                          width: 2,
+                                                        ),
+                                                      ),
+                                                      child: TripMapWidget(
+                                                        trip: userTrips![
+                                                            rowIndex * 2 + 1],
+                                                        index: rowIndex * 2 + 1,
+                                                      ),
+                                                    ),
+                                                  if (rowIndex * 2 + 1 >=
+                                                      userTrips!.length)
+                                                    SizedBox(
+                                                        width: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width *
+                                                            0.4),
+                                                ],
+                                              ),
+                                              if (rowIndex <
+                                                  (userTrips!.length / 2)
+                                                          .ceil() -
+                                                      1)
+                                                Column(
+                                                  children: [
+                                                    SizedBox(
+                                                        height:
+                                                            vhh(context, 1)),
+                                                    const Divider(
+                                                      height: 1,
+                                                      thickness: 2,
+                                                      color: Colors.grey,
+                                                    ),
+                                                    SizedBox(
+                                                        height:
+                                                            vhh(context, 1)),
+                                                  ],
+                                                ),
+                                            ],
+                                          ),
+                                        ),
                                       ),
-                                      SizedBox(height: 10),
-                                      VerticalDivider(
-                                        color: Colors.grey,
-                                        thickness: 1,
-                                        width: 20,
-                                      ),
-                                    ],
-                                  ),
-
-                                  // Right Divider
-                                  Expanded(
-                                    child: Divider(
-                                      color: Colors.grey,
-                                      thickness: 1,
-                                      indent: 10,
-                                      endIndent: 20,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
+                          ],
                         ),
+                      ),
                       ],
                     ),
                   ),
@@ -681,6 +833,246 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
         ),
       ),
       bottomNavigationBar: BottomNavBar(currentIndex: _currentIndex),
+    );
+  }
+}
+
+
+// Create a new StatefulWidget for trip maps
+class TripMapWidget extends StatefulWidget {
+  final Map<String, dynamic> trip;
+  final int index;
+
+  const TripMapWidget({
+    super.key,
+    required this.trip,
+    required this.index,
+  });
+
+  @override
+  State<TripMapWidget> createState() => _TripMapWidgetState();
+}
+
+class _TripMapWidgetState extends State<TripMapWidget> {
+  late MapController mapController;
+  List<LatLng> routePoints = [];
+  List<LatLng> locations = [];
+  LatLng? startPoint;
+  LatLng? endPoint;
+  bool isLoading = true;
+  final logger = Logger();
+
+  @override
+  void initState() {
+    super.initState();
+    mapController = MapController();
+    _initializeRoutePoints();
+    _getLocations().then((_) {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    mapController.dispose(); // If applicable
+    super.dispose();
+  }
+
+  void _initializeRoutePoints() {
+    if (widget.trip['trip_coordinates'] != null) {
+      setState(() {
+        routePoints =
+            List<Map<String, dynamic>>.from(widget.trip['trip_coordinates'])
+                .map((coord) {
+                  if (coord['latitude'] is double &&
+                      coord['longitude'] is double) {
+                    return LatLng(coord['latitude'], coord['longitude']);
+                  } else {
+                    logger.e('Invalid coordinate data: $coord');
+                    return null;
+                  }
+                })
+                .where((latLng) => latLng != null)
+                .cast<LatLng>()
+                .toList();
+      });
+    }
+  }
+
+  Future<LatLng?> _getCoordinates(String address) async {
+    try {
+      final url = Uri.parse(
+          'https://api.mapbox.com/geocoding/v5/mapbox.places/${Uri.encodeComponent(address)}.json?access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw');
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['features'] != null && data['features'].isNotEmpty) {
+          final coordinates = data['features'][0]['center'];
+          return LatLng(
+              coordinates[1], coordinates[0]); // [lng, lat] to LatLng(lat, lng)
+        }
+      }
+      return null;
+    } catch (e) {
+      logger.e('Error getting coordinates: $e');
+      return null;
+    }
+  }
+
+  Future<void> _getLocations() async {
+    List<LatLng> tempLocations = [];
+
+    try {
+      // Fetch Start Address
+      final startCoordinates =
+          await _getCoordinates(widget.trip['start_address']);
+      if (startCoordinates != null) {
+        startPoint = startCoordinates;
+      }
+    } catch (e) {
+      logger.e('Failed to fetch start address coordinates: $e');
+    }
+
+    // Use Stop Locations directly
+    if (widget.trip['stop_locations'] != null) {
+      try {
+        final stopLocations =
+            List<Map<String, dynamic>>.from(widget.trip['stop_locations']);
+        for (var location in stopLocations) {
+          final latitude = double.parse(location['latitude'].toString());
+          final longitude = double.parse(location['longitude'].toString());
+          tempLocations.add(LatLng(latitude, longitude));
+        }
+      } catch (e) {
+        logger.e('Failed to process stop locations: $e');
+      }
+    }
+
+    // Fetch Destination Address
+    try {
+      final destinationCoordinates =
+          await _getCoordinates(widget.trip['destination_address']);
+      if (destinationCoordinates != null) {
+        endPoint = destinationCoordinates;
+      }
+    } catch (e) {
+      logger.e('Failed to fetch destination address coordinates: $e');
+    }
+
+    setState(() {
+      locations = tempLocations;
+    });
+  }
+
+  void _onMapTap() {
+    GlobalVariables.homeTripID = widget.trip['id'];
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const HomeScreen(),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 150,
+      margin: const EdgeInsets.only(bottom: 10),
+      child: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Stack(
+              children: [
+                FlutterMap(
+                  mapController: mapController,
+                  options: MapOptions(
+                    initialCenter:
+                        startPoint != null ? startPoint! : const LatLng(0, 0),
+                    initialZoom: 11.5,
+                    onTap: (_, LatLng position) {
+                      _onMapTap();
+                      logger.i('Map tapped at: $position');
+                    },
+                  ),
+                  children: [
+                    TileLayer(
+                      urlTemplate:
+                          "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw",
+                      additionalOptions: const {
+                        'access_token':
+                            'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw',
+                      },
+                    ),
+                    MarkerLayer(
+                      markers: [
+                        if (startPoint != null)
+                          Marker(
+                            width: 80,
+                            height: 80,
+                            point: startPoint!,
+                            child: Icon(Icons.location_on,
+                                color: Colors.red, size: 60.sp),
+                          ),
+                        if (endPoint != null)
+                          Marker(
+                            width: 80.0,
+                            height: 80.0,
+                            point: endPoint!,
+                            child: Icon(Icons.location_on,
+                                color: Colors.green, size: 60.sp),
+                          ),
+                        ...locations.map((location) {
+                          return Marker(
+                            width: 20.0,
+                            height: 20.0,
+                            point: location,
+                            child: Container(
+                              width: 12, // Smaller width
+                              height: 12, // Smaller height
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white,
+                                border: Border.all(
+                                  color: kColorBlack, // Border color
+                                  width: 2, // Border width
+                                ),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  '${locations.indexOf(location) + 1}', // Display index + 1 inside the circle
+                                  style: const TextStyle(
+                                    color: Colors
+                                        .black, // Text color to match border
+                                    fontSize: 13, // Smaller font size
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        }),
+                      ],
+                    ),
+                    // Polyline layer for the route
+                    PolylineLayer(
+                      polylines: [
+                        Polyline(
+                          points: routePoints,
+                          strokeWidth: 4.0,
+                          color: Colors.blue,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                // ... Zoom controls
+              ],
+            ),
     );
   }
 }

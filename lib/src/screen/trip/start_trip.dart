@@ -908,7 +908,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                               onEditingComplete: () {
                                 _captionFocusNode.unfocus();
                               },
-                                onChanged: (value) {
+                              onChanged: (value) {
                                 GlobalVariables.tripCaption = value;
                               },
                             ),
