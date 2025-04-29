@@ -67,7 +67,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
               '${userData['first_name']} ${userData['last_name']}';
           GlobalVariables.happyPlace = userData['happy_place'];
           GlobalVariables.bio = userData['bio'];
-          GlobalVariables.garageLogoUrl = userData['garage'][0]['logo_path'];
+          if (userData['garage'] != null && userData['garage'].isNotEmpty) {
+            GlobalVariables.garageLogoUrl = userData['garage'][0]['logo_path'];
+          }
           GlobalVariables.userImageUrl = userData['photo'];
           GlobalVariables.followingIds = userData['following_user_id'];
         }

@@ -49,7 +49,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   String? endAddress;
   String stopAddressesString = "";
   List<String> formattedStopAddresses = [];
-
+  FocusNode _captionFocusNode = FocusNode();
   static const String mapboxAccessToken =
       "pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw";
 
@@ -65,6 +65,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     super.dispose();
     _mapController.dispose();
     _positionStreamSubscription?.cancel();
+    _captionFocusNode.dispose();
   }
 
   @override
@@ -867,57 +868,61 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                 ),
 
                 GestureDetector(
-                onTap: () {
-                  FocusScope.of(context).unfocus();
-                },
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: vww(context, 4)),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      border: Border.all(color: Colors.black),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 1.0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 5),
-                          child: Text(
-                            'Caption:',
-                            style: TextStyle(
-                              color: kColorBlack,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: -0.1,
-                              fontFamily: 'inter',
+                  onTap: () {
+                    FocusScope.of(context).unfocus();
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: vww(context, 4)),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        border: Border.all(color: Colors.black),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 1.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 5),
+                            child: Text(
+                              'Caption:',
+                              style: TextStyle(
+                                color: kColorBlack,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: -0.1,
+                                fontFamily: 'inter',
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: TextField(
-                            controller: _captionController,
-                            decoration: const InputDecoration(
-                              isDense: true,
-                              border: InputBorder.none,
-                              hintText: '',
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: TextField(
+                              controller: _captionController,
+                              focusNode: _captionFocusNode,  
+                              decoration: const InputDecoration(
+                                isDense: true,
+                                border: InputBorder.none,
+                                hintText: '',
+                              ),
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: kColorBlack,
+                                fontFamily: 'inter',
+                              ),
+                              minLines: 2,
+                              maxLines: 2,
+                              textInputAction: TextInputAction.done,  // Set "Done" action
+                              onEditingComplete: () {
+                                _captionFocusNode.unfocus();  // Hide the keyboard when "Done" is pressed
+                              },
                             ),
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: kColorBlack,
-                              fontFamily: 'inter',
-                            ),
-                            minLines: 2,
-                            maxLines: 2,
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-
 
                 // MapBox integration with a customized size
                 !isStateRestored || (movingLocation == null && staticStartingPoint == null)

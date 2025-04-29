@@ -1129,6 +1129,14 @@ class _TripMapWidgetState extends State<TripMapWidget> {
                                   color: kColorBlack, // Border color
                                   width: 2, // Border width
                                 ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.3),
+                                    spreadRadius: 0.5,
+                                    blurRadius: 6,
+                                    offset: const Offset(-3, 5),
+                                  ),
+                                ],
                               ),
                               child: Center(
                                 child: Text(
