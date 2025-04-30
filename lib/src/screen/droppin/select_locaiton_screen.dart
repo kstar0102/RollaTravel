@@ -356,6 +356,16 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
       logger.i("destinationLocation : $endLocation");
       logger.i("tags : ${widget.selectedLocation}");
 
+      List<String> songs = [
+      if (GlobalVariables.song1 != null && GlobalVariables.song1!.isNotEmpty) GlobalVariables.song1!,
+      if (GlobalVariables.song2 != null && GlobalVariables.song2!.isNotEmpty) GlobalVariables.song2!,
+      if (GlobalVariables.song3 != null && GlobalVariables.song3!.isNotEmpty) GlobalVariables.song3!,
+      if (GlobalVariables.song4 != null && GlobalVariables.song4!.isNotEmpty) GlobalVariables.song4!
+    ];
+
+      // Join the non-null songs with a comma
+      String arrangedSongs = songs.join(',');
+
       response = await apiserice.updateTrip(
           tripId: tripId,
           userId: GlobalVariables.userId!,
@@ -367,7 +377,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
           tripCaption: GlobalVariables.tripCaption.toString(),
           tripEndDate: formattedDate,
           tripMiles: tripMiles!,
-          tripSound: "tripSound",
+          tripSound: arrangedSongs,
           tripTag: GlobalVariables.selectedUserIds.toString(),
           stopLocations: stopLocations,
           tripCoordinates: tripCoordinates,

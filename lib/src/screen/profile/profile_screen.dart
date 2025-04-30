@@ -114,24 +114,27 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   void _onEditButtonClicked() {
-    Navigator.push(
-      context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            const EditProfileScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(1.0, 0.0); // Start from the right
-          const end = Offset.zero; // End at the current position
-          const curve = Curves.easeInOut;
+    // Navigator.push(
+    //   context,
+    //   PageRouteBuilder(
+    //     pageBuilder: (context, animation, secondaryAnimation) =>
+    //         const EditProfileScreen(),
+    //     transitionsBuilder: (context, animation, secondaryAnimation, child) {
+    //       const begin = Offset(1.0, 0.0); // Start from the right
+    //       const end = Offset.zero; // End at the current position
+    //       const curve = Curves.easeInOut;
 
-          var tween =
-              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-          var offsetAnimation = animation.drive(tween);
+    //       var tween =
+    //           Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+    //       var offsetAnimation = animation.drive(tween);
 
-          return SlideTransition(position: offsetAnimation, child: child);
-        },
-      ),
-    );
+    //       return SlideTransition(position: offsetAnimation, child: child);
+    //     },
+    //   ),
+    // );
+
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => const EditProfileScreen()));
   }
 
   void _showImageDialog(
@@ -545,8 +548,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                               child: Text("Edit Profile",
                                   style: TextStyle(
                                       color: kColorWhite,
-                                      fontSize: 34.sp,
+                                      fontSize: 36.sp,
                                       letterSpacing: -0.1,
+                                      fontWeight: FontWeight.bold,
                                       fontFamily: 'inter')),
                             ),
                           ),
@@ -572,7 +576,8 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                               child: Text("Following",
                                   style: TextStyle(
                                       color: kColorWhite,
-                                      fontSize: 34.sp,
+                                      fontSize: 36.sp,
+                                      fontWeight: FontWeight.bold,
                                       letterSpacing: -0.1,
                                       fontFamily: 'inter')),
                             ),
@@ -613,9 +618,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   Text(
                                     'Settings',
                                     style: TextStyle(
-                                        color:
-                                            kColorWhite, // Matches the text color to the button theme
-                                        fontSize: 34.sp,
+                                        color:kColorWhite,
+                                        fontSize: 36.sp,
+                                        fontWeight: FontWeight.bold,
                                         letterSpacing: -0.1,
                                         fontFamily:
                                             'inter' // Customize font size
@@ -674,6 +679,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 style: TextStyle(
                                     color: kColorBlack,
                                     fontSize: 14,
+                                    fontWeight: FontWeight.bold,
                                     letterSpacing: -0.1,
                                     fontFamily: 'inter'),
                               ),
@@ -697,6 +703,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 style: TextStyle(
                                     color: kColorBlack,
                                     fontSize: 14,
+                                    fontWeight: FontWeight.bold,
                                     letterSpacing: -0.1,
                                     fontFamily: 'inter'),
                               ),
