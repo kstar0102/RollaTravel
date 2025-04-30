@@ -1,6 +1,5 @@
 import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
-import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:RollaTravel/src/utils/index.dart';
@@ -8,7 +7,9 @@ import 'package:RollaTravel/src/widget/bottombar.dart';
 import 'package:logger/logger.dart';
 
 class HomeFollowScreen extends ConsumerStatefulWidget {
-  const HomeFollowScreen({super.key});
+  final int? userid;
+  final String? fromUser;
+  const HomeFollowScreen({super.key, required this.userid, required this.fromUser});
 
   @override
   ConsumerState<HomeFollowScreen> createState() => HomeFollowScreenState();
@@ -38,8 +39,7 @@ class HomeFollowScreenState extends ConsumerState<HomeFollowScreen> {
   Future<void> _loadFollowers() async {
     try {
       final apiservice = ApiService();
-      followers = await apiservice.fetchFollowers(GlobalVariables.userId!);
-      logger.i(followers);
+      followers = await apiservice.fetchFollowers(widget.userid!);
       setState(() {});
     } catch (e) {
       logger.i('Error loading followers: $e');
@@ -49,10 +49,10 @@ class HomeFollowScreenState extends ConsumerState<HomeFollowScreen> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      canPop: false, // Prevents default back navigation
+      canPop: false,
       onPopInvokedWithResult: (didPop, result) {
         if (!didPop) {
-          return; // Prevent pop action
+          return;
         }
       },
       child: Scaffold(
@@ -76,11 +76,11 @@ class HomeFollowScreenState extends ConsumerState<HomeFollowScreen> {
                       height: 20,
                     ),
                   ),
-                  const Expanded(
+                  Expanded(
                     child: Center(
                       child: Column(
                         children: [
-                          Text(
+                          const Text(
                             'Followers',
                             style: TextStyle(
                               fontSize: 20,
@@ -89,9 +89,9 @@ class HomeFollowScreenState extends ConsumerState<HomeFollowScreen> {
                             ),
                           ),
                           Text(
-                            'List of the users who follow you',
-                            style: TextStyle(
-                              fontSize: 15,
+                            'List of the users who follow ${widget.fromUser}',
+                            style: const TextStyle(
+                              fontSize: 13,
                               color: Colors.grey,
                               letterSpacing: -0.1,
                               fontFamily: 'inter',
@@ -124,7 +124,7 @@ class HomeFollowScreenState extends ConsumerState<HomeFollowScreen> {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(
-                                color: Colors.grey, // Adjust border color
+                                color: kColorHereButton, // Adjust border color
                                 width: 2,
                               ),
                             ),
@@ -147,9 +147,9 @@ class HomeFollowScreenState extends ConsumerState<HomeFollowScreen> {
                               Row(
                                 children: [
                                   Text(
-                                    follower['rolla_username'] ?? ' ',
+                                    "@${follower['rolla_username']}",
                                     style: const TextStyle(
-                                      fontFamily: 'interBold',
+                                      fontFamily: 'inter',
                                       fontSize: 15,
                                       letterSpacing: -0.1,
                                     ),
@@ -162,7 +162,7 @@ class HomeFollowScreenState extends ConsumerState<HomeFollowScreen> {
                               Text(
                                 '${follower['first_name'] ?? ''} ${follower['last_name'] ?? ''}',
                                 style: const TextStyle(
-                                  fontSize: 15,
+                                  fontSize: 14,
                                   color: Colors.grey,
                                   fontFamily: 'inter',
                                   letterSpacing: -0.1,

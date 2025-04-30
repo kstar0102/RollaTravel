@@ -5,7 +5,6 @@ import 'package:RollaTravel/src/utils/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
-// import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
@@ -15,9 +14,7 @@ class SearchScreen extends ConsumerStatefulWidget {
   ConsumerState<SearchScreen> createState() => _SearchScreenState();
 }
 
-class _SearchScreenState extends ConsumerState<SearchScreen>
-    with SingleTickerProviderStateMixin {
-  // late TabController _tabController;
+class _SearchScreenState extends ConsumerState<SearchScreen> with SingleTickerProviderStateMixin {
   final int _currentIndex = 1;
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
@@ -33,9 +30,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
   @override
   void initState() {
     super.initState();
-    // _tabController = TabController(length: 2, vsync: this);
-    // _tabController.addListener(_handleTabChange);
-
     _searchController.addListener(_filterResults);
     getAllUserData();
   }
@@ -462,7 +456,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          rollaUsername,
+                          "@$rollaUsername",
                           style: const TextStyle(
                             fontSize: 14,
                             letterSpacing: -0.1,

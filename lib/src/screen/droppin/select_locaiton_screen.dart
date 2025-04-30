@@ -354,6 +354,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
       logger.i("droppins : $droppins");
       logger.i("startLocation : $startLocation");
       logger.i("destinationLocation : $endLocation");
+      logger.i("tags : ${widget.selectedLocation}");
 
       response = await apiserice.updateTrip(
           tripId: tripId,
@@ -363,10 +364,11 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
           destinationAddress: "Destination address for DropPin",
           destinationTextAddress: formattedDestination,
           tripStartDate: GlobalVariables.tripStartDate!,
-          tripCaption: GlobalVariables.tripCaption!,
+          tripCaption: GlobalVariables.tripCaption.toString(),
           tripEndDate: formattedDate,
           tripMiles: tripMiles!,
           tripSound: "tripSound",
+          tripTag: GlobalVariables.selectedUserIds.toString(),
           stopLocations: stopLocations,
           tripCoordinates: tripCoordinates,
           droppins: droppins,
@@ -438,6 +440,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
           tripEndDate: formattedDate,
           tripMiles: tripMiles!,
           tripCaption: GlobalVariables.tripCaption!,
+          tripTag: GlobalVariables.selectedUserIds.toString(),
           tripSound: "tripSound",
           stopLocations: stopLocations,
           tripCoordinates: tripCoordinates,
@@ -604,8 +607,8 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                                         else if (widget.selectedLocation !=
                                             const LatLng(0, 0))
                                           Marker(
-                                            width: 80.0,
-                                            height: 80.0,
+                                            width: 60.0,
+                                            height: 60.0,
                                             point: widget.selectedLocation ??
                                                 const LatLng(43.1557, -77.6157),
                                             child: GestureDetector(
@@ -613,7 +616,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                                               child: const Icon(
                                                   Icons.location_on,
                                                   color: Colors.red,
-                                                  size: 40),
+                                                  size: 30),
                                             ),
                                           )
                                       ]),
@@ -667,7 +670,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                                           style: TextStyle(
                                               // ignore: deprecated_member_use
                                               color:
-                                                  Colors.black.withOpacity(0.8),
+                                                  Colors.black.withValues(alpha: 0.8),
                                               fontSize: 14,
                                               fontStyle: FontStyle.italic,
                                               fontFamily: 'inter'),

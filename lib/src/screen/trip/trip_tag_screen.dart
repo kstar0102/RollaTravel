@@ -1,3 +1,9 @@
+import 'package:RollaTravel/src/constants/app_styles.dart';
+import 'package:RollaTravel/src/screen/home/home_screen.dart';
+import 'package:RollaTravel/src/screen/trip/start_trip.dart';
+import 'package:RollaTravel/src/services/api_service.dart';
+import 'package:RollaTravel/src/utils/global_variable.dart';
+import 'package:RollaTravel/src/widget/bottombar.dart';
 import 'package:flutter/material.dart';
 import 'package:RollaTravel/src/utils/index.dart';
 
@@ -9,18 +15,85 @@ class TripTagSearchScreen extends StatefulWidget {
 }
 
 class TripTagSettingScreenState extends State<TripTagSearchScreen> {
+  bool isLoading = false;
   final TextEditingController _searchTagController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
+  List<dynamic> allUserData = [];
+  List<dynamic> filteredUserData = [];
+  final int _currentIndex = 2;
+  List<int> selectedUserIds = [];
 
-  Future<bool> _onWillPop() async {
-    return false;
+  @override
+  void initState() {
+    super.initState();
+    _searchTagController.addListener(_filterResults);
+    selectedUserIds = List<int>.from(GlobalVariables.selectedUserIds);
+    getAllUserData();
   }
+
+  @override
+  void dispose() {
+    _searchTagController.dispose();
+    _searchFocusNode.dispose();
+    super.dispose();
+  }
+
+
+  Future<void> getAllUserData() async {
+    setState(() => isLoading = true);
+    final authService = ApiService();
+
+    try {
+      final response = await authService.fetchAllUserData();
+      if (response.containsKey("status") && response.containsKey("data")) {
+        setState(() {
+          allUserData = response["data"];
+          
+          // Filter out the current user from the list
+          filteredUserData = allUserData
+              .where((user) => user['id'] != GlobalVariables.userId)
+              .toList();
+
+          isLoading = false;
+        });
+      } else {
+        logger.e("Failed to fetch user data.");
+        setState(() => isLoading = false);
+      }
+    } catch (e) {
+      logger.e("Error fetching user data: $e");
+      setState(() => isLoading = false);
+    }
+  }
+
+
+  void _filterResults() {
+    String query = _searchTagController.text.toLowerCase();
+    setState(() {
+      filteredUserData = allUserData
+          .where((user) {
+            final fullName = '${user['first_name']} ${user['last_name']}';
+            final email = user['email'] ?? '';
+            return (fullName.toLowerCase().contains(query) ||
+                email.toLowerCase().contains(query)) &&
+                user['id'] != GlobalVariables.userId;
+          })
+          .toList();
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: WillPopScope(
-        onWillPop: _onWillPop,
+      body: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) {
+          if (!didPop) {
+            return;
+          }
+        },
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -32,7 +105,9 @@ class TripTagSettingScreenState extends State<TripTagSearchScreen> {
                   const SizedBox(width: 20),
                   InkWell(
                     onTap: () {
-                      Navigator.pop(context);
+                      GlobalVariables.selectedUserIds = selectedUserIds;
+                      Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => const StartTripScreen()));
                     },
                     child: Image.asset(
                       'assets/images/icons/allow-left.png',
@@ -45,8 +120,10 @@ class TripTagSettingScreenState extends State<TripTagSearchScreen> {
                       child: Text(
                         'Tag Rolla users',
                         style: TextStyle(
-                          fontSize: 22,
-                          fontFamily: 'interBold',
+                          fontSize: 21,
+                          fontFamily: 'inter',
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: -0.1
                         ),
                       ),
                     ),
@@ -54,15 +131,13 @@ class TripTagSettingScreenState extends State<TripTagSearchScreen> {
                   const SizedBox(width: 48),
                 ],
               ),
-
-              const SizedBox(height: 30),
-
+              const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Image.asset(
                     'assets/images/icons/add_car1.png',
-                    width: vww(context, 6),
+                    width: vww(context, 8),
                   ),
                   const SizedBox(
                     width: 30,
@@ -81,19 +156,22 @@ class TripTagSettingScreenState extends State<TripTagSearchScreen> {
                   ),
                   SizedBox(
                     height: 30,
-                    width: vww(context, 85),
+                    width: vww(context, 80),
                     child: TextField(
                       controller: _searchTagController,
+                      focusNode: _searchFocusNode, 
                       decoration: InputDecoration(
                         hintText:
                             'Search Rolla users and add them to your trip',
                         hintStyle: const TextStyle(
-                          fontSize: 14,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: -0.1,
                           fontFamily: 'inter',
                         ), // Set font size for hint text
                         contentPadding: const EdgeInsets.symmetric(
                             vertical: 5.0,
-                            horizontal: 16.0), // Set inner padding
+                            horizontal: 5.0), // Set inner padding
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(4.0),
                           borderSide:
@@ -113,17 +191,167 @@ class TripTagSettingScreenState extends State<TripTagSearchScreen> {
                         fillColor: Colors.grey[200],
                       ),
                       style: const TextStyle(
-                        fontSize: 15,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: -0.1,
                         fontFamily: 'inter',
                       ),
+                      textInputAction: TextInputAction.done,
+                      onEditingComplete: () {
+                        _searchFocusNode.unfocus();
+                      },
                     ),
                   ),
                 ],
-              )
+              ),
+              isLoading
+                    ? const Padding(
+                        padding: EdgeInsets.all(20),
+                        child: CircularProgressIndicator(),
+                      )
+                    : Expanded(
+                      child: _buildUserList(),
+                      ),
             ],
           ),
         ),
       ),
+      bottomNavigationBar: BottomNavBar(currentIndex: _currentIndex),
     );
   }
+
+  Widget _buildUserList() {
+    return ListView.builder(
+      itemCount: filteredUserData.length,
+      itemBuilder: (context, index) {
+        final user = filteredUserData[index];
+        final fullName = '${user['first_name']} ${user['last_name']}';
+        final userImageUrl = user['photo'];
+        final userid = user['id'];
+        final rollaUsername = user['rolla_username'];
+
+        // Check if the current user is selected (pre-select checkboxes)
+        bool isSelected = selectedUserIds.contains(userid);
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 20.0),
+          child: GestureDetector(
+            onTap: () {
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(
+              //       builder: (context) => HomeUserScreen(
+              //             userId: userid,
+              //           )),
+              // );
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: kColorGrey, width: 0.6),
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8.0),
+                    child: userImageUrl != null && userImageUrl.isNotEmpty
+                        ? Image.network(
+                            userImageUrl,
+                            width: 60,
+                            height: 60,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Icon(Icons.broken_image,
+                                    size: 60, color: Colors.grey),
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) {
+                                return child;
+                              } else {
+                                return SizedBox(
+                                  width: 60,
+                                  height: 60,
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      value: loadingProgress.expectedTotalBytes !=
+                                              null
+                                          ? loadingProgress.cumulativeBytesLoaded /
+                                              (loadingProgress.expectedTotalBytes ??
+                                                  1)
+                                          : null,
+                                    ),
+                                  ),
+                                );
+                              }
+                            },
+                          )
+                        : const Icon(Icons.person,
+                            size: 60, color: Colors.grey),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 4),
+                        Text(
+                          fullName,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: -0.1,
+                            fontFamily: 'inter',
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          "@$rollaUsername",
+                          style: const TextStyle(
+                            fontSize: 14,
+                            letterSpacing: -0.1,
+                            fontFamily: 'inter',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Custom checkbox to select/deselect the user
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        if (isSelected) {
+                          selectedUserIds.remove(userid); // Deselect the user ID
+                        } else {
+                          selectedUserIds.add(userid); // Select the user ID
+                        }
+                      });
+                    },
+                    child: Container(
+                      width: 24,  // Size of the checkbox
+                      height: 24,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,  // Round shape
+                        color: isSelected ? kColorHereButton : Colors.grey[300],  // Background color
+                        border: Border.all(
+                          color: isSelected ? kColorHereButton : Colors.grey,  // Border color
+                          width: 2,  // Border width
+                        ),
+                      ),
+                      child: isSelected
+                          ? const Icon(Icons.check, color: Colors.white, size: 15)  // Check mark when selected
+                          : null,  // Empty when not selected
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+
 }

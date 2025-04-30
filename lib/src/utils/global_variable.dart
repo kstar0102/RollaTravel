@@ -29,6 +29,7 @@ class GlobalVariables {
   static int? homeTripID;
   static double totalDistance = 0.0;
   static String? followingIds;
+  static List<int> selectedUserIds= [];
   static List<dynamic>? dropPinsData;
   static bool isTripStarted = false;
 }

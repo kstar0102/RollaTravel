@@ -65,29 +65,21 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   Future<void> _loadUserTrips() async {
     try {
       final apiService = ApiService();
-      final trips = await apiService.fetchUserTrips(GlobalVariables.userId!);
-      if (trips.isNotEmpty) { 
-        // if (trips[0]['user']['garage'] != null &&
-        //     trips[0]['user']['garage'].isNotEmpty) {
-        //   garageImageUrl = trips[0]['user']['garage'][0]['logo_path'];
-        //   GlobalVariables.garageLogoUrl = trips[0]['user']['garage'][0]['logo_path'];
-        // } else {
-        //   logger.i("Garage is empty or null");
-        // }
-        List<dynamic> allDroppins = [];
+      final result  = await apiService.fetchUserTrips(GlobalVariables.userId!);
+      if (result.isNotEmpty) { 
+        final trips = result['trips']as List<dynamic>;
+        List<dynamic> allDroppins = [] ;
         for (var trip in trips) {
           if (trip['droppins'] != null) {
             allDroppins.addAll(trip['droppins'] as List<dynamic>);
           }
         }
-
         setState(() {
-          userTrips = trips;
+          userTrips = List<Map<String, dynamic>>.from(trips);
           dropPinsData = allDroppins.isNotEmpty ? allDroppins : [];
           isLoadingTrips = false;
         });
       } else {
-        // Handle no trips available
         setState(() {
           userTrips = [];
           dropPinsData = [];
@@ -113,7 +105,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   void _onFollowers() {
     Navigator.push(context,
-        MaterialPageRoute(builder: (context) => const HomeFollowScreen()));
+        MaterialPageRoute(builder: (context) => HomeFollowScreen(userid: GlobalVariables.userId!, fromUser: "you",)));
   }
 
   void _onSettingButtonClicked() {

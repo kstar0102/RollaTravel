@@ -189,7 +189,6 @@ class ApiService {
     }
   }
 
-  /// Function to login
   Future<Map<String, dynamic>> login(String email, String password) async {
     final url = Uri.parse('$baseUrl/auth/login');
     try {
@@ -394,6 +393,7 @@ class ApiService {
     required String tripEndDate,
     required String tripMiles,
     required String tripCaption,
+    required String tripTag,
     required String tripSound,
     required List<Map<String, double>> tripCoordinates,
     required List<Map<String, double>> stopLocations,
@@ -414,6 +414,7 @@ class ApiService {
       'trip_miles': tripMiles,
       'trip_caption': tripCaption,
       'trip_sound': tripSound,
+      'trip_tags': tripTag,
       'trip_coordinates': tripCoordinates,
       'stop_locations': stopLocations,
       'droppins': droppins,
@@ -455,6 +456,7 @@ class ApiService {
     required String tripStartDate,
     required String tripEndDate,
     required String tripMiles,
+    required String tripTag,
     required String tripSound,
     required String tripCaption,
     required List<Map<String, double>> tripCoordinates,
@@ -475,6 +477,7 @@ class ApiService {
       'trip_end_date': tripEndDate,
       'trip_miles': tripMiles,
       'trip_sound': tripSound,
+      'trip_tags': tripTag,
       'trip_caption': tripCaption,
       'trip_coordinates': tripCoordinates,
       'stop_locations': stopLocations,
@@ -507,7 +510,7 @@ class ApiService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> fetchUserTrips(int userId) async {
+  Future<Map<String, dynamic>> fetchUserTrips(int userId) async {
     final url = Uri.parse('$baseUrl/trip/trips/user?user_id=$userId');
     try {
       final response = await http.get(
@@ -519,11 +522,12 @@ class ApiService {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        if (data['trips'] != null) {
-          return List<Map<String, dynamic>>.from(data['trips']);
-        } else {
-          return [];
-        }
+
+        // If both 'trips' and 'userInfo' are available in the response, return them together
+        return {
+          'trips': List<Map<String, dynamic>>.from(data['trips'] ?? []),
+          'userInfo': List<Map<String, dynamic>>.from(data['userInfo'] ?? []),
+        };
       } else {
         throw Exception('Failed to fetch user trips: ${response.statusCode}');
       }

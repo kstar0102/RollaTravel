@@ -319,7 +319,6 @@ class PostWidgetState extends State<PostWidget> {
     _autoZoomMap();
   }
 
-   // Calculate bounds and adjust zoom level
   void _autoZoomMap() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Ensure the map has been rendered before interacting with it
@@ -810,7 +809,7 @@ class PostWidgetState extends State<PostWidget> {
   void _goTagScreen() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const HomeTagScreen()),
+      MaterialPageRoute(builder: (context) => HomeTagScreen(taglist:  widget.post['trip_tags'])),
     );
   }
 

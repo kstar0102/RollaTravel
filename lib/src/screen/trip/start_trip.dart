@@ -58,6 +58,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     super.initState();
     _getFetchTripData();
     _checkLocationServices();
+    logger.i("tag selected :  ${GlobalVariables.selectedUserIds}");
   }
 
   @override
@@ -86,10 +87,23 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
       ref.read(isTripStartedProvider.notifier).state = true;
       try {
         final tripData = await apiserice.fetchTripData(tripId);
+        // logger.i(tripData);
         var destinationTextAddress =
             tripData['trips'][0]['destination_text_address'];
+        if(tripData['trips'][0]['trip_caption'] != null && tripData['trips'][0]['trip_caption'] != "null"){
+          _captionController.text = tripData['trips'][0]['trip_caption'];
+        }
         if (destinationTextAddress is String) {
           destinationTextAddress = jsonDecode(destinationTextAddress);
+        }
+         if (tripData['trip_tags'] != null && tripData['trip_tags'] != "null") {
+          try {
+            List<int> tags = List<int>.from(jsonDecode(tripData['trip_tags']));
+            GlobalVariables.selectedUserIds.addAll(tags);
+            logger.i(GlobalVariables.selectedUserIds);
+          } catch (e) {
+            logger.i('Error parsing trip_tags: $e');
+          }
         }
         GlobalVariables.editDestination = destinationTextAddress[0];
         GlobalVariables.tripStartDate = tripData['trips'][0]['trip_start_date'];
@@ -348,83 +362,6 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     );
   }
 
-  // void _endTrip() async {
-  //   Position position = await Geolocator.getCurrentPosition(
-  //     locationSettings: const LocationSettings(
-  //       accuracy: LocationAccuracy.high,
-  //     ),
-  //   );
-
-  //   LatLng? startLocation = ref.read(staticStartingPointProvider);
-  //   LatLng? endLocation = LatLng(position.latitude, position.longitude);
-  //   List<MarkerData> stopMarkers = ref.read(markersProvider);
-
-  //   logger.i("endlocation : $endLocation");
-
-  //   if (stopMarkers.isEmpty) {
-  //     if (!mounted) return;
-  //     showDialog(
-  //       context: context,
-  //       builder: (BuildContext context) {
-  //         return AlertDialog(
-  //           title: const Text("Warning"),
-  //           content: const Text(
-  //               "You need to add at least one stop marker (drop pin) before ending the trip."),
-  //           actions: [
-  //             TextButton(
-  //               onPressed: () {
-  //                 Navigator.of(context).pop();
-  //               },
-  //               child: const Text("OK"),
-  //             ),
-  //           ],
-  //         );
-  //       },
-  //     );
-  //     return;
-  //   }
-
-  //   DateTime now = DateTime.now();
-  //   String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
-  //   GlobalVariables.tripEndDate = formattedDate;
-
-  //   String tripMiles =
-  //       "${GlobalVariables.totalDistance.toStringAsFixed(3)} miles";
-
-  //   if (GlobalVariables.tripStartDate != null &&
-  //       GlobalVariables.tripEndDate != null) {
-  //     if (!mounted) return;
-  //     Navigator.push(
-  //       context,
-  //       MaterialPageRoute(
-  //         builder: (context) => EndTripScreen(
-  //           startLocation: startLocation,
-  //           endLocation: endLocation,
-  //           stopMarkers: stopMarkers,
-  //           tripStartDate: GlobalVariables.tripStartDate!,
-  //           tripEndDate: GlobalVariables.tripEndDate!,
-  //           tripDistance: tripMiles,
-  //           endDestination: GlobalVariables.editDestination!,
-  //         ),
-  //       ),
-  //     );
-
-  //     // ✅ Reset the trip state
-  //     ref.read(isTripStartedProvider.notifier).state = false;
-  //     GlobalVariables.isTripStarted = false;
-
-  //     // ✅ Reset all trip-related data
-  //     ref.read(staticStartingPointProvider.notifier).state =
-  //         ref.read(movingLocationProvider);
-  //     ref.read(movingLocationProvider.notifier).state = null;
-  //     ref.read(markersProvider.notifier).state = [];
-  //     ref.read(totalDistanceProvider.notifier).state = 0.0;
-  //     GlobalVariables.totalDistance = 0.0;
-  //   } else {
-  //     logger.i("tripStartDate is null.");
-  //   }
-  // }
-
   Future<void> sendTripData() async {
     _showLoadingDialog();
     final apiserice = ApiService();
@@ -502,7 +439,8 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
       destinationTextAddress: formattedDestination,
       tripStartDate: GlobalVariables.tripStartDate!,
       tripEndDate: GlobalVariables.tripEndDate!,
-      tripCaption: GlobalVariables.tripCaption!,
+      tripCaption: GlobalVariables.tripCaption ?? "",
+      tripTag: GlobalVariables.selectedUserIds.toString(),
       tripMiles: tripMiles,
       tripSound: "tripSound",
       stopLocations: stopLocations,
@@ -545,6 +483,8 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
       ref.read(markersProvider.notifier).state = [];
       ref.read(totalDistanceProvider.notifier).state = 0.0;
       GlobalVariables.totalDistance = 0.0;
+      GlobalVariables.tripCaption = null;
+      GlobalVariables.selectedUserIds = [];
       ref.read(pathCoordinatesProvider.notifier).state = [];
     } else {
       _hideLoadingDialog();

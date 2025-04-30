@@ -202,10 +202,6 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
     );
   }
 
-  // void _selectMarker(LatLng location){
-  //   Navigator.push(context, MaterialPageRoute(builder: (context) => SelectLocationScreen(selectedLocation: location,)));
-  // }
-
   Future<List<String>> fetchAddressSuggestions(String query) async {
     final response = await http.get(
       Uri.parse(
@@ -322,7 +318,7 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
                         const SizedBox(width: 8),
                         SizedBox(
                           height: 35,
-                          width: vww(context, 86),
+                          width: vww(context, 84),
                           child: TypeAheadFormField(
                             textFieldConfiguration: TextFieldConfiguration(
                               controller: _searchController,
@@ -384,8 +380,8 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
                                 CircularProgressIndicator(), // You can use LinearProgressIndicator too
                           )
                         : SizedBox(
-                            height: vhh(context, 65),
-                            width: vww(context, 96),
+                            height: vhh(context, 62),
+                            width: vww(context, 98),
                             child: Center(
                                 child: Stack(
                               children: [
@@ -415,28 +411,28 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
                                       markers: [
                                         if (_selectedLocation != null)
                                           Marker(
-                                            width: 80.0,
-                                            height: 80.0,
+                                            width: 60.0,
+                                            height: 60.0,
                                             point: _selectedLocation!,
                                             child: GestureDetector(
                                               // onTap: () => _selectMarker(_selectedLocation!),
                                               child: const Icon(
                                                   Icons.location_on,
                                                   color: Colors.red,
-                                                  size: 40),
+                                                  size: 30),
                                             ),
                                           )
                                         else if (_currentLocation != null)
                                           Marker(
-                                            width: 80.0,
-                                            height: 80.0,
+                                            width: 60.0,
+                                            height: 60.0,
                                             point: _currentLocation!,
                                             child: GestureDetector(
                                               // onTap: () => _selectMarker(_currentLocation!),
                                               child: const Icon(
                                                   Icons.location_on,
                                                   color: Colors.red,
-                                                  size: 40),
+                                                  size: 30),
                                             ),
                                           ),
                                       ],

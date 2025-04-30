@@ -60,6 +60,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
         });
       }
     });
+    logger.i(widget.userId);
     _fetchUserProfile();
   }
 
@@ -74,23 +75,24 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
         isloding = true;
       });
 
-      final userProfile = await ApiService().fetchUserTrips(widget.userId);
-      // logger.i(userProfile);
+      final result  = await ApiService().fetchUserTrips(widget.userId);
+      logger.i(result);
+      final userProfile = result['trips'];
+      final userInfo = result['userInfo'];
+      rollaUserName = userInfo[0]['rolla_username'] ?? " ";
+      rollaUserImage = userInfo[0]['photo'];
+      userid = userInfo[0]['id'];
 
-      rollaUserName = userProfile[0]['user']['rolla_username'] ?? " ";
-      rollaUserImage = userProfile[0]['user']['photo'];
-      userid = userProfile[0]['user']['id'];
-
-      if (userProfile[0]['user']['happy_place'] != null) {
-        happlyPlace = userProfile[0]['user']['happy_place'];
+      if (userInfo[0]['happy_place'] != null) {
+        happlyPlace = userInfo[0]['happy_place'];
       }
 
-      if(userProfile[0]['user']['id'] == GlobalVariables.userId){
+      if(userInfo[0]['id'] == GlobalVariables.userId){
         isMefollow = true;
       }
 
-      if (userProfile[0]['user']['garage'] != null && userProfile[0]['user']['garage'].isNotEmpty) {
-        garageLogoUrl = userProfile[0]['user']['garage'][0]['logo_path'];
+      if (userInfo[0]['garage'] != null && userInfo[0]['garage'].isNotEmpty) {
+        garageLogoUrl = userInfo[0]['garage'][0]['logo_path'];
       }
 
       int triplenght;
@@ -102,11 +104,11 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
       }
 
       int? followcount;
-      if (userProfile[0]['user']['following_user_id'] != "") {
-        followcount = userProfile[0]['user']['following_user_id'].split(',').length;
+      if (userInfo[0]['following_user_id'] != "") {
+        followcount = userInfo[0]['following_user_id'].split(',').length;
 
         String userIdString = GlobalVariables.userId.toString();
-        List<String> followingUserIds = userProfile[0]['user']['following_user_id'].split(',');
+        List<String> followingUserIds = userInfo[0]['following_user_id'].split(',');
         if (followingUserIds.contains(userIdString)) {
           isfollow = true;
         }
@@ -137,8 +139,9 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
   }
 
   void _onFollowers() {
+    String fromUser = "@$rollaUserName";
     Navigator.push(context,
-        MaterialPageRoute(builder: (context) => const HomeFollowScreen()));
+        MaterialPageRoute(builder: (context) =>  HomeFollowScreen(userid: userid, fromUser: fromUser,)));
   }
 
   void follow() async {
@@ -398,7 +401,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Text(
-                                  rollaUserName!,
+                                  rollaUserName ?? "",
                                   style: const TextStyle(
                                       color: kColorBlack,
                                       fontSize: 18,
@@ -561,7 +564,8 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                         size: 16, // Icon size
                                       ),
                                       SizedBox(
-                                          width: 2),
+                                          width:
+                                              2),
                                       Text(
                                         'Send Message',
                                         style: TextStyle(
