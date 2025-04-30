@@ -628,8 +628,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                                     child: Column(
                                       children: [
                                         FloatingActionButton(
-                                          heroTag:
-                                              'zoom_in_button_droppin', // Unique tag for the zoom in button
+                                          heroTag: 'zoom_in_button_droppin',
                                           onPressed: () {
                                             _mapController.move(
                                               _mapController.camera.center,
@@ -641,8 +640,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                                         ),
                                         const SizedBox(height: 8),
                                         FloatingActionButton(
-                                          heroTag:
-                                              'zoom_out_button_droppin', // Unique tag for the zoom out button
+                                          heroTag: 'zoom_out_button_droppin', 
                                           onPressed: () {
                                             _mapController.move(
                                               _mapController.camera.center,
@@ -663,14 +661,11 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                                       padding:
                                           EdgeInsets.zero, // Adjust for width
                                       child: Container(
-                                        padding: const EdgeInsets.all(
-                                            5.0), // Inner padding for spacing around text
+                                        padding: const EdgeInsets.all(5.0), 
                                         child: Text(
                                           'Tap the pin to see your photo',
                                           style: TextStyle(
-                                              // ignore: deprecated_member_use
-                                              color:
-                                                  Colors.black.withValues(alpha: 0.8),
+                                              color: Colors.black.withValues(alpha: 0.8),
                                               fontSize: 14,
                                               fontStyle: FontStyle.italic,
                                               fontFamily: 'inter'),

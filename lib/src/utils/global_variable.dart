@@ -25,6 +25,10 @@ class GlobalVariables {
   static String? tripEndDate;
   static String? editDestination;
   static String? tripCaption;
+  static String? song1;
+  static String? song2;
+  static String? song3;
+  static String? song4;
   static int? tripCount;
   static int? homeTripID;
   static double totalDistance = 0.0;

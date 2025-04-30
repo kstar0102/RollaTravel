@@ -767,8 +767,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                 context,
                                 PageRouteBuilder(
                                   pageBuilder: (context, animation1,
-                                          animation2) =>
-                                      SoundScreen(initialSound: initialSound),
+                                          animation2) => const SoundScreen(),
                                   transitionDuration: Duration.zero,
                                   reverseTransitionDuration: Duration.zero,
                                 ),
