@@ -33,8 +33,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
   List<Map<String, dynamic>>? trips;
   final apiService = ApiService();
   final logger = Logger();
-  final ScrollController _scrollController =
-      ScrollController(); // Add ScrollController
+  final ScrollController _scrollController = ScrollController(); 
 
   @override
   void initState() {
@@ -58,7 +57,6 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
       });
       logger.i(trips);
 
-      // Scroll to the correct index if homeTripID is set
       if (GlobalVariables.homeTripID != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _scrollToTrip(GlobalVariables.homeTripID!);
@@ -77,12 +75,10 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
       int index = trips!.indexWhere((trip) => trip['id'] == tripId);
       if (index != -1) {
         _scrollController.animateTo(
-          index * 520.0, // Approximate height per item, adjust as needed
+          index * 520.0, 
           duration: const Duration(milliseconds: 500),
           curve: Curves.easeInOut,
         );
-
-        // Reset GlobalVariables.homeTripID to null after focusing
         WidgetsBinding.instance.addPostFrameCallback((_) {
           setState(() {
             GlobalVariables.homeTripID = null;
@@ -94,7 +90,6 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Check if homeTripID is set and filter the trips accordingly
     final isSpecificTrip = GlobalVariables.homeTripID != null;
     final filteredTrips = trips != null && isSpecificTrip
         ? trips!
@@ -102,7 +97,6 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
             .toList()
         : trips;
 
-    // Once filtered and displayed, reset the homeTripID
     if (isSpecificTrip && filteredTrips != null && filteredTrips.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         setState(() {
@@ -208,7 +202,7 @@ class PostWidgetState extends State<PostWidget> {
   bool isLoading = true;
   final ApiService apiService = ApiService();
   int likes = 0;
-
+  bool isFollowing = false;
   @override
   void initState() {
     super.initState();
@@ -317,35 +311,35 @@ class PostWidgetState extends State<PostWidget> {
     setState(() {
       locations = tempLocations;
     });
-    _autoZoomMap();
+    // _autoZoomMap();
   }
 
-  void _autoZoomMap() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Ensure the map has been rendered before interacting with it
-      List<LatLng> allLocations = [startPoint, endPoint].whereType<LatLng>().toList();
-      allLocations.addAll(locations);
+  // void _autoZoomMap() {
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //     // Ensure the map has been rendered before interacting with it
+  //     List<LatLng> allLocations = [startPoint, endPoint].whereType<LatLng>().toList();
+  //     allLocations.addAll(locations);
 
-      if (allLocations.isEmpty) return;
+  //     if (allLocations.isEmpty) return;
 
-      LatLngBounds bounds = LatLngBounds.fromPoints(allLocations);
-      mapController.move(bounds.center, _calculateZoom(bounds));
-    });
-  }
+  //     LatLngBounds bounds = LatLngBounds.fromPoints(allLocations);
+  //     mapController.move(bounds.center, _calculateZoom(bounds));
+  //   });
+  // }
 
-  double _calculateZoom(LatLngBounds bounds) {
-    double latDiff = bounds.northEast.latitude - bounds.southWest.latitude;
-    double lonDiff = bounds.northEast.longitude - bounds.southWest.longitude;
+  // double _calculateZoom(LatLngBounds bounds) {
+  //   double latDiff = bounds.northEast.latitude - bounds.southWest.latitude;
+  //   double lonDiff = bounds.northEast.longitude - bounds.southWest.longitude;
 
-    double zoom = 12.0; // Default zoom level
-    if (latDiff > lonDiff) {
-      zoom -= latDiff * 0.1;
-    } else {
-      zoom -= lonDiff * 0.1;
-    }
+  //   double zoom = 12.0; // Default zoom level
+  //   if (latDiff > lonDiff) {
+  //     zoom -= latDiff * 0.1;
+  //   } else {
+  //     zoom -= lonDiff * 0.1;
+  //   }
 
-    return zoom < 5 ? 5 : zoom > 18 ? 18 : zoom;
-  }
+  //   return zoom < 5 ? 5 : zoom > 18 ? 18 : zoom;
+  // }
 
   Future<Map<String, double>> getCoordinates(String address) async {
     String accessToken =
@@ -685,58 +679,74 @@ class PostWidgetState extends State<PostWidget> {
     });
   }
 
-  Future<void> _showLikeDialog(BuildContext context, String imagePath) async {
+  Future<void> _showLikeDialog(BuildContext context, String imagePath, String followingId, int userId) async {
+    logger.i(userId);
+    logger.i(followingId);
+    List<String> followingIds = followingId.split(','); 
+    isFollowing = followingIds.any((id) => int.tryParse(id) == GlobalVariables.userId);
+    
+    if (isFollowing) {
+      followingIds.remove(GlobalVariables.userId.toString());
+      logger.i("User $userId unfollowed.");
+    } else {
+      followingIds.add(GlobalVariables.userId.toString());
+      logger.i("User $userId followed.");
+    }
+
+    String updatedFollowingIdsStr = followingIds.join(',');
+    setState(() {
+      widget.post['user']['following_user_id'] = updatedFollowingIdsStr;
+    });
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return Dialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15.0), // Rounded corners
+            borderRadius: BorderRadius.circular(15.0),
             side: const BorderSide(
-              color: Colors.transparent, // Border color (transparent)
+              color: Colors.transparent,
               width: 0.5,
             ),
           ),
-          child: SizedBox(
-            width: 200, // Set the width of the dialog here
-            child: Container(
-              padding: const EdgeInsets.all(16.0), // Padding inside the dialog
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Profile image at the top
-                  Container(
-                    height: 60, // Image height
-                    width: 60, // Image width
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(100),
-                      border: Border.all(
-                        color:
-                            kColorHereButton, // Border color around the image
-                        width: 2,
-                      ),
-                      image: imagePath.isNotEmpty
-                          ? DecorationImage(
-                              image: NetworkImage(imagePath),
-                              fit: BoxFit.cover,
-                            )
-                          : null,
+          child: Container(
+            constraints: const BoxConstraints(
+              maxWidth: 200,
+              maxHeight: 300,
+            ),
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  height: 60,
+                  width: 60,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(100),
+                    border: Border.all(
+                      color: kColorHereButton,
+                      width: 2,
                     ),
-                    child: imagePath.isEmpty
-                        ? const Icon(Icons.person, size: 40) // Default icon
+                    image: imagePath.isNotEmpty
+                        ? DecorationImage(
+                            image: NetworkImage(imagePath),
+                            fit: BoxFit.cover,
+                          )
                         : null,
                   ),
-                  const SizedBox(
-                      height: 16), // Spacing between image and buttons
-
-                  // Mute Posts Button
-                  ElevatedButton(
+                  child: imagePath.isEmpty
+                      ? const Icon(Icons.person, size: 40) // Default icon
+                      : null,
+                ),
+                const SizedBox(height: 16),
+                // Mute Posts Button
+                SizedBox(
+                  width: 150,
+                  height: 30,
+                  child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      side: const BorderSide(
-                          color: Colors.green, width: 1), // Border color
+                      side: const BorderSide(color: Colors.green, width: 1),
                       shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(30), // Rounded corners
+                        borderRadius: BorderRadius.circular(30),
                       ),
                     ),
                     onPressed: () {
@@ -751,34 +761,37 @@ class PostWidgetState extends State<PostWidget> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 8),
-
-                  ElevatedButton(
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: 150,
+                  height: 30,
+                  child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       side: const BorderSide(color: Colors.orange, width: 1),
                       shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(30), // Rounded corners
+                        borderRadius: BorderRadius.circular(30),
                       ),
                     ),
                     onPressed: () {
-                      // Handle unfollow action here
+                      follow(userId);
                       Navigator.pop(context);
                     },
-                    child: const Text(
-                      'Unfollow',
-                      style: TextStyle(
+                    child: Text(
+                      isFollowing ? 'Unfollow' : 'Follow',
+                      style: const TextStyle(
                         fontFamily: 'inter',
                         letterSpacing: -0.1,
-                        color:
-                            Colors.orange, // Text color to match button border
+                        color:Colors.orange,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 8), // Spacing between buttons
-
-                  // Block User Button
-                  ElevatedButton(
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: 150,
+                  height: 30,
+                  child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       side: const BorderSide(color: Colors.red, width: 1),
                       shape: RoundedRectangleBorder(
@@ -786,7 +799,6 @@ class PostWidgetState extends State<PostWidget> {
                       ),
                     ),
                     onPressed: () {
-                      // Handle block action here
                       Navigator.pop(context);
                     },
                     child: const Text(
@@ -798,8 +810,8 @@ class PostWidgetState extends State<PostWidget> {
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         );
@@ -885,6 +897,21 @@ class PostWidgetState extends State<PostWidget> {
     );
   }
 
+  void follow(userid) async {
+    try {
+      final apiservice = ApiService();
+      final result = await apiservice.followUser(userid!, GlobalVariables.userId!);
+
+      if (result['statusCode'] == true) {
+        setState(() {
+          isFollowing = !isFollowing;
+        });
+      }
+    } catch (e) {
+      logger.i('Error: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final updatedAt = DateTime.parse(widget.post["updated_at"]);
@@ -936,7 +963,11 @@ class PostWidgetState extends State<PostWidget> {
             const Spacer(),
             GestureDetector(
               onTap: () {
-                _showLikeDialog(context, widget.post['user']['photo']);
+                _showLikeDialog(
+                  context, 
+                  widget.post['user']['photo'], 
+                  widget.post['user']['following_user_id'],
+                  widget.post['user']['id']);
               },
               child: Image.asset(
                 "assets/images/icons/reference.png",

@@ -40,7 +40,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   LatLng? startPoint;
   LatLng? endPoint;
   List<LatLng> locations = [];
-  late List<dynamic> dropPinsData = []; // Initialize with an empty list
+  late List<dynamic> dropPinsData = [];
 
   @override
   void initState() {
@@ -75,8 +75,8 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
           }
         }
         setState(() {
-          userTrips = List<Map<String, dynamic>>.from(trips);
-          dropPinsData = allDroppins.isNotEmpty ? allDroppins : [];
+          userTrips = List<Map<String, dynamic>>.from(trips.reversed);
+          dropPinsData = allDroppins.isNotEmpty ? allDroppins.reversed.toList() : [];
           isLoadingTrips = false;
         });
       } else {
@@ -635,42 +635,6 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                       SizedBox(height: vhh(context, 1)),
                       Column(
                         children: [
-                          // Row(
-                          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          //   children: [
-                          //     const Text(
-                          //       odometer,
-                          //       style: TextStyle(
-                          //           color: kColorBlack,
-                          //           fontSize: 14,
-                          //           fontFamily: 'inter'),
-                          //     ),
-                          //     Container(
-                          //       padding: const EdgeInsets.symmetric(
-                          //           horizontal: 4,
-                          //           vertical:
-                          //               0), // Adjust padding for inner spacing
-                          //       decoration: BoxDecoration(
-                          //         border: Border.all(
-                          //           color: kColorButtonPrimary, // Border color
-                          //           width: 1.5, // Border width
-                          //         ),
-                          //         borderRadius: BorderRadius.circular(
-                          //             8), // Rounded corners
-                          //       ),
-                          //       child: Text(
-                          //         GlobalVariables.odometer != null
-                          //             ? '${GlobalVariables.odometer!} Km'
-                          //             : ' ',
-                          //         style: const TextStyle(
-                          //           color: kColorButtonPrimary,
-                          //           fontSize: 14,
-                          //           fontFamily: 'inter',
-                          //         ),
-                          //       ),
-                          //     ),
-                          //   ],
-                          // ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -925,7 +889,6 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 }
 
-// Create a new StatefulWidget for trip maps
 class TripMapWidget extends StatefulWidget {
   final Map<String, dynamic> trip;
   final int index;
@@ -965,7 +928,7 @@ class _TripMapWidgetState extends State<TripMapWidget> {
 
   @override
   void dispose() {
-    mapController.dispose(); // If applicable
+    mapController.dispose();
     super.dispose();
   }
 
@@ -1000,8 +963,7 @@ class _TripMapWidgetState extends State<TripMapWidget> {
         final data = json.decode(response.body);
         if (data['features'] != null && data['features'].isNotEmpty) {
           final coordinates = data['features'][0]['center'];
-          return LatLng(
-              coordinates[1], coordinates[0]); // [lng, lat] to LatLng(lat, lng)
+          return LatLng(coordinates[1], coordinates[0]); 
         }
       }
       return null;
@@ -1015,7 +977,6 @@ class _TripMapWidgetState extends State<TripMapWidget> {
     List<LatLng> tempLocations = [];
 
     try {
-      // Fetch Start Address
       final startCoordinates =
           await _getCoordinates(widget.trip['start_address']);
       if (startCoordinates != null) {
@@ -1025,7 +986,6 @@ class _TripMapWidgetState extends State<TripMapWidget> {
       logger.e('Failed to fetch start address coordinates: $e');
     }
 
-    // Use Stop Locations directly
     if (widget.trip['stop_locations'] != null) {
       try {
         final stopLocations =
@@ -1040,7 +1000,6 @@ class _TripMapWidgetState extends State<TripMapWidget> {
       }
     }
 
-    // Fetch Destination Address
     try {
       final destinationCoordinates =
           await _getCoordinates(widget.trip['destination_address']);
@@ -1080,7 +1039,7 @@ class _TripMapWidgetState extends State<TripMapWidget> {
                   options: MapOptions(
                     initialCenter:
                         startPoint != null ? startPoint! : const LatLng(0, 0),
-                    initialZoom: 11.5,
+                    initialZoom: 3,
                     onTap: (_, LatLng position) {
                       _onMapTap();
                       logger.i('Map tapped at: $position');
