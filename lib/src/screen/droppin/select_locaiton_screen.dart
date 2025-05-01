@@ -440,6 +440,16 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
         };
       }).toList();
 
+      List<String> songs = [
+        if (GlobalVariables.song1 != null && GlobalVariables.song1!.isNotEmpty) GlobalVariables.song1!,
+        if (GlobalVariables.song2 != null && GlobalVariables.song2!.isNotEmpty) GlobalVariables.song2!,
+        if (GlobalVariables.song3 != null && GlobalVariables.song3!.isNotEmpty) GlobalVariables.song3!,
+        if (GlobalVariables.song4 != null && GlobalVariables.song4!.isNotEmpty) GlobalVariables.song4!
+      ];
+
+        // Join the non-null songs with a comma
+        String arrangedSongs = songs.join(',');
+
       response = await apiserice.createTrip(
           userId: GlobalVariables.userId!,
           startAddress: startAddress!,
@@ -451,7 +461,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
           tripMiles: tripMiles!,
           tripCaption: GlobalVariables.tripCaption!,
           tripTag: GlobalVariables.selectedUserIds.toString(),
-          tripSound: "tripSound",
+          tripSound: arrangedSongs,
           stopLocations: stopLocations,
           tripCoordinates: tripCoordinates,
           droppins: droppins,

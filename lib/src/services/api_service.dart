@@ -222,9 +222,29 @@ class ApiService {
       'key': apiKey,
       'image': base64,
     });
-    logger.i(jsonDecode(response.body)['data']['url']);
-    return jsonDecode(response.body)['data']['url'];
+
+    // Print the response body to check if it's a valid JSON
+    logger.i('Response body: ${response.body}');
+
+    // Check if the status code is 200 (success)
+    if (response.statusCode == 200) {
+      try {
+        // Try to decode the response as JSON
+        var jsonResponse = jsonDecode(response.body);
+        logger.i(jsonResponse['data']['url']);
+        return jsonResponse['data']['url'];
+      } catch (e) {
+        // Handle JSON decoding error
+        logger.e('Error decoding JSON: $e');
+        return '';
+      }
+    } else {
+      // Handle non-200 response
+      logger.e('Failed to upload image. Status code: ${response.statusCode}');
+      return '';
+    }
   }
+
 
   Future<Map<String, dynamic>> register({
     required String firstName,

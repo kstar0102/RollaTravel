@@ -78,7 +78,6 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   void _getFetchTripData() async {
     final prefs = await SharedPreferences.getInstance();
     int? tripId = prefs.getInt("tripId");
-    logger.i("Saved local database tripId: $tripId");
 
     if (tripId != null) {
       _showLoadingDialog();
@@ -87,7 +86,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
       ref.read(isTripStartedProvider.notifier).state = true;
       try {
         final tripData = await apiserice.fetchTripData(tripId);
-        // logger.i(tripData);
+        logger.i(tripData);
         var destinationTextAddress =
             tripData['trips'][0]['destination_text_address'];
         if(tripData['trips'][0]['trip_caption'] != null && tripData['trips'][0]['trip_caption'] != "null"){
@@ -105,6 +104,13 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
             logger.i('Error parsing trip_tags: $e');
           }
         }
+        List<String> songs = tripData['trips'][0]['trip_sound'].split(',');
+
+        GlobalVariables.song1 = songs.isNotEmpty ? songs[0].trim() : null;
+        GlobalVariables.song2 = songs.length > 1 ? songs[1].trim() : null;
+        GlobalVariables.song3 = songs.length > 2 ? songs[2].trim() : null;
+        GlobalVariables.song4 = songs.length > 3 ? songs[3].trim() : null;
+                                    
         GlobalVariables.editDestination = destinationTextAddress[0];
         GlobalVariables.tripStartDate = tripData['trips'][0]['trip_start_date'];
         var startLocation = tripData['trips'][0]['start_location'];
@@ -428,7 +434,13 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     final prefs = await SharedPreferences.getInstance();
     int? tripId = prefs.getInt("tripId");
 
-    logger.i("end trip location : ${endLocation.toString()}");
+    List<String> songs = [
+        if (GlobalVariables.song1 != null && GlobalVariables.song1!.isNotEmpty) GlobalVariables.song1!,
+        if (GlobalVariables.song2 != null && GlobalVariables.song2!.isNotEmpty) GlobalVariables.song2!,
+        if (GlobalVariables.song3 != null && GlobalVariables.song3!.isNotEmpty) GlobalVariables.song3!,
+        if (GlobalVariables.song4 != null && GlobalVariables.song4!.isNotEmpty) GlobalVariables.song4!
+      ];
+    String arrangedSongs = songs.join(',');
 
     final response = await apiserice.updateTrip(
       tripId: tripId!,
@@ -442,7 +454,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
       tripCaption: GlobalVariables.tripCaption ?? "",
       tripTag: GlobalVariables.selectedUserIds.toString(),
       tripMiles: tripMiles,
-      tripSound: "tripSound",
+      tripSound: arrangedSongs,
       stopLocations: stopLocations,
       tripCoordinates: tripCoordinates,
       startLocation: startLocation.toString(),
@@ -484,6 +496,10 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
       ref.read(totalDistanceProvider.notifier).state = 0.0;
       GlobalVariables.totalDistance = 0.0;
       GlobalVariables.tripCaption = null;
+      GlobalVariables.song1 = null;
+      GlobalVariables.song2 = null;
+      GlobalVariables.song3 = null;
+      GlobalVariables.song4 = null;
       GlobalVariables.selectedUserIds = [];
       ref.read(pathCoordinatesProvider.notifier).state = [];
     } else {

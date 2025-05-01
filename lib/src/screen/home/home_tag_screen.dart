@@ -28,25 +28,28 @@ class HomeTagScreenState extends ConsumerState<HomeTagScreen> {
   }
 
   Future<void> fetchTaggedUsers() async {
-    if (widget.taglist != null) {
-      // Convert the string to a list of integers
-      List<int> tagIds = widget.taglist!.split(',').map((id) => int.parse(id)).toList();
-      
+    if (widget.taglist != null && widget.taglist != "[]") {
+      // Remove any non-numeric characters like '[' and ']'
+      String cleanedTagList = widget.taglist!.replaceAll('[', '').replaceAll(']', '');
+
+      // Split the cleaned string by commas and convert each element to an integer
+      List<int> tagIds = cleanedTagList.split(',').map((id) {
+        try {
+          return int.parse(id.trim());  // Ensure each element is an integer after trimming
+        } catch (e) {
+          logger.e('Error parsing ID: $id');
+          return null;  // Return null for invalid IDs
+        }
+      }).where((id) => id != null).cast<int>().toList();  // Filter out null values
+
       // Loop through each ID and fetch the user info
       for (int id in tagIds) {
         try {
           final userData = await ApiService().fetchUserInfo(id);
           logger.i('Fetched user info for ID $id: $userData');  // Debug log
           setState(() {
-              taggedUsers.add(userData);
-            });
-          // if (userData != null && userData['statusCode'] == true && userData['data'] != null) {
-          //   setState(() {
-          //     taggedUsers.add(userData['data']);
-          //   });
-          // } else {
-          //   logger.e('Failed to fetch user info for ID $id: ${userData?['message'] ?? 'Unknown error'}');
-          // }
+            taggedUsers.add(userData);
+          });
         } catch (e) {
           logger.e('Error fetching user info for ID $id: $e');
         }
@@ -56,6 +59,7 @@ class HomeTagScreenState extends ConsumerState<HomeTagScreen> {
       isLoading = false; // Stop loading after fetching data
     });
   }
+
 
   @override
   Widget build(BuildContext context) {

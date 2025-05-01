@@ -1,3 +1,4 @@
+import 'package:RollaTravel/src/screen/home/home_sound_screen.dart';
 import 'package:RollaTravel/src/screen/home/home_tag_screen.dart';
 import 'package:RollaTravel/src/screen/home/home_user_screen.dart';
 import 'package:RollaTravel/src/screen/home/home_view_screen.dart';
@@ -1010,26 +1011,37 @@ class PostWidgetState extends State<PostWidget> {
                     ),
                   ),
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                       Image.asset(
-                        "assets/images/icons/music.png",
-                        width: 12,
-                        height: 12,
-                      ),
-                      const SizedBox(width: 3),
-                      const Text(
-                        'playlist',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: -0.1,
-                          fontFamily: 'Inter',
+                  child: GestureDetector(
+                    onTap: () {
+                      // Navigate to the desired page when the row is tapped
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => HomeSoundScreen(tripSound:  widget.post['trip_sound']),  // Replace `YourNextPage` with the actual page
                         ),
-                      ),
-                    ],
+                      );
+                    },
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Image.asset(
+                          "assets/images/icons/music.png",
+                          width: 12,
+                          height: 12,
+                        ),
+                        const SizedBox(width: 3),
+                        const Text(
+                          'playlist',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: -0.1,
+                            fontFamily: 'Inter',
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -1115,7 +1127,7 @@ class PostWidgetState extends State<PostWidget> {
                         initialCenter: startPoint != null
                             ? startPoint!
                             : const LatLng(0, 0),
-                        initialZoom: 11.5,
+                        initialZoom: 3.0,
                       ),
                       children: [
                         TileLayer(
