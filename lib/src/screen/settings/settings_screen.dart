@@ -1,6 +1,7 @@
 import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/screen/auth/signin_screen.dart';
 import 'package:RollaTravel/src/screen/profile/block_screen.dart';
+import 'package:RollaTravel/src/screen/profile/profile_screen.dart';
 import 'package:RollaTravel/src/translate/en.dart';
 import 'package:RollaTravel/src/utils/index.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
@@ -19,7 +20,7 @@ class SettingsScreen extends ConsumerStatefulWidget {
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   double screenHeight = 0;
   double keyboardHeight = 0;
-  final int _currentIndex = 0;
+  final int _currentIndex = 5;
   bool isPrivateAccount = true;
   final logger = Logger();
   @override
@@ -149,7 +150,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           children: [
                             InkWell(
                               onTap: () {
-                                Navigator.pop(context);
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileScreen()));
                               },
                               child: Image.asset(
                                 'assets/images/icons/allow-left.png',

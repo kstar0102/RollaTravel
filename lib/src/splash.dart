@@ -59,8 +59,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
           GlobalVariables.dropPinsData = dropPinsData;
         }
         if (userData != null) {
-          logger.i("splash userdata : $userData");
-          // Handle the case where userData is null
+          // logger.i("splash userdata : $userData");
           GlobalVariables.userId = userData['id'];
           GlobalVariables.userName = userData['rolla_username'];
           GlobalVariables.realName =

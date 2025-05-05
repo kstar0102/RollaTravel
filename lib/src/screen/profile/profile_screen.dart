@@ -65,7 +65,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     try {
       final apiService = ApiService();
       final result  = await apiService.fetchUserTrips(GlobalVariables.userId!);
-      logger.i(result);
+      // logger.i(result);
       if (result.isNotEmpty) { 
         final trips = result['trips'] as List<dynamic>;
         final userInfoList = result['userInfo'] as List<dynamic>?;

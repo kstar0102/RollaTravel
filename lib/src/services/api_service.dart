@@ -66,6 +66,36 @@ class ApiService {
     }
   }
 
+  Future<Map<String, dynamic>> blockUser(int userId, int blockId) async {
+    final url = Uri.parse('$baseUrl/user/block');
+    
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'user_id': userId,
+        'block_id': blockId,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      logger.i(data);
+      
+      if (data.containsKey('statusCode') && data.containsKey('message') && data.containsKey('data')) {
+        return {
+          "statusCode": data['statusCode'],
+          "message": data['message'],
+          "data": data['data'],
+        };
+      } else {
+        throw Exception('Invalid response format: Missing expected keys');
+      }
+    } else {
+      throw Exception('Failed to follow user: ${response.statusCode}');
+    }
+  }
+
   Future<Map<String, dynamic>> markDropinAsViewed({
     required int userId,
     required int dropinId,
@@ -389,6 +419,28 @@ class ApiService {
 
   Future<List<Map<String, dynamic>>> fetchFollowers(int userId) async {
     final url = Uri.parse('$baseUrl/user/following_users?user_id=$userId');
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      if (data['statusCode'] == true) {
+        return List<Map<String, dynamic>>.from(data['data']);
+      } else {
+        throw Exception('Failed to load followers: ${data['message']}');
+      }
+    } else {
+      throw Exception('Failed to load followers: ${response.statusCode}');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchBlockUsers(int userId) async {
+    final url = Uri.parse('$baseUrl/user/block_users?user_id=$userId');
 
     final response = await http.get(
       url,

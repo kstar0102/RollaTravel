@@ -60,7 +60,6 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
         });
       }
     });
-    logger.i(widget.userId);
     _fetchUserProfile();
   }
 
@@ -76,7 +75,6 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
       });
 
       final result  = await ApiService().fetchUserTrips(widget.userId);
-      logger.i(result);
       final userProfile = result['trips'];
       final userInfo = result['userInfo'];
       rollaUserName = userInfo[0]['rolla_username'] ?? " ";
@@ -997,7 +995,7 @@ class _TripMapWidgetState extends State<TripMapWidget> {
                   options: MapOptions(
                     initialCenter:
                         startPoint != null ? startPoint! : const LatLng(0, 0),
-                    initialZoom: 11.5,
+                    initialZoom: 7,
                     onTap: (_, LatLng position) {
                       _onMapTap();
                       logger.i('Map tapped at: $position');

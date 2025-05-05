@@ -1,4 +1,5 @@
 import 'package:RollaTravel/src/constants/app_styles.dart';
+import 'package:RollaTravel/src/screen/settings/settings_screen.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +16,7 @@ class BlockedUserScreen extends ConsumerStatefulWidget {
 }
 
 class BlockedUserScreenState extends ConsumerState<BlockedUserScreen> {
-  final int _currentIndex = 0;
+  final int _currentIndex = 5;
   double keyboardHeight = 0;
   List<Map<String, dynamic>> followers = [];
   final logger = Logger();
@@ -38,11 +39,29 @@ class BlockedUserScreenState extends ConsumerState<BlockedUserScreen> {
   Future<void> _loadFollowers() async {
     try {
       final apiservice = ApiService();
-      followers = await apiservice.fetchFollowers(GlobalVariables.userId!);
-      logger.i(followers);
+      followers = await apiservice.fetchBlockUsers(GlobalVariables.userId!);
+      // logger.i(followers);
       setState(() {});
     } catch (e) {
       logger.i('Error loading followers: $e');
+    }
+  }
+
+  void unblockClicked(userid) async {
+    try {
+      final apiservice = ApiService();
+      final result = await apiservice.blockUser(GlobalVariables.userId!, userid!);
+
+      if (result['statusCode'] == true) {
+        if(!mounted) return;
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => const BlockedUserScreen()),
+        );
+      }
+    } catch (e) {
+      logger.i('Error: $e');
     }
   }
 
@@ -68,7 +87,11 @@ class BlockedUserScreenState extends ConsumerState<BlockedUserScreen> {
                   const SizedBox(width: 16),
                   InkWell(
                     onTap: () {
-                      Navigator.pop(context);
+                       Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const SettingsScreen()),
+                        );
                     },
                     child: Image.asset(
                       'assets/images/icons/allow-left.png',
@@ -83,9 +106,9 @@ class BlockedUserScreenState extends ConsumerState<BlockedUserScreen> {
                           Text(
                             'Blocked Account',
                             style: TextStyle(
-                              fontSize: 20,
+                              fontSize: 21,
                               letterSpacing: -0.1,
-                              fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.w600,
                               fontFamily: 'inter',
                             ),
                           ),
@@ -142,8 +165,9 @@ class BlockedUserScreenState extends ConsumerState<BlockedUserScreen> {
                                   Text(
                                     follower['rolla_username'] ?? ' ',
                                     style: const TextStyle(
-                                      fontFamily: 'interBold',
-                                      fontSize: 15,
+                                      fontFamily: 'inter',
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16,
                                       letterSpacing: -0.1,
                                     ),
                                   ),
@@ -155,8 +179,9 @@ class BlockedUserScreenState extends ConsumerState<BlockedUserScreen> {
                               Text(
                                 '${follower['first_name'] ?? ''} ${follower['last_name'] ?? ''}',
                                 style: const TextStyle(
-                                  fontSize: 15,
+                                  fontSize: 16,
                                   color: Colors.grey,
+                                  fontWeight: FontWeight.w400,
                                   fontFamily: 'inter',
                                   letterSpacing: -0.1,
                                 ),
@@ -166,11 +191,10 @@ class BlockedUserScreenState extends ConsumerState<BlockedUserScreen> {
                           const Spacer(),
                           GestureDetector(
                             onTap: () {
-                              // Add your event logic here
-                              logger.i(follower['id']);
+                              unblockClicked(follower['id']);
                             },
                             child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 1, horizontal: 4),
+                              padding: const EdgeInsets.symmetric(vertical: 1, horizontal: 5),
                               decoration: BoxDecoration(
                                 border: Border.all(color: Colors.red, width: 1),
                                 borderRadius: BorderRadius.circular(12),
@@ -180,7 +204,8 @@ class BlockedUserScreenState extends ConsumerState<BlockedUserScreen> {
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontFamily: 'inter',
-                                  fontSize: 12,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600
                                 ),
                               ),
                             ),

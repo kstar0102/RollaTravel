@@ -78,7 +78,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> with SingleTickerPr
 
     try {
       final response = await authService.fetchAllUserData();
-      logger.i(response);
       if (response.containsKey("status") && response.containsKey("data")) {
         setState(() {
           allUserData = response["data"];

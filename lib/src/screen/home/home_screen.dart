@@ -72,16 +72,37 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
 
   Future<void> _followedTrips() async {
     try {
+      final blockUsers = await apiService.fetchBlockUsers(GlobalVariables.userId!);
+      logger.i(blockUsers);
       final data = await apiService.fetchFollowerTrip(GlobalVariables.userId!);
+
+      final currentUserId = GlobalVariables.userId.toString();
+
+      // Extract list of blocked user IDs
+      final blockedUserIds = blockUsers.map((user) => user['id'].toString()).toSet();
+
       final filteredTrips = data.where((trip) {
+        final user = trip['user'];
+        final userId = user['id'].toString();
+
+        // Exclude if trip's user is in the block list
+        if (blockedUserIds.contains(userId)) {
+          return false;
+        }
+
+        // Additional check: if trip has a list of people who muted the current user
         final mutedIds = trip['muted_ids']?.split(',') ?? [];
-        return !mutedIds.contains(GlobalVariables.userId.toString());
+        if (mutedIds.contains(currentUserId)) {
+          return false;
+        }
+
+        return true;
       }).toList();
 
       setState(() {
         trips = filteredTrips;
       });
-      // logger.i(trips);
+      logger.i(trips);
 
       if (GlobalVariables.homeTripID != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -727,13 +748,13 @@ class PostWidgetState extends State<PostWidget> {
     });
   }
 
-  Future<void> _showLikeDialog(BuildContext context, String imagePath, String followingId, int userId) async {
-    // logger.i(userId);
-    // logger.i(followingId);
+  Future<void> _showLikeDialog(BuildContext context, 
+  String imagePath, 
+  String followingId, 
+  int userId,
+  int tripId) async {
     List<String> followingIds = followingId.split(','); 
     isFollowing = followingIds.any((id) => int.tryParse(id) == GlobalVariables.userId);
-    logger.i(isFollowing);
-    
     // if (isFollowing) {
     //   followingIds.remove(GlobalVariables.userId.toString());
     //   logger.i("User $userId unfollowed.");
@@ -799,7 +820,7 @@ class PostWidgetState extends State<PostWidget> {
                       ),
                     ),
                     onPressed: () {
-                      Navigator.pop(context);
+                      muteClicked(GlobalVariables.userId!, tripId);
                     },
                     child: const Text(
                       'Mute Posts',
@@ -848,7 +869,7 @@ class PostWidgetState extends State<PostWidget> {
                       ),
                     ),
                     onPressed: () {
-                      Navigator.pop(context);
+                      blockClicked(userId);
                     },
                     child: const Text(
                       'Block User',
@@ -964,6 +985,42 @@ class PostWidgetState extends State<PostWidget> {
     }
   }
 
+  void muteClicked(userid, tripId) async {
+    try {
+      final apiservice = ApiService();
+      final result = await apiservice.muteUser(userid!, tripId);
+
+      if (result['statusCode'] == true) {
+        if(!mounted) return;
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => const HomeScreen()),
+        );
+      }
+    } catch (e) {
+      logger.i('Error: $e');
+    }
+  }
+
+  void blockClicked(userid) async {
+    try {
+      final apiservice = ApiService();
+      final result = await apiservice.blockUser(GlobalVariables.userId!, userid!);
+
+      if (result['statusCode'] == true) {
+        if(!mounted) return;
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => const HomeScreen()),
+        );
+      }
+    } catch (e) {
+      logger.i('Error: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final updatedAt = DateTime.parse(widget.post["updated_at"]);
@@ -1000,7 +1057,6 @@ class PostWidgetState extends State<PostWidget> {
               ),
             ),
             const SizedBox(width: 10),
-            // User's username
             Text(
               "@${widget.post['user']['rolla_username']}",
               style: const TextStyle(
@@ -1010,16 +1066,25 @@ class PostWidgetState extends State<PostWidget> {
                   fontWeight: FontWeight.bold),
             ),
             const SizedBox(width: 5),
-            // Verified icon
             const Icon(Icons.verified, color: kColorHereButton, size: 18),
             const Spacer(),
             GestureDetector(
               onTap: () {
-                _showLikeDialog(
-                  context, 
-                  widget.post['user']['photo'], 
-                  widget.post['user']['following_user_id'],
-                  widget.post['user']['id']);
+                if(GlobalVariables.userId == widget.post['user']['id']){
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('It is your post!'),
+                      duration: Duration(seconds: 1),
+                    ),
+                  );
+                }else {
+                  _showLikeDialog(
+                    context, 
+                    widget.post['user']['photo'], 
+                    widget.post['user']['following_user_id'],
+                    widget.post['user']['id'],
+                    widget.post['id']);
+                }
               },
               child: Image.asset(
                 "assets/images/icons/reference.png",
