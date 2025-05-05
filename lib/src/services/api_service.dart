@@ -37,6 +37,35 @@ class ApiService {
     }
   }
 
+  Future<Map<String, dynamic>> muteUser(int userId, int tripId) async {
+    final url = Uri.parse('$baseUrl/trip/mute_user');
+    
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'user_id': userId,
+        'trip_id': tripId,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      
+      if (data.containsKey('statusCode') && data.containsKey('message') && data.containsKey('data')) {
+        return {
+          "statusCode": data['statusCode'],
+          "message": data['message'],
+          "data": data['data'],
+        };
+      } else {
+        throw Exception('Invalid response format: Missing expected keys');
+      }
+    } else {
+      throw Exception('Failed to follow user: ${response.statusCode}');
+    }
+  }
+
   Future<Map<String, dynamic>> markDropinAsViewed({
     required int userId,
     required int dropinId,
@@ -359,7 +388,6 @@ class ApiService {
   }
 
   Future<List<Map<String, dynamic>>> fetchFollowers(int userId) async {
-    // final url = Uri.parse('$baseUrl/user/following_users?user_id=$userId');
     final url = Uri.parse('$baseUrl/user/following_users?user_id=$userId');
 
     final response = await http.get(
@@ -370,10 +398,52 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      // Check if the response is successful.
       final data = json.decode(response.body);
       if (data['statusCode'] == true) {
-        // Check API's response `statusCode`.
+        return List<Map<String, dynamic>>.from(data['data']);
+      } else {
+        throw Exception('Failed to load followers: ${data['message']}');
+      }
+    } else {
+      throw Exception('Failed to load followers: ${response.statusCode}');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchFollowerTrip(int userId) async {
+    final url = Uri.parse('$baseUrl/user/follwed_user/trips?user_id=$userId');
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      if (data['statusCode'] == true) {
+        return List<Map<String, dynamic>>.from(data['data']);
+      } else {
+        throw Exception('Failed to load followers: ${data['message']}');
+      }
+    } else {
+      throw Exception('Failed to load followers: ${response.statusCode}');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchFollowedUsers(int userId) async {
+    final url = Uri.parse('$baseUrl/user/followed_users?user_id=$userId');
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      if (data['statusCode'] == true) {
         return List<Map<String, dynamic>>.from(data['data']);
       } else {
         throw Exception('Failed to load followers: ${data['message']}');

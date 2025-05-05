@@ -34,7 +34,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
   final apiService = ApiService();
   final logger = Logger();
   final ScrollController _scrollController = ScrollController(); 
-
+  bool isSelected = false;
   @override
   void initState() {
     super.initState();
@@ -46,16 +46,42 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
         });
       }
     });
-    _loadTrips();
+    _followedTrips();
   }
 
-  Future<void> _loadTrips() async {
+  // Future<void> _loadTrips() async {
+  //   try {
+  //     final data = await apiService.fetchAllTrips();
+  //     setState(() {
+  //       trips = data;
+  //     });
+  //     logger.i(trips);
+
+  //     if (GlobalVariables.homeTripID != null) {
+  //       WidgetsBinding.instance.addPostFrameCallback((_) {
+  //         _scrollToTrip(GlobalVariables.homeTripID!);
+  //       });
+  //     }
+  //   } catch (error) {
+  //     logger.i('Error fetching trips: $error');
+  //     setState(() {
+  //       trips = [];
+  //     });
+  //   }
+  // }
+
+  Future<void> _followedTrips() async {
     try {
-      final data = await apiService.fetchAllTrips();
+      final data = await apiService.fetchFollowerTrip(GlobalVariables.userId!);
+      final filteredTrips = data.where((trip) {
+        final mutedIds = trip['muted_ids']?.split(',') ?? [];
+        return !mutedIds.contains(GlobalVariables.userId.toString());
+      }).toList();
+
       setState(() {
-        trips = data;
+        trips = filteredTrips;
       });
-      logger.i(trips);
+      // logger.i(trips);
 
       if (GlobalVariables.homeTripID != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -88,6 +114,25 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
     }
   }
 
+  void follwingUser() async {
+    List<int> followedUserIds = [];
+    final apiService = ApiService();
+    final List<Map<String, dynamic>> users =
+        await apiService.fetchFollowedUsers(GlobalVariables.userId!);
+
+    setState(() {
+      followedUserIds = users
+          .map((user) => user['id'])
+          .where((id) => id != null)
+          .map<int>((id) => int.parse(id.toString()))
+          .toList();
+
+      isSelected = !isSelected;
+    });
+    logger.i(followedUserIds);
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final isSpecificTrip = GlobalVariables.homeTripID != null;
@@ -106,28 +151,34 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
     }
     return Scaffold(
       backgroundColor: kColorWhite,
-      // ignore: deprecated_member_use
-      body: WillPopScope(
-        onWillPop: () async => false,
+      body: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) {
+          if (!didPop) {
+            return; 
+          }
+        },
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: vhh(context, 3)),
-              // Header Section
-              Stack(
-                alignment: Alignment.center,
+              Row(
                 children: [
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Image.asset(
                       'assets/images/icons/logo.png',
-                      width: vww(context, 20),
+                      width: vww(context, 18),
                     ),
                   ),
-                  Image.asset("assets/images/icons/notification.png",
-                      width: vww(context, 4)),
+                  const SizedBox(width: 140,),
+                  Image.asset(
+                    "assets/images/icons/notification.png",
+                    width: vww(context, 4)),
+                  const Spacer(),
+                  
                 ],
               ),
               const Padding(
@@ -137,22 +188,19 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
 
               trips == null
                   ? const Center(
-                      child:
-                          CircularProgressIndicator()) // Show loading indicator
+                      child: CircularProgressIndicator()) 
                   : trips!.isEmpty
                       ? const Center(
-                          child: Text(
-                              'No trips available')) // Show message if no trips
+                          child: Text('No trips available')) 
                       : Expanded(
                           child: ListView.builder(
-                            controller:
-                                _scrollController, // Attach ScrollController
+                            controller: _scrollController, 
                             itemCount: trips!.length,
                             itemBuilder: (context, index) {
                               final trip = trips![index];
                               return PostWidget(
-                                post: trip, // Pass trip data
-                                dropIndex: index, // Current index
+                                post: trip, 
+                                dropIndex: index,
                                 onLikesUpdated: (updatedLikes) {
                                   setState(() {
                                     trips![index]['totalLikes'] = updatedLikes;
@@ -680,23 +728,24 @@ class PostWidgetState extends State<PostWidget> {
   }
 
   Future<void> _showLikeDialog(BuildContext context, String imagePath, String followingId, int userId) async {
-    logger.i(userId);
-    logger.i(followingId);
+    // logger.i(userId);
+    // logger.i(followingId);
     List<String> followingIds = followingId.split(','); 
     isFollowing = followingIds.any((id) => int.tryParse(id) == GlobalVariables.userId);
+    logger.i(isFollowing);
     
-    if (isFollowing) {
-      followingIds.remove(GlobalVariables.userId.toString());
-      logger.i("User $userId unfollowed.");
-    } else {
-      followingIds.add(GlobalVariables.userId.toString());
-      logger.i("User $userId followed.");
-    }
+    // if (isFollowing) {
+    //   followingIds.remove(GlobalVariables.userId.toString());
+    //   logger.i("User $userId unfollowed.");
+    // } else {
+    //   followingIds.add(GlobalVariables.userId.toString());
+    //   logger.i("User $userId followed.");
+    // }
 
-    String updatedFollowingIdsStr = followingIds.join(',');
-    setState(() {
-      widget.post['user']['following_user_id'] = updatedFollowingIdsStr;
-    });
+    // String updatedFollowingIdsStr = followingIds.join(',');
+    // setState(() {
+    //   widget.post['user']['following_user_id'] = updatedFollowingIdsStr;
+    // });
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -903,9 +952,12 @@ class PostWidgetState extends State<PostWidget> {
       final result = await apiservice.followUser(userid!, GlobalVariables.userId!);
 
       if (result['statusCode'] == true) {
-        setState(() {
-          isFollowing = !isFollowing;
-        });
+        if(!mounted) return;
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => const HomeScreen()),
+        );
       }
     } catch (e) {
       logger.i('Error: $e');

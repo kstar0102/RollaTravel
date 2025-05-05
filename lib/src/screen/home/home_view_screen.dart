@@ -23,7 +23,7 @@ class HomeViewScreenState extends State<HomeViewScreen> {
   void initState() {
     super.initState();
     _fetchUsersFromViewlist(widget.viewdList);
-    logger.i(widget.imagePath);
+    logger.i(widget.viewdList);
   }
 
   Future<void> _fetchUsersFromViewlist(String viewlist) async {
@@ -31,27 +31,29 @@ class HomeViewScreenState extends State<HomeViewScreen> {
     final apiService = ApiService();
 
     try {
-      final userData = await Future.wait(userIds.map((userId) async {
+      final userDataNested = await Future.wait(userIds.map((userId) async {
         try {
           final response = await apiService.fetchUserTrips(int.parse(userId));
-          if (response.isNotEmpty && response[0]['user'] != null) {
-            return response[0]['user'];
+          if (response.isNotEmpty && response['userInfo'] != null) {
+            return response['userInfo']; // This is likely a list
           } else {
             logger.e("User data not found for userId: $userId");
-            return {}; // Return an empty map if no user data found
+            return []; // Return empty list instead of empty map
           }
         } catch (e) {
           logger.e("Error fetching user data for userId: $userId. Error: $e");
-          return {}; // Return an empty map in case of an error
+          return []; // Return empty list in case of error
         }
       }));
 
+      final userData = userDataNested.expand((element) => element).toList();
+
+
       setState(() {
-        viewdUsers = userData.where((user) => user.isNotEmpty).toList();
-        isLoading = false; // Set loading to false after data is fetched
+        viewdUsers = userData;
+        isLoading = false; 
       });
 
-      logger.i(viewdUsers);
     } catch (e) {
       setState(() {
         isLoading = false; // Set loading to false even if an error occurs
@@ -103,8 +105,7 @@ class HomeViewScreenState extends State<HomeViewScreen> {
             ),
           ),
           const Padding(
-            padding: const EdgeInsets.symmetric(
-                horizontal: 16.0), // Set horizontal padding
+            padding: EdgeInsets.symmetric(horizontal: 16.0), 
             child: Divider(
               height: 1,
               color: Colors.grey,

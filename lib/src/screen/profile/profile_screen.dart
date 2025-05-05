@@ -1,7 +1,7 @@
 import 'package:RollaTravel/src/constants/app_styles.dart';
-import 'package:RollaTravel/src/screen/home/home_follower_screen.dart';
 import 'package:RollaTravel/src/screen/home/home_screen.dart';
 import 'package:RollaTravel/src/screen/profile/edit_profile.dart';
+import 'package:RollaTravel/src/screen/profile/profile_following_screen.dart';
 import 'package:RollaTravel/src/screen/settings/settings_screen.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/translate/en.dart';
@@ -32,11 +32,14 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   bool showLikesDropdown = false;
   String? followingCount;
   String? garageImageUrl;
+  String? username;
+  String? happyPlace;
+
   final logger = Logger();
-
   List<Map<String, dynamic>>? userTrips;
-  bool isLoadingTrips = true;
+  Map<String, dynamic>? userInfo;
 
+  bool isLoadingTrips = true;
   LatLng? startPoint;
   LatLng? endPoint;
   List<LatLng> locations = [];
@@ -55,25 +58,50 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
       }
     });
     garageImageUrl = GlobalVariables.garageLogoUrl;
-    if (GlobalVariables.followingIds != null &&
-        GlobalVariables.followingIds!.isNotEmpty) {
-      int count = GlobalVariables.followingIds!.split(',').length;
-      followingCount = count.toString();
-    }
+   
   }
 
   Future<void> _loadUserTrips() async {
     try {
       final apiService = ApiService();
       final result  = await apiService.fetchUserTrips(GlobalVariables.userId!);
+      logger.i(result);
       if (result.isNotEmpty) { 
-        final trips = result['trips']as List<dynamic>;
+        final trips = result['trips'] as List<dynamic>;
+        final userInfoList = result['userInfo'] as List<dynamic>?;
+
         List<dynamic> allDroppins = [] ;
         for (var trip in trips) {
           if (trip['droppins'] != null) {
             allDroppins.addAll(trip['droppins'] as List<dynamic>);
           }
         }
+
+        if (userInfoList != null && userInfoList.isNotEmpty) {
+          final user = Map<String, dynamic>.from(userInfoList.first);
+
+          setState(() {
+            username = user['rolla_username'] ?? '@unknown';
+            happyPlace = user['happy_place'];
+
+            final following = user['following_user_id'];
+            if (following != null && following.toString().isNotEmpty) {
+              followingCount = following.toString().split(',').length.toString();
+            } else {
+              followingCount = "0";
+            }
+
+            final garageList = user['garage'] as List<dynamic>?;
+            if (garageList != null && garageList.isNotEmpty) {
+              garageImageUrl = garageList.first['logo_path'];
+              GlobalVariables.garageLogoUrl = garageImageUrl;
+            } else {
+              garageImageUrl = null;
+              GlobalVariables.garageLogoUrl = garageImageUrl;
+            }
+          });
+        }
+
         setState(() {
           userTrips = List<Map<String, dynamic>>.from(trips.reversed);
           dropPinsData = allDroppins.isNotEmpty ? allDroppins.reversed.toList() : [];
@@ -97,7 +125,6 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     }
   }
 
-
   @override
   void dispose() {
     super.dispose();
@@ -105,7 +132,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   void _onFollowers() {
     Navigator.push(context,
-        MaterialPageRoute(builder: (context) => HomeFollowScreen(userid: GlobalVariables.userId!, fromUser: "you",)));
+        MaterialPageRoute(
+          builder: (context) => 
+          ProfileFollowingScreen(userid: GlobalVariables.userId!)));
   }
 
   void _onSettingButtonClicked() {
@@ -114,25 +143,6 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   void _onEditButtonClicked() {
-    // Navigator.push(
-    //   context,
-    //   PageRouteBuilder(
-    //     pageBuilder: (context, animation, secondaryAnimation) =>
-    //         const EditProfileScreen(),
-    //     transitionsBuilder: (context, animation, secondaryAnimation, child) {
-    //       const begin = Offset(1.0, 0.0); // Start from the right
-    //       const end = Offset.zero; // End at the current position
-    //       const curve = Curves.easeInOut;
-
-    //       var tween =
-    //           Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-    //       var offsetAnimation = animation.drive(tween);
-
-    //       return SlideTransition(position: offsetAnimation, child: child);
-    //     },
-    //   ),
-    // );
-
     Navigator.push(context,
         MaterialPageRoute(builder: (context) => const EditProfileScreen()));
   }
@@ -332,8 +342,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
       backgroundColor: kColorWhite,
       body: SafeArea(
         child: isLoadingTrips
-            ? const Center(
-                child: CircularProgressIndicator()) // Show loader while loading
+            ? const Center(child: CircularProgressIndicator())
             : SingleChildScrollView(
                 child: Container(
                   decoration: const BoxDecoration(
@@ -357,7 +366,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Text(
-                                '@${GlobalVariables.userName}',
+                                username!,
                                 style: const TextStyle(
                                   color: kColorBlack,
                                   fontSize: 18,

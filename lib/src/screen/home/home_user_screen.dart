@@ -27,7 +27,7 @@ class HomeUserScreen extends ConsumerStatefulWidget {
 class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
   double screenHeight = 0;
   double keyboardHeight = 0;
-  final int _currentIndex = 0;
+  final int _currentIndex = 5;
   int? userid;
   bool isLiked = false;
   bool showLikesDropdown = false;
