@@ -440,26 +440,35 @@ class ApiService {
   }
 
   Future<List<Map<String, dynamic>>> fetchBlockUsers(int userId) async {
-    final url = Uri.parse('$baseUrl/user/block_users?user_id=$userId');
+    try {
+      final url = Uri.parse('$baseUrl/user/block_users?user_id=$userId');
 
-    final response = await http.get(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    );
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      if (data['statusCode'] == true) {
-        return List<Map<String, dynamic>>.from(data['data']);
-      } else {
-        throw Exception('Failed to load followers: ${data['message']}');
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['statusCode'] == true) {
+          return List<Map<String, dynamic>>.from(data['data']);
+        } else {
+          return [];
+        }
+      } else if (response.statusCode == 404){
+        return [];
+      } 
+      
+      else {
+        throw Exception('Failed to load blocked users: ${response.statusCode}');
       }
-    } else {
-      throw Exception('Failed to load followers: ${response.statusCode}');
+    } catch (e) {
+      throw Exception('Error fetching blocked users: $e');
     }
   }
+
 
   Future<List<Map<String, dynamic>>> fetchFollowerTrip(int userId) async {
     final url = Uri.parse('$baseUrl/user/follwed_user/trips?user_id=$userId');

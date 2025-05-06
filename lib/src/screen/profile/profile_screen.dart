@@ -1,4 +1,5 @@
 import 'package:RollaTravel/src/constants/app_styles.dart';
+import 'package:RollaTravel/src/screen/home/home_follower_screen.dart';
 import 'package:RollaTravel/src/screen/home/home_screen.dart';
 import 'package:RollaTravel/src/screen/profile/edit_profile.dart';
 import 'package:RollaTravel/src/screen/profile/profile_following_screen.dart';
@@ -131,6 +132,13 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   void _onFollowers() {
+    Navigator.push(context,
+        MaterialPageRoute(
+          builder: (context) => 
+          HomeFollowScreen(userid: GlobalVariables.userId!, fromUser: "You",)));
+  }
+
+  void _onFollowing() {
     Navigator.push(context,
         MaterialPageRoute(
           builder: (context) => 
@@ -580,7 +588,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     horizontal: 2, vertical: 2),
                               ),
                               onPressed: () {
-                                _onFollowers();
+                                _onFollowing();
                               },
                               child: Text("Following",
                                   style: TextStyle(

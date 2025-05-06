@@ -80,7 +80,7 @@ class ProfileFollowScreenState extends ConsumerState<ProfileFollowingScreen> {
                       child: Column(
                         children: [
                           Text(
-                            'Followers',
+                            'Following',
                             style: TextStyle(
                               fontSize: 20,
                               letterSpacing: -0.1,

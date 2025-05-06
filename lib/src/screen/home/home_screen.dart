@@ -74,23 +74,24 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
     try {
       final blockUsers = await apiService.fetchBlockUsers(GlobalVariables.userId!);
       logger.i(blockUsers);
+
+      final blockedUserIds = blockUsers.isEmpty
+          ? <String>{}
+          : blockUsers.map((user) => user['id'].toString()).toSet();
+
       final data = await apiService.fetchFollowerTrip(GlobalVariables.userId!);
 
       final currentUserId = GlobalVariables.userId.toString();
-
-      // Extract list of blocked user IDs
-      final blockedUserIds = blockUsers.map((user) => user['id'].toString()).toSet();
 
       final filteredTrips = data.where((trip) {
         final user = trip['user'];
         final userId = user['id'].toString();
 
-        // Exclude if trip's user is in the block list
+        // If the user is blocked, return false
         if (blockedUserIds.contains(userId)) {
           return false;
         }
 
-        // Additional check: if trip has a list of people who muted the current user
         final mutedIds = trip['muted_ids']?.split(',') ?? [];
         if (mutedIds.contains(currentUserId)) {
           return false;
@@ -116,6 +117,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
       });
     }
   }
+
 
   void _scrollToTrip(int tripId) {
     if (trips != null) {
