@@ -33,7 +33,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
   List<Map<String, dynamic>>? trips;
   final apiService = ApiService();
   final logger = Logger();
-  final ScrollController _scrollController = ScrollController(); 
+  final ScrollController _scrollController = ScrollController();
   bool isSelected = false;
   @override
   void initState() {
@@ -72,8 +72,9 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
 
   Future<void> _followedTrips() async {
     try {
-      final blockUsers = await apiService.fetchBlockUsers(GlobalVariables.userId!);
-      logger.i(blockUsers);
+      final blockUsers =
+          await apiService.fetchBlockUsers(GlobalVariables.userId!);
+      // logger.i(blockUsers);
 
       final blockedUserIds = blockUsers.isEmpty
           ? <String>{}
@@ -103,7 +104,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
       setState(() {
         trips = filteredTrips;
       });
-      logger.i(trips);
+      // logger.i(trips);
 
       if (GlobalVariables.homeTripID != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -118,13 +119,12 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
     }
   }
 
-
   void _scrollToTrip(int tripId) {
     if (trips != null) {
       int index = trips!.indexWhere((trip) => trip['id'] == tripId);
       if (index != -1) {
         _scrollController.animateTo(
-          index * 520.0, 
+          index * 520.0,
           duration: const Duration(milliseconds: 500),
           curve: Curves.easeInOut,
         );
@@ -155,7 +155,6 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
     logger.i(followedUserIds);
   }
 
-
   @override
   Widget build(BuildContext context) {
     final isSpecificTrip = GlobalVariables.homeTripID != null;
@@ -178,7 +177,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
         canPop: false,
         onPopInvokedWithResult: (didPop, result) {
           if (!didPop) {
-            return; 
+            return;
           }
         },
         child: Padding(
@@ -196,33 +195,30 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
                       width: vww(context, 18),
                     ),
                   ),
-                  const SizedBox(width: 140,),
-                  Image.asset(
-                    "assets/images/icons/notification.png",
-                    width: vww(context, 4)),
+                  const SizedBox(
+                    width: 140,
+                  ),
+                  Image.asset("assets/images/icons/notification.png",
+                      width: vww(context, 4)),
                   const Spacer(),
-                  
                 ],
               ),
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 0),
                 child: Divider(),
               ),
-
               trips == null
-                  ? const Center(
-                      child: CircularProgressIndicator()) 
+                  ? const Center(child: CircularProgressIndicator())
                   : trips!.isEmpty
-                      ? const Center(
-                          child: Text('No trips available')) 
+                      ? const Center(child: Text('No trips available'))
                       : Expanded(
                           child: ListView.builder(
-                            controller: _scrollController, 
+                            controller: _scrollController,
                             itemCount: trips!.length,
                             itemBuilder: (context, index) {
                               final trip = trips![index];
                               return PostWidget(
-                                post: trip, 
+                                post: trip,
                                 dropIndex: index,
                                 onLikesUpdated: (updatedLikes) {
                                   setState(() {
@@ -750,13 +746,11 @@ class PostWidgetState extends State<PostWidget> {
     });
   }
 
-  Future<void> _showLikeDialog(BuildContext context, 
-  String imagePath, 
-  String followingId, 
-  int userId,
-  int tripId) async {
-    List<String> followingIds = followingId.split(','); 
-    isFollowing = followingIds.any((id) => int.tryParse(id) == GlobalVariables.userId);
+  Future<void> _showLikeDialog(BuildContext context, String imagePath,
+      String followingId, int userId, int tripId) async {
+    List<String> followingIds = followingId.split(',');
+    isFollowing =
+        followingIds.any((id) => int.tryParse(id) == GlobalVariables.userId);
     // if (isFollowing) {
     //   followingIds.remove(GlobalVariables.userId.toString());
     //   logger.i("User $userId unfollowed.");
@@ -854,7 +848,7 @@ class PostWidgetState extends State<PostWidget> {
                       style: const TextStyle(
                         fontFamily: 'inter',
                         letterSpacing: -0.1,
-                        color:Colors.orange,
+                        color: Colors.orange,
                       ),
                     ),
                   ),
@@ -894,7 +888,9 @@ class PostWidgetState extends State<PostWidget> {
   void _goTagScreen() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => HomeTagScreen(taglist:  widget.post['trip_tags'])),
+      MaterialPageRoute(
+          builder: (context) =>
+              HomeTagScreen(taglist: widget.post['trip_tags'])),
     );
   }
 
@@ -972,14 +968,14 @@ class PostWidgetState extends State<PostWidget> {
   void follow(userid) async {
     try {
       final apiservice = ApiService();
-      final result = await apiservice.followUser(userid!, GlobalVariables.userId!);
+      final result =
+          await apiservice.followUser(userid!, GlobalVariables.userId!);
 
       if (result['statusCode'] == true) {
-        if(!mounted) return;
+        if (!mounted) return;
         Navigator.push(
           context,
-          MaterialPageRoute(
-              builder: (context) => const HomeScreen()),
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
         );
       }
     } catch (e) {
@@ -993,11 +989,10 @@ class PostWidgetState extends State<PostWidget> {
       final result = await apiservice.muteUser(userid!, tripId);
 
       if (result['statusCode'] == true) {
-        if(!mounted) return;
+        if (!mounted) return;
         Navigator.push(
           context,
-          MaterialPageRoute(
-              builder: (context) => const HomeScreen()),
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
         );
       }
     } catch (e) {
@@ -1008,14 +1003,14 @@ class PostWidgetState extends State<PostWidget> {
   void blockClicked(userid) async {
     try {
       final apiservice = ApiService();
-      final result = await apiservice.blockUser(GlobalVariables.userId!, userid!);
+      final result =
+          await apiservice.blockUser(GlobalVariables.userId!, userid!);
 
       if (result['statusCode'] == true) {
-        if(!mounted) return;
+        if (!mounted) return;
         Navigator.push(
           context,
-          MaterialPageRoute(
-              builder: (context) => const HomeScreen()),
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
         );
       }
     } catch (e) {
@@ -1034,7 +1029,9 @@ class PostWidgetState extends State<PostWidget> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const SizedBox(width: 10,),
+            const SizedBox(
+              width: 10,
+            ),
             GestureDetector(
               onTap: () {
                 _goUserScreen();
@@ -1072,20 +1069,20 @@ class PostWidgetState extends State<PostWidget> {
             const Spacer(),
             GestureDetector(
               onTap: () {
-                if(GlobalVariables.userId == widget.post['user']['id']){
+                if (GlobalVariables.userId == widget.post['user']['id']) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('It is your post!'),
                       duration: Duration(seconds: 1),
                     ),
                   );
-                }else {
+                } else {
                   _showLikeDialog(
-                    context, 
-                    widget.post['user']['photo'], 
-                    widget.post['user']['following_user_id'],
-                    widget.post['user']['id'],
-                    widget.post['id']);
+                      context,
+                      widget.post['user']['photo'],
+                      widget.post['user']['following_user_id'],
+                      widget.post['user']['id'],
+                      widget.post['id']);
                 }
               },
               child: Image.asset(
@@ -1094,7 +1091,9 @@ class PostWidgetState extends State<PostWidget> {
                 height: 24,
               ),
             ),
-            const SizedBox(width: 10,),
+            const SizedBox(
+              width: 10,
+            ),
           ],
         ),
         SizedBox(height: vhh(context, 0.5)),
@@ -1160,14 +1159,16 @@ class PostWidgetState extends State<PostWidget> {
                       width: 1, // Thin border
                     ),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   child: GestureDetector(
                     onTap: () {
                       // Navigate to the desired page when the row is tapped
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => HomeSoundScreen(tripSound:  widget.post['trip_sound']),  // Replace `YourNextPage` with the actual page
+                          builder: (context) => HomeSoundScreen(
+                              tripSound: widget.post['trip_sound']),
                         ),
                       );
                     },
@@ -1337,7 +1338,6 @@ class PostWidgetState extends State<PostWidget> {
                                     );
                                   },
                                   child: Container(
-                                    
                                     width: 14, // Smaller width
                                     height: 14, // Smaller height
                                     decoration: BoxDecoration(
@@ -1349,7 +1349,8 @@ class PostWidgetState extends State<PostWidget> {
                                       ),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.black.withValues(alpha: 0.4),
+                                          color: Colors.black
+                                              .withValues(alpha: 0.4),
                                           spreadRadius: 0.5,
                                           blurRadius: 6,
                                           offset: const Offset(0, 5),
@@ -1484,7 +1485,9 @@ class PostWidgetState extends State<PostWidget> {
           children: [
             Row(
               children: [
-                const SizedBox(width: 10,),
+                const SizedBox(
+                  width: 10,
+                ),
                 GestureDetector(
                   onTap: () {
                     setState(() {
@@ -1523,7 +1526,9 @@ class PostWidgetState extends State<PostWidget> {
                   child: Image.asset("assets/images/icons/add_car.png",
                       width: vww(context, 7)),
                 ),
-                const SizedBox(width: 5,),
+                const SizedBox(
+                  width: 5,
+                ),
               ],
             ),
             const SizedBox(height: 1),
@@ -1550,14 +1555,13 @@ class PostWidgetState extends State<PostWidget> {
             Padding(
               padding: const EdgeInsets.only(left: 10),
               child: Text(
-                widget.post['trip_caption'] ?? "", 
+                widget.post['trip_caption'] ?? "",
                 style: const TextStyle(
-                  fontFamily: 'inter', 
-                  fontWeight: FontWeight.w500,
-                  fontSize: 13,
-                  letterSpacing: -0.1
-                  ),
-                ),
+                    fontFamily: 'inter',
+                    fontWeight: FontWeight.w500,
+                    fontSize: 13,
+                    letterSpacing: -0.1),
+              ),
             ),
             const SizedBox(height: 12),
             Center(
@@ -1634,19 +1638,19 @@ class PostWidgetState extends State<PostWidget> {
                   );
                 }).toList(),
               ),
-            SizedBox(height: vh(context, 4),),
+            SizedBox(
+              height: vh(context, 4),
+            ),
             Padding(
               padding: const EdgeInsets.only(left: 7),
               child: Text(
-                'last updated ${timeago.format(now.subtract(difference), locale: 'en_short')} ago',
-                style: const TextStyle(
-                  fontFamily: 'inter',
-                  color: Color(0xFF95989C),
-                  fontSize: 11, 
-                )
-              ),
+                  'last updated ${timeago.format(now.subtract(difference), locale: 'en_short')} ago',
+                  style: const TextStyle(
+                    fontFamily: 'inter',
+                    color: Color(0xFF95989C),
+                    fontSize: 11,
+                  )),
             ),
-            
           ],
         ),
         const SizedBox(height: 2),

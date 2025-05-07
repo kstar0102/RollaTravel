@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
 import 'package:RollaTravel/src/utils/index.dart';
+import 'package:logger/logger.dart';
 
 class HomeSoundScreen extends ConsumerStatefulWidget {
   final String tripSound;
@@ -14,23 +15,25 @@ class HomeSoundScreen extends ConsumerStatefulWidget {
 }
 
 class HomeSoundScreenState extends ConsumerState<HomeSoundScreen> {
-  final int _currentIndex = 2;
-
-  // List to store song titles
+  final int _currentIndex = 5;
+  final logger = Logger();
   List<String> songList = [];
 
   @override
   void initState() {
     super.initState();
-
-    // Check if tripSound is not empty or null, then populate the song list
+    logger.i(widget.tripSound);
     if (widget.tripSound.isNotEmpty && widget.tripSound != 'null') {
-      songList = widget.tripSound.split(',').map((song) => song.trim()).toList();
+      songList =
+          widget.tripSound.split(',').map((song) => song.trim()).toList();
     }
-
-    // If tripSound is null or empty, set the song list to a default message
     if (songList.isEmpty) {
-      songList = ['No songs added', 'No songs added', 'No songs added', 'No songs added'];
+      songList = [
+        'No songs added',
+        'No songs added',
+        'No songs added',
+        'No songs added'
+      ];
     }
   }
 
@@ -63,7 +66,8 @@ class HomeSoundScreenState extends ConsumerState<HomeSoundScreen> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const HomeScreen()),
+                        MaterialPageRoute(
+                            builder: (context) => const HomeScreen()),
                       );
                     },
                     child: Image.asset(
@@ -92,11 +96,12 @@ class HomeSoundScreenState extends ConsumerState<HomeSoundScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: Column(
                   children: List.generate(
-                    songList.length,  // Generate as many text widgets as there are songs
-                        (index) => Padding(
-                          padding: const EdgeInsets.only(bottom: 20.0),
-                          child: _buildSongContainer(songList[index], index + 1),
-                        ),
+                    songList
+                        .length, // Generate as many text widgets as there are songs
+                    (index) => Padding(
+                      padding: const EdgeInsets.only(bottom: 20.0),
+                      child: _buildSongContainer(songList[index], index + 1),
+                    ),
                   ),
                 ),
               ),
@@ -109,22 +114,21 @@ class HomeSoundScreenState extends ConsumerState<HomeSoundScreen> {
   }
 
   Widget _buildSongContainer(String songTitle, int index) {
-    Color borderColor = (index % 2 == 0) ? kColorHereButton : kColorButtonPrimary;
+    Color borderColor =
+        (index % 2 == 0) ? kColorHereButton : kColorButtonPrimary;
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 16.0),
-      width: double.infinity,  // Make the container take full width
+      width: double.infinity, // Make the container take full width
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(30.0),
         border: Border.all(color: borderColor, width: 2.0),
       ),
       child: Text(
-        songTitle,  // Display the song title or "No songs added"
-        style: const TextStyle(fontSize: 13, fontFamily: 'inter', letterSpacing: -0.1),
+        songTitle, // Display the song title or "No songs added"
+        style: const TextStyle(
+            fontSize: 13, fontFamily: 'inter', letterSpacing: -0.1),
       ),
     );
   }
 }
-
-
-
