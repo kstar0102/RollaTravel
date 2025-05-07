@@ -1,5 +1,5 @@
 import 'package:RollaTravel/src/constants/app_styles.dart';
-import 'package:RollaTravel/src/screen/trip/start_trip.dart';
+// import 'package:RollaTravel/src/screen/trip/start_trip.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,7 +35,6 @@ class SoundScreenState extends ConsumerState<SoundScreen> {
     if(GlobalVariables.song4 != null) {
       _soundController4.text = GlobalVariables.song1!;
     }
-    
   }
 
   @override
@@ -84,13 +83,12 @@ class SoundScreenState extends ConsumerState<SoundScreen> {
                       if (_soundController4.text.isNotEmpty) {
                         GlobalVariables.song4 = _soundController4.text;
                       }
-                      Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => const StartTripScreen()));
+                      Navigator.pop(context);
                     },
                     child: Image.asset(
                       'assets/images/icons/allow-left.png',
-                      width: vww(context, 5),
-                      height: 20,
+                      width: vww(context, 7),
+                      height: 23,
                     ),
                   ),
                   const Expanded(
