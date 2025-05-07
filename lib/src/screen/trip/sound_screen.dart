@@ -62,11 +62,11 @@ class SoundScreenState extends ConsumerState<SoundScreen> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 40),
+              const SizedBox(height: 45),
               Row(
                 children: [
                   const SizedBox(width: 16),
-                  InkWell(
+                  GestureDetector(
                     onTap: () {
                       if (_soundController1.text.isNotEmpty) {
                         GlobalVariables.song1 = _soundController1.text;
@@ -83,14 +83,20 @@ class SoundScreenState extends ConsumerState<SoundScreen> {
                       if (_soundController4.text.isNotEmpty) {
                         GlobalVariables.song4 = _soundController4.text;
                       }
+
                       Navigator.pop(context);
                     },
-                    child: Image.asset(
-                      'assets/images/icons/allow-left.png',
+                    child: Container(
                       width: vww(context, 7),
-                      height: 23,
+                      height: 30, 
+                      child: Image.asset(
+                        'assets/images/icons/allow-left.png',
+                        width: vww(context, 7),
+                        height: 23,
+                      ),
                     ),
                   ),
+
                   const Expanded(
                     child: Center(
                       child: Text(
@@ -165,7 +171,7 @@ class SoundScreenState extends ConsumerState<SoundScreen> {
             borderSide: BorderSide(color: borderColor, width: 2.0),
           ),
           filled: true,
-          fillColor: Colors.white,  // White background
+          fillColor: Colors.white,
         ),
         style: const TextStyle(fontSize: 13, fontFamily: 'inter', letterSpacing: -0.1),
       ),

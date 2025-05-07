@@ -58,11 +58,11 @@ class HomeSoundScreenState extends ConsumerState<HomeSoundScreen> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 40),
+              const SizedBox(height: 45),
               Row(
                 children: [
                   const SizedBox(width: 16),
-                  InkWell(
+                  GestureDetector(
                     onTap: () {
                       Navigator.push(
                         context,

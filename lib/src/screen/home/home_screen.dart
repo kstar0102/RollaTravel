@@ -1018,6 +1018,40 @@ class PostWidgetState extends State<PostWidget> {
     }
   }
 
+  void _playListClicked () {
+    if (widget.post['trip_sound'] == "tripSound") {
+      // Show an alert
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("No Sound List"),
+            content: Text("There are no playlist for this trip."),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  // Close the dialog
+                  Navigator.pop(context);
+                },
+                child: Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      // If 'trip_sound' is not "tripSound", navigate to the desired page
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomeSoundScreen(
+            tripSound: widget.post['trip_sound'],
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final updatedAt = DateTime.parse(widget.post["updated_at"]);
@@ -1163,14 +1197,7 @@ class PostWidgetState extends State<PostWidget> {
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   child: GestureDetector(
                     onTap: () {
-                      // Navigate to the desired page when the row is tapped
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => HomeSoundScreen(
-                              tripSound: widget.post['trip_sound']),
-                        ),
-                      );
+                      _playListClicked();
                     },
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
