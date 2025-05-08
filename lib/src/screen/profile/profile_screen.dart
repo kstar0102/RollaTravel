@@ -355,172 +355,290 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
-                      SizedBox(height: vhh(context, 1)),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Image.asset(
-                            'assets/images/icons/logo.png',
-                            width: vww(context, 20),
-                          ),
-                          SizedBox(width: vww(context, 17)),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                username!,
-                                style: const TextStyle(
-                                  color: kColorBlack,
-                                  fontSize: 18,
-                                  fontFamily: 'inter',
-                                  letterSpacing: -0.1,
-                                ),
-                              ),
-                              SizedBox(width : 3),
-                              Image.asset(
-                                'assets/images/icons/verify.png',
-                                width: vww(context, 5),
-                                height: 25,
-                                fit: BoxFit.contain,
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Container(),
-                          Column(
-                            children: [
-                              Image.asset(
-                                'assets/images/icons/trips.png',
-                                width: vww(context, 19),
-                              ),
-                              Text(
-                                GlobalVariables.tripCount != null
-                                    ? GlobalVariables.tripCount!.toString()
-                                    : "0",
-                                style: const TextStyle(
-                                    fontSize: 20,
-                                    color: kColorButtonPrimary,
-                                    fontFamily: 'interBold'),
-                              ),
-                            ],
-                          ),
-                          Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              // Circular container with border
-                              Container(
-                                height: vhh(context, 15),
-                                width: vhh(context, 15),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(100),
-                                  border: Border.all(
-                                    color: kColorHereButton,
-                                    width: 2,
-                                  ),
-                                ),
-                              ),
+                      
+                      // Row(
+                      //   crossAxisAlignment: CrossAxisAlignment.center,
+                      //   mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      //   children: [
+                      //     Container(),
+                      //     Column(
+                      //       children: [
+                      //         Image.asset(
+                      //           'assets/images/icons/trips.png',
+                      //           width: vww(context, 19),
+                      //         ),
+                      //         Text(
+                      //           GlobalVariables.tripCount != null
+                      //               ? GlobalVariables.tripCount!.toString()
+                      //               : "0",
+                      //           style: const TextStyle(
+                      //               fontSize: 20,
+                      //               color: kColorButtonPrimary,
+                      //               fontFamily: 'interBold'),
+                      //         ),
+                      //       ],
+                      //     ),
+                      //     Stack(
+                      //       alignment: Alignment.center,
+                      //       children: [
+                      //         // Circular container with border
+                      //         Container(
+                      //           height: vhh(context, 15),
+                      //           width: vhh(context, 15),
+                      //           decoration: BoxDecoration(
+                      //             borderRadius: BorderRadius.circular(100),
+                      //             border: Border.all(
+                      //               color: kColorHereButton,
+                      //               width: 2,
+                      //             ),
+                      //           ),
+                      //         ),
 
-                              // Image with loading indicator
-                              ClipOval(
-                                child: GlobalVariables.userImageUrl != null
-                                    ? Image.network(
-                                        GlobalVariables.userImageUrl!,
-                                        fit: BoxFit.cover,
-                                        height: vhh(context, 15),
-                                        width: vhh(context, 15),
-                                        loadingBuilder:
-                                            (context, child, loadingProgress) {
-                                          if (loadingProgress == null) {
-                                            return child;
-                                          }
-                                          return SizedBox(
-                                            height: vhh(context, 15),
-                                            width: vhh(context, 15),
-                                            child: Center(
-                                              child: CircularProgressIndicator(
-                                                value: loadingProgress
-                                                            .expectedTotalBytes !=
-                                                        null
-                                                    ? loadingProgress
-                                                            .cumulativeBytesLoaded /
-                                                        (loadingProgress
-                                                                .expectedTotalBytes ??
-                                                            1)
-                                                    : null,
-                                                strokeWidth: 2,
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                        errorBuilder:
-                                            (context, error, stackTrace) {
-                                          return Container(
-                                            height: vhh(context, 15),
-                                            width: vhh(context, 15),
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              color: Colors.grey[
-                                                  300], // Placeholder background
-                                            ),
-                                            child: Icon(
-                                              Icons.person, // Fallback icon
-                                              color: Colors.grey[600],
-                                            ),
-                                          );
-                                        },
-                                      )
-                                    : Container(
-                                        height: vhh(context, 15),
-                                        width: vhh(context, 15),
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: Colors.grey[300],
-                                        ),
-                                        child: Icon(
-                                          Icons.person,
-                                          color: Colors.grey[600],
+                      //         // Image with loading indicator
+                      //         ClipOval(
+                      //           child: GlobalVariables.userImageUrl != null
+                      //               ? Image.network(
+                      //                   GlobalVariables.userImageUrl!,
+                      //                   fit: BoxFit.cover,
+                      //                   height: vhh(context, 15),
+                      //                   width: vhh(context, 15),
+                      //                   loadingBuilder:
+                      //                       (context, child, loadingProgress) {
+                      //                     if (loadingProgress == null) {
+                      //                       return child;
+                      //                     }
+                      //                     return SizedBox(
+                      //                       height: vhh(context, 15),
+                      //                       width: vhh(context, 15),
+                      //                       child: Center(
+                      //                         child: CircularProgressIndicator(
+                      //                           value: loadingProgress
+                      //                                       .expectedTotalBytes !=
+                      //                                   null
+                      //                               ? loadingProgress
+                      //                                       .cumulativeBytesLoaded /
+                      //                                   (loadingProgress
+                      //                                           .expectedTotalBytes ??
+                      //                                       1)
+                      //                               : null,
+                      //                           strokeWidth: 2,
+                      //                         ),
+                      //                       ),
+                      //                     );
+                      //                   },
+                      //                   errorBuilder:
+                      //                       (context, error, stackTrace) {
+                      //                     return Container(
+                      //                       height: vhh(context, 15),
+                      //                       width: vhh(context, 15),
+                      //                       decoration: BoxDecoration(
+                      //                         shape: BoxShape.circle,
+                      //                         color: Colors.grey[
+                      //                             300], // Placeholder background
+                      //                       ),
+                      //                       child: Icon(
+                      //                         Icons.person, // Fallback icon
+                      //                         color: Colors.grey[600],
+                      //                       ),
+                      //                     );
+                      //                   },
+                      //                 )
+                      //               : Container(
+                      //                   height: vhh(context, 15),
+                      //                   width: vhh(context, 15),
+                      //                   decoration: BoxDecoration(
+                      //                     shape: BoxShape.circle,
+                      //                     color: Colors.grey[300],
+                      //                   ),
+                      //                   child: Icon(
+                      //                     Icons.person,
+                      //                     color: Colors.grey[600],
+                      //                   ),
+                      //                 ),
+                      //         ),
+                      //       ],
+                      //     ),
+                      //     Column(
+                      //       children: [
+                      //         Image.asset(
+                      //           'assets/images/icons/followers.png',
+                      //           width: vww(context, 19),
+                      //         ),
+                      //         GestureDetector(
+                      //           onTap: () {
+                      //             _onFollowers();
+                      //           },
+                      //           child: Text(
+                      //             followingCount != null
+                      //                 ? followingCount!
+                      //                 : "0",
+                      //             style: const TextStyle(
+                      //                 fontSize: 20,
+                      //                 color: kColorButtonPrimary,
+                      //                 fontFamily: 'interBold'),
+                      //           ),
+                      //         ),
+                      //       ],
+                      //     ),
+                      //     Container(),
+                      //   ],
+                      // ),
+                      Stack(
+                        alignment: Alignment.topCenter,
+                        children: [
+                          // === Trips - Avatar - Followers Row ===
+                          Padding(
+                            padding: EdgeInsets.only(top: vhh(context, 7)), // Adjust spacing between username and profile row
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Container(),
+                                Column(
+                                  children: [
+                                    Image.asset(
+                                      'assets/images/icons/trips1.png',
+                                      width: vww(context, 18),
+                                    ),
+                                    Text(
+                                      GlobalVariables.tripCount?.toString() ?? "0",
+                                      style: const TextStyle(
+                                          fontSize: 20,
+                                          color: kColorButtonPrimary,
+                                          fontFamily: 'interBold'),
+                                    ),
+                                  ],
+                                ),
+                                Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    Container(
+                                      height: vhh(context, 15),
+                                      width: vhh(context, 15),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(100),
+                                        border: Border.all(
+                                          color: kColorHereButton,
+                                          width: 2,
                                         ),
                                       ),
-                              ),
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              Image.asset(
-                                'assets/images/icons/followers.png',
-                                width: vww(context, 19),
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  _onFollowers();
-                                },
-                                child: Text(
-                                  followingCount != null
-                                      ? followingCount!
-                                      : "0",
-                                  style: const TextStyle(
-                                      fontSize: 20,
-                                      color: kColorButtonPrimary,
-                                      fontFamily: 'interBold'),
+                                      child: ClipOval(
+                                        child: GlobalVariables.userImageUrl != null
+                                            ? Image.network(
+                                                GlobalVariables.userImageUrl!,
+                                                fit: BoxFit.cover,
+                                                height: vhh(context, 15),
+                                                width: vhh(context, 15),
+                                                loadingBuilder: (context, child, loadingProgress) {
+                                                  if (loadingProgress == null) return child;
+                                                  return Center(
+                                                    child: CircularProgressIndicator(
+                                                      value: loadingProgress.expectedTotalBytes != null
+                                                          ? loadingProgress.cumulativeBytesLoaded /
+                                                              (loadingProgress.expectedTotalBytes ?? 1)
+                                                          : null,
+                                                      strokeWidth: 2,
+                                                    ),
+                                                  );
+                                                },
+                                                errorBuilder: (context, error, stackTrace) {
+                                                  return Container(
+                                                    height: vhh(context, 15),
+                                                    width: vhh(context, 15),
+                                                    decoration: BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      color: Colors.grey[300],
+                                                    ),
+                                                    child: Icon(Icons.person, color: Colors.grey[600]),
+                                                  );
+                                                },
+                                              )
+                                            : Container(
+                                                height: vhh(context, 15),
+                                                width: vhh(context, 15),
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: Colors.grey[300],
+                                                ),
+                                                child: Icon(Icons.person, color: Colors.grey[600]),
+                                              ),
+                                      ),
+                                    ),
+                                    
+                                  ],
                                 ),
-                              ),
-                            ],
+                                Column(
+                                  children: [
+                                    Image.asset(
+                                      'assets/images/icons/follower1.png',
+                                      width: vww(context, 20),
+                                    ),
+                                    GestureDetector(
+                                      onTap: _onFollowers,
+                                      child: Text(
+                                        followingCount ?? "0",
+                                        style: const TextStyle(
+                                            fontSize: 20,
+                                            color: kColorButtonPrimary,
+                                            fontFamily: 'interBold'),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Container(),
+                              ],
+                            ),
                           ),
-                          Container(),
+
+                          // === Username & Verified Row (overlays the top center) ===
+                          Positioned(
+                            top: vhh(context, 0.3), // Adjust this value to move the username down
+                            left: 0,
+                            right: 0,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Image.asset(
+                                  'assets/images/icons/logo.png',
+                                  width: vww(context, 20),
+                                ),
+                                SizedBox(width: vww(context, 17)),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      username!,
+                                      style: const TextStyle(
+                                        color: kColorBlack,
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.w500,
+                                        fontFamily: 'inter',
+                                        letterSpacing: -0.1,
+                                      ),
+                                    ),
+                                    const SizedBox(width : 3),
+                                    Image.asset(
+                                      'assets/images/icons/verify.png',
+                                      width: 22,
+                                      height: 22,
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
+
                       SizedBox(height: vhh(context, 1)),
                       Text(
                         GlobalVariables.realName!,
                         style: const TextStyle(
                             color: kColorBlack,
-                            fontSize: 20,
-                            letterSpacing: -0.5,
+                            fontSize: 17,
+                            letterSpacing: -0.1,
+                            fontWeight: FontWeight.w500,
                             fontFamily: 'inter'),
                       ),
                       SizedBox(height: vhh(context, 0.5)),
@@ -530,16 +648,18 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             : " ",
                         style: const TextStyle(
                             color: kColorGrey,
-                            fontSize: 16,
-                            letterSpacing: -0.5,
+                            fontSize: 15,
+                            letterSpacing: -0.1,
+                            fontWeight: FontWeight.w400,
                             fontFamily: 'inter'),
                       ),
                       SizedBox(height: vhh(context, 2)),
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           SizedBox(
-                            width: vww(context, 30),
-                            height: 28,
+                            width: vww(context, 29),
+                            height: 23,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor:
@@ -551,7 +671,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 shadowColor:
                                     Colors.black
                                         .withValues(alpha: 0.9),
-                                elevation: 6,
+                                elevation: 3,
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 2, vertical: 2),
                               ),
@@ -567,10 +687,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                       fontFamily: 'inter')),
                             ),
                           ),
-                          SizedBox(width: vww(context, 1)),
                           SizedBox(
-                            width: vww(context, 30),
-                            height: 28,
+                            width: vww(context, 29),
+                            height: 23,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: kColorStrongBlue,
@@ -579,7 +698,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 ),
                                 shadowColor:
                                     Colors.black.withValues(alpha: 0.9),
-                                elevation: 6,
+                                elevation: 3,
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 2, vertical: 2),
                               ),
@@ -595,10 +714,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                       fontFamily: 'inter')),
                             ),
                           ),
-                          SizedBox(width: vww(context, 1)),
                           SizedBox(
-                            width: vww(context, 30),
-                            height: 28,
+                            width: vww(context, 29),
+                            height: 23,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor:
@@ -610,7 +728,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 shadowColor:
                                     Colors.black
                                         .withValues(alpha: 0.9),
-                                elevation: 6,
+                                elevation: 3,
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 2, vertical: 2),
                               ),
@@ -721,7 +839,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
 
                                   return Padding(
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal: 3),
+                                        horizontal: 1),
                                     child: GestureDetector(
                                       onTap: () {
                                         _showImageDialog(imagePath, caption,
@@ -774,19 +892,20 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                               ),
                       ),
 
-                      SizedBox(height: vhh(context, 1)),
-                      // Map and Route Section with Dividers
                       Container(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        padding: const EdgeInsets.symmetric(vertical: 7),
                         color: kColorWhite,
                         child: Column(
                           children: [
-                            const Divider(
-                              height: 1,
-                              thickness: 2,
-                              color: Colors.blue,
+                            const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16.0),
+                              child: Divider(
+                                height: 1,
+                                thickness: 2,
+                                color: kColorHereButton,
+                              ),
                             ),
-                            SizedBox(height: vhh(context, 2)),
+                            SizedBox(height: vhh(context, 1)),
                             userTrips == null
                                 ? const Center(
                                     child: CircularProgressIndicator())
@@ -803,16 +922,12 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                     MainAxisAlignment.center,
                                                 children: [
                                                   Container(
-                                                    width:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .width *
-                                                            0.4,
-                                                    height: 150,
+                                                    width:180,
+                                                    height: 110,
                                                     decoration: BoxDecoration(
                                                       border: Border.all(
-                                                        color: Colors.grey,
-                                                        width: 2,
+                                                        color: Colors.black,
+                                                        width: 0.7,
                                                       ),
                                                     ),
                                                     child: TripMapWidget(
@@ -827,27 +942,23 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                                 .size
                                                                 .width *
                                                             0.05,
-                                                    height: 150,
+                                                    height: 100,
                                                     child:
                                                         const VerticalDivider(
-                                                      width: 2,
-                                                      thickness: 2,
+                                                      width: 1,
+                                                      thickness: 1,
                                                       color: Colors.grey,
                                                     ),
                                                   ),
                                                   if (rowIndex * 2 + 1 <
                                                       userTrips!.length)
                                                     Container(
-                                                      width:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .width *
-                                                              0.4,
-                                                      height: 150,
+                                                      width:180,
+                                                      height: 110,
                                                       decoration: BoxDecoration(
                                                         border: Border.all(
-                                                          color: Colors.grey,
-                                                          width: 2,
+                                                          color: Colors.black,
+                                                          width: 0.7,
                                                         ),
                                                       ),
                                                       child: TripMapWidget(
@@ -872,17 +983,16 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                       1)
                                                 Column(
                                                   children: [
-                                                    SizedBox(
-                                                        height:
-                                                            vhh(context, 1)),
-                                                    const Divider(
-                                                      height: 1,
-                                                      thickness: 2,
-                                                      color: Colors.grey,
+                                                    SizedBox(height: vhh(context, 1)),
+                                                    const Padding(
+                                                      padding: EdgeInsets.symmetric(horizontal: 16),
+                                                      child: Divider(
+                                                        height: 1,
+                                                        thickness: 1,
+                                                        color: Colors.grey,
+                                                      ),
                                                     ),
-                                                    SizedBox(
-                                                        height:
-                                                            vhh(context, 1)),
+                                                    SizedBox(height: vhh(context, 1)),
                                                   ],
                                                 ),
                                             ],
