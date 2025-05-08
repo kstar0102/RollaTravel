@@ -191,19 +191,16 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                           onPressed: () {
                             Navigator.of(context).pop();
                             setState(() {
-                              showLikesDropdown =
-                                  false; // Hide the dropdown when the dialog is closed
+                              showLikesDropdown =false;
                             });
                           },
                         ),
                       ],
                     ),
                   ),
-                  // Image
                   Stack(
                     alignment: Alignment.center,
                     children: [
-                      // Image
                       Image.network(
                         imagePath,
                         fit: BoxFit.cover,
@@ -213,10 +210,8 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             const Icon(Icons.broken_image, size: 100),
                         loadingBuilder: (context, child, loadingProgress) {
                           if (loadingProgress == null) {
-                            // Image has finished loading
                             return child;
                           } else {
-                            // Show a rotating loading indicator while the image loads
                             return Center(
                               child: CircularProgressIndicator(
                                 value: loadingProgress.expectedTotalBytes !=
@@ -362,14 +357,13 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                     children: <Widget>[
                       SizedBox(height: vhh(context, 1)),
                       Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Image.asset(
                             'assets/images/icons/logo.png',
                             width: vww(context, 20),
                           ),
-                          SizedBox(width: vww(context, 18)),
+                          SizedBox(width: vww(context, 17)),
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
@@ -382,10 +376,12 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   letterSpacing: -0.1,
                                 ),
                               ),
+                              SizedBox(width : 3),
                               Image.asset(
                                 'assets/images/icons/verify.png',
                                 width: vww(context, 5),
-                                height: 20,
+                                height: 25,
+                                fit: BoxFit.contain,
                               ),
                             ],
                           ),
