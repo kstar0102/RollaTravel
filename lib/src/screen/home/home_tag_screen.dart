@@ -17,8 +17,8 @@ class HomeTagScreen extends ConsumerStatefulWidget {
 class HomeTagScreenState extends ConsumerState<HomeTagScreen> {
   final int _currentIndex = 0;
   final logger = Logger();
-  List<dynamic> taggedUsers = []; // Store the fetched user data
-  bool isLoading = true; // Track loading state
+  List<dynamic> taggedUsers = []; 
+  bool isLoading = true; 
 
   @override
   void initState() {
@@ -29,24 +29,19 @@ class HomeTagScreenState extends ConsumerState<HomeTagScreen> {
 
   Future<void> fetchTaggedUsers() async {
     if (widget.taglist != null && widget.taglist != "[]") {
-      // Remove any non-numeric characters like '[' and ']'
       String cleanedTagList = widget.taglist!.replaceAll('[', '').replaceAll(']', '');
-
-      // Split the cleaned string by commas and convert each element to an integer
       List<int> tagIds = cleanedTagList.split(',').map((id) {
         try {
-          return int.parse(id.trim());  // Ensure each element is an integer after trimming
+          return int.parse(id.trim());  
         } catch (e) {
           logger.e('Error parsing ID: $id');
-          return null;  // Return null for invalid IDs
+          return null; 
         }
-      }).where((id) => id != null).cast<int>().toList();  // Filter out null values
-
-      // Loop through each ID and fetch the user info
+      }).where((id) => id != null).cast<int>().toList(); 
       for (int id in tagIds) {
         try {
           final userData = await ApiService().fetchUserInfo(id);
-          logger.i('Fetched user info for ID $id: $userData');  // Debug log
+          logger.i('Fetched user info for ID $id: $userData'); 
           setState(() {
             taggedUsers.add(userData);
           });
@@ -56,7 +51,7 @@ class HomeTagScreenState extends ConsumerState<HomeTagScreen> {
       }
     }
     setState(() {
-      isLoading = false; // Stop loading after fetching data
+      isLoading = false;
     });
   }
 
@@ -78,35 +73,36 @@ class HomeTagScreenState extends ConsumerState<HomeTagScreen> {
               Padding(
                 padding: const EdgeInsets.only(top: 8.0, left: 8.0, right: 8.0),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Image.asset('assets/images/icons/logo.png',
-                        height: vhh(context, 12)),
-                    Center(
-                      child: Column(
-                        children: [
-                          SizedBox(height: vhh(context, 5)),
-                          const Text(
-                            "Users tagged in this post",
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 15,
-                              fontFamily: 'inter',
-                            ),
-                          ),
-                          Image.asset("assets/images/icons/add_car.png",
-                              width: vww(context, 8)),
-                        ],
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close, size: 30),
-                      onPressed: () {
-                        Navigator.of(context).pop(); // Close the screen
-                      },
-                    ),
-                  ],
-                ),
+  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  children: [
+    Expanded(
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,  // Ensures the column takes minimum space required
+          children: [
+            SizedBox(height: vhh(context, 5)),
+            const Text(
+              "Users tagged in this post",
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 15,
+                fontFamily: 'inter',
+              ),
+            ),
+            Image.asset("assets/images/icons/add_car.png", width: vww(context, 8)),
+          ],
+        ),
+      ),
+    ),
+    IconButton(
+      icon: const Icon(Icons.close, size: 30),
+      onPressed: () {
+        Navigator.of(context).pop(); // Close the screen
+      },
+    ),
+  ],
+),
+
               ),
               SizedBox(
                 width: vww(context, 80), // Set the width of the Divider

@@ -14,11 +14,7 @@ class TripSetttingScreenState extends State<TripSetttingScreen> {
   int _privacySelected = 0;
   int _mapStyleSelected = 2;
   int _selectedUnit = 1;
-  final int _currentIndex = 2;
-
-  Future<bool> _onWillPop() async {
-    return false;
-  }
+  final int _currentIndex = 5;
 
   Widget _buildRadioOption(
       String label, int value, int groupValue, Function(int) onChanged) {
@@ -29,7 +25,11 @@ class TripSetttingScreenState extends State<TripSetttingScreen> {
           children: [
             Text(
               label,
-              style: const TextStyle(fontSize: 12, fontFamily: "inter"),
+              style: const TextStyle(
+                fontSize: 13, 
+                fontWeight: FontWeight.w500,
+                letterSpacing: -0.1,
+                fontFamily: "inter"),
             ),
             Radio<int>(
               value: value,
@@ -50,7 +50,7 @@ class TripSetttingScreenState extends State<TripSetttingScreen> {
       children: [
         Text(
           label,
-          style: const TextStyle(fontSize: 14, fontFamily: "inter"),
+          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, letterSpacing: -0.1, fontFamily: "inter"),
         ),
         Radio<int>(
           value: value,
@@ -66,73 +66,79 @@ class TripSetttingScreenState extends State<TripSetttingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kColorWhite,
-      body: WillPopScope(
-        onWillPop: _onWillPop,
+      body: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) {
+          if (!didPop) {
+            return; // Prevent pop action
+          }
+        },
         child: Padding(
           padding: const EdgeInsets.all(10.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Logo and close button aligned at the top
               Padding(
-                padding: const EdgeInsets.only(top: 8.0),
+                padding: const EdgeInsets.only(top: 25.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Logo
-                    Image.asset(
-                      'assets/images/icons/logo.png',
-                      height: vhh(context, 12),
+                    Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center, // Center the Trip Settings text
+                        children: [
+                          Image.asset(
+                            'assets/images/icons/setting.png',
+                            height: vhh(context, 2.5),
+                          ),
+                          const SizedBox(width: 5), // Spacing between icon and text
+                          const Text(
+                            'Trip Settings',
+                            style: TextStyle(
+                              fontSize: 21, 
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: -0.1,
+                              fontFamily: "inter"),
+                          ),
+                        ],
+                      ),
                     ),
-
-                    // Title with icon
-                    Row(
-                      children: [
-                        Image.asset(
-                          'assets/images/icons/setting.png',
-                          height: vhh(context, 2.5),
-                        ),
-                        const SizedBox(
-                            width: 5), // Spacing between icon and text
-                        const Text(
-                          'Trip Settings',
-                          style: TextStyle(fontSize: 21, fontFamily: "inter"),
-                        ),
-                      ],
-                    ),
-
-                    // Close button
                     IconButton(
-                      icon: const Icon(Icons.close, size: 30),
+                      icon: const Icon(Icons.close, size: 25),
                       onPressed: () {
-                        Navigator.of(context).pop(); // Close the screen
+                        Navigator.of(context).pop(); 
                       },
                     ),
                   ],
-                ),
+                )
               ),
 
-              SizedBox(
-                width: vww(context, 80),
-                child: const Divider(
-                  thickness: 0.6, // Set the thickness of the line
-                  color: Colors.grey, // Optional: Set the color of the Divider
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                child: Divider(
+                  thickness: 1.2,
+                  color: kColorStrongGrey,
                 ),
               ),
 
               const Text(
                 'Privacy',
-                style: TextStyle(fontSize: 17, fontFamily: "inter"),
+                style: TextStyle(
+                  fontSize: 17, 
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.1,
+                  fontFamily: "inter"),
                 textAlign: TextAlign.left,
               ),
-              const SizedBox(height: 8),
-              // Subtitle
+              const SizedBox(height: 6),
               const Padding(
                 padding: EdgeInsets.only(left: 5),
                 child: Text(
                   'Delay display of dropped pins on my map for:',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w400,
+                    letterSpacing: -0.1,
                     fontFamily: "inter",
                     decoration: TextDecoration.underline,
                   ),
@@ -165,7 +171,11 @@ class TripSetttingScreenState extends State<TripSetttingScreen> {
               // Map Style Section
               const Text(
                 'Map Style',
-                style: TextStyle(fontSize: 17, fontFamily: "inter"),
+                style: TextStyle(
+                  fontSize: 17, 
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.1,
+                  fontFamily: "inter"),
               ),
 
               const SizedBox(height: 10),
@@ -202,7 +212,11 @@ class TripSetttingScreenState extends State<TripSetttingScreen> {
               const SizedBox(height: 30),
               const Text(
                 'Units of distance',
-                style: TextStyle(fontSize: 17, fontFamily: "inter"),
+                style: TextStyle(
+                  fontSize: 17, 
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.1,
+                  fontFamily: "inter"),
               ),
 
               Padding(

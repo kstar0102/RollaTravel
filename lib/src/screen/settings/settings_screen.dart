@@ -163,15 +163,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 color: kColorBlack,
                                 fontSize: 21,
                                 letterSpacing: -0.1,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.w600,
                                 fontFamily: 'inter',
                               ),
                             ),
                             SizedBox(width: vww(context, 3)),
                           ],
                         ),
-                        SizedBox(height: vhh(context, 1)),
-                        const Divider(color: kColorGrey, thickness: 1),
+                        SizedBox(height: vhh(context, 3)),
+                        const Divider(color: kColorStrongGrey, thickness: 1, height: 1,),
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 16.0),
                           child: Column(

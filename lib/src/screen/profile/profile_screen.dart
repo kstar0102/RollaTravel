@@ -46,6 +46,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   List<LatLng> locations = [];
   late List<dynamic> dropPinsData = [];
 
+  bool _isSelectMode = false;
+  List<int> _selectedMapIndices = [];
+
   @override
   void initState() {
     super.initState();
@@ -129,6 +132,25 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   void dispose() {
     super.dispose();
+  }
+
+  void _onSelectButtonPressed() {
+    setState(() {
+      _isSelectMode = !_isSelectMode;
+      _selectedMapIndices.clear(); // Reset selection when switching to Cancel mode
+    });
+  }
+
+  void _onDeleteButtonPressed() {
+    setState(() {
+      // Check for selected map indices and remove from the list
+      for (int index in _selectedMapIndices) {
+        userTrips![index]['deleted'] = true; // Mark the trip as deleted
+      }
+
+      // Clear selected indices after deletion
+      _selectedMapIndices.clear();
+    });
   }
 
   void _onFollowers() {
@@ -488,7 +510,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                         children: [
                           // === Trips - Avatar - Followers Row ===
                           Padding(
-                            padding: EdgeInsets.only(top: vhh(context, 7)), // Adjust spacing between username and profile row
+                            padding: EdgeInsets.only(top: vhh(context, 7.5)), 
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -592,7 +614,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
 
                           // === Username & Verified Row (overlays the top center) ===
                           Positioned(
-                            top: vhh(context, 0.3), // Adjust this value to move the username down
+                            top: vhh(context, 0.3), 
                             left: 0,
                             right: 0,
                             child: Row(
@@ -625,6 +647,28 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     ),
                                   ],
                                 ),
+                                const Spacer(), // To push the Select button to the right
+                                Row(
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: _onSelectButtonPressed,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: kColorButtonPrimary,
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                    ),
+                                    child: Text(_isSelectMode ? 'Cancel' : 'Select', style: TextStyle(color: kColorWhite)),
+                                  ),
+                                  if (_isSelectMode)
+                                    ElevatedButton(
+                                      onPressed: _onDeleteButtonPressed,
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.red,
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                      ),
+                                      child: const Text('Delete', style: TextStyle(color: kColorWhite)),
+                                    ),
+                                ],
+                              ),
                               ],
                             ),
                           ),
@@ -927,7 +971,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                     decoration: BoxDecoration(
                                                       border: Border.all(
                                                         color: Colors.black,
-                                                        width: 0.7,
+                                                        width: 1,
                                                       ),
                                                     ),
                                                     child: TripMapWidget(
@@ -936,20 +980,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                       index: rowIndex * 2,
                                                     ),
                                                   ),
-                                                  SizedBox(
-                                                    width:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .width *
-                                                            0.05,
-                                                    height: 100,
-                                                    child:
-                                                        const VerticalDivider(
-                                                      width: 1,
-                                                      thickness: 1,
-                                                      color: Colors.grey,
-                                                    ),
-                                                  ),
+                                                  const SizedBox(width: 10,),
                                                   if (rowIndex * 2 + 1 <
                                                       userTrips!.length)
                                                     Container(
@@ -958,7 +989,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                       decoration: BoxDecoration(
                                                         border: Border.all(
                                                           color: Colors.black,
-                                                          width: 0.7,
+                                                          width: 1,
                                                         ),
                                                       ),
                                                       child: TripMapWidget(
@@ -983,15 +1014,15 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                       1)
                                                 Column(
                                                   children: [
-                                                    SizedBox(height: vhh(context, 1)),
-                                                    const Padding(
-                                                      padding: EdgeInsets.symmetric(horizontal: 16),
-                                                      child: Divider(
-                                                        height: 1,
-                                                        thickness: 1,
-                                                        color: Colors.grey,
-                                                      ),
-                                                    ),
+                                                    // SizedBox(height: vhh(context, 1)),
+                                                    // const Padding(
+                                                    //   padding: EdgeInsets.symmetric(horizontal: 16),
+                                                    //   child: Divider(
+                                                    //     height: 1,
+                                                    //     thickness: 1,
+                                                    //     color: Colors.grey,
+                                                    //   ),
+                                                    // ),
                                                     SizedBox(height: vhh(context, 1)),
                                                   ],
                                                 ),
@@ -1034,7 +1065,7 @@ class _TripMapWidgetState extends State<TripMapWidget> {
   LatLng? endPoint;
   bool isLoading = true;
   final logger = Logger();
-
+  // bool _isSelected = false; 
   @override
   void initState() {
     super.initState();
@@ -1150,9 +1181,7 @@ class _TripMapWidgetState extends State<TripMapWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 150,
-      margin: const EdgeInsets.only(bottom: 10),
+    return SizedBox(
       child: isLoading
           ? const Center(child: CircularProgressIndicator())
           : Stack(
@@ -1252,4 +1281,6 @@ class _TripMapWidgetState extends State<TripMapWidget> {
             ),
     );
   }
+
+  
 }
