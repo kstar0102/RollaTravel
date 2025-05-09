@@ -71,44 +71,44 @@ class HomeTagScreenState extends ConsumerState<HomeTagScreen> {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.only(top: 8.0, left: 8.0, right: 8.0),
+                padding: const EdgeInsets.only(top: 10.0, left: 8.0, right: 8.0),
                 child: Row(
-  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  children: [
-    Expanded(
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,  // Ensures the column takes minimum space required
-          children: [
-            SizedBox(height: vhh(context, 5)),
-            const Text(
-              "Users tagged in this post",
-              style: TextStyle(
-                color: Colors.grey,
-                fontSize: 15,
-                fontFamily: 'inter',
-              ),
-            ),
-            Image.asset("assets/images/icons/add_car.png", width: vww(context, 8)),
-          ],
-        ),
-      ),
-    ),
-    IconButton(
-      icon: const Icon(Icons.close, size: 30),
-      onPressed: () {
-        Navigator.of(context).pop(); // Close the screen
-      },
-    ),
-  ],
-),
-
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.close, size: 30),
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Close the screen
+                      },
+                    ),
+                    Expanded(
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,  // Ensures the column takes minimum space required
+                          children: [
+                            SizedBox(height: vhh(context, 5)),
+                            const Text(
+                              "Users tagged in this post",
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 15,
+                                fontFamily: 'inter',
+                              ),
+                            ),
+                            Image.asset("assets/images/icons/add_car.png", width: vww(context, 8)),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 20,),
+                  ],
+                ),
               ),
               SizedBox(
-                width: vww(context, 80), // Set the width of the Divider
+                width: vww(context, 80),
                 child: const Divider(
-                  thickness: 0.6, // Set the thickness of the line
-                  color: Colors.grey, // Optional: Set the color of the Divider
+                  thickness: 0.6, 
+                  color: Colors.grey,
                 ),
               ),
               Expanded(

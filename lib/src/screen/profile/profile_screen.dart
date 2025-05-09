@@ -170,9 +170,36 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   void _onEditButtonClicked() {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => const EditProfileScreen()));
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) {
+          return const EditProfileScreen();
+        },
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          // For forward transition (right to left)
+          const begin = Offset(1.0, 0.0); 
+          const end = Offset.zero; 
+          const curve = Curves.easeInOut;
+
+          var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          var offsetAnimation = animation.drive(tween);
+
+          // For reverse transition (left to right)
+          const reverseBegin = Offset(-1.0, 0.0); // Starts from left
+          const reverseEnd = Offset.zero; // Ends at the current position
+          var reverseTween = Tween(begin: reverseBegin, end: reverseEnd).chain(CurveTween(curve: curve));
+          secondaryAnimation.drive(reverseTween);
+
+          // Create the transition based on whether we are coming or going
+          return SlideTransition(position: offsetAnimation, child: child);
+        },
+        transitionDuration: const Duration(milliseconds: 300), // Adjust duration for smoothness
+        reverseTransitionDuration: const Duration(milliseconds: 300), // Same duration for reverse
+      ),
+    );
   }
+
 
   void _showImageDialog(
       String imagePath, String caption, int likes, List<dynamic> likedUsers) {
@@ -811,7 +838,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                         child: Column(
                           children: [
                             const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 16.0),
+                              padding: EdgeInsets.symmetric(horizontal: 10.0),
                               child: Divider(
                                 height: 1,
                                 thickness: 2,
@@ -835,7 +862,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                     MainAxisAlignment.center,
                                                 children: [
                                                   Container(
-                                                    width:180,
+                                                    width: MediaQuery.of(context).size.width * 0.4,
                                                     height: 110,
                                                     decoration: BoxDecoration(
                                                       border: Border.all(
@@ -849,11 +876,11 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                       index: rowIndex * 2,
                                                     ),
                                                   ),
-                                                  const SizedBox(width: 10,),
+                                                  const SizedBox(width: 12,),
                                                   if (rowIndex * 2 + 1 <
                                                       userTrips!.length)
                                                     Container(
-                                                      width:180,
+                                                      width: MediaQuery.of(context).size.width * 0.4,
                                                       height: 110,
                                                       decoration: BoxDecoration(
                                                         border: Border.all(

@@ -78,40 +78,43 @@ class TripSetttingScreenState extends State<TripSetttingScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 25.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center, // Center the Trip Settings text
-                        children: [
-                          Image.asset(
-                            'assets/images/icons/setting.png',
-                            height: vhh(context, 2.5),
+             Padding(
+              padding: const EdgeInsets.only(top: 30.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start, // Keep the close button aligned to the left
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.close, size: 25),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  // Center the icon and text together
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center, // Center the icon and text
+                      children: [
+                        Image.asset(
+                          'assets/images/icons/setting.png',
+                          height: vhh(context, 2.5),
+                        ),
+                        const SizedBox(width: 5), // Spacing between icon and text
+                        const Text(
+                          'Trip Settings',
+                          style: TextStyle(
+                            fontSize: 21,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: -0.1,
+                            fontFamily: "inter",
                           ),
-                          const SizedBox(width: 5), // Spacing between icon and text
-                          const Text(
-                            'Trip Settings',
-                            style: TextStyle(
-                              fontSize: 21, 
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: -0.1,
-                              fontFamily: "inter"),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.close, size: 25),
-                      onPressed: () {
-                        Navigator.of(context).pop(); 
-                      },
-                    ),
-                  ],
-                )
+                  ),
+                  const SizedBox(width: 20,)
+                ],
               ),
+            ),
 
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),

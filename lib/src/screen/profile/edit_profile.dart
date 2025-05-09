@@ -320,7 +320,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
-                        SizedBox(height: vhh(context, 6)),
+                        SizedBox(height: vhh(context, 7)),
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -334,6 +334,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 width: vww(context, 3),
                               ),
                             ),
+                            // Spacer to center the "Edit Profile" text
+                            const Spacer(),
                             const Text(
                               edit_profile,
                               style: TextStyle(
@@ -343,7 +345,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   letterSpacing: -0.1,
                                   fontFamily: 'inter'),
                             ),
-                            SizedBox(width: vww(context, 7)),
+                            const Spacer(), // Another Spacer to balance out the positioning
                           ],
                         ),
                         SizedBox(height: vhh(context, 1)),
