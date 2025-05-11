@@ -32,7 +32,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   String? garageImageUrl;
   String? username;
   String? happyPlace;
-
+  bool _isLoading = false;
   final logger = Logger();
   List<Map<String, dynamic>>? userTrips;
   Map<String, dynamic>? userInfo;
@@ -44,7 +44,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   late List<dynamic> dropPinsData = [];
 
   bool _isSelectMode = false;
-  List<int> _selectedMapIndices = [];
+  final List<int> _selectedMapIndices = [];
 
   @override
   void initState() {
@@ -131,24 +131,91 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     super.dispose();
   }
 
+  void _showLoadingDialog() {
+    setState(() {
+      _isLoading = true;
+    });
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const AlertDialog(
+          content: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              CircularProgressIndicator(), // Progress bar
+              SizedBox(width: 20),
+              Text("Loading..."), // Loading text
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _hideLoadingDialog() {
+    if (_isLoading) {
+      Navigator.of(context).pop();
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+  
+  void _onSelectTrip(int tripId) {
+    setState(() {
+      if (_selectedMapIndices.contains(tripId)) {
+        _selectedMapIndices.remove(tripId); // Deselect the trip
+      } else {
+        _selectedMapIndices.add(tripId); // Select the trip
+      }
+      logger.i('Selected trip IDs: $_selectedMapIndices');
+    });
+  }
+
   void _onSelectButtonPressed() {
     setState(() {
       _isSelectMode = !_isSelectMode;
-      _selectedMapIndices.clear(); // Reset selection when switching to Cancel mode
-    });
-  }
-
-  void _onDeleteButtonPressed() {
-    setState(() {
-      // Check for selected map indices and remove from the list
-      for (int index in _selectedMapIndices) {
-        userTrips![index]['deleted'] = true; // Mark the trip as deleted
-      }
-
-      // Clear selected indices after deletion
       _selectedMapIndices.clear();
     });
   }
+
+  void _onDeleteButtonPressed() async {
+    final apiService = ApiService();
+    bool allDeletedSuccessfully = true;
+    _showLoadingDialog();
+    for (int tripId in _selectedMapIndices) {
+      try {
+        final result = await apiService.deleteTrip(tripId);
+
+        if (result['statusCode'] != true) {
+          allDeletedSuccessfully = false; 
+          logger.e('Failed to delete trip with ID: $tripId');
+          break; 
+        }
+      } catch (e) {
+        allDeletedSuccessfully = false; 
+        logger.e('Error deleting trip with ID: $tripId. $e');
+        break;
+      }
+    }
+    _hideLoadingDialog();
+
+    if (allDeletedSuccessfully) {
+      setState(() {
+        _isSelectMode = !_isSelectMode;
+        _selectedMapIndices.clear();
+      });
+
+      if(!mounted) return;
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const ProfileScreen()),
+      );
+    }
+  }
+
 
   void _onFollowers() {
     Navigator.push(context,
@@ -177,29 +244,22 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
           return const EditProfileScreen();
         },
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          // For forward transition (right to left)
           const begin = Offset(1.0, 0.0); 
           const end = Offset.zero; 
           const curve = Curves.easeInOut;
-
           var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
           var offsetAnimation = animation.drive(tween);
-
-          // For reverse transition (left to right)
-          const reverseBegin = Offset(-1.0, 0.0); // Starts from left
-          const reverseEnd = Offset.zero; // Ends at the current position
+          const reverseBegin = Offset(-1.0, 0.0); 
+          const reverseEnd = Offset.zero; 
           var reverseTween = Tween(begin: reverseBegin, end: reverseEnd).chain(CurveTween(curve: curve));
           secondaryAnimation.drive(reverseTween);
-
-          // Create the transition based on whether we are coming or going
           return SlideTransition(position: offsetAnimation, child: child);
         },
-        transitionDuration: const Duration(milliseconds: 300), // Adjust duration for smoothness
-        reverseTransitionDuration: const Duration(milliseconds: 300), // Same duration for reverse
+        transitionDuration: const Duration(milliseconds: 300), 
+        reverseTransitionDuration: const Duration(milliseconds: 300),
       ),
     );
   }
-
 
   void _showImageDialog(
       String imagePath, String caption, int likes, List<dynamic> likedUsers) {
@@ -520,7 +580,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   'assets/images/icons/logo.png',
                                   width: vww(context, 20),
                                 ),
-                                SizedBox(width: vww(context, 15)),
+                                const Spacer(),
                                 Row(
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
@@ -543,26 +603,48 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     ),
                                   ],
                                 ),
-                                const Spacer(), // To push the Select button to the right
+                                const Spacer(),
                                 Row(
                                 children: [
-                                  ElevatedButton(
-                                    onPressed: _onSelectButtonPressed,
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: kColorButtonPrimary,
-                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                    ),
-                                    child: Text(_isSelectMode ? 'Cancel' : 'Select', style: TextStyle(color: kColorWhite)),
-                                  ),
                                   if (_isSelectMode)
-                                    ElevatedButton(
-                                      onPressed: _onDeleteButtonPressed,
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.red,
-                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                    SizedBox(
+                                      height: 30,
+                                      child: ElevatedButton(
+                                        onPressed: _onDeleteButtonPressed,
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: kColorStafGrey,
+                                          padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 2),
+                                        ),
+                                        child: const Text(
+                                          "Delete",
+                                          style: TextStyle(
+                                            color: Colors.red,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: 'inter',),
+                                        ),
                                       ),
-                                      child: const Text('Delete', style: TextStyle(color: kColorWhite)),
                                     ),
+                                  if (_isSelectMode)
+                                    const SizedBox(width: 3,),
+                                  SizedBox(
+                                    height: 30, 
+                                    child: ElevatedButton(
+                                      onPressed: _onSelectButtonPressed,
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: kColorStafGrey,
+                                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                                      ),
+                                      child: Text(
+                                        _isSelectMode ? 'Cancel' : 'Select',
+                                        style: const TextStyle(
+                                          color: Colors.black54,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 13,
+                                          fontFamily: 'inter',),
+                                      ),
+                                    ),
+                                  ),
                                 ],
                               ),
                               ],
@@ -874,6 +956,10 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                       trip: userTrips![
                                                           rowIndex * 2],
                                                       index: rowIndex * 2,
+                                                      isSelectMode: _isSelectMode,
+                                                      selectedMapIndices: _selectedMapIndices, 
+                                                      onSelectTrip: _onSelectTrip, 
+                                                      onDeleteButtonPressed: _onDeleteButtonPressed,
                                                     ),
                                                   ),
                                                   const SizedBox(width: 12,),
@@ -892,6 +978,10 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                         trip: userTrips![
                                                             rowIndex * 2 + 1],
                                                         index: rowIndex * 2 + 1,
+                                                        isSelectMode: _isSelectMode,
+                                                        selectedMapIndices: _selectedMapIndices,
+                                                        onSelectTrip: _onSelectTrip,
+                                                        onDeleteButtonPressed: _onDeleteButtonPressed,
                                                       ),
                                                     ),
                                                   if (rowIndex * 2 + 1 >=

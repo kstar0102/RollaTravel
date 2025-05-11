@@ -12,11 +12,19 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class TripMapWidget extends StatefulWidget {
   final Map<String, dynamic> trip;
   final int index;
+  final bool isSelectMode;
+  final List<int> selectedMapIndices; // Accept the list
+  final Function(int) onSelectTrip;
+  final VoidCallback onDeleteButtonPressed;
 
   const TripMapWidget({
     super.key,
     required this.trip,
     required this.index,
+    required this.isSelectMode,
+    required this.selectedMapIndices, // Pass the selectedMapIndices
+    required this.onSelectTrip, 
+    required this.onDeleteButtonPressed,
   });
 
   @override
@@ -31,7 +39,8 @@ class _TripMapWidgetState extends State<TripMapWidget> {
   LatLng? endPoint;
   bool isLoading = true;
   final logger = Logger();
-  // bool _isSelected = false; 
+  bool _isSelected = false; 
+
   @override
   void initState() {
     super.initState();
@@ -44,6 +53,7 @@ class _TripMapWidgetState extends State<TripMapWidget> {
         });
       }
     });
+    logger.i(widget.isSelectMode);
   }
 
   @override
@@ -135,6 +145,26 @@ class _TripMapWidgetState extends State<TripMapWidget> {
     });
   }
 
+  // Function to toggle selection mode
+  // void _toggleSelectMode() {
+  //   setState(() {
+  //     _isSelectMode = !_isSelectMode; // Toggle the select mode
+  //   });
+  //   logger.i('Select mode is now: $_isSelectMode');
+  // }
+
+  // Function to toggle individual selection
+  void _onSelectTrip() {
+    setState(() {
+      _isSelected = !_isSelected; // Toggle the selection state
+      if (_isSelected) {
+        widget.onSelectTrip(widget.trip['id']); // Add the trip ID to the list if selected
+      } else {
+        widget.onSelectTrip(widget.trip['id']); // Remove the trip ID from the list if deselected
+      }
+    });
+  }
+
   void _onMapTap() {
     GlobalVariables.homeTripID = widget.trip['id'];
     Navigator.push(
@@ -152,101 +182,127 @@ class _TripMapWidgetState extends State<TripMapWidget> {
           ? const Center(child: CircularProgressIndicator())
           : Stack(
               children: [
-                FlutterMap(
-                  mapController: mapController,
-                  options: MapOptions(
-                    initialCenter:
-                        startPoint != null ? startPoint! : const LatLng(0, 0),
-                    initialZoom: 3,
-                    onTap: (_, LatLng position) {
-                      _onMapTap();
-                      logger.i('Map tapped at: $position');
-                    },
-                  ),
-                  children: [
-                    TileLayer(
-                      urlTemplate:
-                          "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw",
-                      additionalOptions: const {
-                        'access_token':
-                            'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw',
+                Opacity(
+                  opacity: widget.isSelectMode ? 0.5 : 1.0, // Grey out effect
+                  child: FlutterMap(
+                    mapController: mapController,
+                    options: MapOptions(
+                      initialCenter:
+                          startPoint != null ? startPoint! : const LatLng(0, 0),
+                      initialZoom: 3,
+                      onTap: (_, LatLng position) {
+                        if (widget.isSelectMode == false) {
+                            _onMapTap(); // Only call _onMapTap when select mode is true
+                          }
                       },
                     ),
-                    MarkerLayer(
-                      markers: [
-                        if (startPoint != null)
-                          Marker(
-                            width: 80,
-                            height: 80,
-                            point: startPoint!,
-                            child: Icon(Icons.location_on,
-                                color: Colors.red, size: 60.sp),
-                          ),
-                        if (endPoint != null)
-                          Marker(
-                            width: 80.0,
-                            height: 80.0,
-                            point: endPoint!,
-                            child: Icon(Icons.location_on,
-                                color: Colors.green, size: 60.sp),
-                          ),
-                        ...locations.map((location) {
-                          return Marker(
-                            width: 20.0,
-                            height: 20.0,
-                            point: location,
-                            child: Container(
-                              width: 12, // Smaller width
-                              height: 12, // Smaller height
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.white,
-                                border: Border.all(
-                                  color: kColorBlack, // Border color
-                                  width: 2, // Border width
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.3),
-                                    spreadRadius: 0.5,
-                                    blurRadius: 6,
-                                    offset: const Offset(-3, 5),
-                                  ),
-                                ],
-                              ),
-                              child: Center(
-                                child: Text(
-                                  '${locations.indexOf(location) + 1}', // Display index + 1 inside the circle
-                                  style: const TextStyle(
-                                    color: Colors
-                                        .black, // Text color to match border
-                                    fontSize: 13, // Smaller font size
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
+                    children: [
+                      TileLayer(
+                        urlTemplate:
+                            "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw",
+                        additionalOptions: const {
+                          'access_token':
+                              'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw',
+                        },
+                      ),
+                      MarkerLayer(
+                        markers: [
+                          if (startPoint != null)
+                            Marker(
+                              width: 80,
+                              height: 80,
+                              point: startPoint!,
+                              child: Icon(Icons.location_on,
+                                  color: Colors.red, size: 60.sp),
                             ),
-                          );
-                        }),
-                      ],
-                    ),
-                    // Polyline layer for the route
-                    PolylineLayer(
-                      polylines: [
-                        Polyline(
-                          points: routePoints,
-                          strokeWidth: 4.0,
-                          color: Colors.blue,
-                        ),
-                      ],
-                    ),
-                  ],
+                          if (endPoint != null)
+                            Marker(
+                              width: 80.0,
+                              height: 80.0,
+                              point: endPoint!,
+                              child: Icon(Icons.location_on,
+                                  color: Colors.green, size: 60.sp),
+                            ),
+                          ...locations.map((location) {
+                            return Marker(
+                              width: 20.0,
+                              height: 20.0,
+                              point: location,
+                              child: Container(
+                                width: 12, 
+                                height: 12, 
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white,
+                                  border: Border.all(
+                                    color: kColorBlack,
+                                    width: 2,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.3),
+                                      spreadRadius: 0.5,
+                                      blurRadius: 6,
+                                      offset: const Offset(-3, 5),
+                                    ),
+                                  ],
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    '${locations.indexOf(location) + 1}',
+                                    style: const TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          }),
+                        ],
+                      ),
+                      // Polyline layer for the route
+                      PolylineLayer(
+                        polylines: [
+                          Polyline(
+                            points: routePoints,
+                            strokeWidth: 4.0,
+                            color: Colors.blue,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-                // ... Zoom controls
+                widget.isSelectMode ?
+                  Positioned(
+                    right: 10,
+                    bottom: 10,
+                    child: GestureDetector(
+                      onTap: _onSelectTrip,
+                      child: Container(
+                        width: 25,
+                        height: 25,
+                        decoration: BoxDecoration(
+                          color: _isSelected ? Colors.black : Colors.white,
+                          border: Border.all(color: Colors.black),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: _isSelected
+                              ? const Icon(
+                                  Icons.check,
+                                  color: Colors.white,
+                                  size: 24,
+                                )
+                              : null,
+                        ),
+                      ),
+                    ),
+                  ) : const SizedBox.square(),
               ],
             ),
     );
   }
-
-  
 }

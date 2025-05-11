@@ -8,6 +8,37 @@ class ApiService {
   String apiKey = 'cfdb0e89363c14687341dbc25d1e1d43';
   final logger = Logger();
 
+  Future<Map<String, dynamic>> deleteTrip(int tripId) async {
+    final url = Uri.parse('$baseUrl/trip/delete');
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'trip_id': tripId,
+        }),
+      );
+      if (response.statusCode == 200) {
+          final data = json.decode(response.body);
+
+          if (data.containsKey('statusCode') && data.containsKey('message')) {
+            return {
+              "statusCode": data['statusCode'],
+              "message": data['message'],
+            };
+          } else {
+            throw Exception('Invalid response format: Missing expected keys');
+          }
+        } else {
+          throw Exception('Request failed with status: ${response.statusCode}');
+        }
+    } catch (e) {
+      logger.e("Error deleting trip: $e");
+      throw Exception('Error deleting trip: $e');
+    }
+  }
+
+
   Future<Map<String, dynamic>> followUser(int userId, int followingId) async {
     final url = Uri.parse('$baseUrl/user/following');
     
