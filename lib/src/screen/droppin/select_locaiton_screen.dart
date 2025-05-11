@@ -460,7 +460,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
           destinationAddress: "Destination address for DropPin",
           destinationTextAddress: formattedDestination,
           tripStartDate: GlobalVariables.tripStartDate!,
-          tripEndDate: formattedDate,
+          tripEndDate: "",
           tripMiles: tripMiles!,
           tripCaption: GlobalVariables.tripCaption?? "",
           tripTag: GlobalVariables.selectedUserIds.toString(),

@@ -153,6 +153,12 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
           GlobalVariables.odometer = response['trip_miles_sum'];
           GlobalVariables.tripCount = response['total_trips'];
 
+          if (response['trips'] != null && response['trips'].isNotEmpty) {
+            int tripId = response['trips'][0];  
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            await prefs.setInt("tripId", tripId);
+          }
+
           if (mounted) {
             Navigator.push(
               context,
