@@ -551,14 +551,13 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Logo and close button aligned at the top
                     Padding(
                       padding: const EdgeInsets.only(top: 8.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Image.asset('assets/images/icons/logo.png',
-                              height: vhh(context, 12)),
+                              width: 90, height: 80,),
                           IconButton(
                             icon: const Icon(Icons.close, size: 30),
                             onPressed: () {

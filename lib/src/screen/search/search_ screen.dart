@@ -172,13 +172,16 @@ class _SearchScreenState extends ConsumerState<SearchScreen> with SingleTickerPr
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Image.asset('assets/images/icons/logo.png',
-                    height: vhh(context, 12)),
-                IconButton(
-                    icon: const Icon(Icons.search, size: 37), onPressed: () {}),
+                Image.asset(
+                  'assets/images/icons/logo.png',
+                  width: 90,
+                  height: 80,
+                ),
+                IconButton(icon: const Icon(Icons.search, size: 35), onPressed: () {}),
               ],
             ),
           ),
+          const SizedBox(height: 10),
           // TabBar(
           //   controller: _tabController,
           //   labelColor: Colors.black,
@@ -204,15 +207,16 @@ class _SearchScreenState extends ConsumerState<SearchScreen> with SingleTickerPr
           //   height: 15,
           // ),
           SizedBox(
-            height: 40,
+            height: 35,
             width: vww(context, 90),
             child: TextField(
               controller: _searchController,
               focusNode: _searchFocusNode, 
               decoration: InputDecoration(
-                hintText: 'Search ...',
+                hintText: 'Search user accounts',
                 hintStyle: const TextStyle(
-                  fontSize: 15,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
                   fontFamily: 'inter',
                   letterSpacing: -0.1,
                 ),
@@ -220,21 +224,22 @@ class _SearchScreenState extends ConsumerState<SearchScreen> with SingleTickerPr
                     const EdgeInsets.symmetric(vertical: 0.0, horizontal: 16.0),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(4.0),
-                  borderSide: const BorderSide(color: Colors.black, width: 1.0),
+                  borderSide: const BorderSide(color: Colors.black, width: 1.2),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(4.0),
-                  borderSide: const BorderSide(color: Colors.black, width: 1.0),
+                  borderSide: const BorderSide(color: Colors.black, width: 1.2),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(4.0),
-                  borderSide: const BorderSide(color: Colors.black, width: 1.0),
+                  borderSide: const BorderSide(color: Colors.black, width: 1.2),
                 ),
                 filled: true,
                 fillColor: Colors.grey[200],
               ),
               style: const TextStyle(
-                fontSize: 15,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
                 fontFamily: 'inter',
                 letterSpacing: -0.1,
               ),

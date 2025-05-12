@@ -283,7 +283,8 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                                   },
                                   child: Image.asset(
                                     'assets/images/icons/logo.png', // Replace with your logo asset path
-                                    height: vh(context, 13),
+                                    width: 90,
+                                    height: 80,
                                   ),
                                 ),
                               ),

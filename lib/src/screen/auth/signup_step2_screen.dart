@@ -191,7 +191,8 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                         ),
                         Image.asset(
                           'assets/images/icons/logo.png',
-                          width: vww(context, 25),
+                          width: 130,
+                          height: 120,
                         ),
                         Container(
                           width: vww(context, 15),

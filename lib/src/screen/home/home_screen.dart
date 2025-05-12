@@ -178,20 +178,23 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
             children: [
               SizedBox(height: vhh(context, 3)),
               Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
+                  Image.asset(
+                    'assets/images/icons/logo.png',
+                    width: 90,
+                    height: 80,
+                  ),
+                  const Spacer(), 
+                  const SizedBox(width: 30,),
+                  Center(
                     child: Image.asset(
-                      'assets/images/icons/logo.png',
-                      width: vww(context, 18),
+                      'assets/images/icons/notification.png',
+                      width: vww(context, 4),
                     ),
                   ),
-                  const SizedBox(
-                    width: 140,
-                  ),
-                  Image.asset("assets/images/icons/notification.png",
-                      width: vww(context, 4)),
-                  const Spacer(),
+                  const Spacer(), 
+                  const Spacer(), 
                 ],
               ),
               const Padding(

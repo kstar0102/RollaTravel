@@ -113,12 +113,12 @@ class DropPinScreenState extends ConsumerState<DropPinScreen> {
               SizedBox(
                 height: vhh(context, 3),
               ),
-              // Logo at the top
               Align(
                 alignment: Alignment.topLeft,
                 child: Image.asset(
                   'assets/images/icons/logo.png',
-                  width: vww(context, 20),
+                  width: 90,
+                  height: 80,
                 ),
               ),
               SizedBox(height: vhh(context, 8)),

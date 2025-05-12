@@ -233,10 +233,11 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                         ),
                         Image.asset(
                           'assets/images/icons/logo.png',
-                          width: vww(context, 24),
+                          width: 130,
+                          height: 120,
                         ),
                         SizedBox(
-                          height: vhh(context, 5),
+                          height: vhh(context, 4),
                         ),
                         SizedBox(
                           width: vw(context, 38),

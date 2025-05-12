@@ -229,7 +229,8 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
               const SizedBox(height: 10),
               Align(
                 alignment: Alignment.centerLeft,
-                child: Image.asset('assets/images/icons/logo.png', height: 100),
+                child: Image.asset('assets/images/icons/logo.png', width: 90,
+                    height: 80,),
               ),
               const Text(
                 'Select photo to drop \non your map',

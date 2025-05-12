@@ -72,14 +72,15 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                // Logo and close button aligned at the top
+                const SizedBox(width: 20,),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Image.asset('assets/images/icons/logo.png',
-                          height: vhh(context, 12)),
+                          width: 90,
+                          height: 80,),
                       IconButton(
                         icon: const Icon(Icons.close, size: 30),
                         onPressed: () {

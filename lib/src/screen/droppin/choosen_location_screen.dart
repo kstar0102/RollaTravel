@@ -85,10 +85,10 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
     return Scaffold(
       backgroundColor: kColorWhite,
       body: PopScope(
-        canPop: false, // Prevents popping by default
+        canPop: false, 
         onPopInvokedWithResult: (didPop, result) {
           if (!didPop) {
-            return; // Prevent pop action
+            return; 
           }
         },
         child: SizedBox.expand(
@@ -109,8 +109,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
-                              // ignore: deprecated_member_use
-                              color: Colors.white.withOpacity(0.9),
+                              color: Colors.white.withValues(alpha: 0.9),
                               spreadRadius: -5,
                               blurRadius: 15,
                               offset: const Offset(0, 5),
@@ -129,7 +128,8 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                                     },
                                     child: Image.asset(
                                       'assets/images/icons/logo.png',
-                                      height: vh(context, 13),
+                                      width: 90,
+                                      height: 80,
                                     ),
                                   ),
                                 ),

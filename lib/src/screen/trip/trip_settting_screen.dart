@@ -35,7 +35,6 @@ class TripSetttingScreenState extends State<TripSetttingScreen> {
     _mapStyleSelected = GlobalVariables.mapStyleSelected;
   }
 
-
   Widget _buildRadioOption(
       String label, int value, int groupValue, Function(int) onChanged) {
     return Flexible(
@@ -90,7 +89,7 @@ class TripSetttingScreenState extends State<TripSetttingScreen> {
         canPop: false,
         onPopInvokedWithResult: (didPop, result) {
           if (!didPop) {
-            return; // Prevent pop action
+            return;
           }
         },
         child: Padding(
@@ -101,10 +100,13 @@ class TripSetttingScreenState extends State<TripSetttingScreen> {
               Padding(
                 padding: const EdgeInsets.only(top: 30.0),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start, // Keep the close button aligned to the left
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.close, size: 25),
+                      icon: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Image.asset('assets/images/icons/allow-left.png', width: 20, height: 20),
+                      ),
                       onPressed: () {
                         Navigator.push(context,
                           MaterialPageRoute(

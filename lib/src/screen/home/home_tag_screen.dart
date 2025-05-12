@@ -75,12 +75,21 @@ class HomeTagScreenState extends ConsumerState<HomeTagScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    IconButton(
-                      icon: const Icon(Icons.close, size: 30),
-                      onPressed: () {
-                        Navigator.of(context).pop(); // Close the screen
-                      },
+                    Column(mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(height: vhh(context, 4)),
+                        IconButton(
+                          icon: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Image.asset('assets/images/icons/allow-left.png', width: 20, height: 20),
+                          ),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ],
                     ),
+                    
                     Expanded(
                       child: Center(
                         child: Column(

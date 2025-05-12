@@ -75,7 +75,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
       });
 
       final result  = await ApiService().fetchUserTrips(widget.userId);
-      final userProfile = result['trips'];
+      var userProfile = result['trips'];
       final userInfo = result['userInfo'];
       rollaUserName = userInfo[0]['rolla_username'] ?? " ";
       rollaUserImage = userInfo[0]['photo'];
@@ -121,6 +121,9 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
           allDroppins.addAll(trip['droppins'] as List<dynamic>);
         }
       }
+      // userProfile.reverse(); 
+      userProfile = userProfile.reversed.toList();
+      allDroppins = allDroppins.reversed.toList();
       setState(() {
         userTrips = userProfile;
         dropPinsData = allDroppins.isNotEmpty ? allDroppins : [];
@@ -374,106 +377,120 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
                         SizedBox(height: vhh(context, 3)),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.start,
+                        Stack(
+                          alignment: Alignment.topCenter,
                           children: [
-                            IconButton(
-                              icon: const Icon(Icons.arrow_back),
-                              iconSize:
-                                  vww(context, 6), // Set size of the back icon
-                              padding:
-                                  EdgeInsets.zero, // Remove default padding
-                              constraints:
-                                  const BoxConstraints(), // Remove default min constraints
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                            Image.asset(
-                              'assets/images/icons/logo.png',
-                              width: vww(context, 20),
-                            ),
-                            SizedBox(width: vww(context, 10)),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text(
-                                  rollaUserName ?? "",
-                                  style: const TextStyle(
-                                      color: kColorBlack,
-                                      fontSize: 18,
-                                      fontFamily: 'interBold'),
-                                ),
-                                Image.asset(
-                                  'assets/images/icons/verify.png',
-                                  width: vww(context, 10),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: vhh(context, 1)),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Container(),
-                            Column(
-                              children: [
-                                Image.asset(
-                                  'assets/images/icons/trips.png',
-                                  width: vww(context, 15),
-                                ),
-                                Text(
-                                  tripCount!,
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    color: kColorButtonPrimary,
-                                    fontFamily: 'interBold',
+                            // === Trips - Avatar - Followers Row ===
+                            Padding(
+                              padding: EdgeInsets.only(top: vhh(context, 7.5)), 
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                children: [
+                                  Container(),
+                                  Column(
+                                    children: [
+                                      Image.asset(
+                                        'assets/images/icons/trips1.png',
+                                        width: vww(context, 20),
+                                      ),
+                                      Text(
+                                        tripCount!,
+                                        style: const TextStyle(
+                                          fontSize: 20,
+                                          color: kColorButtonPrimary,
+                                          fontFamily: 'interBold',
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                              ],
-                            ),
-                            Container(
-                              height: vhh(context, 15),
-                              width: vhh(context, 15),
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(100),
-                                  border: Border.all(
-                                    color: kColorHereButton,
-                                    width: 2,
+                                  Container(
+                                    height: vhh(context, 15),
+                                    width: vhh(context, 15),
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(100),
+                                        border: Border.all(
+                                          color: kColorHereButton,
+                                          width: 2,
+                                        ),
+                                        image: rollaUserImage != null
+                                            ? DecorationImage(
+                                                image: NetworkImage(
+                                                    rollaUserImage!), // Use NetworkImage for URL
+                                                fit: BoxFit.cover,
+                                              )
+                                            : null),
                                   ),
-                                  image: rollaUserImage != null
-                                      ? DecorationImage(
-                                          image: NetworkImage(
-                                              rollaUserImage!), // Use NetworkImage for URL
-                                          fit: BoxFit.cover,
-                                        )
-                                      : null),
-                            ),
-                            Column(
-                              children: [
-                                Image.asset(
-                                  'assets/images/icons/followers.png',
-                                  width: vww(context, 15),
-                                ),
-                                GestureDetector(
-                                  onTap: () {
-                                    _onFollowers();
-                                  },
-                                  child: Text(
-                                    followingCount!,
-                                    style: const TextStyle(
-                                      fontSize: 20,
-                                      color: kColorButtonPrimary,
-                                      fontFamily: 'interBold',
-                                    ),
+                                  Column(
+                                    children: [
+                                      Image.asset(
+                                        'assets/images/icons/follower1.png',
+                                        width: vww(context, 21),
+                                      ),
+                                      GestureDetector(
+                                        onTap: () {
+                                          _onFollowers();
+                                        },
+                                        child: Text(
+                                          followingCount!,
+                                          style: const TextStyle(
+                                            fontSize: 20,
+                                            color: kColorButtonPrimary,
+                                            fontFamily: 'interBold',
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                              ],
+                                  Container(),
+                                ],
+                              ),
                             ),
-                            Container(),
+
+                            // === Username & Verified Row (overlays the top center) ===
+                            Positioned(
+                              top: vhh(context, 0.3), 
+                              left: 0,
+                              right: 0,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Image.asset(
+                                    'assets/images/icons/logo.png',
+                                    width: 90,
+                                    height: 80,
+                                  ),
+                                  const Spacer(),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "@$rollaUserName",
+                                        style: const TextStyle(
+                                          color: kColorBlack,
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.w500,
+                                          fontFamily: 'inter',
+                                          letterSpacing: -0.1,
+                                        ),
+                                      ),
+                                      Image.asset(
+                                        'assets/images/icons/verify.png',
+                                        width: vww(context, 10),
+                                      ),
+                                    ],
+                                  ),
+                                  const Spacer(),
+                                  IconButton(
+                                    icon: const Icon(Icons.close, size: 30),
+                                    onPressed: () {
+                                      Navigator.of(context).pop(); // Close the screen
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
                         SizedBox(height: vhh(context, 1)),
@@ -719,7 +736,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                               thickness: 2,
                               color: Colors.blue,
                             ),
-                            SizedBox(height: vhh(context, 2)),
+                            SizedBox(height: vhh(context, 1)),
                             userTrips == null
                                 ? const Center(
                                     child: CircularProgressIndicator())
@@ -741,11 +758,11 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                                                 .size
                                                                 .width *
                                                             0.4,
-                                                    height: 150,
+                                                    height: 110,
                                                     decoration: BoxDecoration(
                                                       border: Border.all(
-                                                        color: Colors.grey,
-                                                        width: 2,
+                                                        color: Colors.black,
+                                                        width: 1,
                                                       ),
                                                     ),
                                                     child: TripMapWidget(
@@ -754,20 +771,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                                       index: rowIndex * 2,
                                                     ),
                                                   ),
-                                                  SizedBox(
-                                                    width:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .width *
-                                                            0.05,
-                                                    height: 150,
-                                                    child:
-                                                        const VerticalDivider(
-                                                      width: 2,
-                                                      thickness: 2,
-                                                      color: Colors.grey,
-                                                    ),
-                                                  ),
+                                                  const SizedBox(width: 12,),
                                                   if (rowIndex * 2 + 1 <
                                                       userTrips!.length)
                                                     Container(
@@ -776,11 +780,11 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                                                   .size
                                                                   .width *
                                                               0.4,
-                                                      height: 150,
+                                                      height: 110,
                                                       decoration: BoxDecoration(
                                                         border: Border.all(
-                                                          color: Colors.grey,
-                                                          width: 2,
+                                                          color: Colors.black,
+                                                          width: 1,
                                                         ),
                                                       ),
                                                       child: TripMapWidget(
@@ -805,14 +809,6 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                                       1)
                                                 Column(
                                                   children: [
-                                                    SizedBox(
-                                                        height:
-                                                            vhh(context, 1)),
-                                                    const Divider(
-                                                      height: 1,
-                                                      thickness: 2,
-                                                      color: Colors.grey,
-                                                    ),
                                                     SizedBox(
                                                         height:
                                                             vhh(context, 1)),

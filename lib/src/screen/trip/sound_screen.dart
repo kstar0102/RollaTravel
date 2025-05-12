@@ -86,7 +86,7 @@ class SoundScreenState extends ConsumerState<SoundScreen> {
 
                       Navigator.pop(context);
                     },
-                    child: Container(
+                    child: SizedBox(
                       width: vww(context, 7),
                       height: 30, 
                       child: Image.asset(

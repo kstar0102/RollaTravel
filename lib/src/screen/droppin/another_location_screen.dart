@@ -300,7 +300,8 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Image.asset('assets/images/icons/logo.png',
-                              height: vhh(context, 12)),
+                              width: 90,
+                              height: 80,),
                           IconButton(
                             icon: const Icon(Icons.close, size: 30),
                             onPressed: () {
