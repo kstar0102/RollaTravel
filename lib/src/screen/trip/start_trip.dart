@@ -53,6 +53,13 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   static const String mapboxAccessToken =
       "pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw";
 
+  final List<String> _mapStyles = [
+    "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=$mapboxAccessToken", // Streets
+    "https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/{z}/{x}/{y}?access_token=$mapboxAccessToken", // Satellite
+    "https://api.mapbox.com/styles/v1/mapbox/light-v10/tiles/{z}/{x}/{y}?access_token=$mapboxAccessToken", // Light
+    "https://api.mapbox.com/styles/v1/mapbox/dark-v10/tiles/{z}/{x}/{y}?access_token=$mapboxAccessToken", // Dark
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -894,8 +901,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                 ),
                                 children: [
                                   TileLayer(
-                                    urlTemplate:
-                                        "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=$mapboxAccessToken",
+                                    urlTemplate: _mapStyles[GlobalVariables.mapStyleSelected],
                                     additionalOptions: const {
                                       'access_token':
                                           'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw',

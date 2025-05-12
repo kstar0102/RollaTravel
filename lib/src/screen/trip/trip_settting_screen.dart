@@ -1,7 +1,12 @@
 import 'package:RollaTravel/src/constants/app_styles.dart';
+import 'package:RollaTravel/src/screen/trip/start_trip.dart';
+import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:flutter/material.dart';
 import 'package:RollaTravel/src/utils/index.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:logger/logger.dart';
 
 class TripSetttingScreen extends StatefulWidget {
   const TripSetttingScreen({super.key});
@@ -12,9 +17,24 @@ class TripSetttingScreen extends StatefulWidget {
 
 class TripSetttingScreenState extends State<TripSetttingScreen> {
   int _privacySelected = 0;
-  int _mapStyleSelected = 2;
+  int _mapStyleSelected = 0;
   int _selectedUnit = 1;
   final int _currentIndex = 5;
+  final logger = Logger();
+
+  final List<String> _mapStyles = [
+    "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw",
+    "https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw",
+    "https://api.mapbox.com/styles/v1/mapbox/light-v10/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw",
+    "https://api.mapbox.com/styles/v1/mapbox/dark-v10/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw",
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _mapStyleSelected = GlobalVariables.mapStyleSelected;
+  }
+
 
   Widget _buildRadioOption(
       String label, int value, int groupValue, Function(int) onChanged) {
@@ -78,43 +98,46 @@ class TripSetttingScreenState extends State<TripSetttingScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-             Padding(
-              padding: const EdgeInsets.only(top: 30.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start, // Keep the close button aligned to the left
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.close, size: 25),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                  // Center the icon and text together
-                  Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center, // Center the icon and text
-                      children: [
-                        Image.asset(
-                          'assets/images/icons/setting.png',
-                          height: vhh(context, 2.5),
-                        ),
-                        const SizedBox(width: 5), // Spacing between icon and text
-                        const Text(
-                          'Trip Settings',
-                          style: TextStyle(
-                            fontSize: 21,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: -0.1,
-                            fontFamily: "inter",
-                          ),
-                        ),
-                      ],
+              Padding(
+                padding: const EdgeInsets.only(top: 30.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start, // Keep the close button aligned to the left
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.close, size: 25),
+                      onPressed: () {
+                        Navigator.push(context,
+                          MaterialPageRoute(
+                            builder: (context) => 
+                            const StartTripScreen()));
+                      },
                     ),
-                  ),
-                  const SizedBox(width: 20,)
-                ],
+                    // Center the icon and text together
+                    Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center, // Center the icon and text
+                        children: [
+                          Image.asset(
+                            'assets/images/icons/setting.png',
+                            height: vhh(context, 2.5),
+                          ),
+                          const SizedBox(width: 5), // Spacing between icon and text
+                          const Text(
+                            'Trip Settings',
+                            style: TextStyle(
+                              fontSize: 21,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: -0.1,
+                              fontFamily: "inter",
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 20,)
+                  ],
+                ),
               ),
-            ),
 
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
@@ -168,10 +191,7 @@ class TripSetttingScreenState extends State<TripSetttingScreen> {
                   }),
                 ],
               ),
-
               const SizedBox(height: 30),
-
-              // Map Style Section
               const Text(
                 'Map Style',
                 style: TextStyle(
@@ -180,29 +200,41 @@ class TripSetttingScreenState extends State<TripSetttingScreen> {
                   letterSpacing: -0.1,
                   fontFamily: "inter"),
               ),
-
               const SizedBox(height: 10),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: List.generate(4, (index) {
                   return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 2),
                     child: Column(
                       children: [
                         Container(
-                          height: vhh(context, 10),
-                          width: vww(context, 18),
-                          color:
-                              Colors.grey[300], // Placeholder for the map image
+                          width: MediaQuery.of(context).size.width / 4.5 - 2,
+                          height: 80,
+                          color: Colors.grey[300],
+                          child: FlutterMap(
+                            options: const MapOptions(
+                              initialCenter: LatLng(43.1557, -77.6157),
+                              initialZoom: 6.0,
+                            ),
+                            children: [
+                              TileLayer(
+                                urlTemplate: _mapStyles[index],
+                                additionalOptions: const {
+                                  'access_token': 'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw',
+                                },
+                              ),
+                            ],
+                          ),
                         ),
                         Radio<int>(
                           value: index,
                           groupValue: _mapStyleSelected,
-                          activeColor: kColorHereButton,
+                          activeColor: Colors.blue,
                           onChanged: (value) {
                             setState(() {
                               _mapStyleSelected = value!;
+                              GlobalVariables.mapStyleSelected = _mapStyleSelected;
                             });
                           },
                         ),
@@ -211,7 +243,6 @@ class TripSetttingScreenState extends State<TripSetttingScreen> {
                   );
                 }),
               ),
-
               const SizedBox(height: 30),
               const Text(
                 'Units of distance',
