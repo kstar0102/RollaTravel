@@ -271,8 +271,15 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   }
 
   void _onBackPressed() {
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => const ProfileScreen()));
+    Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation1, animation2) =>
+              const ProfileScreen(),
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
+      ),
+    );
   }
 
   @override

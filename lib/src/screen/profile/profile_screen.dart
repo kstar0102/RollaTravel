@@ -217,21 +217,10 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   void _onFollowers() {
-    // Navigator.push(context,
-    //     MaterialPageRoute(
-    //       builder: (context) => 
-    //       HomeFollowScreen(userid: GlobalVariables.userId!, fromUser: "You",)));
-    
-    Navigator.pushReplacement(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (context, animation1, animation2) =>
-                 HomeFollowScreen(userid: GlobalVariables.userId!, fromUser: "You",),
-            transitionDuration: Duration.zero,
-            reverseTransitionDuration: Duration.zero,
-          ),
-        );
-
+    Navigator.push(context,
+        MaterialPageRoute(
+          builder: (context) => 
+          HomeFollowScreen(userid: GlobalVariables.userId!, fromUser: "You",)));
   }
 
   void _onFollowing() {
@@ -247,37 +236,27 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   void _onSettingButtonClicked() {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => const SettingsScreen()));
+    Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation1, animation2) =>
+              const SettingsScreen(),
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
+      ),
+    );
   }
 
   void _onEditButtonClicked() {
-    // Navigator.push(
-    //   context,
-    //   PageRouteBuilder(
-    //     pageBuilder: (context, animation, secondaryAnimation) {
-    //       return const EditProfileScreen();
-    //     },
-    //     transitionsBuilder: (context, animation, secondaryAnimation, child) {
-    //       const begin = Offset(1.0, 0.0); 
-    //       const end = Offset.zero; 
-    //       const curve = Curves.easeInOut;
-    //       var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-    //       var offsetAnimation = animation.drive(tween);
-    //       const reverseBegin = Offset(-1.0, 0.0); 
-    //       const reverseEnd = Offset.zero; 
-    //       var reverseTween = Tween(begin: reverseBegin, end: reverseEnd).chain(CurveTween(curve: curve));
-    //       secondaryAnimation.drive(reverseTween);
-    //       return SlideTransition(position: offsetAnimation, child: child);
-    //     },
-    //     transitionDuration: const Duration(milliseconds: 300), 
-    //     reverseTransitionDuration: const Duration(milliseconds: 300),
-    //   ),
-    // );
-    Navigator.push(context,
-        MaterialPageRoute(
-          builder: (context) => 
-          const EditProfileScreen()));
+    Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation1, animation2) =>
+              const EditProfileScreen(),
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
+      ),
+    );
   }
 
   void _showImageDialog(

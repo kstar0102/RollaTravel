@@ -150,7 +150,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           children: [
                             InkWell(
                               onTap: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileScreen()));
+                                Navigator.pushReplacement(
+                                  context,
+                                  PageRouteBuilder(
+                                    pageBuilder: (context, animation1, animation2) =>
+                                          const ProfileScreen(),
+                                    transitionDuration: Duration.zero,
+                                    reverseTransitionDuration: Duration.zero,
+                                  ),
+                                );
                               },
                               child: Image.asset(
                                 'assets/images/icons/allow-left.png',
