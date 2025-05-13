@@ -691,7 +691,8 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                     children: [
                       Image.asset(
                         'assets/images/icons/logo.png',
-                        width: vww(context, 20),
+                        width: 90,
+                        height: 80,
                       ),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
