@@ -217,17 +217,33 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   void _onFollowers() {
-    Navigator.push(context,
-        MaterialPageRoute(
-          builder: (context) => 
-          HomeFollowScreen(userid: GlobalVariables.userId!, fromUser: "You",)));
+    // Navigator.push(context,
+    //     MaterialPageRoute(
+    //       builder: (context) => 
+    //       HomeFollowScreen(userid: GlobalVariables.userId!, fromUser: "You",)));
+    
+    Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation1, animation2) =>
+                 HomeFollowScreen(userid: GlobalVariables.userId!, fromUser: "You",),
+            transitionDuration: Duration.zero,
+            reverseTransitionDuration: Duration.zero,
+          ),
+        );
+
   }
 
   void _onFollowing() {
-    Navigator.push(context,
-        MaterialPageRoute(
-          builder: (context) => 
-          ProfileFollowingScreen(userid: GlobalVariables.userId!)));
+    Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation1, animation2) =>
+              ProfileFollowingScreen(userid: GlobalVariables.userId!),
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
+      ),
+    );
   }
 
   void _onSettingButtonClicked() {

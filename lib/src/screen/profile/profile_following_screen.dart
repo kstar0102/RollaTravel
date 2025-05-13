@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:RollaTravel/src/utils/index.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
 import 'package:logger/logger.dart';
-
+import 'package:RollaTravel/src/screen/profile/profile_screen.dart';
 class ProfileFollowingScreen extends ConsumerStatefulWidget {
   final int? userid;
   const ProfileFollowingScreen({super.key, required this.userid});
@@ -67,7 +67,15 @@ class ProfileFollowScreenState extends ConsumerState<ProfileFollowingScreen> {
                   const SizedBox(width: 16),
                   InkWell(
                     onTap: () {
-                      Navigator.pop(context);
+                      Navigator.pushReplacement(
+                        context,
+                        PageRouteBuilder(
+                          pageBuilder: (context, animation1, animation2) =>
+                                const ProfileScreen(),
+                          transitionDuration: Duration.zero,
+                          reverseTransitionDuration: Duration.zero,
+                        ),
+                      );
                     },
                     child: Image.asset(
                       'assets/images/icons/allow-left.png',
