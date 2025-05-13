@@ -331,10 +331,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                       ),
                     ],
                   ),
-                  const Divider(
-                      height: 1,
-                      color: Colors.grey), // Divider between image and footer
-                  // Footer with Like Icon and Likes Count
+                  const Divider(height: 1, color: Colors.grey),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Row(
@@ -455,7 +452,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                   decoration: const BoxDecoration(
                     color: kColorWhite,
                   ),
-                  padding: EdgeInsets.symmetric(horizontal: vww(context, 4)),
+                  padding: EdgeInsets.symmetric(horizontal: vww(context, 2)),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
@@ -464,7 +461,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                         children: [
                           // === Trips - Avatar - Followers Row ===
                           Padding(
-                            padding: EdgeInsets.only(top: vhh(context, 7.5)), 
+                            padding: EdgeInsets.only(top: vhh(context, 5.5)), 
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -568,7 +565,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
 
                           // === Username & Verified Row (overlays the top center) ===
                           Positioned(
-                            top: vhh(context, 0.3), 
+                            top: vhh(context, -2), 
                             left: 0,
                             right: 0,
                             child: Row(
@@ -576,7 +573,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                               children: [
                                 Image.asset(
                                   'assets/images/icons/logo.png',
-                                   width: 90,
+                                  width: 90,
                                   height: 80,
                                 ),
                                 const Spacer(),
@@ -679,7 +676,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           SizedBox(
-                            width: vww(context, 29),
+                            width: vww(context, 30),
                             height: 23,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
@@ -709,7 +706,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             ),
                           ),
                           SizedBox(
-                            width: vww(context, 29),
+                            width: vww(context, 30),
                             height: 23,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
@@ -736,7 +733,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             ),
                           ),
                           SizedBox(
-                            width: vww(context, 29),
+                            width: vww(context, 30),
                             height: 23,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(

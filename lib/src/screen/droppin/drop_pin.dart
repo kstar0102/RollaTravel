@@ -106,12 +106,12 @@ class DropPinScreenState extends ConsumerState<DropPinScreen> {
           }
         },
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               SizedBox(
-                height: vhh(context, 3),
+                height: vhh(context, 4),
               ),
               Align(
                 alignment: Alignment.topLeft,

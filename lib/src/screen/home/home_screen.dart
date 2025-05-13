@@ -172,11 +172,11 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
           }
         },
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+          padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 5),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: vhh(context, 3)),
+              SizedBox(height: vhh(context, 4)),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -195,7 +195,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
                   const Spacer(), 
                   IconButton(
                       icon: const Icon(Icons.close, color: Colors.white),
-                      iconSize: 45.0,  // Adjust size if needed
+                      iconSize: 45.0,
                       onPressed: () {
                       },
                     ),

@@ -681,10 +681,10 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                SizedBox(height: vhh(context, 5)),
+                SizedBox(height: vhh(context, 4)),
                 Padding(
                   padding: EdgeInsets.only(
-                      left: vww(context, 4), right: vww(context, 4)),
+                      left: vww(context, 0), right: vww(context, 4)),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,

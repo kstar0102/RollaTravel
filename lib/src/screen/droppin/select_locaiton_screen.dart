@@ -538,10 +538,10 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
     return Scaffold(
       backgroundColor: kColorWhite,
       body: PopScope(
-          canPop: false, // Prevents popping by default
+          canPop: false,
           onPopInvokedWithResult: (didPop, result) {
             if (!didPop) {
-              return; // Prevent pop action
+              return;
             }
           },
           child: Stack(
@@ -561,7 +561,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                           IconButton(
                             icon: const Icon(Icons.close, size: 30),
                             onPressed: () {
-                              Navigator.of(context).pop(); // Close the screen
+                              Navigator.of(context).pop();
                             },
                           ),
                         ],

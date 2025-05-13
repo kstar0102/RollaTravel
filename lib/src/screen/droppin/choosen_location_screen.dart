@@ -97,11 +97,11 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
               children: [
                 // Main body content
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      SizedBox(height: vhh(context, 5)),
+                      SizedBox(height: vhh(context, 4)),
                       Container(
                         decoration: BoxDecoration(
                           color: Colors.white,

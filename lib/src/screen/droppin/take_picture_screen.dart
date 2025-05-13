@@ -72,7 +72,7 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                const SizedBox(width: 20,),
+                SizedBox(height: vhh(context, 3)),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Row(

@@ -222,11 +222,11 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
           }
         },
         child: Padding(
-          padding: const EdgeInsets.all(10.0),
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 10),
+              SizedBox(height: vhh(context, 4)),
               Align(
                 alignment: Alignment.centerLeft,
                 child: Image.asset('assets/images/icons/logo.png', width: 90,
