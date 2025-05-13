@@ -178,7 +178,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
             children: [
               SizedBox(height: vhh(context, 3)),
               Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Image.asset(
                     'assets/images/icons/logo.png',
@@ -186,7 +186,6 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
                     height: 80,
                   ),
                   const Spacer(), 
-                  const SizedBox(width: 30,),
                   Center(
                     child: Image.asset(
                       'assets/images/icons/notification.png',
@@ -194,7 +193,13 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                   ),
                   const Spacer(), 
-                  const Spacer(), 
+                  IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white),
+                      iconSize: 45.0,  // Adjust size if needed
+                      onPressed: () {
+                      },
+                    ),
+                
                 ],
               ),
               const Padding(
