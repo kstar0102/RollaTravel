@@ -461,7 +461,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                         children: [
                           // === Trips - Avatar - Followers Row ===
                           Padding(
-                            padding: EdgeInsets.only(top: vhh(context, 8)), 
+                            padding: EdgeInsets.only(top: vhh(context, 5.5)), 
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -565,7 +565,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
 
                           // === Username & Verified Row (overlays the top center) ===
                           Positioned(
-                            top: vhh(context, 0.5), 
+                            top: vhh(context, -2), 
                             left: 0,
                             right: 0,
                             child: Row(
@@ -641,6 +641,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                       ),
                                     ),
                                   ),
+                                  SizedBox(width: 10,),
                                 ],
                               ),
                               ],
