@@ -452,7 +452,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                   decoration: const BoxDecoration(
                     color: kColorWhite,
                   ),
-                  padding: EdgeInsets.symmetric(horizontal: vww(context, 2)),
+                  padding: EdgeInsets.symmetric(horizontal: vww(context, 0)),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
@@ -461,7 +461,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                         children: [
                           // === Trips - Avatar - Followers Row ===
                           Padding(
-                            padding: EdgeInsets.only(top: vhh(context, 5.5)), 
+                            padding: EdgeInsets.only(top: vhh(context, 8)), 
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -565,7 +565,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
 
                           // === Username & Verified Row (overlays the top center) ===
                           Positioned(
-                            top: vhh(context, -2), 
+                            top: vhh(context, 0.5), 
                             left: 0,
                             right: 0,
                             child: Row(
@@ -648,268 +648,272 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                           ),
                         ],
                       ),
-
-                      SizedBox(height: vhh(context, 1)),
-                      Text(
-                        GlobalVariables.realName!,
-                        style: const TextStyle(
-                            color: kColorBlack,
-                            fontSize: 17,
-                            letterSpacing: -0.1,
-                            fontWeight: FontWeight.w500,
-                            fontFamily: 'inter'),
-                      ),
-                      SizedBox(height: vhh(context, 0.5)),
-                      Text(
-                        GlobalVariables.bio != null
-                            ? GlobalVariables.bio!
-                            : " ",
-                        style: const TextStyle(
-                            color: kColorGrey,
-                            fontSize: 15,
-                            letterSpacing: -0.1,
-                            fontWeight: FontWeight.w400,
-                            fontFamily: 'inter'),
-                      ),
-                      SizedBox(height: vhh(context, 2)),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      Padding(padding: EdgeInsets.symmetric(horizontal: vww(context, 2)),
+                      child: Column(
                         children: [
-                          SizedBox(
-                            width: vww(context, 30),
-                            height: 23,
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    kColorStrongBlue,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      30),
-                                ),
-                                shadowColor:
-                                    Colors.black
-                                        .withValues(alpha: 0.9),
-                                elevation: 3,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 2, vertical: 2),
-                              ),
-                              onPressed: () {
-                                _onEditButtonClicked();
-                              },
-                              child: Text("Edit Profile",
-                                  style: TextStyle(
-                                      color: kColorWhite,
-                                      fontSize: 36.sp,
-                                      letterSpacing: -0.1,
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: 'inter')),
-                            ),
+                          SizedBox(height: vhh(context, 1)),
+                          Text(
+                            GlobalVariables.realName!,
+                            style: const TextStyle(
+                                color: kColorBlack,
+                                fontSize: 17,
+                                letterSpacing: -0.1,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: 'inter'),
                           ),
-                          SizedBox(
-                            width: vww(context, 30),
-                            height: 23,
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: kColorStrongBlue,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
-                                ),
-                                shadowColor:
-                                    Colors.black.withValues(alpha: 0.9),
-                                elevation: 3,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 2, vertical: 2),
-                              ),
-                              onPressed: () {
-                                _onFollowing();
-                              },
-                              child: Text("Following",
-                                  style: TextStyle(
-                                      color: kColorWhite,
-                                      fontSize: 36.sp,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: -0.1,
-                                      fontFamily: 'inter')),
-                            ),
+                          SizedBox(height: vhh(context, 0.5)),
+                          Text(
+                            GlobalVariables.bio != null
+                                ? GlobalVariables.bio!
+                                : " ",
+                            style: const TextStyle(
+                                color: kColorGrey,
+                                fontSize: 15,
+                                letterSpacing: -0.1,
+                                fontWeight: FontWeight.w400,
+                                fontFamily: 'inter'),
                           ),
-                          SizedBox(
-                            width: vww(context, 30),
-                            height: 23,
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    kColorStrongBlue, 
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      30),
-                                ),
-                                shadowColor:
-                                    Colors.black
-                                        .withValues(alpha: 0.9),
-                                elevation: 3,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 2, vertical: 2),
-                              ),
-                              onPressed: () {
-                                _onSettingButtonClicked();
-                              },
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(
-                                    Icons.settings, // Settings icon
-                                    size: 16,
-                                    color: kColorWhite,
+                          SizedBox(height: vhh(context, 2)),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              SizedBox(
+                                width: vww(context, 30),
+                                height: 23,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        kColorStrongBlue,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(
+                                          30),
+                                    ),
+                                    shadowColor:
+                                        Colors.black
+                                            .withValues(alpha: 0.9),
+                                    elevation: 3,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 2, vertical: 2),
                                   ),
-                                  const SizedBox(
-                                      width:
-                                          2), // Spacing between icon and text
-                                  Text(
-                                    'Settings',
+                                  onPressed: () {
+                                    _onEditButtonClicked();
+                                  },
+                                  child: Text("Edit Profile",
+                                      style: TextStyle(
+                                          color: kColorWhite,
+                                          fontSize: 36.sp,
+                                          letterSpacing: -0.1,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'inter')),
+                                ),
+                              ),
+                              SizedBox(
+                                width: vww(context, 30),
+                                height: 23,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: kColorStrongBlue,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                    shadowColor:
+                                        Colors.black.withValues(alpha: 0.9),
+                                    elevation: 3,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 2, vertical: 2),
+                                  ),
+                                  onPressed: () {
+                                    _onFollowing();
+                                  },
+                                  child: Text("Following",
+                                      style: TextStyle(
+                                          color: kColorWhite,
+                                          fontSize: 36.sp,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: -0.1,
+                                          fontFamily: 'inter')),
+                                ),
+                              ),
+                              SizedBox(
+                                width: vww(context, 30),
+                                height: 23,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        kColorStrongBlue, 
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(
+                                          30),
+                                    ),
+                                    shadowColor:
+                                        Colors.black
+                                            .withValues(alpha: 0.9),
+                                    elevation: 3,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 2, vertical: 2),
+                                  ),
+                                  onPressed: () {
+                                    _onSettingButtonClicked();
+                                  },
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(
+                                        Icons.settings, // Settings icon
+                                        size: 16,
+                                        color: kColorWhite,
+                                      ),
+                                      const SizedBox(
+                                          width:
+                                              2), // Spacing between icon and text
+                                      Text(
+                                        'Settings',
+                                        style: TextStyle(
+                                            color:kColorWhite,
+                                            fontSize: 36.sp,
+                                            fontWeight: FontWeight.bold,
+                                            letterSpacing: -0.1,
+                                            fontFamily:
+                                                'inter' // Customize font size
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: vhh(context, 1)),
+                          Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text(
+                                    happy_place,
                                     style: TextStyle(
-                                        color:kColorWhite,
-                                        fontSize: 36.sp,
+                                        color: kColorBlack,
+                                        fontSize: 14,
                                         fontWeight: FontWeight.bold,
                                         letterSpacing: -0.1,
-                                        fontFamily:
-                                            'inter' // Customize font size
-                                        ),
+                                        fontFamily: 'inter'),
+                                  ),
+                                  Text(
+                                    GlobalVariables.happyPlace != null
+                                        ? GlobalVariables.happyPlace!
+                                        : " ",
+                                    style: const TextStyle(
+                                        color: kColorButtonPrimary,
+                                        fontSize: 14,
+                                        letterSpacing: -0.1,
+                                        fontFamily: 'inter'),
                                   ),
                                 ],
                               ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: vhh(context, 1)),
-                      Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                happy_place,
-                                style: TextStyle(
-                                    color: kColorBlack,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: -0.1,
-                                    fontFamily: 'inter'),
-                              ),
-                              Text(
-                                GlobalVariables.happyPlace != null
-                                    ? GlobalVariables.happyPlace!
-                                    : " ",
-                                style: const TextStyle(
-                                    color: kColorButtonPrimary,
-                                    fontSize: 14,
-                                    letterSpacing: -0.1,
-                                    fontFamily: 'inter'),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                my_garage,
-                                style: TextStyle(
-                                    color: kColorBlack,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: -0.1,
-                                    fontFamily: 'inter'),
-                              ),
-                              garageImageUrl != null
-                                  ? Image.network(
-                                      garageImageUrl!,
-                                      width: 25, // Adjust width as needed
-                                      height: 25, // Adjust height as needed
-                                    )
-                                  : const Text(""),
-                            ],
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: vhh(context, 1)),
-                      SizedBox(
-                        height: 100,
-                        child: (dropPinsData).isEmpty
-                            ? const Center(
-                                child: Text("No drop pins available",
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text(
+                                    my_garage,
                                     style: TextStyle(
-                                        color: Colors.grey,
+                                        color: kColorBlack,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
                                         letterSpacing: -0.1,
-                                        fontFamily: 'inter')),
-                              )
-                            : ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                itemCount: dropPinsData.length,
-                                itemBuilder: (context, index) {
-                                  final dropPin = dropPinsData[index]
-                                      as Map<String, dynamic>;
-                                  final String imagePath =
-                                      dropPin['image_path'] ?? '';
-                                  final String caption =
-                                      dropPin['image_caption'] ?? 'No caption';
-                                  final List<dynamic> likedUsers =
-                                      dropPin['liked_users'] ?? [];
-
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 1),
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        _showImageDialog(imagePath, caption,
-                                            likedUsers.length, likedUsers);
-                                      },
-                                      child: imagePath.isNotEmpty
-                                          ? Container(
-                                              width: 100,
-                                              height: 100,
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                                gradient: LinearGradient(
-                                                  colors: [
-                                                    Colors.black
-                                                        .withValues(alpha: 0.5),
-                                                    Colors.transparent
-                                                  ],
-                                                  begin: Alignment.bottomCenter,
-                                                  end: Alignment.topCenter,
-                                                ),
-                                              ),
-                                              child: Image.network(
-                                                imagePath,
-                                                fit: BoxFit.cover,
-                                                loadingBuilder: (context, child,
-                                                    loadingProgress) {
-                                                  if (loadingProgress == null) {
-                                                    return child;
-                                                  } else {
-                                                    return const Center(
-                                                        child:
-                                                            CircularProgressIndicator());
-                                                  }
-                                                },
-                                                errorBuilder: (context, error,
-                                                    stackTrace) {
-                                                  return const Icon(
-                                                      Icons.broken_image,
-                                                      size: 100);
-                                                },
-                                              ),
-                                            )
-                                          : const Icon(
-                                              Icons.image_not_supported,
-                                              size: 100),
-                                    ),
-                                  );
-                                },
+                                        fontFamily: 'inter'),
+                                  ),
+                                  garageImageUrl != null
+                                      ? Image.network(
+                                          garageImageUrl!,
+                                          width: 25, // Adjust width as needed
+                                          height: 25, // Adjust height as needed
+                                        )
+                                      : const Text(""),
+                                ],
                               ),
-                      ),
+                            ],
+                          ),
+                          SizedBox(height: vhh(context, 1)),
+                          SizedBox(
+                            height: 100,
+                            child: (dropPinsData).isEmpty
+                                ? const Center(
+                                    child: Text("No drop pins available",
+                                        style: TextStyle(
+                                            color: Colors.grey,
+                                            letterSpacing: -0.1,
+                                            fontFamily: 'inter')),
+                                  )
+                                : ListView.builder(
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: dropPinsData.length,
+                                    itemBuilder: (context, index) {
+                                      final dropPin = dropPinsData[index]
+                                          as Map<String, dynamic>;
+                                      final String imagePath =
+                                          dropPin['image_path'] ?? '';
+                                      final String caption =
+                                          dropPin['image_caption'] ?? 'No caption';
+                                      final List<dynamic> likedUsers =
+                                          dropPin['liked_users'] ?? [];
 
+                                      return Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 1),
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            _showImageDialog(imagePath, caption,
+                                                likedUsers.length, likedUsers);
+                                          },
+                                          child: imagePath.isNotEmpty
+                                              ? Container(
+                                                  width: 100,
+                                                  height: 100,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(8),
+                                                    gradient: LinearGradient(
+                                                      colors: [
+                                                        Colors.black
+                                                            .withValues(alpha: 0.5),
+                                                        Colors.transparent
+                                                      ],
+                                                      begin: Alignment.bottomCenter,
+                                                      end: Alignment.topCenter,
+                                                    ),
+                                                  ),
+                                                  child: Image.network(
+                                                    imagePath,
+                                                    fit: BoxFit.cover,
+                                                    loadingBuilder: (context, child,
+                                                        loadingProgress) {
+                                                      if (loadingProgress == null) {
+                                                        return child;
+                                                      } else {
+                                                        return const Center(
+                                                            child:
+                                                                CircularProgressIndicator());
+                                                      }
+                                                    },
+                                                    errorBuilder: (context, error,
+                                                        stackTrace) {
+                                                      return const Icon(
+                                                          Icons.broken_image,
+                                                          size: 100);
+                                                    },
+                                                  ),
+                                                )
+                                              : const Icon(
+                                                  Icons.image_not_supported,
+                                                  size: 100),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                            ],
+                          ),
+                      ),
                       Container(
                         padding: const EdgeInsets.symmetric(vertical: 7),
                         color: kColorWhite,

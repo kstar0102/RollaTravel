@@ -287,33 +287,30 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
           }
         },
         child: Padding(
-          padding: const EdgeInsets.all(10.0),
+          padding: const EdgeInsets.symmetric(horizontal: 0.0),
           child: Column(
             children: <Widget>[
               Expanded(
                 child: Column(
                   children: <Widget>[
-                    // Logo and close button aligned at the top
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Image.asset('assets/images/icons/logo.png',
-                              width: 90,
-                              height: 80,),
-                          IconButton(
-                            icon: const Icon(Icons.close, size: 30),
-                            onPressed: () {
-                              Navigator.of(context).pop(); // Close the screen
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    //Search input text field
+                    SizedBox(height: vhh(context, 4)),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Image.asset('assets/images/icons/logo.png',
+                            width: 90,
+                            height: 80,),
+                        IconButton(
+                          icon: const Icon(Icons.close, size: 30),
+                          onPressed: () {
+                            Navigator.of(context).pop(); // Close the screen
+                          },
+                        ),
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                      child: Row(
                       children: [
                         const Icon(Icons.search, size: 24, color: Colors.black),
                         const SizedBox(width: 8),
@@ -370,7 +367,9 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
                           ),
                         ),
                       ],
-                    ),
+                    ),),
+                    //Search input text field
+                    
                     SizedBox(
                       height: vhh(context, 1),
                     ),

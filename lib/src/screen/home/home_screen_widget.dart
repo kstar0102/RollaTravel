@@ -836,7 +836,8 @@ class PostWidgetState extends State<PostWidget> {
     final updatedAt = DateTime.parse(widget.post["updated_at"]);
     final now = DateTime.now();
     final difference = now.difference(updatedAt);
-    return Column(
+    return Padding(padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 5),
+    child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
@@ -1463,6 +1464,6 @@ class PostWidgetState extends State<PostWidget> {
           child: Divider(),
         ),
       ],
-    );
+    ));
   }
 }

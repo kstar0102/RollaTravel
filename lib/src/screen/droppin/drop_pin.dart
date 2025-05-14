@@ -106,7 +106,7 @@ class DropPinScreenState extends ConsumerState<DropPinScreen> {
           }
         },
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
@@ -167,18 +167,20 @@ class DropPinScreenState extends ConsumerState<DropPinScreen> {
               ),
               SizedBox(height: vhh(context, 10)),
 
-              // Instructions list
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  buildInstructionItem(1, 'Navigate to \u{1F698} button.'),
-                  buildInstructionItem(2, 'Tap "Start Trip".'),
-                  buildInstructionItem(
-                      3, 'Navigate back here, to the "Drop Pin" tab.'),
-                  buildInstructionItem(
-                      4, 'Upload photo and drop it on your map.'),
-                ],
+              Padding(padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildInstructionItem(1, 'Navigate to \u{1F698} button.'),
+                    buildInstructionItem(2, 'Tap "Start Trip".'),
+                    buildInstructionItem(
+                        3, 'Navigate back here, to the "Drop Pin" tab.'),
+                    buildInstructionItem(
+                        4, 'Upload photo and drop it on your map.'),
+                  ],
+                ),
               ),
+              
             ],
           ),
         ),

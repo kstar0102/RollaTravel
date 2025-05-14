@@ -547,25 +547,23 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
           child: Stack(
             children: [
               Padding(
-                padding: const EdgeInsets.only(top: 16.0),
+                padding: const EdgeInsets.only(top: 0.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Image.asset('assets/images/icons/logo.png',
-                              width: 90, height: 80,),
-                          IconButton(
-                            icon: const Icon(Icons.close, size: 30),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                        ],
-                      ),
+                    SizedBox(height: vhh(context, 4)),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Image.asset('assets/images/icons/logo.png',
+                            width: 90, height: 80,),
+                        IconButton(
+                          icon: const Icon(Icons.close, size: 30),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ],
                     ),
 
                     //title

@@ -172,7 +172,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
           }
         },
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 5),
+          padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
