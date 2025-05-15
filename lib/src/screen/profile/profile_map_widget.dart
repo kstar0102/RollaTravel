@@ -7,13 +7,13 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+// import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class TripMapWidget extends StatefulWidget {
   final Map<String, dynamic> trip;
   final int index;
   final bool isSelectMode;
-  final List<int> selectedMapIndices; // Accept the list
+  final List<int> selectedMapIndices; 
   final Function(int) onSelectTrip;
   final VoidCallback onDeleteButtonPressed;
 
@@ -22,7 +22,7 @@ class TripMapWidget extends StatefulWidget {
     required this.trip,
     required this.index,
     required this.isSelectMode,
-    required this.selectedMapIndices, // Pass the selectedMapIndices
+    required this.selectedMapIndices,
     required this.onSelectTrip, 
     required this.onDeleteButtonPressed,
   });
@@ -37,6 +37,7 @@ class _TripMapWidgetState extends State<TripMapWidget> {
   List<LatLng> locations = [];
   LatLng? startPoint;
   LatLng? endPoint;
+  LatLng? lastDropPoint;
   bool isLoading = true;
   final logger = Logger();
   bool _isSelected = false; 
@@ -142,25 +143,35 @@ class _TripMapWidgetState extends State<TripMapWidget> {
 
     setState(() {
       locations = tempLocations;
+      if (tempLocations.isNotEmpty) {
+        lastDropPoint = tempLocations.last;
+      }
     });
+    _adjustZoom();
   }
 
-  // Function to toggle selection mode
-  // void _toggleSelectMode() {
-  //   setState(() {
-  //     _isSelectMode = !_isSelectMode; // Toggle the select mode
-  //   });
-  //   logger.i('Select mode is now: $_isSelectMode');
-  // }
+  void _adjustZoom() {
+    if (lastDropPoint != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final bounds = LatLngBounds(
+          LatLng(lastDropPoint!.latitude - 0.03, lastDropPoint!.longitude - 0.03),
+          LatLng(lastDropPoint!.latitude + 0.03, lastDropPoint!.longitude + 0.03), 
+        );
 
-  // Function to toggle individual selection
+        final center = bounds.center;
+
+        mapController.move(center, 12.0); 
+      });
+    }
+  }
+
   void _onSelectTrip() {
     setState(() {
-      _isSelected = !_isSelected; // Toggle the selection state
+      _isSelected = !_isSelected; 
       if (_isSelected) {
-        widget.onSelectTrip(widget.trip['id']); // Add the trip ID to the list if selected
+        widget.onSelectTrip(widget.trip['id']); 
       } else {
-        widget.onSelectTrip(widget.trip['id']); // Remove the trip ID from the list if deselected
+        widget.onSelectTrip(widget.trip['id']); 
       }
     });
   }
@@ -183,16 +194,15 @@ class _TripMapWidgetState extends State<TripMapWidget> {
           : Stack(
               children: [
                 Opacity(
-                  opacity: widget.isSelectMode ? 0.5 : 1.0, // Grey out effect
+                  opacity: widget.isSelectMode ? 0.5 : 1.0,
                   child: FlutterMap(
                     mapController: mapController,
                     options: MapOptions(
-                      initialCenter:
-                          startPoint != null ? startPoint! : const LatLng(0, 0),
-                      initialZoom: 3,
+                      initialCenter: lastDropPoint ?? startPoint ?? const LatLng(37.7749, -122.4194),
+                      initialZoom: 12,
                       onTap: (_, LatLng position) {
                         if (widget.isSelectMode == false) {
-                            _onMapTap(); // Only call _onMapTap when select mode is true
+                            _onMapTap();
                           }
                       },
                     ),
@@ -207,22 +217,22 @@ class _TripMapWidgetState extends State<TripMapWidget> {
                       ),
                       MarkerLayer(
                         markers: [
-                          if (startPoint != null)
-                            Marker(
-                              width: 80,
-                              height: 80,
-                              point: startPoint!,
-                              child: Icon(Icons.location_on,
-                                  color: Colors.red, size: 60.sp),
-                            ),
-                          if (endPoint != null)
-                            Marker(
-                              width: 80.0,
-                              height: 80.0,
-                              point: endPoint!,
-                              child: Icon(Icons.location_on,
-                                  color: Colors.green, size: 60.sp),
-                            ),
+                          // if (startPoint != null)
+                          //   Marker(
+                          //     width: 80,
+                          //     height: 80,
+                          //     point: startPoint!,
+                          //     child: Icon(Icons.location_on,
+                          //         color: Colors.red, size: 60.sp),
+                          //   ),
+                          // if (endPoint != null)
+                          //   Marker(
+                          //     width: 80.0,
+                          //     height: 80.0,
+                          //     point: endPoint!,
+                          //     child: Icon(Icons.location_on,
+                          //         color: Colors.green, size: 60.sp),
+                          //   ),
                           ...locations.map((location) {
                             return Marker(
                               width: 20.0,

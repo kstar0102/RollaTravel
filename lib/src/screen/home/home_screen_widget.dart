@@ -53,7 +53,6 @@ class PostWidgetState extends State<PostWidget> {
     super.initState();
     mapController = MapController();
     
-    // Add a post-frame callback to ensure map has been rendered
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeRoutePoints();
       startAndendMark();
@@ -117,7 +116,6 @@ class PostWidgetState extends State<PostWidget> {
 
   void _adjustZoom() {
     if (lastDropPoint != null) {
-      // Wait for the FlutterMap widget to render before adjusting the zoom
       WidgetsBinding.instance.addPostFrameCallback((_) {
         final bounds = LatLngBounds(
           LatLng(lastDropPoint!.latitude - 0.03, lastDropPoint!.longitude - 0.03),
@@ -126,7 +124,6 @@ class PostWidgetState extends State<PostWidget> {
 
         final center = bounds.center;
 
-        // Now safely move the map
         mapController.move(center, 12.0); 
       });
     }
@@ -1096,30 +1093,30 @@ class PostWidgetState extends State<PostWidget> {
                         ),
                         MarkerLayer(
                           markers: [
-                            if (startPoint != null)
-                              Marker(
-                                width: 80.0,
-                                height: 80.0,
-                                point: startPoint!,
-                                child: const SizedBox(
-                                  width: 40,
-                                  height: 40,
-                                  child: Icon(Icons.flag,
-                                      color: Colors.red, size: 30),
-                                ),
-                              ),
-                            if (endPoint != null)
-                              Marker(
-                                width: 80.0,
-                                height: 80.0,
-                                point: endPoint!,
-                                child: const SizedBox(
-                                  width: 40,
-                                  height: 40,
-                                  child: Icon(Icons.flag,
-                                      color: Colors.green, size: 30),
-                                ),
-                              ),
+                            // if (startPoint != null)
+                            //   Marker(
+                            //     width: 80.0,
+                            //     height: 80.0,
+                            //     point: startPoint!,
+                            //     child: const SizedBox(
+                            //       width: 40,
+                            //       height: 40,
+                            //       child: Icon(Icons.flag,
+                            //           color: Colors.red, size: 30),
+                            //     ),
+                            //   ),
+                            // if (endPoint != null)
+                            //   Marker(
+                            //     width: 80.0,
+                            //     height: 80.0,
+                            //     point: endPoint!,
+                            //     child: const SizedBox(
+                            //       width: 40,
+                            //       height: 40,
+                            //       child: Icon(Icons.flag,
+                            //           color: Colors.green, size: 30),
+                            //     ),
+                            //   ),
                             ...locations.map((location) {
                               return Marker(
                                 width: 25.0,

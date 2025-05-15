@@ -65,7 +65,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     super.initState();
     _getFetchTripData();
     _checkLocationServices();
-    logger.i("tag selected :  ${GlobalVariables.selectedUserIds}");
+    logger.i(GlobalVariables.delaySetting);
   }
 
   @override

@@ -35,14 +35,14 @@ class HomeViewScreenState extends State<HomeViewScreen> {
         try {
           final response = await apiService.fetchUserTrips(int.parse(userId));
           if (response.isNotEmpty && response['userInfo'] != null) {
-            return response['userInfo']; // This is likely a list
+            return response['userInfo']; 
           } else {
             logger.e("User data not found for userId: $userId");
-            return []; // Return empty list instead of empty map
+            return []; 
           }
         } catch (e) {
           logger.e("Error fetching user data for userId: $userId. Error: $e");
-          return []; // Return empty list in case of error
+          return []; 
         }
       }));
 

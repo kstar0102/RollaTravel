@@ -40,27 +40,6 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
     _followedTrips();
   }
 
-  // Future<void> _loadTrips() async {
-  //   try {
-  //     final data = await apiService.fetchAllTrips();
-  //     setState(() {
-  //       trips = data;
-  //     });
-  //     logger.i(trips);
-
-  //     if (GlobalVariables.homeTripID != null) {
-  //       WidgetsBinding.instance.addPostFrameCallback((_) {
-  //         _scrollToTrip(GlobalVariables.homeTripID!);
-  //       });
-  //     }
-  //   } catch (error) {
-  //     logger.i('Error fetching trips: $error');
-  //     setState(() {
-  //       trips = [];
-  //     });
-  //   }
-  // }
-
   Future<void> _followedTrips() async {
     try {
       final blockUsers =
@@ -79,7 +58,6 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
         final user = trip['user'];
         final userId = user['id'].toString();
 
-        // If the user is blocked, return false
         if (blockedUserIds.contains(userId)) {
           return false;
         }
@@ -199,7 +177,6 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
                       onPressed: () {
                       },
                     ),
-                
                 ],
               ),
               const Padding(

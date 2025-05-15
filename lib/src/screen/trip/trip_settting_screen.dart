@@ -114,16 +114,15 @@ class TripSetttingScreenState extends State<TripSetttingScreen> {
                             const StartTripScreen()));
                       },
                     ),
-                    // Center the icon and text together
                     Expanded(
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center, // Center the icon and text
+                        mainAxisAlignment: MainAxisAlignment.center, 
                         children: [
                           Image.asset(
                             'assets/images/icons/setting.png',
                             height: vhh(context, 2.5),
                           ),
-                          const SizedBox(width: 5), // Spacing between icon and text
+                          const SizedBox(width: 5), 
                           const Text(
                             'Trip Settings',
                             style: TextStyle(
@@ -181,15 +180,19 @@ class TripSetttingScreenState extends State<TripSetttingScreen> {
                 children: [
                   _buildRadioOption('0 mins', 0, _privacySelected, (value) {
                     setState(() => _privacySelected = value);
+                    GlobalVariables.delaySetting = _privacySelected;
                   }),
                   _buildRadioOption('30 mins', 1, _privacySelected, (value) {
                     setState(() => _privacySelected = value);
+                    GlobalVariables.delaySetting = _privacySelected;
                   }),
                   _buildRadioOption('2 hrs', 2, _privacySelected, (value) {
                     setState(() => _privacySelected = value);
+                    GlobalVariables.delaySetting = _privacySelected;
                   }),
                   _buildRadioOption('12 hrs', 3, _privacySelected, (value) {
                     setState(() => _privacySelected = value);
+                    GlobalVariables.delaySetting = _privacySelected;
                   }),
                 ],
               ),

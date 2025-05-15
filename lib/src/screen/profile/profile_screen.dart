@@ -444,7 +444,13 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kColorWhite,
-      body: SafeArea(
+      body: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) {
+          if (!didPop) {
+            return;
+          }
+        },
         child: isLoadingTrips
             ? const Center(child: CircularProgressIndicator())
             : SingleChildScrollView(
@@ -456,77 +462,142 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
-                      Stack(
-                        alignment: Alignment.topCenter,
+                      SizedBox(height: vhh(context, 4)),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          // === Trips - Avatar - Followers Row ===
-                          Padding(
-                            padding: EdgeInsets.only(top: vhh(context, 8)), 
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Container(),
-                                Column(
-                                  children: [
-                                    Image.asset(
-                                      'assets/images/icons/trips1.png',
-                                      width: vww(context, 20),
-                                    ),
-                                    Text(
-                                      GlobalVariables.tripCount?.toString() ?? "0",
-                                      style: const TextStyle(
-                                          fontSize: 20,
-                                          color: kColorButtonPrimary,
-                                          fontFamily: 'interBold'),
-                                    ),
-                                  ],
+                          Image.asset(
+                            'assets/images/icons/logo.png',
+                            width: 90,
+                            height: 80,
+                          ),
+                          const Spacer(),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                "@$username!",
+                                style: const TextStyle(
+                                  color: kColorBlack,
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w500,
+                                  fontFamily: 'inter',
+                                  letterSpacing: -0.1,
                                 ),
-                                Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    Container(
-                                      height: vhh(context, 15),
-                                      width: vhh(context, 15),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(100),
-                                        border: Border.all(
-                                          color: kColorHereButton,
-                                          width: 2,
-                                        ),
-                                      ),
-                                      child: ClipOval(
-                                        child: GlobalVariables.userImageUrl != null
-                                            ? Image.network(
-                                                GlobalVariables.userImageUrl!,
-                                                fit: BoxFit.cover,
-                                                height: vhh(context, 15),
-                                                width: vhh(context, 15),
-                                                loadingBuilder: (context, child, loadingProgress) {
-                                                  if (loadingProgress == null) return child;
-                                                  return Center(
-                                                    child: CircularProgressIndicator(
-                                                      value: loadingProgress.expectedTotalBytes != null
-                                                          ? loadingProgress.cumulativeBytesLoaded /
-                                                              (loadingProgress.expectedTotalBytes ?? 1)
-                                                          : null,
-                                                      strokeWidth: 2,
-                                                    ),
-                                                  );
-                                                },
-                                                errorBuilder: (context, error, stackTrace) {
-                                                  return Container(
-                                                    height: vhh(context, 15),
-                                                    width: vhh(context, 15),
-                                                    decoration: BoxDecoration(
-                                                      shape: BoxShape.circle,
-                                                      color: Colors.grey[300],
-                                                    ),
-                                                    child: Icon(Icons.person, color: Colors.grey[600]),
-                                                  );
-                                                },
-                                              )
-                                            : Container(
+                              ),
+                              const SizedBox(width : 3),
+                              Image.asset(
+                                'assets/images/icons/verify.png',
+                                width: 22,
+                                height: 22,
+                                fit: BoxFit.contain,
+                              ),
+                            ],
+                          ),
+                          const Spacer(),
+                          Row(
+                            children: [
+                              if (_isSelectMode)
+                                SizedBox(
+                                  height: 30,
+                                  child: ElevatedButton(
+                                    onPressed: _onDeleteButtonPressed,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: kColorStafGrey,
+                                      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 2),
+                                    ),
+                                    child: const Text(
+                                      "Delete",
+                                      style: TextStyle(
+                                        color: Colors.red,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'inter',),
+                                    ),
+                                  ),
+                                ),
+                              if (_isSelectMode)
+                                const SizedBox(width: 3,),
+                              SizedBox(
+                                height: 30, 
+                                child: ElevatedButton(
+                                  onPressed: _onSelectButtonPressed,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: kColorStafGrey,
+                                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                                  ),
+                                  child: Text(
+                                    _isSelectMode ? 'Cancel' : 'Select',
+                                    style: const TextStyle(
+                                      color: Colors.black54,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13,
+                                      fontFamily: 'inter',),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(width: 10,)
+                        ],
+                      ),
+
+                      Padding(
+                        padding: EdgeInsets.only(top: vhh(context, 0)), 
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Container(),
+                            Column(
+                              children: [
+                                Image.asset(
+                                  'assets/images/icons/trips1.png',
+                                  width: vww(context, 20),
+                                ),
+                                Text(
+                                  GlobalVariables.tripCount?.toString() ?? "0",
+                                  style: const TextStyle(
+                                      fontSize: 20,
+                                      color: kColorButtonPrimary,
+                                      fontFamily: 'interBold'),
+                                ),
+                              ],
+                            ),
+                            Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                Container(
+                                  height: vhh(context, 15),
+                                  width: vhh(context, 15),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(100),
+                                    border: Border.all(
+                                      color: kColorHereButton,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  child: ClipOval(
+                                    child: GlobalVariables.userImageUrl != null
+                                        ? Image.network(
+                                            GlobalVariables.userImageUrl!,
+                                            fit: BoxFit.cover,
+                                            height: vhh(context, 15),
+                                            width: vhh(context, 15),
+                                            loadingBuilder: (context, child, loadingProgress) {
+                                              if (loadingProgress == null) return child;
+                                              return Center(
+                                                child: CircularProgressIndicator(
+                                                  value: loadingProgress.expectedTotalBytes != null
+                                                      ? loadingProgress.cumulativeBytesLoaded /
+                                                          (loadingProgress.expectedTotalBytes ?? 1)
+                                                      : null,
+                                                  strokeWidth: 2,
+                                                ),
+                                              );
+                                            },
+                                            errorBuilder: (context, error, stackTrace) {
+                                              return Container(
                                                 height: vhh(context, 15),
                                                 width: vhh(context, 15),
                                                 decoration: BoxDecoration(
@@ -534,120 +605,237 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                   color: Colors.grey[300],
                                                 ),
                                                 child: Icon(Icons.person, color: Colors.grey[600]),
-                                              ),
-                                      ),
-                                    ),
-                                    
-                                  ],
+                                              );
+                                            },
+                                          )
+                                        : Container(
+                                            height: vhh(context, 15),
+                                            width: vhh(context, 15),
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: Colors.grey[300],
+                                            ),
+                                            child: Icon(Icons.person, color: Colors.grey[600]),
+                                          ),
+                                  ),
                                 ),
-                                Column(
-                                  children: [
-                                    Image.asset(
-                                      'assets/images/icons/follower1.png',
-                                      width: vww(context, 21),
-                                    ),
-                                    GestureDetector(
-                                      onTap: _onFollowers,
-                                      child: Text(
-                                        followingCount ?? "0",
-                                        style: const TextStyle(
-                                            fontSize: 20,
-                                            color: kColorButtonPrimary,
-                                            fontFamily: 'interBold'),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Container(),
+                                
                               ],
                             ),
-                          ),
-
-                          // === Username & Verified Row (overlays the top center) ===
-                          Positioned(
-                            top: vhh(context, 0.5), 
-                            left: 0,
-                            right: 0,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
+                            Column(
                               children: [
                                 Image.asset(
-                                  'assets/images/icons/logo.png',
-                                  width: 90,
-                                  height: 80,
+                                  'assets/images/icons/follower1.png',
+                                  width: vww(context, 21),
                                 ),
-                                const Spacer(),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      "@$username!",
-                                      style: const TextStyle(
-                                        color: kColorBlack,
-                                        fontSize: 17,
-                                        fontWeight: FontWeight.w500,
-                                        fontFamily: 'inter',
-                                        letterSpacing: -0.1,
-                                      ),
-                                    ),
-                                    const SizedBox(width : 3),
-                                    Image.asset(
-                                      'assets/images/icons/verify.png',
-                                      width: 22,
-                                      height: 22,
-                                      fit: BoxFit.contain,
-                                    ),
-                                  ],
-                                ),
-                                const Spacer(),
-                                Row(
-                                children: [
-                                  if (_isSelectMode)
-                                    SizedBox(
-                                      height: 30,
-                                      child: ElevatedButton(
-                                        onPressed: _onDeleteButtonPressed,
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: kColorStafGrey,
-                                          padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 2),
-                                        ),
-                                        child: const Text(
-                                          "Delete",
-                                          style: TextStyle(
-                                            color: Colors.red,
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.bold,
-                                            fontFamily: 'inter',),
-                                        ),
-                                      ),
-                                    ),
-                                  if (_isSelectMode)
-                                    const SizedBox(width: 3,),
-                                  SizedBox(
-                                    height: 30, 
-                                    child: ElevatedButton(
-                                      onPressed: _onSelectButtonPressed,
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: kColorStafGrey,
-                                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                                      ),
-                                      child: Text(
-                                        _isSelectMode ? 'Cancel' : 'Select',
-                                        style: const TextStyle(
-                                          color: Colors.black54,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 13,
-                                          fontFamily: 'inter',),
-                                      ),
-                                    ),
+                                GestureDetector(
+                                  onTap: _onFollowers,
+                                  child: Text(
+                                    followingCount ?? "0",
+                                    style: const TextStyle(
+                                        fontSize: 20,
+                                        color: kColorButtonPrimary,
+                                        fontFamily: 'interBold'),
                                   ),
-                                ],
-                              ),
+                                ),
                               ],
                             ),
-                          ),
-                        ],
+                            Container(),
+                          ],
+                        ),
                       ),
+                      // Stack(
+                      //   alignment: Alignment.topCenter,
+                      //   children: [
+                      //     // === Trips - Avatar - Followers Row ===
+                      //     Padding(
+                      //       padding: EdgeInsets.only(top: vhh(context, 8)), 
+                      //       child: Row(
+                      //         mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      //         crossAxisAlignment: CrossAxisAlignment.center,
+                      //         children: [
+                      //           Container(),
+                      //           Column(
+                      //             children: [
+                      //               Image.asset(
+                      //                 'assets/images/icons/trips1.png',
+                      //                 width: vww(context, 20),
+                      //               ),
+                      //               Text(
+                      //                 GlobalVariables.tripCount?.toString() ?? "0",
+                      //                 style: const TextStyle(
+                      //                     fontSize: 20,
+                      //                     color: kColorButtonPrimary,
+                      //                     fontFamily: 'interBold'),
+                      //               ),
+                      //             ],
+                      //           ),
+                      //           Stack(
+                      //             alignment: Alignment.center,
+                      //             children: [
+                      //               Container(
+                      //                 height: vhh(context, 15),
+                      //                 width: vhh(context, 15),
+                      //                 decoration: BoxDecoration(
+                      //                   borderRadius: BorderRadius.circular(100),
+                      //                   border: Border.all(
+                      //                     color: kColorHereButton,
+                      //                     width: 2,
+                      //                   ),
+                      //                 ),
+                      //                 child: ClipOval(
+                      //                   child: GlobalVariables.userImageUrl != null
+                      //                       ? Image.network(
+                      //                           GlobalVariables.userImageUrl!,
+                      //                           fit: BoxFit.cover,
+                      //                           height: vhh(context, 15),
+                      //                           width: vhh(context, 15),
+                      //                           loadingBuilder: (context, child, loadingProgress) {
+                      //                             if (loadingProgress == null) return child;
+                      //                             return Center(
+                      //                               child: CircularProgressIndicator(
+                      //                                 value: loadingProgress.expectedTotalBytes != null
+                      //                                     ? loadingProgress.cumulativeBytesLoaded /
+                      //                                         (loadingProgress.expectedTotalBytes ?? 1)
+                      //                                     : null,
+                      //                                 strokeWidth: 2,
+                      //                               ),
+                      //                             );
+                      //                           },
+                      //                           errorBuilder: (context, error, stackTrace) {
+                      //                             return Container(
+                      //                               height: vhh(context, 15),
+                      //                               width: vhh(context, 15),
+                      //                               decoration: BoxDecoration(
+                      //                                 shape: BoxShape.circle,
+                      //                                 color: Colors.grey[300],
+                      //                               ),
+                      //                               child: Icon(Icons.person, color: Colors.grey[600]),
+                      //                             );
+                      //                           },
+                      //                         )
+                      //                       : Container(
+                      //                           height: vhh(context, 15),
+                      //                           width: vhh(context, 15),
+                      //                           decoration: BoxDecoration(
+                      //                             shape: BoxShape.circle,
+                      //                             color: Colors.grey[300],
+                      //                           ),
+                      //                           child: Icon(Icons.person, color: Colors.grey[600]),
+                      //                         ),
+                      //                 ),
+                      //               ),
+                                    
+                      //             ],
+                      //           ),
+                      //           Column(
+                      //             children: [
+                      //               Image.asset(
+                      //                 'assets/images/icons/follower1.png',
+                      //                 width: vww(context, 21),
+                      //               ),
+                      //               GestureDetector(
+                      //                 onTap: _onFollowers,
+                      //                 child: Text(
+                      //                   followingCount ?? "0",
+                      //                   style: const TextStyle(
+                      //                       fontSize: 20,
+                      //                       color: kColorButtonPrimary,
+                      //                       fontFamily: 'interBold'),
+                      //                 ),
+                      //               ),
+                      //             ],
+                      //           ),
+                      //           Container(),
+                      //         ],
+                      //       ),
+                      //     ),
+
+                      //     // === Username & Verified Row (overlays the top center) ===
+                      //     Positioned(
+                      //       top: vhh(context, 0.5), 
+                      //       left: 0,
+                      //       right: 0,
+                      //       child: Row(
+                      //         mainAxisAlignment: MainAxisAlignment.start,
+                      //         children: [
+                      //           Image.asset(
+                      //             'assets/images/icons/logo.png',
+                      //             width: 90,
+                      //             height: 80,
+                      //           ),
+                      //           const Spacer(),
+                      //           Row(
+                      //             crossAxisAlignment: CrossAxisAlignment.center,
+                      //             children: [
+                      //               Text(
+                      //                 "@$username!",
+                      //                 style: const TextStyle(
+                      //                   color: kColorBlack,
+                      //                   fontSize: 17,
+                      //                   fontWeight: FontWeight.w500,
+                      //                   fontFamily: 'inter',
+                      //                   letterSpacing: -0.1,
+                      //                 ),
+                      //               ),
+                      //               const SizedBox(width : 3),
+                      //               Image.asset(
+                      //                 'assets/images/icons/verify.png',
+                      //                 width: 22,
+                      //                 height: 22,
+                      //                 fit: BoxFit.contain,
+                      //               ),
+                      //             ],
+                      //           ),
+                      //           const Spacer(),
+                      //           Row(
+                      //             children: [
+                      //               if (_isSelectMode)
+                      //                 SizedBox(
+                      //                   height: 30,
+                      //                   child: ElevatedButton(
+                      //                     onPressed: _onDeleteButtonPressed,
+                      //                     style: ElevatedButton.styleFrom(
+                      //                       backgroundColor: kColorStafGrey,
+                      //                       padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 2),
+                      //                     ),
+                      //                     child: const Text(
+                      //                       "Delete",
+                      //                       style: TextStyle(
+                      //                         color: Colors.red,
+                      //                         fontSize: 13,
+                      //                         fontWeight: FontWeight.bold,
+                      //                         fontFamily: 'inter',),
+                      //                     ),
+                      //                   ),
+                      //                 ),
+                      //               if (_isSelectMode)
+                      //                 const SizedBox(width: 3,),
+                      //               SizedBox(
+                      //                 height: 30, 
+                      //                 child: ElevatedButton(
+                      //                   onPressed: _onSelectButtonPressed,
+                      //                   style: ElevatedButton.styleFrom(
+                      //                     backgroundColor: kColorStafGrey,
+                      //                     padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                      //                   ),
+                      //                   child: Text(
+                      //                     _isSelectMode ? 'Cancel' : 'Select',
+                      //                     style: const TextStyle(
+                      //                       color: Colors.black54,
+                      //                       fontWeight: FontWeight.bold,
+                      //                       fontSize: 13,
+                      //                       fontFamily: 'inter',),
+                      //                   ),
+                      //                 ),
+                      //               ),
+                      //             ],
+                      //           ),
+                      //         ],
+                      //       ),
+                      //     ),
+                      //   ],
+                      // ),
                       Padding(padding: EdgeInsets.symmetric(horizontal: vww(context, 2)),
                       child: Column(
                         children: [
