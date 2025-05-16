@@ -33,6 +33,7 @@ class TripSetttingScreenState extends State<TripSetttingScreen> {
   void initState() {
     super.initState();
     _mapStyleSelected = GlobalVariables.mapStyleSelected;
+    _privacySelected = GlobalVariables.delaySetting;
   }
 
   Widget _buildRadioOption(

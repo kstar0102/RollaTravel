@@ -1188,15 +1188,6 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                       1)
                                                 Column(
                                                   children: [
-                                                    // SizedBox(height: vhh(context, 1)),
-                                                    // const Padding(
-                                                    //   padding: EdgeInsets.symmetric(horizontal: 16),
-                                                    //   child: Divider(
-                                                    //     height: 1,
-                                                    //     thickness: 1,
-                                                    //     color: Colors.grey,
-                                                    //   ),
-                                                    // ),
                                                     SizedBox(height: vhh(context, 1)),
                                                   ],
                                                 ),

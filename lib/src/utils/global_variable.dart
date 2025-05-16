@@ -30,7 +30,7 @@ class GlobalVariables {
   static String? song3;
   static String? song4;
   static int? tripCount;
-  static int? delaySetting;
+  static int delaySetting = 0;
   static int? homeTripID;
   static double totalDistance = 0.0;
   static String? followingIds;

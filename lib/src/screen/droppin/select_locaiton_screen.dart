@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
-
+import 'package:uuid/uuid.dart';
+import 'package:RollaTravel/main.dart';
 import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/screen/droppin/another_location_screen.dart';
 import 'package:RollaTravel/src/screen/droppin/choosen_location_screen.dart';
@@ -22,6 +23,7 @@ import 'package:logger/logger.dart';
 import 'dart:async';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:workmanager/workmanager.dart';
 
 class SelectLocationScreen extends ConsumerStatefulWidget {
   final LatLng? selectedLocation;
@@ -54,6 +56,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
   String stopAddressesString = "";
   List<Map<String, dynamic>> droppins = [];
   bool _isLoading = true;
+  final uuid = const Uuid();
 
   @override
   void initState() {
@@ -193,7 +196,6 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                   ],
                 ),
               ),
-              // Image
               Image.asset(
                 "assets/images/background/Lake1.png",
                 fit: BoxFit.cover,
@@ -202,7 +204,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
               ),
               const Divider(
                   height: 1,
-                  color: Colors.grey), // Divider between image and footer
+                  color: Colors.grey), 
               SizedBox(height: vhh(context, 5))
             ],
           ),
@@ -211,10 +213,37 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
     );
   }
 
+  Future<void> scheduleTripUpload() async {
+    Duration delay;
+    switch (GlobalVariables.delaySetting) {
+      case 1:
+        delay = const Duration(minutes: 30);
+        break;
+      case 2:
+        delay = const Duration(hours: 2);
+        break;
+      case 3:
+        delay = const Duration(hours: 12);
+        break;
+      case 0:
+      default:
+        delay = Duration.zero;
+    }
+
+    await Workmanager().registerOneOffTask(
+      "uniqueTripUploadTaskId",
+      tripUploadTask,
+      initialDelay: delay,
+      constraints: Constraints(
+        networkType: NetworkType.connected,
+      ),
+    );
+  }
+
+
   Future<void> _dropPinButtonSelected() async {
     final apiserice = ApiService();
     final prefs = await SharedPreferences.getInstance();
-
     setState(() {
       isuploadingImage = true;
     });
@@ -261,7 +290,6 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
 
     LatLng? startLocation = ref.read(staticStartingPointProvider);
     LatLng? endLocation = ref.read(movingLocationProvider);
-    logger.i("startLocation : $startLocation");
     List<MarkerData> stopMarkers = ref.read(markersProvider);
     tripMiles = "${GlobalVariables.totalDistance.toStringAsFixed(3)} miles";
     if (startLocation != null) {
@@ -283,7 +311,6 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
         }),
       );
 
-      // Format the list as JSON-like array
       formattedStopAddresses =
           stopMarkerAddresses.map((address) => '"$address"').toList();
       stopAddressesString = '[${formattedStopAddresses.join(', ')}]';
@@ -314,26 +341,24 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
     final Map<String, dynamic> response;
 
     if (tripId != null) {
-      int? dropPinId = prefs.getInt("droppinId"); // Initial droppinId
-      int? dropcount = prefs.getInt("dropcount"); // Get dropcount
-      int currentDropId = dropPinId ?? 0; // Use 0 if droppinId is null
+      int? dropPinId = prefs.getInt("droppinId");
+      int? dropcount = prefs.getInt("dropcount");
+      int currentDropId = dropPinId ?? 0; 
 
       droppins = stopMarkers.asMap().entries.map((entry) {
-        final int index = entry.key + 1; // stop_index starts from 1
+        final int index = entry.key + 1; 
         final MarkerData marker = entry.value;
 
-        // Check if we are within the range of dropcount
         if (dropPinId != null && entry.key < dropcount!) {
           final mapData = {
-            "id": currentDropId, // Use the current drop ID
+            "id": currentDropId, 
             "stop_index": index,
             "image_path": marker.imagePath,
             "image_caption": marker.caption,
           };
-          currentDropId++; // Increment dropPinId for the next iteration
+          currentDropId++; 
           return mapData;
         } else {
-          // After dropcount, do not include droppinId
           return {
             "stop_index": index,
             "image_path": marker.imagePath,
@@ -342,31 +367,19 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
         }
       }).toList();
 
-      logger.i("tripId : $tripId");
-      logger.i("userId : ${GlobalVariables.userId!}");
-      logger.i("startAddress : $startAddress");
-      logger.i("stopAddresses : $stopAddressesString");
-      logger.i("destinationTextAddress : $formattedDestination");
-      logger.i("tripStartDate : ${GlobalVariables.tripStartDate!}");
-      logger.i("tripEndDate : $formattedDate");
-      logger.i("stopLocations : $stopLocations");
-      logger.i("tripCoordinates : $tripCoordinates");
-      logger.i("droppins : $droppins");
-      logger.i("startLocation : $startLocation");
-      logger.i("destinationLocation : $endLocation");
-      logger.i("tags : ${widget.selectedLocation}");
-
       List<String> songs = [
-      if (GlobalVariables.song1 != null && GlobalVariables.song1!.isNotEmpty) GlobalVariables.song1!,
-      if (GlobalVariables.song2 != null && GlobalVariables.song2!.isNotEmpty) GlobalVariables.song2!,
-      if (GlobalVariables.song3 != null && GlobalVariables.song3!.isNotEmpty) GlobalVariables.song3!,
-      if (GlobalVariables.song4 != null && GlobalVariables.song4!.isNotEmpty) GlobalVariables.song4!
-    ];
+        if (GlobalVariables.song1 != null && GlobalVariables.song1!.isNotEmpty) GlobalVariables.song1!,
+        if (GlobalVariables.song2 != null && GlobalVariables.song2!.isNotEmpty) GlobalVariables.song2!,
+        if (GlobalVariables.song3 != null && GlobalVariables.song3!.isNotEmpty) GlobalVariables.song3!,
+        if (GlobalVariables.song4 != null && GlobalVariables.song4!.isNotEmpty) GlobalVariables.song4!
+      ];
 
-      // Join the non-null songs with a comma
       String arrangedSongs = songs.join(',');
+      
+  
 
-      response = await apiserice.updateTrip(
+      if(GlobalVariables.delaySetting == 0) {
+        response = await apiserice.updateTrip(
           tripId: tripId,
           userId: GlobalVariables.userId!,
           startAddress: startAddress!,
@@ -385,53 +398,143 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
           startLocation: startLocation.toString(),
           destinationLocation: endLocation.toString());
 
-      if (response['success'] == true) {
-        setState(() {
-          isuploadingData = false;
-        });
-        await prefs.setInt("tripId", response['trip']['id']);
-        await prefs.setInt("dropcount", response['trip']['droppins'].length);
-        if (mounted) {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => ChoosenLocationScreen(
-                        caption: widget.caption,
-                        imagePath: widget.imagePath,
-                        location: _currentLocation,
-                      )));
+        if (response['success'] == true) {
+          setState(() {
+            isuploadingData = false;
+          });
+          await prefs.setInt("tripId", response['trip']['id']);
+          await prefs.setInt("dropcount", response['trip']['droppins'].length);
+          if (mounted) {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ChoosenLocationScreen(
+                          caption: widget.caption,
+                          imagePath: widget.imagePath,
+                          location: _currentLocation,
+                        )));
+          }
+        } else {
+          setState(() {
+            isuploadingData = false;
+          });
+          String errorMessage =
+              response['error'] ?? 'Failed to create the trip. Please try again.';
+          
+          if(!mounted) return;
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text("Error"),
+                content: Text(errorMessage),
+                actions: [
+                  TextButton(
+                    child: const Text("OK"),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            },
+          );
         }
-      } else {
-        setState(() {
-          isuploadingData = false;
-        });
-        // Extract error message from the API response
-        String errorMessage =
-            response['error'] ?? 'Failed to create the trip. Please try again.';
+      }else {
+        Duration delay;
+        String message;
+            
+        final uniqueTaskId = "uploadTripTask_${uuid.v4()}"; 
+        final String taskKey = uniqueTaskId; 
+        await prefs.setInt('${taskKey}_tripId', tripId);
+        await prefs.setInt('${taskKey}_userId', GlobalVariables.userId!);
+        await prefs.setString('${taskKey}_startAddress', startAddress ?? '');
+        await prefs.setString('${taskKey}_stopAddressesString', stopAddressesString);
+        await prefs.setString('${taskKey}_formattedDestination', formattedDestination);
+        await prefs.setString('${taskKey}_tripCaption', GlobalVariables.tripCaption ?? '');
+        await prefs.setString('${taskKey}_tripStartDate', GlobalVariables.tripStartDate ?? '');
+        await prefs.setString('${taskKey}_tripEndDate', formattedDate);
+        await prefs.setString('${taskKey}_tripMiles', tripMiles ?? '');
+        await prefs.setString('${taskKey}_tripSound', arrangedSongs);
+        await prefs.setString('${taskKey}_tripTag', GlobalVariables.selectedUserIds.toString());
+        await prefs.setString('${taskKey}_startLocation', startLocation.toString());
+        await prefs.setString('${taskKey}_destinationLocation', endLocation.toString());
+        await prefs.setString('${taskKey}_stopLocations', jsonEncode(stopLocations));
+        await prefs.setString('${taskKey}_droppins', jsonEncode(droppins));
+        await prefs.setString('${taskKey}_tripCoordinates', jsonEncode(tripCoordinates));
 
-        // Show an alert dialog with the error message
-        showDialog(
-          // ignore: use_build_context_synchronously
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text("Error"),
-              content: Text(errorMessage),
-              actions: [
-                TextButton(
-                  child: const Text("OK"),
-                  onPressed: () {
-                    Navigator.of(context).pop(); // Close the dialog
-                  },
-                ),
-              ],
-            );
-          },
-        );
+        switch (GlobalVariables.delaySetting) {
+          case 1:
+            delay = const Duration(minutes: 30);
+            message = "Your trip will be uploaded after 30 minutes.";
+            break;
+          case 2:
+            delay = const Duration(hours: 2);
+            message = "Your trip will be uploaded after 2 hours.";
+            break;
+          case 3:
+            delay = const Duration(hours: 12);
+            message = "Your trip will be uploaded after 12 hours.";
+            break;
+          default:
+            delay = Duration.zero;
+            message = "Your trip will be uploaded immediately.";
+        }
+
+        if (mounted) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (BuildContext dialogContext) {
+              return AlertDialog(
+                title: const Text("Trip Upload Scheduled"),
+                content: Text(message),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(dialogContext).pop();
+                    },
+                    child: const Text("Cancel"),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Workmanager().registerOneOffTask(
+                        uniqueTaskId, 
+                        tripUploadTask,
+                        inputData: {
+                          "taskKey": taskKey, 
+                        },
+                        initialDelay: delay,
+                        constraints: Constraints(
+                          networkType: NetworkType.connected,
+                        ),
+                      ).then((_) {
+                        if (mounted) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ChoosenLocationScreen(
+                                caption: widget.caption,
+                                imagePath: widget.imagePath,
+                                location: _currentLocation,
+                              ),
+                            ),
+                          );
+                        }
+                      });
+                    },
+                    child: const Text("OK"),
+                  ),
+                ],
+              );
+            },
+          );
+        }
       }
+      
     } else {
       droppins = stopMarkers.asMap().entries.map((entry) {
-        final int index = entry.key + 1; // stop_index starts from 1
+        final int index = entry.key + 1;
         final MarkerData marker = entry.value;
         return {
           "stop_index": index,
@@ -446,14 +549,10 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
         if (GlobalVariables.song3?.isNotEmpty ?? false) GlobalVariables.song3!,
         if (GlobalVariables.song4?.isNotEmpty ?? false) GlobalVariables.song4!
       ];
-
-      // Set arrangedSongs to "tripSound" if it's null or empty
       String arrangedSongs = songs.isNotEmpty ? songs.join(',') : "tripSound";
 
-      logger.i("arrangedSongs : $arrangedSongs");
-      logger.i("tripstartdate : ${GlobalVariables.tripStartDate}");
-
-      response = await apiserice.createTrip(
+      if(GlobalVariables.delaySetting == 0) {
+        response = await apiserice.createTrip(
           userId: GlobalVariables.userId!,
           startAddress: startAddress!,
           stopAddresses: stopAddressesString,
@@ -471,47 +570,136 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
           startLocation: startLocation.toString(),
           destinationLocation: endLocation.toString());
 
-      logger.i(response);
+        logger.i(response);
 
-      if (response['success'] == true) {
-        setState(() {
-          isuploadingData = false;
-        });
-        await prefs.setInt("tripId", response['trip']['id']);
-        await prefs.setInt("droppinId", response['trip']['droppins'][0]['id']);
-        await prefs.setInt("dropcount", response['trip']['droppins'].length);
-        // Navigate to the next page
-        if (mounted) {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => ChoosenLocationScreen(
-                        caption: widget.caption,
-                        imagePath: widget.imagePath,
-                        location: _currentLocation,
-                      )));
-        } else {
+        if (response['success'] == true) {
           setState(() {
             isuploadingData = false;
           });
-          // Extract error message from the API response
-          String errorMessage = response['error'] ??
-              'Failed to create the trip. Please try again.';
+          await prefs.setInt("tripId", response['trip']['id']);
+          await prefs.setInt("droppinId", response['trip']['droppins'][0]['id']);
+          await prefs.setInt("dropcount", response['trip']['droppins'].length);
+          if (mounted) {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ChoosenLocationScreen(
+                          caption: widget.caption,
+                          imagePath: widget.imagePath,
+                          location: _currentLocation,
+                        )));
+          } else {
+            setState(() {
+              isuploadingData = false;
+            });
+            String errorMessage = response['error'] ??
+                'Failed to create the trip. Please try again.';
 
-          // Show an alert dialog with the error message
+            if(!mounted) return;
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text("Error"),
+                  content: Text(errorMessage),
+                  actions: [
+                    TextButton(
+                      child: const Text("OK"),
+                      onPressed: () {
+                        Navigator.of(context).pop(); 
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
+          }
+        }
+      } else{
+        Duration delay;
+        String message;
+
+        final uniqueTaskId = "uploadTripTask_${uuid.v4()}"; 
+        final String taskKey = uniqueTaskId; 
+        await prefs.setInt('${taskKey}_userId', GlobalVariables.userId!);
+        await prefs.setString('${taskKey}_startAddress', startAddress ?? '');
+        await prefs.setString('${taskKey}_stopAddressesString', stopAddressesString);
+        await prefs.setString('${taskKey}_formattedDestination', formattedDestination);
+        await prefs.setString('${taskKey}_tripCaption', GlobalVariables.tripCaption ?? '');
+        await prefs.setString('${taskKey}_tripStartDate', GlobalVariables.tripStartDate ?? '');
+        await prefs.setString('${taskKey}_tripEndDate', formattedDate);
+        await prefs.setString('${taskKey}_tripMiles', tripMiles ?? '');
+        await prefs.setString('${taskKey}_tripSound', arrangedSongs);
+        await prefs.setString('${taskKey}_tripTag', GlobalVariables.selectedUserIds.toString());
+        await prefs.setString('${taskKey}_startLocation', startLocation.toString());
+        await prefs.setString('${taskKey}_destinationLocation', endLocation.toString());
+        await prefs.setString('${taskKey}_stopLocations', jsonEncode(stopLocations));
+        await prefs.setString('${taskKey}_droppins', jsonEncode(droppins));
+        await prefs.setString('${taskKey}_tripCoordinates', jsonEncode(tripCoordinates));
+
+        switch (GlobalVariables.delaySetting) {
+          case 1:
+            delay = const Duration(minutes: 30);
+            message = "Your trip will be uploaded after 30 minutes.";
+            break;
+          case 2:
+            delay = const Duration(hours: 2);
+            message = "Your trip will be uploaded after 2 hours.";
+            break;
+          case 3:
+            delay = const Duration(hours: 12);
+            message = "Your trip will be uploaded after 12 hours.";
+            break;
+          default:
+            delay = Duration.zero;
+            message = "Your trip will be uploaded immediately.";
+        }
+
+        
+
+        if (mounted) {
           showDialog(
-            // ignore: use_build_context_synchronously
             context: context,
-            builder: (BuildContext context) {
+            barrierDismissible: false,
+            builder: (BuildContext dialogContext) {
               return AlertDialog(
-                title: const Text("Error"),
-                content: Text(errorMessage),
+                title: const Text("Trip Upload Scheduled"),
+                content: Text(message),
                 actions: [
                   TextButton(
-                    child: const Text("OK"),
                     onPressed: () {
-                      Navigator.of(context).pop(); // Close the dialog
+                      Navigator.of(dialogContext).pop();
                     },
+                    child: const Text("Cancel"),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Workmanager().registerOneOffTask(
+                        uniqueTaskId, 
+                        tripUploadTask,
+                        inputData: {
+                          "taskKey": taskKey, 
+                        },
+                        initialDelay: delay,
+                        constraints: Constraints(
+                          networkType: NetworkType.connected,
+                        ),
+                      ).then((_) {
+                        if (mounted) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ChoosenLocationScreen(
+                                caption: widget.caption,
+                                imagePath: widget.imagePath,
+                                location: _currentLocation,
+                              ),
+                            ),
+                          );
+                        }
+                      });
+                    },
+                    child: const Text("OK"),
                   ),
                 ],
               );

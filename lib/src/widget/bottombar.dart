@@ -83,11 +83,8 @@ class BottomNavBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Get screen width for responsiveness
     double screenWidth = MediaQuery.of(context).size.width;
-
-    // Dynamically adjust font size and icon size based on screen width
-    double customfontSize = screenWidth > 600 ? 17 : 14; // Font size for smaller screens
+    double customfontSize = screenWidth > 600 ? 17 : 14;
      return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
