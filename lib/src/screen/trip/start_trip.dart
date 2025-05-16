@@ -85,7 +85,8 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   void _getFetchTripData() async {
     final prefs = await SharedPreferences.getInstance();
     int? tripId = prefs.getInt("tripId");
-
+    ref.read(markersProvider.notifier).state = [];
+    
     if (tripId != null) {
       _showLoadingDialog();
       final apiserice = ApiService();
@@ -152,7 +153,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
             markers.add(marker);
           }
         });
-
+        
         ref.read(markersProvider.notifier).state = markers;
 
         if (startLocation is String) {

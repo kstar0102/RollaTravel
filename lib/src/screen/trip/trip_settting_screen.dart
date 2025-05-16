@@ -18,7 +18,6 @@ class TripSetttingScreen extends StatefulWidget {
 class TripSetttingScreenState extends State<TripSetttingScreen> {
   int _privacySelected = 0;
   int _mapStyleSelected = 0;
-  int _selectedUnit = 1;
   final int _currentIndex = 5;
   final logger = Logger();
 
@@ -60,25 +59,6 @@ class TripSetttingScreenState extends State<TripSetttingScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildunitsOption(
-      String label, int value, int groupValue, Function(int) onChanged) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, letterSpacing: -0.1, fontFamily: "inter"),
-        ),
-        Radio<int>(
-          value: value,
-          groupValue: groupValue,
-          activeColor: Colors.blue, // Blue for selected state
-          onChanged: (int? newValue) => onChanged(newValue!),
-        ),
-      ],
     );
   }
 
@@ -248,31 +228,6 @@ class TripSetttingScreenState extends State<TripSetttingScreen> {
                     ),
                   );
                 }),
-              ),
-              const SizedBox(height: 30),
-              const Text(
-                'Units of distance',
-                style: TextStyle(
-                  fontSize: 17, 
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: -0.1,
-                  fontFamily: "inter"),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment:
-                      MainAxisAlignment.spaceAround, // Distribute items evenly
-                  children: [
-                    _buildunitsOption("Miles", 0, _selectedUnit, (value) {
-                      setState(() => _selectedUnit = value);
-                    }),
-                    _buildunitsOption("Kilometers", 1, _selectedUnit, (value) {
-                      setState(() => _selectedUnit = value);
-                    }),
-                  ],
-                ),
               ),
             ],
           ),

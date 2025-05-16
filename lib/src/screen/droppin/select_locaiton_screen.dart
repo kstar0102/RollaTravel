@@ -119,7 +119,6 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
           _currentLocation = LatLng(position.latitude, position.longitude);
           _isLoading = false;
         });
-        logger.i("Location: $_currentLocation");
       } catch (e) {
         logger.e("Failed to get location: $e");
         setState(() {
@@ -275,8 +274,6 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
         (testlocation!.latitude == 0.0 && testlocation.longitude == 0.0)
             ? _currentLocation!
             : testlocation;
-
-    logger.i("Selected location : $selectedLocation");
 
     final markerData = MarkerData(
         location: selectedLocation,
@@ -463,9 +460,13 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
         await prefs.setString('${taskKey}_droppins', jsonEncode(droppins));
         await prefs.setString('${taskKey}_tripCoordinates', jsonEncode(tripCoordinates));
 
+        setState(() {
+          isuploadingData = false;
+        });
+
         switch (GlobalVariables.delaySetting) {
           case 1:
-            delay = const Duration(minutes: 30);
+            delay = const Duration(minutes: 1);
             message = "Your trip will be uploaded after 30 minutes.";
             break;
           case 2:
@@ -570,8 +571,6 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
           startLocation: startLocation.toString(),
           destinationLocation: endLocation.toString());
 
-        logger.i(response);
-
         if (response['success'] == true) {
           setState(() {
             isuploadingData = false;
@@ -637,9 +636,12 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
         await prefs.setString('${taskKey}_droppins', jsonEncode(droppins));
         await prefs.setString('${taskKey}_tripCoordinates', jsonEncode(tripCoordinates));
 
+        setState(() {
+          isuploadingData = false;
+        });
         switch (GlobalVariables.delaySetting) {
           case 1:
-            delay = const Duration(minutes: 30);
+            delay = const Duration(minutes: 1);
             message = "Your trip will be uploaded after 30 minutes.";
             break;
           case 2:
@@ -655,7 +657,6 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
             message = "Your trip will be uploaded immediately.";
         }
 
-        
 
         if (mounted) {
           showDialog(

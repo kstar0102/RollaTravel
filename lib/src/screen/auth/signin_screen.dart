@@ -144,6 +144,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
             // GlobalVariables.garage = userData['garage'];
             GlobalVariables.userImageUrl = userData['photo'];
             GlobalVariables.followingIds = userData['following_user_id'];
+            
           }
 
           if (garagesData != null && garagesData.isNotEmpty) {
