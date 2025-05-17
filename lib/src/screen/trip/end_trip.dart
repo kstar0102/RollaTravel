@@ -54,8 +54,6 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
   @override
   void initState() {
     super.initState();
-    // _fetchAddresses();
-    // _fetchDropPins();
   }
 
   @override
@@ -63,137 +61,6 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
     super.dispose();
     _mapController.dispose();
   }
-
-  // Future<void> _fetchDropPins() async {
-  //   droppins = widget.stopMarkers.asMap().entries.map((entry) {
-  //     final int index = entry.key + 1; // stop_index starts from 1
-  //     final MarkerData marker = entry.value;
-  //     return {
-  //       "stop_index": index,
-  //       "image_path": marker.imagePath,
-  //       "image_caption": marker.caption,
-  //     };
-  //   }).toList();
-  // }
-
-  // Future<void> _fetchAddresses() async {
-  //   if (widget.startLocation != null) {
-  //     startAddress = await Common.getAddressFromLocation(widget.startLocation!);
-  //   }
-
-  //   if (widget.endLocation != null) {
-  //     endAddress = await Common.getAddressFromLocation(widget.endLocation!);
-  //   }
-
-  //   if (widget.stopMarkers != []) {
-  //     List<String?> stopMarkerAddresses = await Future.wait(
-  //       widget.stopMarkers.map((marker) async {
-  //         try {
-  //           final address =
-  //               await Common.getAddressFromLocation(marker.location);
-  //           return address ?? "";
-  //         } catch (e) {
-  //           logger.e(
-  //               "Error fetching address for marker at ${marker.location}: $e");
-  //           return "";
-  //         }
-  //       }),
-  //     );
-
-  //     // Format the list as JSON-like array
-  //     formattedStopAddresses =
-  //         stopMarkerAddresses.map((address) => '"$address"').toList();
-  //     stopAddressesString = '[${formattedStopAddresses.join(', ')}]';
-  //   }
-  // }
-
-  // Future<void> sendTripData() async {
-  //   final apiserice = ApiService();
-
-  //   // Convert pathCoordinates to List<Map<String, double>>
-  //   final tripCoordinates = ref
-  //       .read(pathCoordinatesProvider)
-  //       .map((latLng) => {
-  //             'latitude': latLng.latitude,
-  //             'longitude': latLng.longitude,
-  //           })
-  //       .toList();
-
-  //   final stopLocations = widget.stopMarkers
-  //       .map((marker) => {
-  //             'latitude': marker.location.latitude,
-  //             'longitude': marker.location.longitude,
-  //           })
-  //       .toList();
-
-  //   String formattedDestination = '["${GlobalVariables.editDestination}"]';
-
-  //   final prefs = await SharedPreferences.getInstance();
-  //   int? tripId = prefs.getInt("tripId");
-
-  //   logger.i("end trip location : ${widget.endLocation.toString()}");
-
-  //   final response = await apiserice.updateTrip(
-  //     tripId: tripId!,
-  //     userId: GlobalVariables.userId!,
-  //     startAddress: startAddress!,
-  //     stopAddresses: stopAddressesString,
-  //     destinationAddress: endAddress!,
-  //     destinationTextAddress: formattedDestination,
-  //     tripStartDate: widget.tripStartDate,
-  //     tripEndDate: widget.tripEndDate,
-  //     tripMiles: widget.tripDistance,
-  //     tripSound: "tripSound",
-  //     stopLocations: stopLocations,
-  //     tripCoordinates: tripCoordinates,
-  //     startLocation: widget.startLocation.toString(),
-  //     destinationLocation: widget.endLocation.toString(),
-  //     droppins: [],
-  //   );
-
-  //   if (!mounted) return;
-
-  //   if (response['success'] == true) {
-  //     await prefs.remove("tripId");
-  //     await prefs.remove("dropcount");
-  //     GlobalVariables.editDestination = null;
-
-  //     if (mounted) {
-  //       Navigator.pushReplacement(
-  //         context,
-  //         PageRouteBuilder(
-  //           pageBuilder: (context, animation1, animation2) =>
-  //               const StartTripScreen(),
-  //           transitionDuration: Duration.zero,
-  //           reverseTransitionDuration: Duration.zero,
-  //         ),
-  //       );
-  //     }
-  //     ref.read(pathCoordinatesProvider.notifier).state = [];
-  //     ref.read(movingLocationProvider.notifier).state = null;
-  //   } else {
-  //     String errorMessage =
-  //         response['error'] ?? 'Failed to create the trip. Please try again.';
-  //     showDialog(
-  //       context: context,
-  //       builder: (BuildContext context) {
-  //         return AlertDialog(
-  //           title: const Text("Error"),
-  //           content: Text(errorMessage),
-  //           actions: [
-  //             TextButton(
-  //               child: const Text("OK"),
-  //               onPressed: () {
-  //                 ref.read(pathCoordinatesProvider.notifier).state = [];
-  //                 Navigator.of(context).pop(); // Close the dialog
-  //               },
-  //             ),
-  //           ],
-  //         );
-  //       },
-  //     );
-  //   }
-  // }
 
   Future<Uint8List?> captureMap() async {
     try {
@@ -408,23 +275,23 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                                           ),
                                         MarkerLayer(
                                           markers: [
-                                            if (widget.startLocation != null)
-                                              Marker(
-                                                width: 80.0,
-                                                height: 80.0,
-                                                point: widget.startLocation!,
-                                                child: const Icon(Icons.flag,
-                                                    color: Colors.red, size: 40),
-                                              ),
-                                            if (widget.endLocation != null)
-                                              Marker(
-                                                width: 80.0,
-                                                height: 80.0,
-                                                point: widget.endLocation!,
-                                                child: const Icon(Icons.flag,
-                                                    color: Colors.green,
-                                                    size: 40),
-                                              ),
+                                            // if (widget.startLocation != null)
+                                            //   Marker(
+                                            //     width: 80.0,
+                                            //     height: 80.0,
+                                            //     point: widget.startLocation!,
+                                            //     child: const Icon(Icons.flag,
+                                            //         color: Colors.red, size: 40),
+                                            //   ),
+                                            // if (widget.endLocation != null)
+                                            //   Marker(
+                                            //     width: 80.0,
+                                            //     height: 80.0,
+                                            //     point: widget.endLocation!,
+                                            //     child: const Icon(Icons.flag,
+                                            //         color: Colors.green,
+                                            //         size: 40),
+                                            //   ),
                                             if (widget.stopMarkers.isNotEmpty)
                                               ...widget.stopMarkers
                                                   .map((markerData) {

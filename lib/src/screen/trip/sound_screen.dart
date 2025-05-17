@@ -46,6 +46,18 @@ class SoundScreenState extends ConsumerState<SoundScreen> {
     super.dispose();
   }
 
+  // void _onBackClicked () {
+  //   Navigator.push(
+  //     context,
+  //     PageRouteBuilder(
+  //       pageBuilder: (context, animation1,
+  //               animation2) => const SoundScreen(),
+  //       transitionDuration: Duration.zero,
+  //       reverseTransitionDuration: Duration.zero,
+  //     ),
+  //   );
+  // }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(

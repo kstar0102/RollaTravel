@@ -86,7 +86,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     final prefs = await SharedPreferences.getInstance();
     int? tripId = prefs.getInt("tripId");
     ref.read(markersProvider.notifier).state = [];
-    
+
     if (tripId != null) {
       _showLoadingDialog();
       final apiserice = ApiService();
@@ -94,7 +94,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
       ref.read(isTripStartedProvider.notifier).state = true;
       try {
         final tripData = await apiserice.fetchTripData(tripId);
-        logger.i(tripData);
+        // logger.i(tripData);
         var destinationTextAddress =
             tripData['trips'][0]['destination_text_address'];
         if(tripData['trips'][0]['trip_caption'] != null && tripData['trips'][0]['trip_caption'] != "null"){
@@ -625,10 +625,18 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
           content: TextField(
             controller: textController,
             decoration: const InputDecoration(
-                hintText: "Enter destination",
-                hintStyle: TextStyle(fontFamily: 'inter')),
+              hintText: "Enter destination",
+              hintStyle: TextStyle(fontFamily: 'inter'),
+              focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: kColorHereButton), // your desired color
+              ),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.grey), // color when not focused
+              ),
+            ),
             style: const TextStyle(fontFamily: 'inter', fontSize: 14),
           ),
+
           actions: [
             TextButton(
               onPressed: () {
@@ -911,19 +919,19 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                   ),
                                   MarkerLayer(
                                     markers: [
-                                      if (movingLocation != null &&
-                                          GlobalVariables.isTripStarted)
-                                        Marker(
-                                          width: 40.0,
-                                          height: 40.0,
-                                          point: movingLocation,
-                                          child: Image.asset(
-                                            'assets/images/icons/car_icon.png',
-                                            width: 40,
-                                            height: 35,
-                                            fit: BoxFit.contain,
-                                          ),
-                                        ),
+                                      // if (movingLocation != null &&
+                                      //     GlobalVariables.isTripStarted)
+                                      //   Marker(
+                                      //     width: 40.0,
+                                      //     height: 40.0,
+                                      //     point: movingLocation,
+                                      //     child: Image.asset(
+                                      //       'assets/images/icons/car_icon.png',
+                                      //       width: 40,
+                                      //       height: 35,
+                                      //       fit: BoxFit.contain,
+                                      //     ),
+                                      //   ),
                                       if (staticStartingPoint != null)
                                         Marker(
                                           width: 80.0,

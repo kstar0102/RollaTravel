@@ -233,25 +233,27 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
                     height: 80,),
               ),
               const Text(
-                'Select photo to drop \non your map',
+                'Select photo to drop on your map',
                 style: TextStyle(
-                    fontSize: 20, color: Colors.black, fontFamily: 'inter'),
+                    fontSize: 16, color: Colors.black, fontFamily: 'inter'),
                 textAlign: TextAlign.center,
               ),
+              SizedBox(height: vhh(context, 2)),
               Center(
                 child: SizedBox(
-                  width: double.infinity,
-                  height: vhh(context, 45),
+                  width: vww(context, 96),
+                  height: (() {
+                    final desiredHeight = MediaQuery.of(context).size.height * 0.6;
+                    return desiredHeight.clamp(250.0, 500.0);
+                  })(),
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      // Gray placeholder if camera is not initialized
                       Container(
                         color: Colors.grey[300],
                         width: double.infinity,
                         height: double.infinity,
                       ),
-                      // Camera preview
                       if (_isCameraInitialized)
                         CameraPreview(_cameraController!)
                       else
@@ -294,14 +296,41 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _pickImageFromGallery,
-                child: const Text(
-                  'Photo Library',
-                  style: TextStyle(fontFamily: 'inter'),
+              SizedBox(height: vhh(context, 2)),
+              SizedBox(
+                height: 30,
+                width: vhh(context, 20),
+                child: Container(
+                  decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withValues(alpha: 0.5),
+                        spreadRadius: -0.5,
+                        blurRadius: 10,
+                        offset: const Offset(0, 5), // shadow position
+                      ),
+                    ],
+                  ),
+                  child: ElevatedButton(
+                    onPressed: _pickImageFromGallery,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      elevation: 0, // remove default shadow since we add custom one
+                    ),
+                    child: const Text(
+                      'photo library',
+                      style: TextStyle(
+                        fontFamily: 'inter',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        letterSpacing: -0.1,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
                 ),
               ),
+
             ],
           ),
         ),

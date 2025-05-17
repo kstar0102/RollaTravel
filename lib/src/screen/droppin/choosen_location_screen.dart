@@ -1,3 +1,4 @@
+import 'package:RollaTravel/src/screen/trip/sound_screen.dart';
 import 'package:RollaTravel/src/screen/trip/start_trip.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -78,10 +79,17 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
     }
   }
 
+  void _playListClicked () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const SoundScreen(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    String tripMiles =
-        "${GlobalVariables.totalDistance.toStringAsFixed(3)} miles";
     return Scaffold(
       backgroundColor: kColorWhite,
       body: PopScope(
@@ -101,18 +109,17 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      SizedBox(height: vhh(context, 4)),
+                      SizedBox(height: vhh(context, 8)),
                       Container(
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          border: Border.all(color: Colors.grey, width: 1.5),
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.white.withValues(alpha: 0.9),
-                              spreadRadius: -5,
+                              color: Colors.grey.withValues(alpha: 0.9),
+                              spreadRadius: 1.5,
                               blurRadius: 15,
-                              offset: const Offset(0, 5),
+                              offset: const Offset(0, 0),
                             ),
                           ],
                         ),
@@ -148,7 +155,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                             // Additional Rows and Summary
                             Padding(
                               padding:
-                                  const EdgeInsets.symmetric(horizontal: 10.0),
+                                  const EdgeInsets.symmetric(horizontal: 11.0),
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -157,7 +164,9 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                                     destination,
                                     style: TextStyle(
                                       color: kColorBlack,
-                                      fontSize: 14,
+                                      fontSize: 13,
+                                      letterSpacing: -0.1,
+                                      fontWeight: FontWeight.bold,
                                       fontFamily: 'inter',
                                     ),
                                   ),
@@ -175,53 +184,66 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal:
-                                      10.0), // Adjust the value as needed
+                              padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   const Text(
-                                    miles_traveled,
-                                    style: TextStyle(
-                                        color: kColorBlack,
-                                        fontSize: 14,
-                                        fontFamily: 'inter'),
-                                  ),
-                                  Text(
-                                    tripMiles,
-                                    style: const TextStyle(
-                                        color: kColorBlack,
-                                        fontSize: 14,
-                                        fontFamily: 'inter'),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const Padding(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal:
-                                      10.0), // Adjust the value as needed
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
                                     soundtrack,
                                     style: TextStyle(
-                                        color: kColorBlack,
-                                        fontSize: 14,
-                                        fontFamily: 'inter'),
+                                      color: kColorBlack,
+                                      fontSize: 13,
+                                      letterSpacing: -0.1,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'inter',
+                                    ),
                                   ),
-                                  Text(
-                                    edit_playlist,
-                                    style: TextStyle(
-                                        color: kColorButtonPrimary,
-                                        fontSize: 14,
-                                        decoration: TextDecoration.underline,
-                                        decorationColor: kColorButtonPrimary,
-                                        fontFamily: 'inter'),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(20),
+                                      color: Colors.white,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withValues(alpha: 0.3),
+                                          spreadRadius: 0.5,
+                                          blurRadius: 6,
+                                          offset: const Offset(-3, 5),
+                                        ),
+                                      ],
+                                      border: Border.all(
+                                        color: Colors.brown, // Border color
+                                        width: 1, // Thin border
+                                      ),
+                                    ),
+                                    padding:
+                                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        _playListClicked();
+                                      },
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Image.asset(
+                                            "assets/images/icons/music.png",
+                                            width: 12,
+                                            height: 12,
+                                          ),
+                                          const SizedBox(width: 3),
+                                          const Text(
+                                            'playlist',
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.bold,
+                                              letterSpacing: -0.1,
+                                              fontFamily: 'Inter',
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),

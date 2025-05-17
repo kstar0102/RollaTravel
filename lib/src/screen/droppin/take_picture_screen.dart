@@ -144,77 +144,77 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
                             ),
                           ),
 
-                          const Spacer(),
-                          // Radio buttons for "hide likes" and "show likes"
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16.0, vertical: 8.0),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Container(
-                                    // ignore: deprecated_member_use
-                                    color: Colors.white.withOpacity(0.9),
-                                    width: vww(context, 40),
-                                    height: vhh(context, 4),
-                                    padding: EdgeInsets.zero,
-                                    child: Row(
-                                      children: [
-                                        Radio<bool>(
-                                          value: false,
-                                          groupValue: showLikes,
-                                          onChanged: (value) {
-                                            setState(() {
-                                              showLikes = value!;
-                                            });
-                                          },
-                                          activeColor: Colors.blue,
-                                        ),
-                                        const Text(
-                                          'hide likes',
-                                          style: TextStyle(
-                                              color: Colors.black,
-                                              fontWeight: FontWeight.w500,
-                                              fontFamily: 'inter'),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 10),
-                                  Container(
-                                    // ignore: deprecated_member_use
-                                    color: Colors.white.withOpacity(0.9),
-                                    width: vww(context, 40),
-                                    height: vhh(context, 4),
-                                    child: Row(
-                                      children: [
-                                        Radio<bool>(
-                                          value: true,
-                                          groupValue: showLikes,
-                                          onChanged: (value) {
-                                            setState(() {
-                                              showLikes = value!;
-                                            });
-                                          },
-                                          activeColor: Colors.blue,
-                                        ),
-                                        const Text(
-                                          'show likes',
-                                          style: TextStyle(
-                                              color: Colors.black,
-                                              fontWeight: FontWeight.w500,
-                                              fontFamily: 'inter'),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
+                          // const Spacer(),
+                          // // Radio buttons for "hide likes" and "show likes"
+                          // Align(
+                          //   alignment: Alignment.centerLeft,
+                          //   child: Container(
+                          //     padding: const EdgeInsets.symmetric(
+                          //         horizontal: 16.0, vertical: 8.0),
+                          //     child: Column(
+                          //       mainAxisAlignment: MainAxisAlignment.center,
+                          //       children: [
+                          //         Container(
+                          //           // ignore: deprecated_member_use
+                          //           color: Colors.white.withOpacity(0.9),
+                          //           width: vww(context, 40),
+                          //           height: vhh(context, 4),
+                          //           padding: EdgeInsets.zero,
+                          //           child: Row(
+                          //             children: [
+                          //               Radio<bool>(
+                          //                 value: false,
+                          //                 groupValue: showLikes,
+                          //                 onChanged: (value) {
+                          //                   setState(() {
+                          //                     showLikes = value!;
+                          //                   });
+                          //                 },
+                          //                 activeColor: Colors.blue,
+                          //               ),
+                          //               const Text(
+                          //                 'hide likes',
+                          //                 style: TextStyle(
+                          //                     color: Colors.black,
+                          //                     fontWeight: FontWeight.w500,
+                          //                     fontFamily: 'inter'),
+                          //               ),
+                          //             ],
+                          //           ),
+                          //         ),
+                          //         const SizedBox(height: 10),
+                          //         Container(
+                          //           // ignore: deprecated_member_use
+                          //           color: Colors.white.withOpacity(0.9),
+                          //           width: vww(context, 40),
+                          //           height: vhh(context, 4),
+                          //           child: Row(
+                          //             children: [
+                          //               Radio<bool>(
+                          //                 value: true,
+                          //                 groupValue: showLikes,
+                          //                 onChanged: (value) {
+                          //                   setState(() {
+                          //                     showLikes = value!;
+                          //                   });
+                          //                 },
+                          //                 activeColor: Colors.blue,
+                          //               ),
+                          //               const Text(
+                          //                 'show likes',
+                          //                 style: TextStyle(
+                          //                     color: Colors.black,
+                          //                     fontWeight: FontWeight.w500,
+                          //                     fontFamily: 'inter'),
+                          //               ),
+                          //             ],
+                          //           ),
+                          //         ),
+                          //       ],
+                          //     ),
+                          //   ),
+                          // ),
+                          // const SizedBox(height: 16),
                         ],
                       ),
                     ],
@@ -227,31 +227,43 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
                 Center(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: ElevatedButton(
-                      onPressed: _handleLocationSelection,
-                      style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        backgroundColor: kColorButtonPrimary, // Button color
-                        minimumSize:
-                            const Size(150, 30), // Set button width and height
-                        shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(20), // Rounded corners
-                        ),
-                        elevation: 4, // Shadow depth
-                        shadowColor:
-                            // ignore: deprecated_member_use
-                            Colors.black.withOpacity(0.25), // Shadow color
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withValues(alpha: 0.6), 
+                            offset: const Offset(0, 5),           
+                            blurRadius: 10,
+                            spreadRadius: -2,
+                          ),
+                        ],
                       ),
-                      child: const Text(
-                        'Select Location',
-                        style: TextStyle(
+                      child: ElevatedButton(
+                        onPressed: _handleLocationSelection,
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          backgroundColor: kColorButtonPrimary,
+                          minimumSize: const Size(150, 30),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          elevation: 0,  // remove default shadow to avoid doubling
+                        ),
+                        child: const Text(
+                          'Select Location',
+                          style: TextStyle(
                             color: Colors.white,
                             fontFamily: 'inter',
-                            fontSize: 14),
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: -0.1,
+                            fontSize: 13,
+                          ),
+                        ),
                       ),
                     ),
                   ),
+
                 ),
                 const SizedBox(height: 16),
               ],
