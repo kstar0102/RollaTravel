@@ -293,7 +293,7 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
               Expanded(
                 child: Column(
                   children: <Widget>[
-                    SizedBox(height: vhh(context, 4)),
+                    SizedBox(height: vhh(context, 5)),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -323,7 +323,7 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
                               decoration: InputDecoration(
                                 hintText: "Search Locations",
                                 hintStyle: const TextStyle(
-                                    fontSize: 16,
+                                    fontSize: 15,
                                     fontFamily:
                                         'inter'), // Set font size for hint text
                                 contentPadding: const EdgeInsets.symmetric(
@@ -348,7 +348,8 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
                                 fillColor: Colors.grey[200],
                               ),
                               style: const TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 15,
+                                  color: Colors.black,
                                   fontFamily:
                                       'inter'), // Set font size for input text
                             ),
@@ -368,7 +369,6 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
                         ),
                       ],
                     ),),
-                    //Search input text field
                     
                     SizedBox(
                       height: vhh(context, 1),
@@ -376,8 +376,7 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
 
                     _isLoading
                         ? const Center(
-                            child:
-                                CircularProgressIndicator(), // You can use LinearProgressIndicator too
+                            child:CircularProgressIndicator(), 
                           )
                         : SizedBox(
                             height: vhh(context, 62),
@@ -484,11 +483,12 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
                                       color:
                                           Colors.white.withValues(alpha: 0.5),
                                       child: Text(
-                                        'Search or double tap on the map \nwhere you want ot drop pin',
+                                        'Search or tap on the map where you want to \ndrop a pin',
                                         style: TextStyle(
                                             color: Colors.black
                                                 .withValues(alpha: 0.9),
                                             fontSize: 14,
+                                            letterSpacing: -0.43,
                                             fontStyle: FontStyle.italic,
                                             fontFamily: 'inter'),
                                         textAlign: TextAlign.center,

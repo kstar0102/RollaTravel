@@ -226,7 +226,7 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(height: vhh(context, 4)),
+              SizedBox(height: vhh(context, 5)),
               Align(
                 alignment: Alignment.centerLeft,
                 child: Image.asset('assets/images/icons/logo.png', width: 90,

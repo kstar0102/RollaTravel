@@ -72,7 +72,7 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                SizedBox(height: vhh(context, 4)),
+                SizedBox(height: vhh(context, 5)),
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: Row(
@@ -248,7 +248,7 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          elevation: 0,  // remove default shadow to avoid doubling
+                          elevation: 0, 
                         ),
                         child: const Text(
                           'Select Location',

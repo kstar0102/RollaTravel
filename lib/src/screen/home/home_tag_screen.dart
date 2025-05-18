@@ -77,7 +77,7 @@ class HomeTagScreenState extends ConsumerState<HomeTagScreen> {
                   children: [
                     Column(mainAxisSize: MainAxisSize.min,
                       children: [
-                        SizedBox(height: vhh(context, 4)),
+                        SizedBox(height: vhh(context, 5)),
                         IconButton(
                           icon: Padding(
                             padding: const EdgeInsets.all(8.0),

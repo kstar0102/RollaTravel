@@ -740,7 +740,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    SizedBox(height: vhh(context, 4)),
+                    SizedBox(height: vhh(context, 5)),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -760,18 +760,21 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                       child: Text(
                         'Select Location',
                         style: TextStyle(
-                          fontSize: 24,
+                          fontSize: 16,
                           fontFamily: 'inter',
+                          fontWeight: FontWeight.bold,
                           color: Colors.black,
                         ),
                       ),
                     ),
 
+                    SizedBox(height: vhh(context, 2)),
+
                     // set map
                     !_isLoading
                         ? Center(
                             child: SizedBox(
-                              height: vhh(context, 36),
+                              height: vhh(context, 42),
                               width: vww(context, 96),
                               child: Center(
                                   child: Stack(
@@ -784,7 +787,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                                       onMapReady: () {
                                         _mapReadyCompleter.complete();
                                         if (widget.selectedLocation != const LatLng(0, 0)) {
-                                          _mapController.move(widget.selectedLocation!, 12.0); // Move the map to the selected location
+                                          _mapController.move(widget.selectedLocation!, 12.0);
                                         }
                                       },
                                     ),
@@ -862,27 +865,27 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                                       ],
                                     ),
                                   ),
-                                  Positioned(
-                                    top: 5,
-                                    left: 0,
-                                    right: 0,
-                                    child: Padding(
-                                      padding:
-                                          EdgeInsets.zero, // Adjust for width
-                                      child: Container(
-                                        padding: const EdgeInsets.all(5.0), 
-                                        child: Text(
-                                          'Tap the pin to see your photo',
-                                          style: TextStyle(
-                                              color: Colors.black.withValues(alpha: 0.8),
-                                              fontSize: 14,
-                                              fontStyle: FontStyle.italic,
-                                              fontFamily: 'inter'),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
+                                  // Positioned(
+                                  //   top: 5,
+                                  //   left: 0,
+                                  //   right: 0,
+                                  //   child: Padding(
+                                  //     padding:
+                                  //         EdgeInsets.zero, // Adjust for width
+                                  //     child: Container(
+                                  //       padding: const EdgeInsets.all(5.0), 
+                                  //       child: Text(
+                                  //         'Tap the pin to see your photo',
+                                  //         style: TextStyle(
+                                  //             color: Colors.black.withValues(alpha: 0.8),
+                                  //             fontSize: 14,
+                                  //             fontStyle: FontStyle.italic,
+                                  //             fontFamily: 'inter'),
+                                  //         textAlign: TextAlign.center,
+                                  //       ),
+                                  //     ),
+                                  //   ),
+                                  // ),
                                 ],
                               )),
                             ),
@@ -896,27 +899,42 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                     Center(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: ElevatedButton(
-                          onPressed: _dropPinButtonSelected,
-                          style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.zero,
-                            backgroundColor: kColorHereButton,
-                            minimumSize: const Size(
-                                350, 30), // Set button width and height
-                            shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.circular(10), // Rounded corners
-                            ),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withValues(alpha: 0.5),
+                                blurRadius: 10,
+                                spreadRadius: -2,
+                                offset: const Offset(0, 3), // Shadow position
+                              ),
+                            ],
                           ),
-                          child: const Text(
+                          child: ElevatedButton(
+                            onPressed: _dropPinButtonSelected,
+                            style: ElevatedButton.styleFrom(
+                              padding: EdgeInsets.zero,
+                              backgroundColor: kColorHereButton,
+                              minimumSize: const Size(350, 30),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: const Text(
                               'Drop pin at location displayed above',
                               style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.white,
-                                  fontFamily: 'inter')),
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                fontFamily: 'inter',
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
+
                     SizedBox(
                       height: vhh(context, 1),
                     ),
@@ -925,14 +943,14 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                         "OR",
                         style: TextStyle(
                             color: Colors.grey,
-                            fontSize: 16,
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
                             fontFamily: 'inter'),
                       ),
                     ),
                     SizedBox(
                       height: vhh(context, 1),
                     ),
-                    //choose another location buttion with underline
                     GestureDetector(
                       onTap: () {
                         _onOtherLocationButtonSelected();
@@ -941,26 +959,22 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                         "Choose another location",
                         style: TextStyle(
                             color: Colors.black,
-                            fontSize: 16,
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
                             decoration: TextDecoration.underline,
                             decorationColor: Colors.black,
                             fontFamily: 'inter'),
                       ),
                     ),
-                    // BackdropFilter for uploading state
                   ],
                 ),
               ),
-              // BackdropFilter for uploading state
               if (isuploadingImage)
                 BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                   child: Container(
                     color:
-                        // ignore: deprecated_member_use
-                        Colors.black
-                            // ignore: deprecated_member_use
-                            .withOpacity(0.3), // Semi-transparent overlay
+                        Colors.black.withValues(alpha: 0.3), 
                     child: const Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -968,7 +982,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                           CircularProgressIndicator(),
                           SizedBox(height: 16),
                           Text(
-                            'Updating image to server...',
+                            'Uploading image to server...',
                             style: TextStyle(color: Colors.white),
                           ),
                         ],
@@ -981,10 +995,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                   filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                   child: Container(
                     color:
-                        // ignore: deprecated_member_use
-                        Colors.black
-                            // ignore: deprecated_member_use
-                            .withOpacity(0.3), // Semi-transparent overlay
+                        Colors.black.withValues(alpha: 0.3), 
                     child: const Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -992,7 +1003,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                           CircularProgressIndicator(),
                           SizedBox(height: 16),
                           Text(
-                            'Updating Data to server...',
+                            'Uploading Data to server...',
                             style: TextStyle(color: Colors.white),
                           ),
                         ],

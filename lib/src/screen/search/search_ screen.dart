@@ -166,7 +166,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> with SingleTickerPr
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          SizedBox(height: vhh(context, 4)),
+          SizedBox(height: vhh(context, 5)),
           Padding(
             padding: const EdgeInsets.only(top: 0, bottom: 0),
             child: Row(

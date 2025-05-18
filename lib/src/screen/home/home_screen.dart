@@ -154,7 +154,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: vhh(context, 4)),
+              SizedBox(height: vhh(context, 5)),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

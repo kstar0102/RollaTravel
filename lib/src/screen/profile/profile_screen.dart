@@ -462,7 +462,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
-                      SizedBox(height: vhh(context, 4)),
+                      SizedBox(height: vhh(context, 5)),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
