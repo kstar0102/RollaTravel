@@ -91,14 +91,13 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
           );
         }
       } else {
+        if(!mounted) return;
         Navigator.push(
-          // ignore: use_build_context_synchronously
           context,
           MaterialPageRoute(builder: (context) => const SigninScreen()),
         );
       }
     } catch (e, stackTrace) {
-      // Log and handle unexpected errors
       logger.e('Login error: $e\nStack trace: $stackTrace');
       _showErrorDialog('Network not working now...');
     } finally {

@@ -3,6 +3,7 @@ import 'package:RollaTravel/src/screen/home/home_screen.dart';
 import 'package:RollaTravel/src/screen/trip/start_trip.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
+import 'package:RollaTravel/src/utils/spinner_loader.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
 import 'package:flutter/material.dart';
 import 'package:RollaTravel/src/utils/index.dart';
@@ -207,7 +208,7 @@ class TripTagSettingScreenState extends State<TripTagSearchScreen> {
               isLoading
                     ? const Padding(
                         padding: EdgeInsets.all(20),
-                        child: CircularProgressIndicator(),
+                        child: SpinningLoader(),
                       )
                     : Expanded(
                       child: _buildUserList(),
@@ -269,19 +270,11 @@ class TripTagSettingScreenState extends State<TripTagSearchScreen> {
                               if (loadingProgress == null) {
                                 return child;
                               } else {
-                                return SizedBox(
+                                return const SizedBox(
                                   width: 60,
                                   height: 60,
                                   child: Center(
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      value: loadingProgress.expectedTotalBytes !=
-                                              null
-                                          ? loadingProgress.cumulativeBytesLoaded /
-                                              (loadingProgress.expectedTotalBytes ??
-                                                  1)
-                                          : null,
-                                    ),
+                                    child: SpinningLoader(),
                                   ),
                                 );
                               }

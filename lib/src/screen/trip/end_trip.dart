@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'dart:ui';
 import 'package:RollaTravel/src/screen/trip/start_trip.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
+import 'package:RollaTravel/src/utils/spinner_loader.dart';
 import 'package:RollaTravel/src/utils/stop_marker_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -368,19 +369,10 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                                                                         loadingProgress) {
                                                                   if (loadingProgress ==
                                                                       null) {
-                                                                    // Image has loaded successfully
                                                                     return child;
                                                                   } else {
-                                                                    // Display a loading indicator while the image is loading
-                                                                    return Center(
-                                                                      child:
-                                                                          CircularProgressIndicator(
-                                                                        value: loadingProgress.expectedTotalBytes !=
-                                                                                null
-                                                                            ? loadingProgress.cumulativeBytesLoaded /
-                                                                                (loadingProgress.expectedTotalBytes ?? 1)
-                                                                            : null, // Show progress if available
-                                                                      ),
+                                                                    return const Center(
+                                                                      child: SpinningLoader(),
                                                                     );
                                                                   }
                                                                 },

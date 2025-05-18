@@ -2,6 +2,7 @@ import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/screen/home/home_user_screen.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/utils/index.dart';
+import 'package:RollaTravel/src/utils/spinner_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
@@ -143,7 +144,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> with SingleTickerPr
   //                   return child;
   //                 } else {
   //                   return Center(
-  //                     child: CircularProgressIndicator(
+  //                     child: SpinningLoader(
   //                       value: loadingProgress.expectedTotalBytes != null
   //                           ? loadingProgress.cumulativeBytesLoaded /
   //                               (loadingProgress.expectedTotalBytes ?? 1)
@@ -252,7 +253,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> with SingleTickerPr
           isLoading
               ? const Padding(
                   padding: EdgeInsets.all(20),
-                  child: CircularProgressIndicator(),
+                  child: SpinningLoader(),
                 )
               : Expanded(
                  child: _buildUserList(),
@@ -310,7 +311,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> with SingleTickerPr
   //                         return child;
   //                       } else {
   //                         return Center(
-  //                           child: CircularProgressIndicator(
+  //                           child: SpinningLoader(
   //                             value: loadingProgress.expectedTotalBytes != null
   //                                 ? loadingProgress.cumulativeBytesLoaded /
   //                                     (loadingProgress.expectedTotalBytes ?? 1)
@@ -419,22 +420,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> with SingleTickerPr
                               if (loadingProgress == null) {
                                 return child;
                               } else {
-                                return SizedBox(
+                                return const SizedBox(
                                   width: 60,
                                   height: 60,
                                   child: Center(
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      value:
-                                          loadingProgress.expectedTotalBytes !=
-                                                  null
-                                              ? loadingProgress
-                                                      .cumulativeBytesLoaded /
-                                                  (loadingProgress
-                                                          .expectedTotalBytes ??
-                                                      1)
-                                              : null,
-                                    ),
+                                    child: SpinningLoader(),
                                   ),
                                 );
                               }

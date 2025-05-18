@@ -5,6 +5,7 @@ import 'package:RollaTravel/src/screen/home/home_user_screen.dart';
 import 'package:RollaTravel/src/screen/home/home_view_screen.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
+import 'package:RollaTravel/src/utils/spinner_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/utils/index.dart';
@@ -325,15 +326,8 @@ class PostWidgetState extends State<PostWidget> {
                           if (loadingProgress == null) {
                             return child;
                           } else {
-                            return Center(
-                              child: CircularProgressIndicator(
-                                value: loadingProgress.expectedTotalBytes !=
-                                        null
-                                    ? loadingProgress.cumulativeBytesLoaded /
-                                        (loadingProgress.expectedTotalBytes ??
-                                            1)
-                                    : null,
-                              ),
+                            return const Center(
+                              child: SpinningLoader(),
                             );
                           }
                         },
@@ -1074,7 +1068,7 @@ class PostWidgetState extends State<PostWidget> {
             children: [
               isLoading
                   ? const Center(
-                      child: CircularProgressIndicator(),
+                      child: SpinningLoader(),
                     )
                   : FlutterMap(
                       mapController: mapController,

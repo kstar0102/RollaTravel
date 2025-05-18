@@ -1,6 +1,7 @@
 // import 'package:RollaTravel/src/screen/droppin/select_locaiton_screen.dart';
 // import 'package:RollaTravel/src/screen/droppin/choosen_location_screen.dart';
 import 'package:RollaTravel/src/screen/droppin/select_locaiton_screen.dart';
+import 'package:RollaTravel/src/utils/spinner_loader.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
@@ -376,7 +377,7 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
 
                     _isLoading
                         ? const Center(
-                            child:CircularProgressIndicator(), 
+                            child: SpinningLoader(), 
                           )
                         : SizedBox(
                             height: vhh(context, 62),

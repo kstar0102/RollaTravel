@@ -7,6 +7,7 @@ import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/translate/en.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:RollaTravel/src/utils/index.dart';
+import 'package:RollaTravel/src/utils/spinner_loader.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -221,15 +222,8 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                           if (loadingProgress == null) {
                             return child;
                           } else {
-                            return Center(
-                              child: CircularProgressIndicator(
-                                value: loadingProgress.expectedTotalBytes !=
-                                        null
-                                    ? loadingProgress.cumulativeBytesLoaded /
-                                        (loadingProgress.expectedTotalBytes ??
-                                            1)
-                                    : null,
-                              ),
+                            return const Center(
+                              child: SpinningLoader(),
                             );
                           }
                         },
@@ -347,7 +341,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
   Widget build(BuildContext context) {
     if (isloding) {
       return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+        body: Center(child: SpinningLoader()),
       );
     }
     return Scaffold(
@@ -704,7 +698,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                               } else {
                                                 return const Center(
                                                     child:
-                                                        CircularProgressIndicator());
+                                                        SpinningLoader());
                                               }
                                             },
                                             errorBuilder: (context, error,
@@ -739,7 +733,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                             SizedBox(height: vhh(context, 1)),
                             userTrips == null
                                 ? const Center(
-                                    child: CircularProgressIndicator())
+                                    child: SpinningLoader())
                                 : userTrips!.isEmpty
                                     ? const Center(
                                         child: Text("No trips to display"))
@@ -983,7 +977,7 @@ class _TripMapWidgetState extends State<TripMapWidget> {
       height: 150,
       margin: const EdgeInsets.only(bottom: 10),
       child: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: SpinningLoader())
           : Stack(
               children: [
                 FlutterMap(

@@ -1,3 +1,4 @@
+import 'package:RollaTravel/src/utils/spinner_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:RollaTravel/src/utils/index.dart';
@@ -122,7 +123,7 @@ class HomeTagScreenState extends ConsumerState<HomeTagScreen> {
               ),
               Expanded(
                 child: isLoading
-                    ? const Center(child: CircularProgressIndicator()) // Show loading while fetching data
+                    ? const Center(child: SpinningLoader()) // Show loading while fetching data
                     : taggedUsers.isEmpty
                         ? const Center(child: Text('No users found.')) // Show message if no users are found
                         : ListView.builder(

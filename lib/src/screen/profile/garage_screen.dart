@@ -2,6 +2,7 @@ import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/screen/profile/edit_profile.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
+import 'package:RollaTravel/src/utils/spinner_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:RollaTravel/src/utils/index.dart';
@@ -100,7 +101,7 @@ class _GarageScreenState extends ConsumerState<GarageScreen> {
             const SizedBox(height: 16), // Spacing before the list
             Expanded(
               child: carData.isEmpty
-                  ? const Center(child: CircularProgressIndicator())
+                  ? const Center(child: SpinningLoader())
                   : ListView.builder(
                       itemCount: carData.length,
                       itemBuilder: (context, index) {
@@ -131,9 +132,7 @@ class _GarageScreenState extends ConsumerState<GarageScreen> {
                                     return const SizedBox(
                                       width: 40,
                                       height: 40,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                      ),
+                                      child: SpinningLoader(),
                                     );
                                   },
                                   fit: BoxFit

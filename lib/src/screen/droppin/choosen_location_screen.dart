@@ -1,6 +1,7 @@
 import 'package:RollaTravel/src/screen/trip/sound_screen.dart';
 import 'package:RollaTravel/src/screen/trip/start_trip.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
+import 'package:RollaTravel/src/utils/spinner_loader.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:RollaTravel/src/utils/index.dart';
@@ -350,10 +351,10 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            CircularProgressIndicator(),
+                            SpinningLoader(),
                             SizedBox(height: 16),
                             Text(
-                              'Updating image to server...',
+                              'Uploading image to server...',
                               style: TextStyle(color: Colors.white),
                             ),
                           ],

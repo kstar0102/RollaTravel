@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
+import 'package:RollaTravel/src/utils/spinner_loader.dart';
 import 'package:uuid/uuid.dart';
 import 'package:RollaTravel/main.dart';
 import 'package:RollaTravel/src/constants/app_styles.dart';
@@ -890,7 +891,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                               )),
                             ),
                           )
-                        : const Center(child: CircularProgressIndicator()),
+                        : const Center(child: SpinningLoader()),
                     SizedBox(
                       height: vhh(context, 5),
                     ),
@@ -979,7 +980,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          CircularProgressIndicator(),
+                          SpinningLoader(),
                           SizedBox(height: 16),
                           Text(
                             'Uploading image to server...',
@@ -1000,7 +1001,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          CircularProgressIndicator(),
+                          SpinningLoader(),
                           SizedBox(height: 16),
                           Text(
                             'Uploading Data to server...',

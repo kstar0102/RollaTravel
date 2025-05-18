@@ -8,6 +8,7 @@ import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/translate/en.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:RollaTravel/src/utils/index.dart';
+import 'package:RollaTravel/src/utils/spinner_loader.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -144,7 +145,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
           content: Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              CircularProgressIndicator(), // Progress bar
+              SpinningLoader(), // Progress bar
               SizedBox(width: 20),
               Text("Loading..."), // Loading text
             ],
@@ -316,15 +317,8 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                           if (loadingProgress == null) {
                             return child;
                           } else {
-                            return Center(
-                              child: CircularProgressIndicator(
-                                value: loadingProgress.expectedTotalBytes !=
-                                        null
-                                    ? loadingProgress.cumulativeBytesLoaded /
-                                        (loadingProgress.expectedTotalBytes ??
-                                            1)
-                                    : null,
-                              ),
+                            return const Center(
+                              child: SpinningLoader(),
                             );
                           }
                         },
@@ -452,7 +446,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
           }
         },
         child: isLoadingTrips
-            ? const Center(child: CircularProgressIndicator())
+            ? const Center(child: SpinningLoader())
             : SingleChildScrollView(
                 child: Container(
                   decoration: const BoxDecoration(
@@ -586,14 +580,8 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                             width: vhh(context, 15),
                                             loadingBuilder: (context, child, loadingProgress) {
                                               if (loadingProgress == null) return child;
-                                              return Center(
-                                                child: CircularProgressIndicator(
-                                                  value: loadingProgress.expectedTotalBytes != null
-                                                      ? loadingProgress.cumulativeBytesLoaded /
-                                                          (loadingProgress.expectedTotalBytes ?? 1)
-                                                      : null,
-                                                  strokeWidth: 2,
-                                                ),
+                                              return const Center(
+                                                child: SpinningLoader(),
                                               );
                                             },
                                             errorBuilder: (context, error, stackTrace) {
@@ -693,7 +681,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                       //                           loadingBuilder: (context, child, loadingProgress) {
                       //                             if (loadingProgress == null) return child;
                       //                             return Center(
-                      //                               child: CircularProgressIndicator(
+                      //                               child: SpinningLoader(
                       //                                 value: loadingProgress.expectedTotalBytes != null
                       //                                     ? loadingProgress.cumulativeBytesLoaded /
                       //                                         (loadingProgress.expectedTotalBytes ?? 1)
@@ -1079,8 +1067,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                         return child;
                                                       } else {
                                                         return const Center(
-                                                            child:
-                                                                CircularProgressIndicator());
+                                                            child:SpinningLoader());
                                                       }
                                                     },
                                                     errorBuilder: (context, error,
@@ -1118,7 +1105,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             SizedBox(height: vhh(context, 1)),
                             userTrips == null
                                 ? const Center(
-                                    child: CircularProgressIndicator())
+                                    child: SpinningLoader())
                                 : userTrips!.isEmpty
                                     ? const Center(
                                         child: Text("No trips to display"))

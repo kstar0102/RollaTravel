@@ -1,5 +1,6 @@
 import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/utils/index.dart';
+import 'package:RollaTravel/src/utils/spinner_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 
@@ -112,7 +113,7 @@ class HomeViewScreenState extends State<HomeViewScreen> {
             ),
           ),
 
-          if (isLoading) const Center(child: CircularProgressIndicator()),
+          if (isLoading) const Center(child: SpinningLoader()),
 
           // Display users in a list after data is loaded
           if (!isLoading)

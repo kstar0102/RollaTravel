@@ -1,5 +1,6 @@
 import 'package:RollaTravel/src/screen/droppin/take_picture_screen.dart';
 import 'package:RollaTravel/src/utils/index.dart';
+import 'package:RollaTravel/src/utils/spinner_loader.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
@@ -258,7 +259,7 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
                         CameraPreview(_cameraController!)
                       else
                         const Center(
-                          child: CircularProgressIndicator(),
+                          child: SpinningLoader(),
                         ),
                       // Capture Button
                       Positioned(
@@ -271,7 +272,7 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
                             backgroundColor: Colors.white,
                           ),
                           child: _isCapturing
-                              ? const CircularProgressIndicator()
+                              ? const SpinningLoader()
                               : const Icon(Icons.camera_alt,
                                   size: 30, color: Colors.black),
                         ),

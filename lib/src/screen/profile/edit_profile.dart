@@ -5,6 +5,7 @@ import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/translate/en.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:RollaTravel/src/utils/index.dart';
+import 'package:RollaTravel/src/utils/spinner_loader.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -394,7 +395,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  CircularProgressIndicator(),
+                                  SpinningLoader(),
                                   SizedBox(height: 16),
                                   Text(
                                     'Changing user avatar now...',
@@ -645,7 +646,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      CircularProgressIndicator(),
+                                      SpinningLoader(),
                                       SizedBox(height: 16),
                                       Text(
                                         'Updating changed data now...',

@@ -6,6 +6,7 @@ import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/translate/en.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:RollaTravel/src/utils/index.dart';
+import 'package:RollaTravel/src/utils/spinner_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/gestures.dart';
@@ -209,10 +210,10 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
       keyboardHeight = 0;
     }
     return PopScope(
-        canPop: false, // Prevents default back navigation
+        canPop: false, 
         onPopInvokedWithResult: (didPop, result) {
           if (!didPop) {
-            return; // Prevent pop action
+            return;
           }
         },
         child: Scaffold(
@@ -340,7 +341,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                           ),
                         ),
                         _isLoading
-                            ? const CircularProgressIndicator()
+                            ? const SpinningLoader()
                             : Padding(
                                 padding: EdgeInsets.only(
                                     left: vww(context, 15),

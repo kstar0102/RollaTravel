@@ -1,3 +1,4 @@
+import 'package:RollaTravel/src/utils/spinner_loader.dart';
 import 'package:toastification/toastification.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
@@ -56,7 +57,7 @@ class Common {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              CircularProgressIndicator(), // Spinner
+              SpinningLoader(), // Spinner
               SizedBox(height: 20),
               Text(
                 "Loading...",

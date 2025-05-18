@@ -10,6 +10,7 @@ import 'package:RollaTravel/src/translate/en.dart';
 import 'package:RollaTravel/src/utils/common.dart';
 import 'package:RollaTravel/src/utils/index.dart';
 import 'package:RollaTravel/src/utils/location.permission.dart';
+import 'package:RollaTravel/src/utils/spinner_loader.dart';
 import 'package:RollaTravel/src/utils/stop_marker_provider.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
 import 'package:flutter/material.dart';
@@ -206,7 +207,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
           content: Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              CircularProgressIndicator(), // Progress bar
+              SpinningLoader(), // Progress bar
               SizedBox(width: 20),
               Text("Loading..."), // Loading text
             ],
@@ -893,7 +894,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
 
                 // MapBox integration with a customized size
                 !isStateRestored || (movingLocation == null && staticStartingPoint == null)
-                    ? const Center(child: CircularProgressIndicator())
+                    ? const Center(child: SpinningLoader())
                     : Padding(
                         padding:
                             EdgeInsets.symmetric(horizontal: vww(context, 4)),
@@ -1022,18 +1023,8 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                                               null) {
                                                             return child;
                                                           } else {
-                                                            return Center(
-                                                              child:
-                                                                  CircularProgressIndicator(
-                                                                value: loadingProgress
-                                                                            .expectedTotalBytes !=
-                                                                        null
-                                                                    ? loadingProgress
-                                                                            .cumulativeBytesLoaded /
-                                                                        (loadingProgress.expectedTotalBytes ??
-                                                                            1)
-                                                                    : null,
-                                                              ),
+                                                            return const Center(
+                                                              child:SpinningLoader(),
                                                             );
                                                           }
                                                         },

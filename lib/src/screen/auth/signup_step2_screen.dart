@@ -4,6 +4,7 @@ import 'package:RollaTravel/src/screen/auth/signin_screen.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/translate/en.dart';
 import 'package:RollaTravel/src/utils/index.dart';
+import 'package:RollaTravel/src/utils/spinner_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logger/logger.dart';
@@ -465,7 +466,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                       ),
                     ),
                     _isLoading
-                        ? const CircularProgressIndicator()
+                        ? const SpinningLoader()
                         : Padding(
                             padding: EdgeInsets.only(
                                 left: vww(context, 15),

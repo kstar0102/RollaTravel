@@ -1,6 +1,7 @@
 import 'package:RollaTravel/src/screen/home/home_screen_widget.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
+import 'package:RollaTravel/src/utils/spinner_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:RollaTravel/src/constants/app_styles.dart';
@@ -184,7 +185,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
                 child: Divider(),
               ),
               trips == null
-                  ? const Center(child: CircularProgressIndicator())
+                  ? const Center(child: SpinningLoader())
                   : trips!.isEmpty
                       ? const Center(child: Text('No trips available'))
                       : Expanded(

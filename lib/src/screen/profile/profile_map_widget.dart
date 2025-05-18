@@ -1,6 +1,7 @@
 import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/screen/home/home_screen.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
+import 'package:RollaTravel/src/utils/spinner_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -190,7 +191,7 @@ class _TripMapWidgetState extends State<TripMapWidget> {
   Widget build(BuildContext context) {
     return SizedBox(
       child: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: SpinningLoader())
           : Stack(
               children: [
                 Opacity(
