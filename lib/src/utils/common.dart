@@ -49,7 +49,7 @@ class Common {
   static void showLoadingDialog(BuildContext context) {
     showDialog(
       context: context,
-      barrierDismissible: false, // Prevent user from dismissing it manually
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return const Dialog(
           backgroundColor: Colors.transparent,
@@ -84,7 +84,6 @@ class Common {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
         if (data['features'].isNotEmpty) {
-          // Return the first result's place name
           return data['features'][0]['place_name'];
         } else {
           return "Address not found";

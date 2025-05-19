@@ -394,6 +394,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
           tripCoordinates: tripCoordinates,
           droppins: droppins,
           startLocation: startLocation.toString(),
+          mapStyle: GlobalVariables.mapStyleSelected.toString(),
           destinationLocation: endLocation.toString());
 
         if (response['success'] == true) {
@@ -467,7 +468,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
 
         switch (GlobalVariables.delaySetting) {
           case 1:
-            delay = const Duration(minutes: 1);
+            delay = const Duration(minutes: 30);
             message = "Your trip will be uploaded after 30 minutes.";
             break;
           case 2:
@@ -570,7 +571,8 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
           tripCoordinates: tripCoordinates,
           droppins: droppins,
           startLocation: startLocation.toString(),
-          destinationLocation: endLocation.toString());
+          destinationLocation: endLocation.toString(),
+          mapstyle: GlobalVariables.mapStyleSelected.toString());
 
         if (response['success'] == true) {
           setState(() {
@@ -633,6 +635,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
         await prefs.setString('${taskKey}_tripTag', GlobalVariables.selectedUserIds.toString());
         await prefs.setString('${taskKey}_startLocation', startLocation.toString());
         await prefs.setString('${taskKey}_destinationLocation', endLocation.toString());
+        await prefs.setString('${taskKey}_mapstyle', GlobalVariables.mapStyleSelected.toString());
         await prefs.setString('${taskKey}_stopLocations', jsonEncode(stopLocations));
         await prefs.setString('${taskKey}_droppins', jsonEncode(droppins));
         await prefs.setString('${taskKey}_tripCoordinates', jsonEncode(tripCoordinates));
@@ -642,7 +645,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
         });
         switch (GlobalVariables.delaySetting) {
           case 1:
-            delay = const Duration(minutes: 1);
+            delay = const Duration(minutes: 30);
             message = "Your trip will be uploaded after 30 minutes.";
             break;
           case 2:

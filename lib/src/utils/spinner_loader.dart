@@ -15,7 +15,7 @@ class _SpinningLoaderState extends State<SpinningLoader>
   void initState() {
     super.initState();
     _controller =
-        AnimationController(vsync: this, duration: const Duration(seconds: 1))
+        AnimationController(vsync: this, duration: const Duration(seconds: 3))
           ..repeat();
   }
 

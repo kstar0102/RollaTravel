@@ -66,6 +66,29 @@ class PostWidgetState extends State<PostWidget> {
     });
   }
 
+  String get mapStyleUrl {
+    const accessToken = 'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw';
+    final styleId = () {
+      final style = widget.post['map_style'];
+      logger.i(style);
+      switch (style) {
+        case "1":
+          return 'satellite-v9';
+        case "2":
+          return 'light-v10';
+        case "3":
+          return 'dark-v10';
+        case '0':
+        case null:
+        default:
+          return 'streets-v11';
+      }
+    }();
+
+    return "https://api.mapbox.com/styles/v1/mapbox/$styleId/tiles/{z}/{x}/{y}?access_token=$accessToken";
+  }
+
+
 
   Future<void> startAndendMark() async {
     try {
@@ -161,6 +184,7 @@ class PostWidgetState extends State<PostWidget> {
   }
 
   Future<void> _getlocaionts() async {
+    
     List<LatLng> tempLocations = [];
     if (widget.post['stop_locations'] != null) {
       try {
@@ -1060,8 +1084,8 @@ class PostWidgetState extends State<PostWidget> {
           decoration: BoxDecoration(
             color: Colors.black,
             border: Border.all(
-              color: Colors.black, // or any color you prefer
-              width: 0.5, // set the border width
+              color: Colors.black, 
+              width: 0.5,
             ),
           ),
           child: Stack(
@@ -1071,6 +1095,7 @@ class PostWidgetState extends State<PostWidget> {
                       child: SpinningLoader(),
                     )
                   : FlutterMap(
+                     key: ValueKey(widget.post['map_style']), 
                       mapController: mapController,
                       options: MapOptions(
                         initialCenter: lastDropPoint ?? startPoint ?? const LatLng(37.7749, -122.4194),  
@@ -1078,8 +1103,8 @@ class PostWidgetState extends State<PostWidget> {
                       ),
                       children: [
                         TileLayer(
-                          urlTemplate:
-                              "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw",
+                          key: ValueKey(widget.post['map_style']), 
+                          urlTemplate: mapStyleUrl,
                           additionalOptions: const {
                             'access_token':
                                 'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw',

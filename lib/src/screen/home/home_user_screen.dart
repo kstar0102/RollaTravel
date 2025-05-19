@@ -366,11 +366,11 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                     decoration: const BoxDecoration(
                       color: kColorWhite,
                     ),
-                    padding: EdgeInsets.symmetric(horizontal: vww(context, 4)),
+                    padding: EdgeInsets.symmetric(horizontal: vww(context, 0)),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
-                        SizedBox(height: vhh(context, 3)),
+                        SizedBox(height: vhh(context, 5)),
                         Stack(
                           alignment: Alignment.topCenter,
                           children: [
@@ -443,7 +443,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
 
                             // === Username & Verified Row (overlays the top center) ===
                             Positioned(
-                              top: vhh(context, 0.3), 
+                              top: vhh(context, 0), 
                               left: 0,
                               right: 0,
                               child: Row(
@@ -516,7 +516,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                 follow();
                               },
                               child: Container(
-                                width: vww(context, 40),
+                                width: vww(context, 90),
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                                 margin: const EdgeInsets.only(right: 5), 
                                 decoration: BoxDecoration(
@@ -544,191 +544,198 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                               ),
                             ),
 
-                            GestureDetector(
-                              onTap: () {
-                                // Add functionality for Send Message button
-                              },
-                              child: Container(
-                                width: vww(context, 40),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: kColorHereButton,
-                                  borderRadius: BorderRadius.circular(20), 
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.2),
-                                      offset: const Offset(0, 2),
-                                      blurRadius: 4,
+                            // GestureDetector(
+                            //   onTap: () {
+                            //     // Add functionality for Send Message button
+                            //   },
+                            //   child: Container(
+                            //     width: vww(context, 40),
+                            //     padding: const EdgeInsets.symmetric(
+                            //         horizontal: 10, vertical: 3),
+                            //     decoration: BoxDecoration(
+                            //       color: kColorHereButton,
+                            //       borderRadius: BorderRadius.circular(20), 
+                            //       boxShadow: [
+                            //         BoxShadow(
+                            //           color: Colors.black.withValues(alpha: 0.2),
+                            //           offset: const Offset(0, 2),
+                            //           blurRadius: 4,
+                            //         ),
+                            //       ],
+                            //     ),
+                            //     child: const Center(
+                            //       child: Row(
+                            //         mainAxisSize: MainAxisSize.min,
+                            //         children: [
+                            //           Icon(
+                            //             Icons.message_sharp, // Add an icon
+                            //             color: Colors.white, // Icon color
+                            //             size: 16, // Icon size
+                            //           ),
+                            //           SizedBox(
+                            //               width:
+                            //                   2),
+                            //           Text(
+                            //             'Send Message',
+                            //             style: TextStyle(
+                            //               color: Colors.white, // Text color
+                            //               fontSize: 14, // Font size
+                            //               fontFamily:
+                            //                   'interBold', // Font weight
+                            //             ),
+                            //           ),
+                            //         ],
+                            //       ),
+                            //     ),
+                            //   ),
+                            // ),
+                          ],
+                        ),
+
+                        SizedBox(height: vhh(context, 1)),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text(
+                                    happy_place,
+                                    style: TextStyle(
+                                      color: kColorBlack,
+                                      fontSize: 14,
+                                      fontFamily: 'inter',
                                     ),
-                                  ],
-                                ),
-                                child: const Center(
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        Icons.message_sharp, // Add an icon
-                                        color: Colors.white, // Icon color
-                                        size: 16, // Icon size
-                                      ),
-                                      SizedBox(
-                                          width:
-                                              2),
-                                      Text(
-                                        'Send Message',
-                                        style: TextStyle(
-                                          color: Colors.white, // Text color
-                                          fontSize: 14, // Font size
-                                          fontFamily:
-                                              'interBold', // Font weight
-                                        ),
-                                      ),
-                                    ],
                                   ),
+                                  Text(
+                                    happlyPlace ?? "",
+                                    style: const TextStyle(
+                                      color: kColorButtonPrimary,
+                                      fontSize: 14,
+                                      fontFamily: 'inter',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text(
+                                    my_garage,
+                                    style: TextStyle(
+                                      color: kColorBlack,
+                                      fontSize: 14,
+                                      fontFamily: 'inter',
+                                    ),
+                                  ),
+                                  garageLogoUrl != null
+                                    ? Image.network(
+                                        garageLogoUrl!,
+                                        width: 25,
+                                        height: 25,
+                                      )
+                                    : const Text(""),
+                                ],
+                              ),
+                              SizedBox(height: vhh(context, 1)),
+                              SizedBox(
+                                height: 100,
+                                child: (dropPinsData).isEmpty
+                                ? const Center(
+                                    child: Text("No drop pins available",
+                                        style: TextStyle(
+                                            color: Colors.grey,
+                                            letterSpacing: -0.1,
+                                            fontFamily: 'inter')),
+                                  )
+                                : ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: dropPinsData.length,
+                                  itemBuilder: (context, index) {
+                                    final dropPin = dropPinsData[index]
+                                        as Map<String, dynamic>;
+                                    final String imagePath =
+                                        dropPin['image_path'] ?? '';
+                                    final String caption =
+                                        dropPin['image_caption'] ?? 'No caption';
+                                    final List<dynamic> likedUsers =
+                                        dropPin['liked_users'] ?? [];
+
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 3),
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          _showImageDialog(imagePath, caption,
+                                              likedUsers.length, likedUsers);
+                                        },
+                                        child: imagePath.isNotEmpty
+                                            ? Container(
+                                                width: 100,
+                                                height: 100,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                  gradient: LinearGradient(
+                                                    colors: [
+                                                      Colors.black
+                                                          .withValues(alpha: 0.5),
+                                                      Colors.transparent
+                                                    ],
+                                                    begin: Alignment.bottomCenter,
+                                                    end: Alignment.topCenter,
+                                                  ),
+                                                ),
+                                                child: Image.network(
+                                                  imagePath,
+                                                  fit: BoxFit.cover,
+                                                  loadingBuilder: (context, child,
+                                                      loadingProgress) {
+                                                    if (loadingProgress == null) {
+                                                      return child;
+                                                    } else {
+                                                      return const Center(
+                                                          child:
+                                                              SpinningLoader());
+                                                    }
+                                                  },
+                                                  errorBuilder: (context, error,
+                                                      stackTrace) {
+                                                    return const Icon(
+                                                        Icons.broken_image,
+                                                        size: 100);
+                                                  },
+                                                ),
+                                              )
+                                            : const Icon(
+                                                Icons.image_not_supported,
+                                                size: 100),
+                                      ),
+                                    );
+                                  },
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-
-                        SizedBox(height: vhh(context, 1)),
-                        Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text(
-                                  happy_place,
-                                  style: TextStyle(
-                                    color: kColorBlack,
-                                    fontSize: 14,
-                                    fontFamily: 'inter',
-                                  ),
-                                ),
-                                Text(
-                                  happlyPlace ?? "",
-                                  style: const TextStyle(
-                                    color: kColorButtonPrimary,
-                                    fontSize: 14,
-                                    fontFamily: 'inter',
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text(
-                                  my_garage,
-                                  style: TextStyle(
-                                    color: kColorBlack,
-                                    fontSize: 14,
-                                    fontFamily: 'inter',
-                                  ),
-                                ),
-                                garageLogoUrl != null
-                                  ? Image.network(
-                                      garageLogoUrl!,
-                                      width: 25,
-                                      height: 25,
-                                    )
-                                  : const Text(""),
-                              ],
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: vhh(context, 1)),
-
-                        SizedBox(
-                        height: 100,
-                        child: (dropPinsData).isEmpty
-                        ? const Center(
-                            child: Text("No drop pins available",
-                                style: TextStyle(
-                                    color: Colors.grey,
-                                    letterSpacing: -0.1,
-                                    fontFamily: 'inter')),
-                          )
-                        : ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: dropPinsData.length,
-                            itemBuilder: (context, index) {
-                              final dropPin = dropPinsData[index]
-                                  as Map<String, dynamic>;
-                              final String imagePath =
-                                  dropPin['image_path'] ?? '';
-                              final String caption =
-                                  dropPin['image_caption'] ?? 'No caption';
-                              final List<dynamic> likedUsers =
-                                  dropPin['liked_users'] ?? [];
-
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 3),
-                                child: GestureDetector(
-                                  onTap: () {
-                                    _showImageDialog(imagePath, caption,
-                                        likedUsers.length, likedUsers);
-                                  },
-                                  child: imagePath.isNotEmpty
-                                      ? Container(
-                                          width: 100,
-                                          height: 100,
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                            gradient: LinearGradient(
-                                              colors: [
-                                                Colors.black
-                                                    .withValues(alpha: 0.5),
-                                                Colors.transparent
-                                              ],
-                                              begin: Alignment.bottomCenter,
-                                              end: Alignment.topCenter,
-                                            ),
-                                          ),
-                                          child: Image.network(
-                                            imagePath,
-                                            fit: BoxFit.cover,
-                                            loadingBuilder: (context, child,
-                                                loadingProgress) {
-                                              if (loadingProgress == null) {
-                                                return child;
-                                              } else {
-                                                return const Center(
-                                                    child:
-                                                        SpinningLoader());
-                                              }
-                                            },
-                                            errorBuilder: (context, error,
-                                                stackTrace) {
-                                              return const Icon(
-                                                  Icons.broken_image,
-                                                  size: 100);
-                                            },
-                                          ),
-                                        )
-                                      : const Icon(
-                                          Icons.image_not_supported,
-                                          size: 100),
-                                ),
-                              );
-                            },
+                            ],
                           ),
+                        
+
+                        
                         ),
+                        
                         SizedBox(height: vhh(context, 1)),
 
-                        // Map and Route Section with Dividers
                         Container(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        color: kColorWhite,
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          color: kColorWhite,
                         child: Column(
                           children: [
-                            const Divider(
-                              height: 1,
-                              thickness: 2,
-                              color: Colors.blue,
+                            const Padding(padding: EdgeInsets.symmetric(horizontal: 10),
+                              child: Divider(
+                                height: 1,
+                                thickness: 2,
+                                color: Colors.blue,
+                              ),
                             ),
                             SizedBox(height: vhh(context, 1)),
                             userTrips == null

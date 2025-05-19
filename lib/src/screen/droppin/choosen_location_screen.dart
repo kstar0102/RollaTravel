@@ -2,6 +2,7 @@ import 'package:RollaTravel/src/screen/trip/sound_screen.dart';
 import 'package:RollaTravel/src/screen/trip/start_trip.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:RollaTravel/src/utils/spinner_loader.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:RollaTravel/src/utils/index.dart';
@@ -42,6 +43,8 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
   List<Map<String, dynamic>> droppins = [];
   String? droppinsJson;
   final logger = Logger();
+  final GlobalKey _shareWidgetKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
@@ -57,28 +60,51 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
         MaterialPageRoute(builder: (context) => const StartTripScreen()));
   }
 
+  // Future<void> _onShareClicked() async {
+  //   try {
+  //     final imagePath = widget.imagePath;
+  //     final caption = widget.caption;
+
+  //     if (imagePath.isEmpty || !File(imagePath).existsSync()) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         const SnackBar(content: Text('Image not found!')),
+  //       );
+  //       return;
+  //     }
+  //     XFile file = XFile(imagePath);
+  //     await Share.shareXFiles([file], text: caption);
+  //   } catch (e) {
+  //     if(!mounted) return;
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('Failed to share: $e')),
+  //     );
+  //   }
+  // }
+
   Future<void> _onShareClicked() async {
     try {
-      final imagePath = widget.imagePath;
-      final caption = widget.caption;
-
-      if (imagePath.isEmpty || !File(imagePath).existsSync()) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Image not found!')),
-        );
-        return;
+      RenderRepaintBoundary boundary = _shareWidgetKey.currentContext?.findRenderObject() as RenderRepaintBoundary;
+      if (boundary.debugNeedsPaint) {
+        await Future.delayed(const Duration(milliseconds: 20));
       }
 
-      XFile file = XFile(imagePath);
+      final image = await boundary.toImage(pixelRatio: 3.0);
+      final byteData = await image.toByteData(format: ImageByteFormat.png);
+      final pngBytes = byteData!.buffer.asUint8List();
 
-      await Share.shareXFiles([file], text: caption);
+      final tempDir = await Directory.systemTemp.createTemp();
+      final file = await File('${tempDir.path}/shared_polaroid.png').create();
+      await file.writeAsBytes(pngBytes);
+
+      await Share.shareXFiles([XFile(file.path)], text: widget.caption);
     } catch (e) {
-      // ignore: use_build_context_synchronously
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to share: $e')),
       );
     }
   }
+
 
   void _playListClicked () {
     Navigator.push(
@@ -111,226 +137,233 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       SizedBox(height: vhh(context, 8)),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withValues(alpha: 0.9),
-                              spreadRadius: 1.5,
-                              blurRadius: 15,
-                              offset: const Offset(0, 0),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            // Logo and Close Button
-                            Stack(
-                              children: [
-                                Center(
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      // Handle tap on the logo if needed
-                                    },
-                                    child: Image.asset(
-                                      'assets/images/icons/logo.png',
-                                      width: 90,
-                                      height: 80,
-                                    ),
-                                  ),
-                                ),
-                                Positioned(
-                                  right: 0,
-                                  top: 10,
-                                  child: IconButton(
-                                    icon: const Icon(Icons.close,
-                                        color: Colors.black, size: 28),
-                                    onPressed: _onCloseClicked,
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            // Additional Rows and Summary
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 11.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text(
-                                    destination,
-                                    style: TextStyle(
-                                      color: kColorBlack,
-                                      fontSize: 13,
-                                      letterSpacing: -0.1,
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: 'inter',
-                                    ),
-                                  ),
-                                  Text(
-                                    GlobalVariables.editDestination!,
-                                    style: const TextStyle(
-                                      color: kColorButtonPrimary,
-                                      fontSize: 14,
-                                      decoration: TextDecoration.underline,
-                                      decorationColor: kColorButtonPrimary,
-                                      fontFamily: 'inter',
-                                    ),
-                                  ),
-                                ],
+                      RepaintBoundary(
+                        key: _shareWidgetKey,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withValues(alpha: 0.9),
+                                spreadRadius: 1.5,
+                                blurRadius: 15,
+                                offset: const Offset(0, 0),
                               ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                            ],
+                          ),
+                          child: Column(
+                            children: [
+                              // Logo and Close Button
+                              Stack(
                                 children: [
-                                  const Text(
-                                    soundtrack,
-                                    style: TextStyle(
-                                      color: kColorBlack,
-                                      fontSize: 13,
-                                      letterSpacing: -0.1,
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: 'inter',
-                                    ),
-                                  ),
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(20),
-                                      color: Colors.white,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withValues(alpha: 0.3),
-                                          spreadRadius: 0.5,
-                                          blurRadius: 6,
-                                          offset: const Offset(-3, 5),
-                                        ),
-                                      ],
-                                      border: Border.all(
-                                        color: Colors.brown, // Border color
-                                        width: 1, // Thin border
-                                      ),
-                                    ),
-                                    padding:
-                                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                  Center(
                                     child: GestureDetector(
                                       onTap: () {
-                                        _playListClicked();
+                                        // Handle tap on the logo if needed
                                       },
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Image.asset(
-                                            "assets/images/icons/music.png",
-                                            width: 12,
-                                            height: 12,
-                                          ),
-                                          const SizedBox(width: 3),
-                                          const Text(
-                                            'playlist',
-                                            style: TextStyle(
-                                              fontSize: 11,
-                                              color: Colors.black,
-                                              fontWeight: FontWeight.bold,
-                                              letterSpacing: -0.1,
-                                              fontFamily: 'Inter',
-                                            ),
-                                          ),
-                                        ],
+                                      child: Image.asset(
+                                        'assets/images/icons/logo.png',
+                                        width: 90,
+                                        height: 80,
                                       ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    right: 0,
+                                    top: 10,
+                                    child: IconButton(
+                                      icon: const Icon(Icons.close,
+                                          color: Colors.black, size: 28),
+                                      onPressed: _onCloseClicked,
                                     ),
                                   ),
                                 ],
                               ),
-                            ),
-                            const SizedBox(height: 20),
-                            Center(
-                              child: SizedBox(
-                                width: vww(context, 60),
-                                height: vhh(context, 45),
-                                child: Column(
+
+                              // Additional Rows and Summary
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 11.0),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Container(
-                                      height: vhh(context, 38),
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                            color: Colors.grey,
-                                            width:
-                                                1.0), // Set border color and width
-                                        borderRadius: BorderRadius.circular(
-                                            8.0), // Optional: Add border radius for rounded corners
-                                      ),
-                                      child: Column(
-                                        children: [
-                                          Align(
-                                            alignment: Alignment.centerLeft,
-                                            child: Padding(
-                                              padding: const EdgeInsets.only(
-                                                  left: 10.0,
-                                                  top: 5,
-                                                  bottom: 5),
-                                              child: Text(
-                                                widget.caption,
-                                                style: const TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.grey,
-                                                    fontFamily: 'inter'),
-                                              ),
-                                            ),
-                                          ),
-                                          // Image
-                                          Expanded(
-                                            child: Image.file(
-                                              File(widget.imagePath),
-                                              fit: BoxFit.cover,
-                                              width: vww(context, 100),
-                                            ),
-                                          ),
-                                        ],
+                                    const Text(
+                                      destination,
+                                      style: TextStyle(
+                                        color: kColorBlack,
+                                        fontSize: 13,
+                                        letterSpacing: -0.1,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'inter',
                                       ),
                                     ),
-                                    SizedBox(height: vhh(context, 0.5)),
-                                    const Padding(
-                                      padding: EdgeInsets.only(top: 8.0),
-                                      child: Text(
-                                        "the Rolla travel app",
-                                        style: TextStyle(
-                                            fontSize: 15,
-                                            fontFamily: 'interBold'),
+                                    Text(
+                                      GlobalVariables.editDestination!,
+                                      style: const TextStyle(
+                                        color: kColorButtonPrimary,
+                                        fontSize: 14,
+                                        decoration: TextDecoration.underline,
+                                        decorationColor: kColorButtonPrimary,
+                                        fontFamily: 'inter',
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-                            ),
-                          ],
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text(
+                                      soundtrack,
+                                      style: TextStyle(
+                                        color: kColorBlack,
+                                        fontSize: 13,
+                                        letterSpacing: -0.1,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'inter',
+                                      ),
+                                    ),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(20),
+                                        color: Colors.white,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withValues(alpha: 0.3),
+                                            spreadRadius: 0.5,
+                                            blurRadius: 6,
+                                            offset: const Offset(-3, 5),
+                                          ),
+                                        ],
+                                        border: Border.all(
+                                          color: kColorButtonPrimary,
+                                          width: 1,
+                                        ),
+                                      ),
+                                      padding:
+                                          const EdgeInsets.symmetric(horizontal: 12, vertical: 2.5),
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          _playListClicked();
+                                        },
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Image.asset(
+                                              "assets/images/icons/music.png",
+                                              width: 12,
+                                              height: 12,
+                                            ),
+                                            const SizedBox(width: 3),
+                                            const Text(
+                                              'playlist',
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                color: Colors.black,
+                                                fontWeight: FontWeight.bold,
+                                                letterSpacing: -0.1,
+                                                fontFamily: 'Inter',
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              Center(
+                                child: SizedBox(
+                                  width: vww(context, 60),
+                                  height: vhh(context, 45),
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        height: vhh(context, 38),
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                              color: Colors.grey,
+                                              width:
+                                                  1.0), // Set border color and width
+                                          borderRadius: BorderRadius.circular(
+                                              8.0), // Optional: Add border radius for rounded corners
+                                        ),
+                                        child: Column(
+                                          children: [
+                                            Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(
+                                                    left: 10.0,
+                                                    top: 5,
+                                                    bottom: 5),
+                                                child: Text(
+                                                  widget.caption,
+                                                  style: const TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight: FontWeight.bold,
+                                                      color: Colors.grey,
+                                                      fontFamily: 'inter'),
+                                                ),
+                                              ),
+                                            ),
+                                            // Image
+                                            Expanded(
+                                              child: Image.file(
+                                                File(widget.imagePath),
+                                                fit: BoxFit.cover,
+                                                width: vww(context, 100),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(height: vhh(context, 0.5)),
+                                      const Padding(
+                                        padding: EdgeInsets.only(top: 8.0),
+                                        child: Text(
+                                          "the Rolla travel app.",
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              letterSpacing: -0.1,
+                                              fontWeight: FontWeight.bold,
+                                              fontFamily: 'inter'),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                       const Padding(
-                        padding: EdgeInsets.only(top: 5.0),
+                        padding: EdgeInsets.only(top: 10.0),
                         child: Text(
                           "Share this summary:",
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 14,
+                            color: kColorStrongGrey,
                             fontStyle: FontStyle.italic,
                             fontFamily: 'inter',
                           ),
                         ),
                       ),
+                      const SizedBox(height: 10,),
                       GestureDetector(
                         onTap: () {
                           _onShareClicked();
                         },
                         child: Image.asset(
-                          "assets/images/icons/share.png",
-                          height: 50,
+                          "assets/images/icons/upload_icon.png",
+                          height: 30,
                         ),
                       ),
                     ],

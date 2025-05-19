@@ -562,6 +562,7 @@ class ApiService {
     required List<Map<String, dynamic>> droppins,
     required String startLocation,
     required String destinationLocation,
+    required String mapstyle,
   }) async {
     final url = Uri.parse('$baseUrl/trip/create');
 
@@ -582,6 +583,7 @@ class ApiService {
       'droppins': droppins,
       'start_location': startLocation,
       'destination_location': destinationLocation,
+      'map_style' : mapstyle
     };
     logger.i(requestBody);
 
@@ -626,6 +628,7 @@ class ApiService {
     required List<Map<String, dynamic>> droppins,
     required String startLocation,
     required String destinationLocation,
+    required String mapStyle,
   }) async {
     final url = Uri.parse('$baseUrl/trip/update');
     final Map<String, dynamic> requestBody = {
@@ -646,6 +649,7 @@ class ApiService {
       'droppins': droppins,
       'start_location': startLocation,
       'destination_location': destinationLocation,
+      'map_style': mapStyle,
     };
     logger.i(requestBody);
 

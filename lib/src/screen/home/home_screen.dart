@@ -74,7 +74,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
       setState(() {
          trips = filteredTrips.reversed.toList();
       });
-      logger.i(trips);
+      // logger.i(trips);
 
       if (GlobalVariables.homeTripID != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {

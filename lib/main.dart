@@ -44,7 +44,7 @@ void callbackDispatcher() {
       final int? userId = GlobalVariables.userId;
 
       logger.i("uerid : $userId");
-      
+
       if (userId == null) {
         await sendNotification("Trip Upload Failed", "User ID not found.");
         return Future.value(false);
@@ -65,6 +65,7 @@ void callbackDispatcher() {
         final tripTag = prefs.getString('${taskKey}_tripTag') ?? '';
         final startLocationString = prefs.getString('${taskKey}_startLocation') ?? '';
         final destinationLocationString = prefs.getString('${taskKey}_destinationLocation') ?? '';
+        final mapStyleString = prefs.getString('${taskKey}_mapstyle') ?? '';
         final droppinsJson = prefs.getString('${taskKey}_droppins') ?? '[]';
         final stopLocationsJson = prefs.getString('${taskKey}_stopLocations') ?? '[]';
         final tripCoordinatesJson = prefs.getString('${taskKey}_tripCoordinates') ?? '[]';
@@ -101,6 +102,7 @@ void callbackDispatcher() {
             droppins: droppins,
             startLocation: startLocationString,
             destinationLocation: destinationLocationString,
+            mapStyle: mapStyleString
           );
 
           if (response['success'] == true) {
@@ -129,6 +131,7 @@ void callbackDispatcher() {
             droppins: droppins,
             startLocation: startLocationString,
             destinationLocation: destinationLocationString,
+            mapstyle: mapStyleString
           );
 
           if (response['success'] == true) {
