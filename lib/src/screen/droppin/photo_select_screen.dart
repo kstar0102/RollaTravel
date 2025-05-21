@@ -236,7 +236,7 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
               const Text(
                 'Select photo to drop on your map',
                 style: TextStyle(
-                    fontSize: 16, color: Colors.black, fontFamily: 'inter'),
+                    fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'inter'),
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: vhh(context, 2)),

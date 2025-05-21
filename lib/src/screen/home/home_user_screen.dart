@@ -78,6 +78,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
       final result  = await ApiService().fetchUserTrips(widget.userId);
       var userProfile = result['trips'];
       final userInfo = result['userInfo'];
+
       rollaUserName = userInfo[0]['rolla_username'] ?? " ";
       rollaUserImage = userInfo[0]['photo'];
       userid = userInfo[0]['id'];
@@ -488,24 +489,26 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                           ],
                         ),
                         SizedBox(height: vhh(context, 1)),
-                        if (userProfile != null) ...[
-                          Text(
-                            '${userProfile!['first_name']} ${userProfile!['last_name']}',
-                            style: const TextStyle(
-                              color: kColorBlack,
-                              fontSize: 20,
-                              fontFamily: 'interBold',
-                            ),
+                        Text(
+                          rollaUserName ?? "",
+                          style: const TextStyle(
+                            color: kColorBlack,
+                            fontSize: 17,
+                            letterSpacing: -0.1,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: 'inter'
                           ),
-                          Text(
-                            userProfile!['bio'] ?? '',
-                            style: const TextStyle(
-                              color: kColorGrey,
-                              fontSize: 18,
-                              fontFamily: 'inter',
-                            ),
+                        ),
+                        Text(
+                          happlyPlace ?? "",
+                          style: const TextStyle(
+                            color: kColorGrey,
+                            fontSize: 15,
+                            letterSpacing: -0.1,
+                            fontWeight: FontWeight.w400,
+                            fontFamily: 'inter'
                           ),
-                        ],
+                        ),
                         SizedBox(height: vhh(context, 2)),
                         Row(
                           mainAxisAlignment:
@@ -520,7 +523,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                                 margin: const EdgeInsets.only(right: 5), 
                                 decoration: BoxDecoration(
-                                  color: isMefollow ? Colors.grey : kColorButtonPrimary, // Make it grey when disabled
+                                  color: isMefollow ? Colors.grey : kColorButtonPrimary,
                                   borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
                                     BoxShadow(
@@ -858,6 +861,7 @@ class _TripMapWidgetState extends State<TripMapWidget> {
   List<LatLng> locations = [];
   LatLng? startPoint;
   LatLng? endPoint;
+  LatLng? lastDropPoint;
   bool isLoading = true;
   final logger = Logger();
 
@@ -879,6 +883,21 @@ class _TripMapWidgetState extends State<TripMapWidget> {
   void dispose() {
     mapController.dispose(); // If applicable
     super.dispose();
+  }
+
+  void _adjustZoom() {
+    if (lastDropPoint != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final bounds = LatLngBounds(
+          LatLng(lastDropPoint!.latitude - 0.03, lastDropPoint!.longitude - 0.03),
+          LatLng(lastDropPoint!.latitude + 0.03, lastDropPoint!.longitude + 0.03), 
+        );
+
+        final center = bounds.center;
+
+        mapController.move(center, 12.0); 
+      });
+    }
   }
 
   void _initializeRoutePoints() {
@@ -962,10 +981,15 @@ class _TripMapWidgetState extends State<TripMapWidget> {
     } catch (e) {
       logger.e('Failed to fetch destination address coordinates: $e');
     }
-
+    
     setState(() {
       locations = tempLocations;
+      // Assign the last location to lastDropPoint
+      if (tempLocations.isNotEmpty) {
+        lastDropPoint = tempLocations.last;
+      }
     });
+    _adjustZoom();
   }
 
   void _onMapTap() {
@@ -990,9 +1014,8 @@ class _TripMapWidgetState extends State<TripMapWidget> {
                 FlutterMap(
                   mapController: mapController,
                   options: MapOptions(
-                    initialCenter:
-                        startPoint != null ? startPoint! : const LatLng(0, 0),
-                    initialZoom: 7,
+                    initialCenter: lastDropPoint ?? startPoint ?? const LatLng(37.7749, -122.4194), 
+                    initialZoom: 12.0,
                     onTap: (_, LatLng position) {
                       _onMapTap();
                       logger.i('Map tapped at: $position');

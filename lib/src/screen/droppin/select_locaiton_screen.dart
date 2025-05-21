@@ -750,12 +750,14 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                       children: [
                         Image.asset('assets/images/icons/logo.png',
                             width: 90, height: 80,),
+                        const Spacer(),
                         IconButton(
                           icon: const Icon(Icons.close, size: 30),
                           onPressed: () {
                             Navigator.of(context).pop();
                           },
                         ),
+                        const SizedBox(width: 12,),
                       ],
                     ),
 

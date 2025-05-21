@@ -125,6 +125,8 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
         GlobalVariables.song4 = songs.length > 3 ? songs[3].trim() : null;
                                     
         GlobalVariables.editDestination = destinationTextAddress[0];
+        logger.i("GlobalVariables.editDestination : ${GlobalVariables.editDestination}");
+
         GlobalVariables.tripStartDate = tripData['trips'][0]['trip_start_date'];
         var startLocation = tripData['trips'][0]['start_location'];
         List stopLocations = tripData['trips'][0]['stop_locations'];
@@ -202,7 +204,6 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     setState(() {
       _isLoading = true;
     });
-
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -393,7 +394,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     LatLng? startLocation = ref.read(staticStartingPointProvider);
     LatLng? endLocation = LatLng(position.latitude, position.longitude);
     List<MarkerData> stopMarkers = ref.read(markersProvider);
-    logger.i("stopmakers : $stopMarkers");
+    // logger.i("stopmakers : $stopMarkers");
     await _fetchAddresses(startLocation, endLocation, stopMarkers);
 
     final tripCoordinates = ref
@@ -479,8 +480,22 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
       if (!mounted) return;
 
       if (response['success'] == true) {
+        logger.i(response);
         await prefs.remove("tripId");
         await prefs.remove("dropcount");
+        String jsonStr = response['trip']['destination_text_address'] ?? '[]';
+
+        // Parse it to a List<String>
+        List<dynamic> parsedList = [];
+        try {
+          parsedList = jsonDecode(jsonStr);
+        } catch (e) {
+          logger.e("Failed to parse destination_text_address: $e");
+        }
+
+        // Extract first element or empty string if list is empty
+        String destination = parsedList.isNotEmpty ? parsedList[0].toString() : "";
+
         _hideLoadingDialog();
         if (!mounted) return;
         Navigator.push(
@@ -492,7 +507,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
               stopMarkers: stopMarkers,
               tripStartDate: GlobalVariables.tripStartDate!,
               tripEndDate: GlobalVariables.tripEndDate!,
-              endDestination: GlobalVariables.editDestination!,
+              endDestination: destination,
             ),
           ),
         );
@@ -641,7 +656,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     LatLng? endLocation,
     List<MarkerData> stopMarkers,
   ) async {
-    logger.i(stopMarkers);
+    // logger.i(stopMarkers);
     
     if (startLocation != null) {
       startAddress = await Common.getAddressFromLocation(startLocation);

@@ -3,7 +3,9 @@ import 'package:RollaTravel/src/screen/auth/signin_screen.dart';
 import 'package:RollaTravel/src/screen/profile/block_screen.dart';
 import 'package:RollaTravel/src/screen/profile/profile_screen.dart';
 import 'package:RollaTravel/src/translate/en.dart';
+import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:RollaTravel/src/utils/index.dart';
+import 'package:RollaTravel/src/utils/stop_marker_provider.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -39,6 +41,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Future<void> _logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
+    ref.read(isTripStartedProvider.notifier).state = false;
+    GlobalVariables.isTripStarted = false;
+    ref.read(staticStartingPointProvider.notifier).state = ref.read(movingLocationProvider);
+    ref.read(movingLocationProvider.notifier).state = null;
+    ref.read(markersProvider.notifier).state = [];
+    ref.read(totalDistanceProvider.notifier).state = 0.0;
+    GlobalVariables.totalDistance = 0.0;
+    GlobalVariables.tripCaption = null;
+    GlobalVariables.song1 = null;
+    GlobalVariables.song2 = null;
+    GlobalVariables.song3 = null;
+    GlobalVariables.song4 = null;
+    GlobalVariables.editDestination = null;
+    GlobalVariables.selectedUserIds = [];
+    ref.read(pathCoordinatesProvider.notifier).state = [];
 
     if (mounted) {
       Navigator.pushReplacement(

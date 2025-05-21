@@ -490,7 +490,6 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
                                                 .withValues(alpha: 0.9),
                                             fontSize: 14,
                                             letterSpacing: -0.43,
-                                            fontStyle: FontStyle.italic,
                                             fontFamily: 'inter'),
                                         textAlign: TextAlign.center,
                                       ),

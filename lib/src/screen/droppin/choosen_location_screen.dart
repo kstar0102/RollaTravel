@@ -200,7 +200,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                                       ),
                                     ),
                                     Text(
-                                      GlobalVariables.editDestination!,
+                                      GlobalVariables.editDestination ?? "",
                                       style: const TextStyle(
                                         color: kColorButtonPrimary,
                                         fontSize: 14,

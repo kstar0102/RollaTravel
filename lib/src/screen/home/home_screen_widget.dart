@@ -3,6 +3,7 @@ import 'package:RollaTravel/src/screen/home/home_sound_screen.dart';
 import 'package:RollaTravel/src/screen/home/home_tag_screen.dart';
 import 'package:RollaTravel/src/screen/home/home_user_screen.dart';
 import 'package:RollaTravel/src/screen/home/home_view_screen.dart';
+import 'package:RollaTravel/src/screen/profile/profile_screen.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:RollaTravel/src/utils/spinner_loader.dart';
@@ -689,13 +690,21 @@ class PostWidgetState extends State<PostWidget> {
   }
 
   void _goUserScreen() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => HomeUserScreen(
-                userId: widget.post['user_id'],
-              )),
-    );
+    if(GlobalVariables.userId != widget.post['user_id']){
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => HomeUserScreen(
+                  userId: widget.post['user_id'],
+                )),
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => const ProfileScreen()),
+      );
+    }
   }
 
   Future<void> _sendComment() async {

@@ -227,7 +227,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                                   ),
                                   Flexible(
                                     child: Text(
-                                      GlobalVariables.editDestination ?? '',
+                                      widget.endDestination,
                                       style: const TextStyle(
                                         color: kColorButtonPrimary,
                                         fontSize: 14,

@@ -122,22 +122,16 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
                           Padding(
                             padding: const EdgeInsets.all(10.0),
                             child: Container(
-                              color: Colors
-                                  .transparent, // Semi-transparent background
+                              color: Colors.transparent,
                               child: TextField(
                                 controller: _captionController,
+                                maxLines: 2,
                                 decoration: InputDecoration(
                                   hintText: 'Caption...',
-                                  hintStyle:
-                                      const TextStyle(fontFamily: 'inter'),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    borderSide: const BorderSide(
-                                        color: Colors.blue, width: 2.0),
-                                  ),
+                                  hintStyle: const TextStyle(fontFamily: 'inter'),
                                   filled: true,
-                                  // ignore: deprecated_member_use
-                                  fillColor: Colors.white.withOpacity(0.9),
+                                  fillColor: Colors.white.withValues(alpha: 0.95),
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                                 ),
                                 style: const TextStyle(fontFamily: 'inter'),
                               ),
