@@ -125,6 +125,7 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
                               color: Colors.transparent,
                               child: TextField(
                                 controller: _captionController,
+                                textInputAction: TextInputAction.done,
                                 maxLines: 2,
                                 decoration: InputDecoration(
                                   hintText: 'Caption...',

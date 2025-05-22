@@ -185,7 +185,9 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
                 child: Divider(),
               ),
               trips == null
-                  ? const Center(child: SpinningLoader())
+                  ? const Expanded(
+                      child: Center(child: SpinningLoader()),
+                    )
                   : trips!.isEmpty
                       ? const Center(child: Text('No trips available'))
                       : Expanded(

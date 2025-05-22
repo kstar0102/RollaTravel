@@ -70,7 +70,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     super.initState();
     _getFetchTripData();
     _checkLocationServices();
-    logger.i(GlobalVariables.delaySetting);
+    // logger.i(GlobalVariables.delaySetting);
   }
 
   @override
@@ -125,7 +125,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
         GlobalVariables.song4 = songs.length > 3 ? songs[3].trim() : null;
                                     
         GlobalVariables.editDestination = destinationTextAddress[0];
-        logger.i("GlobalVariables.editDestination : ${GlobalVariables.editDestination}");
+        // logger.i("GlobalVariables.editDestination : ${GlobalVariables.editDestination}");
 
         GlobalVariables.tripStartDate = tripData['trips'][0]['trip_start_date'];
         var startLocation = tripData['trips'][0]['start_location'];
@@ -259,7 +259,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     }
 
     // ✅ If everything is enabled, log success
-    logger.i("Location services and permissions are enabled.");
+    // logger.i("Location services and permissions are enabled.");
   }
 
   void _showLocationDisabledDialog() {
@@ -788,7 +788,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     final pathCoordinates = ref.watch(pathCoordinatesProvider);
     final movingLocation = ref.watch(movingLocationProvider);
     final staticStartingPoint = ref.watch(staticStartingPointProvider);
-    final isTripStarted = ref.watch(isTripStartedProvider);
+    // final isTripStarted = ref.watch(isTripStartedProvider);
 
     return Scaffold(
       backgroundColor: kColorWhite,
@@ -1009,7 +1009,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
 
                 // MapBox integration with a customized size
                 !isStateRestored || (movingLocation == null && staticStartingPoint == null)
-                    ? const Center(child: SpinningLoader())
+                    ? const SizedBox.shrink()
                     : Padding(
                         padding:
                             EdgeInsets.symmetric(horizontal: vww(context, 4)),
@@ -1048,21 +1048,21 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                       //       fit: BoxFit.contain,
                                       //     ),
                                       //   ),
-                                      if (staticStartingPoint != null)
-                                        Marker(
-                                          width: 80.0,
-                                          height: 80.0,
-                                          point: staticStartingPoint,
-                                          child: Icon(
-                                            isTripStarted
-                                                ? Icons.flag
-                                                : Icons.location_on,
-                                            color: isTripStarted
-                                                ? Colors.red
-                                                : Colors.red,
-                                            size: 30,
-                                          ),
-                                        ),
+                                      // if (staticStartingPoint != null)
+                                      //   Marker(
+                                      //     width: 80.0,
+                                      //     height: 80.0,
+                                      //     point: staticStartingPoint,
+                                      //     child: Icon(
+                                      //       isTripStarted
+                                      //           ? Icons.flag
+                                      //           : Icons.location_on,
+                                      //       color: isTripStarted
+                                      //           ? Colors.red
+                                      //           : Colors.red,
+                                      //       size: 30,
+                                      //     ),
+                                      //   ),
                                       // Markers from markersProvider
                                       ...ref
                                           .watch(markersProvider)

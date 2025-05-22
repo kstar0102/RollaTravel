@@ -37,41 +37,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> with SingleTickerPr
 
   @override
   void dispose() {
-    // _tabController.dispose();
     _searchController.dispose();
     _searchFocusNode.dispose();
     super.dispose();
   }
-
-  // void _handleTabChange() {
-  //   if (_tabController.index == 1 && !isUserDataFetched) {
-  //     getAllUserData();
-  //   } else {
-  //     _filterResults();
-  //   }
-  // }
-
-  // Future<void> getAllDropPinData() async {
-  //   setState(() => isLoading = true);
-  //   final authService = ApiService();
-
-  //   try {
-  //     final response = await authService.fetchAllDropPinData();
-  //     if (response["status"] == "success" && response.containsKey("data")) {
-  //       setState(() {
-  //         allDropPinData = response["data"];
-  //         filteredDropPinData = response["data"];
-  //         isLoading = false;
-  //       });
-  //     } else {
-  //       logger.e("Failed to fetch DropPin data.");
-  //       setState(() => isLoading = false);
-  //     }
-  //   } catch (e) {
-  //     logger.e("Error fetching DropPin data: $e");
-  //     setState(() => isLoading = false);
-  //   }
-  // }
 
   Future<void> getAllUserData() async {
     setState(() => isLoading = true);
@@ -100,66 +69,14 @@ class _SearchScreenState extends ConsumerState<SearchScreen> with SingleTickerPr
     String query = _searchController.text.toLowerCase();
 
     setState(() {
-      // if (_tabController.index == 0) {
-      //   filteredDropPinData = allDropPinData.where((dropPin) {
-      //     final user = dropPin['user'];
-      //     final imageCaption = dropPin['image_caption'] ?? '';
-      //     final userName = '${user['first_name']} ${user['last_name']}';
-
-      //     return userName.toLowerCase().contains(query) ||
-      //         imageCaption.toLowerCase().contains(query);
-      //   }).toList();
-      // } else {
-        filteredUserData = allUserData.where((user) {
-          final fullName = '${user['first_name']} ${user['last_name']}';
-          final email = user['email'] ?? '';
-          return fullName.toLowerCase().contains(query) ||
-              email.toLowerCase().contains(query);
-        }).toList();
-      // }
+      filteredUserData = allUserData.where((user) {
+        final fullName = '${user['first_name']} ${user['last_name']}';
+        final email = user['email'] ?? '';
+        return fullName.toLowerCase().contains(query) ||
+            email.toLowerCase().contains(query);
+      }).toList();
     });
   }
-
-  // void _showImageDialog(String imagePath) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return Dialog(
-  //         insetPadding: const EdgeInsets.symmetric(horizontal: 30),
-  //         shape:
-  //             RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-  //         child: Column(
-  //           mainAxisSize: MainAxisSize.min,
-  //           crossAxisAlignment: CrossAxisAlignment.center,
-  //           children: [
-  //             Image.network(
-  //               imagePath,
-  //               fit: BoxFit.cover,
-  //               width: MediaQuery.of(context).size.width * 0.9,
-  //               height: MediaQuery.of(context).size.height * 0.5,
-  //               errorBuilder: (context, error, stackTrace) =>
-  //                   const Icon(Icons.broken_image, size: 100),
-  //               loadingBuilder: (context, child, loadingProgress) {
-  //                 if (loadingProgress == null) {
-  //                   return child;
-  //                 } else {
-  //                   return Center(
-  //                     child: SpinningLoader(
-  //                       value: loadingProgress.expectedTotalBytes != null
-  //                           ? loadingProgress.cumulativeBytesLoaded /
-  //                               (loadingProgress.expectedTotalBytes ?? 1)
-  //                           : null,
-  //                     ),
-  //                   );
-  //                 }
-  //               },
-  //             ),
-  //           ],
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -183,30 +100,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> with SingleTickerPr
             ),
           ),
           const SizedBox(height: 10),
-          // TabBar(
-          //   controller: _tabController,
-          //   labelColor: Colors.black,
-          //   unselectedLabelColor: Colors.grey,
-          //   labelStyle: const TextStyle(
-          //     fontFamily: 'inter',
-          //     fontSize: 16,
-          //     letterSpacing: -0.1,
-          //     fontWeight: FontWeight.bold,
-          //   ),
-          //   indicator: const UnderlineTabIndicator(
-          //     borderSide: BorderSide(
-          //       width: 3, // Thickness of the underline
-          //       color: kColorHereButton, // Green underline color
-          //     ),
-          //   ),
-          //   tabs: const [
-          //     Tab(text: ' DropPins '),
-          //     Tab(text: ' Users '),
-          //   ],
-          // ),
-          // const SizedBox(
-          //   height: 15,
-          // ),
           SizedBox(
             height: 35,
             width: vww(context, 90),
@@ -251,124 +144,19 @@ class _SearchScreenState extends ConsumerState<SearchScreen> with SingleTickerPr
             ),
           ),
           isLoading
-              ? const Padding(
-                  padding: EdgeInsets.all(20),
-                  child: SpinningLoader(),
+              ? const Expanded(
+                  child: Center(
+                    child: SpinningLoader(),
+                  ),
                 )
               : Expanded(
                  child: _buildUserList(),
-                  // child: TabBarView(
-                  //   // controller: _tabController,
-                  //   children: [
-                  //     // _buildDropPinList(),
-                  //     _buildUserList(),
-                  //   ],
-                  // ),
                 ),
         ],
       ),
       bottomNavigationBar: BottomNavBar(currentIndex: _currentIndex),
     );
   }
-
-  // Widget _buildDropPinList() {
-  //   return ListView.builder(
-  //     itemCount: filteredDropPinData.length,
-  //     itemBuilder: (context, index) {
-  //       final dropPin = filteredDropPinData[index];
-  //       final user = dropPin['user'];
-  //       final imagePath = dropPin['image_path'];
-  //       final imageCaption = dropPin['image_caption'];
-  //       final createdAt = DateTime.parse(dropPin['created_at']);
-  //       final formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(createdAt);
-  //       return Padding(
-  //         padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 20.0),
-  //         child: GestureDetector(
-  //           onTap: () {
-  //             _showImageDialog(imagePath);
-  //           },
-  //           child: Container(
-  //             decoration: BoxDecoration(
-  //               color: Colors.grey[100],
-  //               borderRadius: BorderRadius.circular(10),
-  //               border: Border.all(color: kColorGrey, width: 0.5),
-  //             ),
-  //             padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-  //             child: Row(
-  //               children: [
-  //                 // Image
-  //                 ClipRRect(
-  //                   borderRadius: BorderRadius.circular(8.0),
-  //                   child: Image.network(
-  //                     imagePath,
-  //                     width: 60,
-  //                     height: 60,
-  //                     fit: BoxFit.cover,
-  //                     errorBuilder: (context, error, stackTrace) =>
-  //                         const Icon(Icons.broken_image, size: 60),
-  //                     loadingBuilder: (context, child, loadingProgress) {
-  //                       if (loadingProgress == null) {
-  //                         return child;
-  //                       } else {
-  //                         return Center(
-  //                           child: SpinningLoader(
-  //                             value: loadingProgress.expectedTotalBytes != null
-  //                                 ? loadingProgress.cumulativeBytesLoaded /
-  //                                     (loadingProgress.expectedTotalBytes ?? 1)
-  //                                 : null,
-  //                           ),
-  //                         );
-  //                       }
-  //                     },
-  //                   ),
-  //                 ),
-
-  //                 const SizedBox(width: 12),
-  //                 Expanded(
-  //                   child: Column(
-  //                     crossAxisAlignment: CrossAxisAlignment.start,
-  //                     children: [
-  //                       // User Name
-  //                       Text(
-  //                         '${user?['first_name'] ?? ''} ${user?['last_name'] ?? ''}',
-  //                         style: const TextStyle(
-  //                           fontSize: 16,
-  //                           fontWeight: FontWeight.bold,
-  //                           fontFamily: 'inter',
-  //                           letterSpacing: -0.1,
-  //                         ),
-  //                       ),
-
-  //                       const SizedBox(height: 4),
-  //                       Text(
-  //                         imageCaption,
-  //                         style: const TextStyle(
-  //                           fontSize: 14,
-  //                           fontFamily: 'inter',
-  //                           letterSpacing: -0.1,
-  //                         ),
-  //                       ),
-  //                       const SizedBox(height: 4),
-  //                       Text(
-  //                         formattedDate,
-  //                         style: const TextStyle(
-  //                           fontSize: 12,
-  //                           color: Colors.grey,
-  //                           fontFamily: 'inter',
-  //                           letterSpacing: -0.1,
-  //                         ),
-  //                       ),
-  //                     ],
-  //                   ),
-  //                 ),
-  //               ],
-  //             ),
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
 
   Widget _buildUserList() {
     return ListView.builder(

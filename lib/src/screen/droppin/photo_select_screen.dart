@@ -216,10 +216,10 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: PopScope(
-        canPop: false, // Prevents popping by default
+        canPop: false,
         onPopInvokedWithResult: (didPop, result) {
           if (!didPop) {
-            return; // Prevent pop action
+            return;
           }
         },
         child: Padding(
