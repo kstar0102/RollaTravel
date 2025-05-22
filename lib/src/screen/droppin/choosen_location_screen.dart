@@ -86,6 +86,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
       RenderRepaintBoundary boundary = _shareWidgetKey.currentContext?.findRenderObject() as RenderRepaintBoundary;
       if (boundary.debugNeedsPaint) {
         await Future.delayed(const Duration(milliseconds: 20));
+        await WidgetsBinding.instance.endOfFrame;
       }
 
       final image = await boundary.toImage(pixelRatio: 3.0);
@@ -203,7 +204,8 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                                       GlobalVariables.editDestination ?? "",
                                       style: const TextStyle(
                                         color: kColorButtonPrimary,
-                                        fontSize: 14,
+                                        fontSize: 13,
+                                        letterSpacing: -0.1,
                                         decoration: TextDecoration.underline,
                                         decorationColor: kColorButtonPrimary,
                                         fontFamily: 'inter',
@@ -351,7 +353,6 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                           style: TextStyle(
                             fontSize: 14,
                             color: kColorStrongGrey,
-                            fontStyle: FontStyle.italic,
                             fontFamily: 'inter',
                           ),
                         ),

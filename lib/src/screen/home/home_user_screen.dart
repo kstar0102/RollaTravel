@@ -78,13 +78,14 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
       final result  = await ApiService().fetchUserTrips(widget.userId);
       var userProfile = result['trips'];
       final userInfo = result['userInfo'];
+      logger.i(userInfo);
 
       rollaUserName = userInfo[0]['rolla_username'] ?? " ";
       rollaUserImage = userInfo[0]['photo'];
       userid = userInfo[0]['id'];
 
-      if (userInfo[0]['happy_place'] != null) {
-        happlyPlace = userInfo[0]['happy_place'];
+      if (userInfo[0]['bio'] != null) {
+        happlyPlace = userInfo[0]['bio'];
       }
 
       if(userInfo[0]['id'] == GlobalVariables.userId){
