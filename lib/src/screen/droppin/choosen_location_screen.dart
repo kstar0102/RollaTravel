@@ -66,38 +66,74 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
 
   Future<void> _onShareClicked() async {
     try {
-      final context = _shareWidgetKey.currentContext;
-      if (context == null) throw Exception("Share widget key context is null");
-      final boundary = context.findRenderObject() as RenderRepaintBoundary?;
-      if (boundary == null) throw Exception("Render object is null");
+      if (!mounted) return;
 
+      final boundaryContext = _shareWidgetKey.currentContext;
+      if (boundaryContext == null) {
+        _showErrorDialog("Cannot share: Widget not ready.");
+        return;
+      }
+
+      final boundary = boundaryContext.findRenderObject() as RenderRepaintBoundary?;
+      if (boundary == null) {
+        _showErrorDialog("Cannot share: Unable to capture content.");
+        return;
+      }
+
+      // Wait for rendering if needed
       if (boundary.debugNeedsPaint) {
-        await Future.delayed(const Duration(milliseconds: 20));
+        await Future.delayed(const Duration(milliseconds: 50));
         await WidgetsBinding.instance.endOfFrame;
       }
 
+      // Convert widget to image
       final image = await boundary.toImage(pixelRatio: 3.0);
       final byteData = await image.toByteData(format: ImageByteFormat.png);
-      if (byteData == null) throw Exception("Could not convert image to byte data");
+      if (byteData == null) {
+        _showErrorDialog("Failed to generate image.");
+        return;
+      }
 
       final pngBytes = byteData.buffer.asUint8List();
 
+      // Save to temporary file
       final tempDir = await getTemporaryDirectory();
-      final file = await File('${tempDir.path}/shared_polaroid.png').create();
+      final filePath = '${tempDir.path}/shared_polaroid_${DateTime.now().millisecondsSinceEpoch}.png';
+      final file = File(filePath);
+      
       await file.writeAsBytes(pngBytes);
 
-      try {
-        await Share.shareXFiles([XFile(file.path)]);
-      } catch (e) {
-        debugPrint("Sharing failed: $e");
-        rethrow;
-      }
+      // Share the file
+      await Share.shareXFiles(
+        [XFile(file.path)],
+        subject: 'Rolla Travel trip!',
+        text: 'I just created a trip with Rolla Travel!',
+      );
+
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to share: $e')),
-      );
+      _showErrorDialog("Failed to share: ${e.toString()}");
+      debugPrint("Sharing error: $e");
     }
+  }
+
+  /// Helper method to show an error dialog
+  void _showErrorDialog(String message) {
+    if (!mounted) return;
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Sharing Failed"),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("OK"),
+          ),
+        ],
+      ),
+    );
   }
 
 
