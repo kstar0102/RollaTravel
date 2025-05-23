@@ -643,6 +643,8 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                       GlobalVariables.editDestination = null;
                       GlobalVariables.selectedUserIds = [];
                       ref.read(pathCoordinatesProvider.notifier).state = [];
+                      await prefs.remove("tripId");
+                      await prefs.remove("dropcount");
                       await prefs.remove("destination_text");
                       await prefs.remove("start_date");
                       await prefs.remove("caption_text");

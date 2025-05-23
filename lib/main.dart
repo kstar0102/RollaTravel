@@ -48,7 +48,7 @@ void callbackDispatcher() {
         return Future.value(false);
       }
 
-      final int? tripId = prefs.getInt('tripId');
+      final int? tripId = prefs.getInt('${taskKey}_tripId');
       final int? userId = GlobalVariables.userId;
 
       logger.i("uerid : $userId");
