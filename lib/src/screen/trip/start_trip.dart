@@ -70,7 +70,6 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     super.initState();
     _getFetchTripData();
     _checkLocationServices();
-    // logger.i(GlobalVariables.delaySetting);
     if(GlobalVariables.tripCaption != null) {
       _captionController.text = GlobalVariables.tripCaption!;
     }
@@ -94,7 +93,13 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     final prefs = await SharedPreferences.getInstance();
     int? tripId = prefs.getInt("tripId");
     ref.read(markersProvider.notifier).state = [];
-
+    String? destinationText = prefs.getString('destination_text');
+    if(destinationText != null){
+      ref.read(isTripStartedProvider.notifier).state = true;
+      GlobalVariables.editDestination = destinationText;
+      GlobalVariables.tripStartDate = prefs.getString('start_date');
+      GlobalVariables.tripCaption = prefs.getString('caption_text');
+    }
     if (tripId != null) {
       _showLoadingDialog();
       final apiserice = ApiService();
@@ -260,9 +265,6 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
       _showPermissionDeniedDialog();
       return;
     }
-
-    // ✅ If everything is enabled, log success
-    // logger.i("Location services and permissions are enabled.");
   }
 
   void _showLocationDisabledDialog() {
@@ -278,7 +280,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
             TextButton(
               child: const Text("Open Settings"),
               onPressed: () async {
-                await Geolocator.openLocationSettings(); // ✅ Opens GPS settings
+                await Geolocator.openLocationSettings();
                 // ignore: use_build_context_synchronously
                 Navigator.of(context).pop();
               },
@@ -350,7 +352,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     }
   }
 
-  void _noTrackingStartTrip() {
+  Future<void> _noTrackingStartTrip() async {
     if (GlobalVariables.editDestination == null) {
       _showDestinationAlert(context);
       return;
@@ -358,10 +360,14 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     GlobalVariables.isTripStarted = true;
     ref.read(isTripStartedProvider.notifier).state = true;
 
-    // ✅ Record trip start time
     DateTime now = DateTime.now();
     String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
     GlobalVariables.tripStartDate = formattedDate;
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('destination_text', GlobalVariables.editDestination!);
+    await prefs.setString('start_date', formattedDate);
+    await prefs.setString('caption_text', GlobalVariables.tripCaption!);
   }
 
   void _showDestinationAlert(BuildContext context) {
@@ -486,6 +492,9 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
         logger.i(response);
         await prefs.remove("tripId");
         await prefs.remove("dropcount");
+        await prefs.remove("destination_text");
+        await prefs.remove("start_date");
+        await prefs.remove("caption_text");
         String jsonStr = response['trip']['destination_text_address'] ?? '[]';
 
         // Parse it to a List<String>
@@ -618,7 +627,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                       constraints: Constraints(
                         networkType: NetworkType.connected,
                       ),
-                    ).then((_) {
+                    ).then((_) async {
                        ref.read(isTripStartedProvider.notifier).state = false;
                       GlobalVariables.isTripStarted = false;
                       ref.read(staticStartingPointProvider.notifier).state = ref.read(movingLocationProvider);
@@ -634,6 +643,9 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                       GlobalVariables.editDestination = null;
                       GlobalVariables.selectedUserIds = [];
                       ref.read(pathCoordinatesProvider.notifier).state = [];
+                      await prefs.remove("destination_text");
+                      await prefs.remove("start_date");
+                      await prefs.remove("caption_text");
                       if (mounted) {
                         Navigator.push(
                           context,

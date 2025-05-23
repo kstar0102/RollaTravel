@@ -31,9 +31,9 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkCameraPermission();
     });
+    
   }
 
-  /// **Check and request camera permission correctly**
   Future<void> _checkCameraPermission() async {
     final status = await Permission.camera.status;
 
@@ -54,7 +54,6 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
     }
   }
 
-  /// **Show a settings dialog if the user permanently denies camera access**
   void _showCameraPermissionDialog() {
     showDialog(
       context: context,
@@ -95,27 +94,23 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
     );
   }
 
-  /// **Initializes the camera safely**
   Future<void> _initializeCamera() async {
     try {
       final cameras = await availableCameras();
       if (cameras.isNotEmpty) {
         _cameraController = CameraController(
           cameras.first,
-          ResolutionPreset
-              .medium, // Better quality while avoiding performance issues
+          ResolutionPreset.medium,
           enableAudio: false,
         );
-
         _initializeControllerFuture = _cameraController!.initialize();
         await _initializeControllerFuture;
-
-        await _cameraController!.setFlashMode(FlashMode.auto);
-
+        await _cameraController!.setFlashMode(FlashMode.off);
+        _currentFlashMode = FlashMode.off;
+        await _cameraController!.startImageStream(_processCameraImage);
         setState(() {
           _isCameraInitialized = true;
         });
-
         logger.i("📷 Camera initialized successfully");
       } else {
         logger.e("🚨 No cameras available");
@@ -127,11 +122,35 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
 
   @override
   void dispose() {
+    _cameraController?.stopImageStream();
     _cameraController?.dispose();
     super.dispose();
   }
 
-  /// **Capture Image from Camera**
+  void _processCameraImage(CameraImage image) {
+    final bytes = image.planes[0].bytes;
+    int sumBrightness = 0;
+    for (var byte in bytes) {
+      sumBrightness += byte;
+    }
+    final avgBrightness = sumBrightness / bytes.length;
+    const threshold = 50;
+    if (avgBrightness < threshold && _currentFlashMode != FlashMode.auto) {
+      _cameraController?.setFlashMode(FlashMode.auto);
+      setState(() {
+        _currentFlashMode = FlashMode.auto;
+      });
+      logger.i("Flash mode set to auto due to low brightness: $avgBrightness");
+    } else if (avgBrightness >= threshold && _currentFlashMode != FlashMode.off) {
+      _cameraController?.setFlashMode(FlashMode.off);
+      setState(() {
+        _currentFlashMode = FlashMode.off;
+      });
+      logger.i("Flash mode set to off due to sufficient brightness: $avgBrightness");
+    }
+  }
+
+
   Future<void> _capturePhoto() async {
     if (_isCapturing ||
         _cameraController == null ||
@@ -169,7 +188,6 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
     }
   }
 
-  /// **Pick Image from Gallery**
   Future<void> _pickImageFromGallery() async {
     try {
       final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
@@ -192,8 +210,6 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
 
   Future<void> _toggleFlash() async {
     if (_cameraController == null) return;
-
-    // Cycle through flash modes
     FlashMode newFlashMode;
     if (_currentFlashMode == FlashMode.auto) {
       newFlashMode = FlashMode.always;
@@ -202,12 +218,10 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
     } else {
       newFlashMode = FlashMode.auto;
     }
-
     await _cameraController!.setFlashMode(newFlashMode);
     setState(() {
       _currentFlashMode = newFlashMode;
     });
-
     logger.i("⚡ Flash mode set to: $_currentFlashMode");
   }
 

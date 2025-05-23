@@ -34,6 +34,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
   bool showLikesDropdown = false;
   Map<String, dynamic>? userProfile;
   String? rollaUserName;
+  String? UserRealName;
   String? rollaUserImage;
   String? tripCount;
   String? followingCount;
@@ -80,7 +81,8 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
       final userInfo = result['userInfo'];
       logger.i(userInfo);
 
-      rollaUserName = "${userInfo[0]['first_name'] ?? ''} ${userInfo[0]['last_name'] ?? ''}";
+      rollaUserName = userInfo[0]['rolla_username'];
+      UserRealName = "${userInfo[0]['first_name'] ?? ''} ${userInfo[0]['last_name'] ?? ''}";
       rollaUserImage = userInfo[0]['photo'];
       userid = userInfo[0]['id'];
 
@@ -491,7 +493,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                         ),
                         SizedBox(height: vhh(context, 1)),
                         Text(
-                          rollaUserName ?? "",
+                          UserRealName ?? "",
                           style: const TextStyle(
                             color: kColorBlack,
                             fontSize: 17,
