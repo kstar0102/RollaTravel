@@ -1,5 +1,4 @@
 import 'package:RollaTravel/src/constants/app_styles.dart';
-import 'package:RollaTravel/src/screen/home/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
@@ -64,11 +63,7 @@ class HomeSoundScreenState extends ConsumerState<HomeSoundScreen> {
                   const SizedBox(width: 16),
                   GestureDetector(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const HomeScreen()),
-                      );
+                      Navigator.pop(context);
                     },
                     child: Image.asset(
                       'assets/images/icons/allow-left.png',

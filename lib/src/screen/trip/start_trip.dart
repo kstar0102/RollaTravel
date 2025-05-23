@@ -71,6 +71,9 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     _getFetchTripData();
     _checkLocationServices();
     // logger.i(GlobalVariables.delaySetting);
+    if(GlobalVariables.tripCaption != null) {
+      _captionController.text = GlobalVariables.tripCaption!;
+    }
   }
 
   @override
@@ -827,7 +830,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                               _onTagClicked();
                             },
                             child: Image.asset(
-                              'assets/images/icons/add_car1.png',
+                              'assets/images/icons/tag_icon.png',
                               width: vww(context, 15),
                             ),
                           ),
@@ -837,7 +840,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                             },
                             child: Image.asset(
                               'assets/images/icons/setting.png',
-                              width: vww(context, 15),
+                              width: vww(context, 15.5),
                             ),
                           ),
                         ],

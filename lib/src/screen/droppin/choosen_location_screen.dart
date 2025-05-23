@@ -1,4 +1,5 @@
-import 'package:RollaTravel/src/screen/trip/sound_screen.dart';
+import 'package:RollaTravel/src/screen/home/home_sound_screen.dart';
+// import 'package:RollaTravel/src/screen/trip/sound_screen.dart';
 import 'package:RollaTravel/src/screen/trip/start_trip.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:RollaTravel/src/utils/spinner_loader.dart';
@@ -13,18 +14,21 @@ import 'package:latlong2/latlong.dart';
 import 'dart:io';
 import 'dart:ui';
 import 'package:logger/logger.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 class ChoosenLocationScreen extends ConsumerStatefulWidget {
   final LatLng? location;
   final String caption;
   final String imagePath;
+  final String soundList;
 
   const ChoosenLocationScreen(
       {super.key,
       required this.caption,
       required this.imagePath,
-      required this.location});
+      required this.location,
+      required this.soundList});
 
   @override
   ConsumerState<ChoosenLocationScreen> createState() =>
@@ -60,30 +64,13 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
         MaterialPageRoute(builder: (context) => const StartTripScreen()));
   }
 
-  // Future<void> _onShareClicked() async {
-  //   try {
-  //     final imagePath = widget.imagePath;
-  //     final caption = widget.caption;
-
-  //     if (imagePath.isEmpty || !File(imagePath).existsSync()) {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         const SnackBar(content: Text('Image not found!')),
-  //       );
-  //       return;
-  //     }
-  //     XFile file = XFile(imagePath);
-  //     await Share.shareXFiles([file], text: caption);
-  //   } catch (e) {
-  //     if(!mounted) return;
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text('Failed to share: $e')),
-  //     );
-  //   }
-  // }
-
   Future<void> _onShareClicked() async {
     try {
-      RenderRepaintBoundary boundary = _shareWidgetKey.currentContext?.findRenderObject() as RenderRepaintBoundary;
+      final context = _shareWidgetKey.currentContext;
+      if (context == null) throw Exception("Share widget key context is null");
+      final boundary = context.findRenderObject() as RenderRepaintBoundary?;
+      if (boundary == null) throw Exception("Render object is null");
+
       if (boundary.debugNeedsPaint) {
         await Future.delayed(const Duration(milliseconds: 20));
         await WidgetsBinding.instance.endOfFrame;
@@ -91,13 +78,20 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
 
       final image = await boundary.toImage(pixelRatio: 3.0);
       final byteData = await image.toByteData(format: ImageByteFormat.png);
-      final pngBytes = byteData!.buffer.asUint8List();
+      if (byteData == null) throw Exception("Could not convert image to byte data");
 
-      final tempDir = await Directory.systemTemp.createTemp();
+      final pngBytes = byteData.buffer.asUint8List();
+
+      final tempDir = await getTemporaryDirectory();
       final file = await File('${tempDir.path}/shared_polaroid.png').create();
       await file.writeAsBytes(pngBytes);
 
-      await Share.shareXFiles([XFile(file.path)], text: widget.caption);
+      try {
+        await Share.shareXFiles([XFile(file.path)]);
+      } catch (e) {
+        debugPrint("Sharing failed: $e");
+        rethrow;
+      }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -111,7 +105,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const SoundScreen(),
+        builder: (context) => HomeSoundScreen(tripSound : widget.soundList),
       ),
     );
   }

@@ -411,6 +411,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                           caption: widget.caption,
                           imagePath: widget.imagePath,
                           location: _currentLocation,
+                          soundList: response['trip']['trip_sound'],
                         )));
           }
         } else {
@@ -520,6 +521,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                                 caption: widget.caption,
                                 imagePath: widget.imagePath,
                                 location: _currentLocation,
+                                soundList: arrangedSongs,
                               ),
                             ),
                           );
@@ -575,6 +577,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
           mapstyle: GlobalVariables.mapStyleSelected.toString());
 
         if (response['success'] == true) {
+          logger.i(response['trip']);
           setState(() {
             isuploadingData = false;
           });
@@ -589,6 +592,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                           caption: widget.caption,
                           imagePath: widget.imagePath,
                           location: _currentLocation,
+                          soundList: response['trip']['trip_sound'],
                         )));
           } else {
             setState(() {
@@ -698,6 +702,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                                 caption: widget.caption,
                                 imagePath: widget.imagePath,
                                 location: _currentLocation,
+                                soundList: arrangedSongs,
                               ),
                             ),
                           );

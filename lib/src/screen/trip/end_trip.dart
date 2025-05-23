@@ -16,6 +16,7 @@ import 'package:logger/logger.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
+import 'package:path_provider/path_provider.dart';
 // import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -64,61 +65,68 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
     super.dispose();
     _mapController.dispose();
   }
-
-  // Future<Uint8List?> captureMap() async {
+  
+  // Future<void> _onShareClicked() async {
   //   try {
-  //     RenderRepaintBoundary boundary =
-  //         mapKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
-  //     var image = await boundary.toImage(pixelRatio: 3.0);
-  //     ByteData? byteData = await image.toByteData(format: ImageByteFormat.png);
-  //     return byteData?.buffer.asUint8List();
-  //   } catch (e) {
-  //     logger.i('Error capturing map: $e');
-  //     return null;
-  //   }
-  // }
-
-  // Future<void> shareCapturedMap() async {
-  //   try {
-  //     final capturedBytes = await captureMap();
-  //     if (capturedBytes == null) {
-  //       if (!mounted) return;
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         const SnackBar(content: Text('Failed to capture the map')),
-  //       );
-  //       return;
+  //     RenderRepaintBoundary boundary = _shareWidgetKey.currentContext?.findRenderObject() as RenderRepaintBoundary;
+  //     if (boundary.debugNeedsPaint) {
+  //       await Future.delayed(const Duration(milliseconds: 20));
+  //       await WidgetsBinding.instance.endOfFrame;
   //     }
 
-  //     final tempDir = await getTemporaryDirectory();
-  //     final file = await File('${tempDir.path}/captured_map.png').create();
-  //     await file.writeAsBytes(capturedBytes);
+  //     final image = await boundary.toImage(pixelRatio: 3.0);
+  //     final byteData = await image.toByteData(format: ImageByteFormat.png);
+  //     if (byteData == null) throw Exception("Could not convert image to byte data");
 
-  //     await Share.shareXFiles([XFile(file.path)], text: 'Check out my trip map!');
+  //     final pngBytes = byteData.buffer.asUint8List();
+
+
+  //     final tempDir = await Directory.systemTemp.createTemp();
+  //     final file = await File('${tempDir.path}/shared_polaroid.png').create();
+  //     await file.writeAsBytes(pngBytes);
+
+  //     try {
+  //       await Share.shareXFiles([XFile(file.path)]);
+  //     } catch (e) {
+  //       debugPrint("Sharing failed: $e");
+  //       rethrow;
+  //     }
   //   } catch (e) {
-  //     logger.i('Error while sharing map: $e');
   //     if (!mounted) return;
   //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text('Error sharing the map: $e')),
+  //       SnackBar(content: Text('Failed to share: $e')),
   //     );
   //   }
   // }
 
   Future<void> _onShareClicked() async {
     try {
-      RenderRepaintBoundary boundary = _shareWidgetKey.currentContext?.findRenderObject() as RenderRepaintBoundary;
+      final context = _shareWidgetKey.currentContext;
+      if (context == null) throw Exception("Share widget key context is null");
+      final boundary = context.findRenderObject() as RenderRepaintBoundary?;
+      if (boundary == null) throw Exception("Render object is null");
+
       if (boundary.debugNeedsPaint) {
         await Future.delayed(const Duration(milliseconds: 20));
+        await WidgetsBinding.instance.endOfFrame;
       }
 
       final image = await boundary.toImage(pixelRatio: 3.0);
       final byteData = await image.toByteData(format: ImageByteFormat.png);
-      final pngBytes = byteData!.buffer.asUint8List();
+      if (byteData == null) throw Exception("Could not convert image to byte data");
 
-      final tempDir = await Directory.systemTemp.createTemp();
+      final pngBytes = byteData.buffer.asUint8List();
+
+      final tempDir = await getTemporaryDirectory();
       final file = await File('${tempDir.path}/shared_polaroid.png').create();
       await file.writeAsBytes(pngBytes);
 
-      await Share.shareXFiles([XFile(file.path)]);
+      try {
+        await Share.shareXFiles([XFile(file.path)]);
+      } catch (e) {
+        debugPrint("Sharing failed: $e");
+        rethrow;
+      }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -126,6 +134,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
       );
     }
   }
+
 
    void _playListClicked () {
     Navigator.push(

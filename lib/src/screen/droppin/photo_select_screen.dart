@@ -23,7 +23,7 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
   final ImagePicker _picker = ImagePicker();
   bool _isCapturing = false;
   bool _isCameraInitialized = false;
-  FlashMode _currentFlashMode = FlashMode.auto;
+  FlashMode _currentFlashMode = FlashMode.off;
 
   @override
   void initState() {
