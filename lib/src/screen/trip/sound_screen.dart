@@ -26,13 +26,13 @@ class SoundScreenState extends ConsumerState<SoundScreen> {
       _soundController1.text = GlobalVariables.song1!;
     }
     if(GlobalVariables.song2 != null) {
-      _soundController2.text = GlobalVariables.song1!;
+      _soundController2.text = GlobalVariables.song2!;
     }
     if(GlobalVariables.song3 != null) {
-      _soundController3.text = GlobalVariables.song1!;
+      _soundController3.text = GlobalVariables.song3!;
     }
     if(GlobalVariables.song4 != null) {
-      _soundController4.text = GlobalVariables.song1!;
+      _soundController4.text = GlobalVariables.song4!;
     }
   }
 
