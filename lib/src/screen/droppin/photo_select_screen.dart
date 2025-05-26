@@ -122,6 +122,7 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
 
   @override
   void dispose() {
+    _cameraController?.setFlashMode(FlashMode.off);
     _cameraController?.stopImageStream();
     _cameraController?.dispose();
     super.dispose();
@@ -156,22 +157,16 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
         _cameraController == null ||
         !_cameraController!.value.isInitialized) {
       logger.e("🚨 Camera not ready");
-      return; // Prevent multiple captures
+      return; 
     }
-
-    setState(() => _isCapturing = true); // Prevent multiple captures
-
+    setState(() => _isCapturing = true); 
     try {
-      await _initializeControllerFuture; // Ensure camera is initialized
-
-      // Wait for focus & exposure before capturing
+      await _initializeControllerFuture; 
       await _cameraController!.setFocusMode(FocusMode.locked);
       await _cameraController!.setExposureMode(ExposureMode.locked);
-
-      // Capture image
       final image = await _cameraController!.takePicture();
       logger.i('📸 Image captured at: ${image.path}');
-
+      await _cameraController?.setFlashMode(FlashMode.off); 
       if (mounted) {
         Navigator.push(
           context,
@@ -259,7 +254,7 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
                   width: vww(context, 96),
                   height: (() {
                     final desiredHeight = MediaQuery.of(context).size.height * 0.6;
-                    return desiredHeight.clamp(250.0, 500.0);
+                    return desiredHeight.clamp(250.0, 450.0);
                   })(),
                   child: Stack(
                     alignment: Alignment.center,

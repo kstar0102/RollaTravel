@@ -367,7 +367,9 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('destination_text', GlobalVariables.editDestination!);
     await prefs.setString('start_date', formattedDate);
-    await prefs.setString('caption_text', GlobalVariables.tripCaption!);
+    if(GlobalVariables.tripCaption != null){
+      await prefs.setString('caption_text', GlobalVariables.tripCaption!);
+    }
   }
 
   void _showDestinationAlert(BuildContext context) {

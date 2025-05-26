@@ -39,7 +39,7 @@ class TripSetttingScreenState extends State<TripSetttingScreen> {
       String label, int value, int groupValue, Function(int) onChanged) {
     return Flexible(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 25),
+        padding: const EdgeInsets.symmetric(horizontal: 23),
         child: Column(
           children: [
             Text(

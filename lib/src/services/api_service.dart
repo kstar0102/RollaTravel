@@ -563,6 +563,7 @@ class ApiService {
     required String startLocation,
     required String destinationLocation,
     required String mapstyle,
+    required String delayTime,
   }) async {
     final url = Uri.parse('$baseUrl/trip/create');
 
@@ -583,9 +584,10 @@ class ApiService {
       'droppins': droppins,
       'start_location': startLocation,
       'destination_location': destinationLocation,
-      'map_style' : mapstyle
+      'map_style' : mapstyle,
+      'delay_time' : delayTime
     };
-    logger.i(requestBody);
+    // logger.i(requestBody);
 
     try {
       final response = await http.post(

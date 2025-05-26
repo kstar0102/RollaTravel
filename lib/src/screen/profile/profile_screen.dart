@@ -9,12 +9,14 @@ import 'package:RollaTravel/src/translate/en.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:RollaTravel/src/utils/index.dart';
 import 'package:RollaTravel/src/utils/spinner_loader.dart';
+import 'package:RollaTravel/src/utils/stop_marker_provider.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logger/logger.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -183,11 +185,35 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   void _onDeleteButtonPressed() async {
+    final prefs = await SharedPreferences.getInstance();
+    int? localTripId = prefs.getInt('tripId');
     final apiService = ApiService();
     bool allDeletedSuccessfully = true;
     _showLoadingDialog();
     for (int tripId in _selectedMapIndices) {
       try {
+        if(tripId == localTripId){
+          await prefs.remove("tripId");
+          await prefs.remove("dropcount");
+          await prefs.remove("destination_text");
+          await prefs.remove("start_date");
+          await prefs.remove("caption_text");
+          ref.read(isTripStartedProvider.notifier).state = false;
+          GlobalVariables.isTripStarted = false;
+          ref.read(staticStartingPointProvider.notifier).state = ref.read(movingLocationProvider);
+          ref.read(movingLocationProvider.notifier).state = null;
+          ref.read(markersProvider.notifier).state = [];
+          ref.read(totalDistanceProvider.notifier).state = 0.0;
+          GlobalVariables.totalDistance = 0.0;
+          GlobalVariables.tripCaption = null;
+          GlobalVariables.song1 = null;
+          GlobalVariables.song2 = null;
+          GlobalVariables.song3 = null;
+          GlobalVariables.song4 = null;
+          GlobalVariables.editDestination = null;
+          GlobalVariables.selectedUserIds = [];
+          ref.read(pathCoordinatesProvider.notifier).state = [];
+        }
         final result = await apiService.deleteTrip(tripId);
 
         if (result['statusCode'] != true) {

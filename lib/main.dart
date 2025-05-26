@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/utils/location.permission.dart';
@@ -49,7 +48,7 @@ void callbackDispatcher() {
       }
 
       final int? tripId = prefs.getInt('${taskKey}_tripId');
-      final int? userId = GlobalVariables.userId;
+      final int? userId = prefs.getInt('${taskKey}_userId');
 
       logger.i("uerid : $userId");
 
@@ -122,6 +121,7 @@ void callbackDispatcher() {
             await sendNotification("Trip Upload Failed", "There was an issue uploading your trip.");
           }
         } else {
+          logger.i("create trip working");
           response = await apiService.createTrip(
             userId: userId,
             startAddress: startAddress,
@@ -139,11 +139,13 @@ void callbackDispatcher() {
             droppins: droppins,
             startLocation: startLocationString,
             destinationLocation: destinationLocationString,
-            mapstyle: mapStyleString
+            mapstyle: mapStyleString,
+            delayTime: tripStartDate //for running
           );
 
           if (response['success'] == true) {
             await _removeTaskPrefs(prefs, taskKey);
+            logger.i(response['trip']);
             await prefs.setInt("tripId", response['trip']['id']);
             await prefs.setInt("droppinId", response['trip']['droppins'][0]['id']);
             await prefs.setInt("dropcount", response['trip']['droppins'].length);

@@ -217,7 +217,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
     Duration delay;
     switch (GlobalVariables.delaySetting) {
       case 1:
-        delay = const Duration(minutes: 30);
+        delay = const Duration(minutes: 1);
         break;
       case 2:
         delay = const Duration(hours: 2);
@@ -469,7 +469,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
 
         switch (GlobalVariables.delaySetting) {
           case 1:
-            delay = const Duration(minutes: 30);
+            delay = const Duration(minutes: 1);
             message = "Your trip will be uploaded after 30 minutes.";
             break;
           case 2:
@@ -557,6 +557,10 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
       String arrangedSongs = songs.isNotEmpty ? songs.join(',') : "tripSound";
 
       if(GlobalVariables.delaySetting == 0) {
+        
+        DateTime now = DateTime.now();
+        String delayDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
+
         response = await apiserice.createTrip(
           userId: GlobalVariables.userId!,
           startAddress: startAddress!,
@@ -574,7 +578,8 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
           droppins: droppins,
           startLocation: startLocation.toString(),
           destinationLocation: endLocation.toString(),
-          mapstyle: GlobalVariables.mapStyleSelected.toString());
+          mapstyle: GlobalVariables.mapStyleSelected.toString(),
+          delayTime: delayDate);
 
         if (response['success'] == true) {
           logger.i(response['trip']);
@@ -649,7 +654,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
         });
         switch (GlobalVariables.delaySetting) {
           case 1:
-            delay = const Duration(minutes: 30);
+            delay = const Duration(minutes: 1);
             message = "Your trip will be uploaded after 30 minutes.";
             break;
           case 2:

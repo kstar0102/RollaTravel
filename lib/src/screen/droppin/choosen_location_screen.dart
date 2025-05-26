@@ -4,6 +4,7 @@ import 'package:RollaTravel/src/screen/trip/start_trip.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:RollaTravel/src/utils/spinner_loader.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:RollaTravel/src/utils/index.dart';
@@ -48,10 +49,14 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
   String? droppinsJson;
   final logger = Logger();
   final GlobalKey _shareWidgetKey = GlobalKey();
+  bool _isSharing = false; 
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+    
+  });
   }
 
   @override
@@ -64,7 +69,35 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
         MaterialPageRoute(builder: (context) => const StartTripScreen()));
   }
 
+  Future<XFile> _getImageFileFromAssets(String assetPath) async {
+    final byteData = await rootBundle.load(assetPath);
+    final tempDir = await getTemporaryDirectory();
+    final file = File('${tempDir.path}/${assetPath.split('/').last}');
+    await file.writeAsBytes(byteData.buffer.asUint8List());
+    return XFile(file.path);
+  }
+
+  Future<void> _onTestShareClicked() async {
+    try {
+      if (!mounted) return;
+       final xfile = await _getImageFileFromAssets('assets/images/background/1.png');
+      await Share.shareXFiles(
+        [xfile],
+        subject: 'Rolla Travel trip!',
+        text: 'I just created a trip with Rolla Travel!',
+      );
+
+      logger.i("Share completed");
+    } catch (e) {
+      if (!mounted) return;
+      _showErrorDialog("Sharing failed: ${e.toString().replaceAll('Exception: ', '')}");
+      logger.e("Sharing error: $e");
+    }
+  }
+
   Future<void> _onShareClicked() async {
+    if (_isSharing) return;
+    setState(() => _isSharing = true);
     try {
       if (!mounted) return;
 
@@ -103,17 +136,19 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
       
       await file.writeAsBytes(pngBytes);
 
-      // Share the file
-      await Share.shareXFiles(
+      final result = await Share.shareXFiles(
         [XFile(file.path)],
         subject: 'Rolla Travel trip!',
         text: 'I just created a trip with Rolla Travel!',
       );
+      logger.i("Share result: $result");
 
     } catch (e) {
       if (!mounted) return;
-      _showErrorDialog("Failed to share: ${e.toString()}");
-      debugPrint("Sharing error: $e");
+      _showErrorDialog("Sharing failed: ${e.toString().replaceAll('Exception: ', '')}");
+      logger.e("Sharing error: $e");
+    } finally {
+      if (mounted) setState(() => _isSharing = false);
     }
   }
 
@@ -136,14 +171,37 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
     );
   }
 
-
   void _playListClicked () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => HomeSoundScreen(tripSound : widget.soundList),
-      ),
-    );
+    if (widget.soundList == "tripSound") {
+      // Show an alert
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("No Sound List"),
+            content: const Text("There are no playlist for this trip."),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  // Close the dialog
+                  Navigator.pop(context);
+                },
+                child: const Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomeSoundScreen(
+            tripSound: widget.soundList,
+          ),
+        ),
+      );
+    }
   }
 
   @override
@@ -151,17 +209,17 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
     return Scaffold(
       backgroundColor: kColorWhite,
       body: PopScope(
-        canPop: false, 
+        canPop: !_isSharing, // Blocks pop when sharing is in progress
         onPopInvokedWithResult: (didPop, result) {
-          if (!didPop) {
-            return; 
+          if (didPop) return;
+          if (_isSharing) {
+            _showErrorDialog("Please wait while sharing completes");
           }
         },
-        child: SizedBox.expand(
+        child:SizedBox.expand(
           child: SingleChildScrollView(
             child: Stack(
               children: [
-                // Main body content
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Column(
@@ -185,7 +243,6 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                           ),
                           child: Column(
                             children: [
-                              // Logo and Close Button
                               Stack(
                                 children: [
                                   Center(
@@ -388,15 +445,37 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                         ),
                       ),
                       const SizedBox(height: 10,),
-                      GestureDetector(
-                        onTap: () {
-                          _onShareClicked();
-                        },
-                        child: Image.asset(
-                          "assets/images/icons/upload_icon.png",
-                          height: 30,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              _onShareClicked();
+                            },
+                            child: Image.asset(
+                              "assets/images/icons/upload_icon.png",
+                              height: 30,
+                            ),
+                          ),
+                          const SizedBox(width: 50,),
+                          GestureDetector(
+                            onTap: () {
+                              _onTestShareClicked();
+                            },
+                            child: Text("test share static")
+                          ),
+                        ],
                       ),
+                      // GestureDetector(
+                      //   onTap: () {
+                      //     _onShareClicked();
+                      //   },
+                      //   child: Image.asset(
+                      //     "assets/images/icons/upload_icon.png",
+                      //     height: 30,
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
@@ -429,8 +508,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
               ],
             ),
           ),
-        ),
-      ),
+        ),),
       bottomNavigationBar: BottomNavBar(currentIndex: _currentIndex),
     );
   }
