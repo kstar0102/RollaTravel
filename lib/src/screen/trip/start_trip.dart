@@ -140,37 +140,78 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
         List stopLocations = tripData['trips'][0]['stop_locations'];
         List droppins = tripData['trips'][0]['droppins'];
         List<MarkerData> markers = [];
-        
+        final now = DateTime.now();
+
         stopLocations.asMap().forEach((i, stop) {
-          if (stop is Map &&
-              stop.containsKey('latitude') &&
-              stop.containsKey('longitude')) {
-            double latitude = stop['latitude'];
-            double longitude = stop['longitude'];
-
-            String imagePath = "";
-            String caption = "Trip Stop";
-
+          if (stop is Map && stop.containsKey('latitude') && stop.containsKey('longitude')) {
+            // Find the corresponding droppin for this stop_index (i+1)
             var droppin = droppins.firstWhere(
-              (d) => d['stop_index'] == (i + 1), // Matching stop_index
+              (d) => d['stop_index'] == (i + 1),
               orElse: () => null,
             );
 
+            // If droppin exists and delay time is present
             if (droppin != null) {
-              imagePath = droppin['image_path'] ?? "";
-              caption = droppin['image_caption'] ?? "No caption";
+              final delayTimeStr = droppin['deley_time'];
+              bool includeMarker = true;
+
+              if (delayTimeStr != null && delayTimeStr.isNotEmpty) {
+                try {
+                  final delayTime = DateTime.parse(delayTimeStr);
+                  // Show marker only if delayTime <= now
+                  if (delayTime.isAfter(now)) {
+                    includeMarker = false;
+                  }
+                } catch (e) {
+                  // Parsing error — default to include marker
+                  includeMarker = true;
+                }
+              }
+
+              if (!includeMarker) {
+                // Skip adding marker for this droppin
+                return;
+              }
+            } else {
+              // If no droppin found for this stop, decide if you want to show marker or not
+              // For safety, let's skip marker if no droppin info
+              return;
             }
 
+            // Add marker if above checks passed
             MarkerData marker = MarkerData(
-              location: LatLng(latitude, longitude),
-              imagePath: imagePath,
-              caption: caption,
+              location: LatLng(stop['latitude'], stop['longitude']),
+              imagePath: droppin?['image_path'] ?? "",
+              caption: droppin?['image_caption'] ?? "Trip Stop",
             );
             markers.add(marker);
           }
         });
         
         ref.read(markersProvider.notifier).state = markers;
+
+        var startLocation = tripData['trips'][0]['start_location'];
+        if (startLocation is String) {
+          RegExp regExp =
+              RegExp(r'LatLng\((latitude:([0-9.-]+), longitude:([0-9.-]+))\)');
+          Match? match = regExp.firstMatch(startLocation);
+
+          if (match != null) {
+            double latitude = double.tryParse(match.group(2) ?? "0.0") ?? 0.0;
+            double longitude = double.tryParse(match.group(3) ?? "0.0") ?? 0.0;
+            LatLng startLatLng = LatLng(latitude, longitude);
+            ref.read(staticStartingPointProvider.notifier).state ??=
+                startLatLng;
+            setState(() {
+              isStateRestored = true;
+            });
+          } else {
+            logger.e("Failed to parse start location string");
+            setState(() {
+              isStateRestored = true;
+            });
+          }
+        }
         
       } catch (e) {
         logger.e("Error fetching trip data: $e");
@@ -1089,73 +1130,35 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                   ),
                                   MarkerLayer(
                                     markers: [
-                                      // if (movingLocation != null &&
-                                      //     GlobalVariables.isTripStarted)
-                                      //   Marker(
-                                      //     width: 40.0,
-                                      //     height: 40.0,
-                                      //     point: movingLocation,
-                                      //     child: Image.asset(
-                                      //       'assets/images/icons/car_icon.png',
-                                      //       width: 40,
-                                      //       height: 35,
-                                      //       fit: BoxFit.contain,
-                                      //     ),
-                                      //   ),
-                                      // if (staticStartingPoint != null)
-                                      //   Marker(
-                                      //     width: 80.0,
-                                      //     height: 80.0,
-                                      //     point: staticStartingPoint,
-                                      //     child: Icon(
-                                      //       isTripStarted
-                                      //           ? Icons.flag
-                                      //           : Icons.location_on,
-                                      //       color: isTripStarted
-                                      //           ? Colors.red
-                                      //           : Colors.red,
-                                      //       size: 30,
-                                      //     ),
-                                      //   ),
-                                      // Markers from markersProvider
                                       ...ref
                                           .watch(markersProvider)
                                           .asMap()
                                           .entries
                                           .map((entry) {
-                                        int index = entry.key +
-                                            1; // Get the index (starting from 1)
+                                        int index = entry.key + 1;
                                         MarkerData markerData = entry.value;
-
                                         return Marker(
                                           width: 20.0,
                                           height: 20.0,
                                           point: markerData.location,
                                           child: GestureDetector(
                                             onTap: () {
-                                              // Display the image in a dialog
                                               showDialog(
                                                 context: context,
-                                                builder: (context) =>
-                                                    AlertDialog(
+                                                builder: (context) => AlertDialog(
                                                   content: Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
+                                                    mainAxisSize: MainAxisSize.min,
                                                     children: [
                                                       Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .symmetric(
+                                                        padding: const EdgeInsets.symmetric(
                                                                 horizontal: 8.0,
                                                                 vertical: 4.0),
                                                         child: Row(
                                                           mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .spaceBetween,
+                                                              MainAxisAlignment.spaceBetween,
                                                           children: [
                                                             Text(
-                                                              markerData
-                                                                  .caption,
+                                                              markerData.caption,
                                                               style:
                                                                   const TextStyle(
                                                                 fontSize: 16,

@@ -49,6 +49,7 @@ class PostWidgetState extends State<PostWidget> {
   final ApiService apiService = ApiService();
   int likes = 0;
   bool isFollowing = false;
+  bool _hasFutureDroppins = false;
 
   @override
   void initState() {
@@ -73,6 +74,8 @@ class PostWidgetState extends State<PostWidget> {
     List<dynamic> filteredDroppins = [];
     List<dynamic> filteredLocations = [];
 
+    _hasFutureDroppins = false;
+
     for (int i = 0; i < originalDroppins.length; i++) {
       final droppin = originalDroppins[i];
       bool include = true;
@@ -81,6 +84,7 @@ class PostWidgetState extends State<PostWidget> {
         if (delayTimeStr != null && delayTimeStr.isNotEmpty) {
           final delayTime = DateTime.parse(delayTimeStr);
           include = !delayTime.isAfter(now);
+          _hasFutureDroppins = true;
         }
       } catch (e) {
         logger.e("Error parsing deley_time: $e");
@@ -874,6 +878,9 @@ class PostWidgetState extends State<PostWidget> {
     final now = DateTime.now();
     final updatedAt = DateTime.parse(widget.post["updated_at"]);
     final difference = now.difference(updatedAt);
+    if (_hasFutureDroppins) {
+      return const SizedBox.shrink();
+    }
     return Padding(padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 5),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
