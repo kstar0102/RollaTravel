@@ -54,24 +54,68 @@ class PostWidgetState extends State<PostWidget> {
   void initState() {
     super.initState();
     mapController = MapController();
-    
+    _filterDroppinsByDelayTime();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeRoutePoints();
-      startAndendMark();
-      _getlocaionts().then((_) {
-        setState(() {
-          isLoading = false;
-          likes = _calculateTotalLikes(widget.post['droppins']);
-        });
+      setState(() {
+        isLoading = false;
+        likes = _calculateTotalLikes(widget.post['droppins']);
       });
+      _adjustZoom();
     });
   }
+
+  void _filterDroppinsByDelayTime() {
+    final now = DateTime.now();
+
+    List<dynamic> originalDroppins = widget.post['droppins'] ?? [];
+    List<dynamic> originalLocations = widget.post['stop_locations'] ?? [];
+
+    List<dynamic> filteredDroppins = [];
+    List<dynamic> filteredLocations = [];
+
+    for (int i = 0; i < originalDroppins.length; i++) {
+      final droppin = originalDroppins[i];
+      bool include = true;
+      try {
+        final delayTimeStr = droppin['deley_time'];
+        if (delayTimeStr != null && delayTimeStr.isNotEmpty) {
+          final delayTime = DateTime.parse(delayTimeStr);
+          include = !delayTime.isAfter(now);
+        }
+      } catch (e) {
+        logger.e("Error parsing deley_time: $e");
+        include = true;
+      }
+
+      if (include) {
+        filteredDroppins.add(droppin);
+        if (i < originalLocations.length) {
+          filteredLocations.add(originalLocations[i]);
+        }
+      }
+    }
+
+    setState(() {
+      widget.post['droppins'] = filteredDroppins;
+      locations = filteredLocations
+          .map((loc) => LatLng(
+                double.parse(loc['latitude'].toString()),
+                double.parse(loc['longitude'].toString()),
+              ))
+          .toList();
+      if (locations.isNotEmpty) {
+        lastDropPoint = locations.last;
+      }
+    });
+  }
+
+
 
   String get mapStyleUrl {
     const accessToken = 'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw';
     final styleId = () {
       final style = widget.post['map_style'];
-      logger.i(style);
+      // logger.i(style);
       switch (style) {
         case "1":
           return 'satellite-v9';
@@ -89,55 +133,53 @@ class PostWidgetState extends State<PostWidget> {
     return "https://api.mapbox.com/styles/v1/mapbox/$styleId/tiles/{z}/{x}/{y}?access_token=$accessToken";
   }
 
+  // Future<void> startAndendMark() async {
+  //   try {
+  //     if (widget.post['start_location'] != null &&
+  //         widget.post['start_location'].toString().contains("LatLng")) {
+  //       final regex =
+  //           RegExp(r"LatLng\(latitude:([\d\.-]+), longitude:([\d\.-]+)\)");
+  //       final match = regex.firstMatch(widget.post['start_location']);
 
+  //       if (match != null) {
+  //         final double startlatitude = double.parse(match.group(1)!);
+  //         final double startlongitude = double.parse(match.group(2)!);
+  //         setState(() {
+  //           startPoint = LatLng(startlatitude, startlongitude);
+  //         });
+  //       }
+  //     } else {
+  //       final startCoordinates =
+  //           await getCoordinates(widget.post['start_address']);
+  //       setState(() {
+  //         startPoint = LatLng(
+  //             startCoordinates['latitude']!, startCoordinates['longitude']!);
+  //       });
+  //     }
+  //   } catch (e) {
+  //     logger.e('Failed to fetch start address coordinates: $e');
+  //   }
 
-  Future<void> startAndendMark() async {
-    try {
-      if (widget.post['start_location'] != null &&
-          widget.post['start_location'].toString().contains("LatLng")) {
-        final regex =
-            RegExp(r"LatLng\(latitude:([\d\.-]+), longitude:([\d\.-]+)\)");
-        final match = regex.firstMatch(widget.post['start_location']);
-
-        if (match != null) {
-          final double startlatitude = double.parse(match.group(1)!);
-          final double startlongitude = double.parse(match.group(2)!);
-          setState(() {
-            startPoint = LatLng(startlatitude, startlongitude);
-          });
-        }
-      } else {
-        final startCoordinates =
-            await getCoordinates(widget.post['start_address']);
-        setState(() {
-          startPoint = LatLng(
-              startCoordinates['latitude']!, startCoordinates['longitude']!);
-        });
-      }
-    } catch (e) {
-      logger.e('Failed to fetch start address coordinates: $e');
-    }
-
-    try {
-      if (widget.post['destination_location'] != null) {
-        final locationString = widget.post['destination_location'];
-        final regex = RegExp(
-            r"LatLng\(\s*latitude:\s*([\d\.-]+),\s*longitude:\s*([\d\.-]+)\s*\)");
-        final match = regex.firstMatch(locationString ?? '');
-        if (match != null) {
-          final double endlatitude = double.parse(match.group(1)!);
-          final double endlongitude = double.parse(match.group(2)!);
-          setState(() {
-            endPoint = LatLng(endlatitude, endlongitude);
-          });
-        } else {
-          logger.i("No match found for destination location.");
-        }
-      }
-    } catch (e) {
-      logger.e('Failed to fetch destination address coordinates: $e');
-    }
-  }
+  //   try {
+  //     if (widget.post['destination_location'] != null) {
+  //       final locationString = widget.post['destination_location'];
+  //       final regex = RegExp(
+  //           r"LatLng\(\s*latitude:\s*([\d\.-]+),\s*longitude:\s*([\d\.-]+)\s*\)");
+  //       final match = regex.firstMatch(locationString ?? '');
+  //       if (match != null) {
+  //         final double endlatitude = double.parse(match.group(1)!);
+  //         final double endlongitude = double.parse(match.group(2)!);
+  //         setState(() {
+  //           endPoint = LatLng(endlatitude, endlongitude);
+  //         });
+  //       } else {
+  //         logger.i("No match found for destination location.");
+  //       }
+  //     }
+  //   } catch (e) {
+  //     logger.e('Failed to fetch destination address coordinates: $e');
+  //   }
+  // }
 
   void _adjustZoom() {
     if (lastDropPoint != null) {
@@ -154,8 +196,6 @@ class PostWidgetState extends State<PostWidget> {
     }
   }
 
-
-
   int _calculateTotalLikes(List<dynamic> droppins) {
     return droppins.fold<int>(
       0,
@@ -163,52 +203,26 @@ class PostWidgetState extends State<PostWidget> {
     );
   }
 
-  void _initializeRoutePoints() {
-    if (widget.post['trip_coordinates'] != null) {
-      setState(() {
-        routePoints =
-            List<Map<String, dynamic>>.from(widget.post['trip_coordinates'])
-                .map((coord) {
-                  if (coord['latitude'] is double &&
-                      coord['longitude'] is double) {
-                    return LatLng(coord['latitude'], coord['longitude']);
-                  } else {
-                    logger.e('Invalid coordinate data: $coord');
-                    return null;
-                  }
-                })
-                .where((latLng) => latLng != null)
-                .cast<LatLng>()
-                .toList();
-      });
-    }
-  }
-
-  Future<void> _getlocaionts() async {
-    
-    List<LatLng> tempLocations = [];
-    if (widget.post['stop_locations'] != null) {
-      try {
-        final stopLocations = List<Map<String, dynamic>>.from(widget.post['stop_locations']);
-        for (var location in stopLocations) {
-          final latitude = double.parse(location['latitude'].toString());
-          final longitude = double.parse(location['longitude'].toString());
-          tempLocations.add(LatLng(latitude, longitude));
-        }
-      } catch (e) {
-        logger.e('Failed to process stop locations: $e');
-      }
-    }
-
-    setState(() {
-      locations = tempLocations;
-      // Assign the last location to lastDropPoint
-      if (tempLocations.isNotEmpty) {
-        lastDropPoint = tempLocations.last;
-      }
-    });
-    _adjustZoom();
-  }
+  // void _initializeRoutePoints() {
+  //   if (widget.post['trip_coordinates'] != null) {
+  //     setState(() {
+  //       routePoints =
+  //           List<Map<String, dynamic>>.from(widget.post['trip_coordinates'])
+  //               .map((coord) {
+  //                 if (coord['latitude'] is double &&
+  //                     coord['longitude'] is double) {
+  //                   return LatLng(coord['latitude'], coord['longitude']);
+  //                 } else {
+  //                   logger.e('Invalid coordinate data: $coord');
+  //                   return null;
+  //                 }
+  //               })
+  //               .where((latLng) => latLng != null)
+  //               .cast<LatLng>()
+  //               .toList();
+  //     });
+  //   }
+  // }
 
   Future<Map<String, double>> getCoordinates(String address) async {
     String accessToken =
@@ -857,8 +871,8 @@ class PostWidgetState extends State<PostWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final updatedAt = DateTime.parse(widget.post["updated_at"]);
     final now = DateTime.now();
+    final updatedAt = DateTime.parse(widget.post["updated_at"]);
     final difference = now.difference(updatedAt);
     return Padding(padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 5),
     child: Column(

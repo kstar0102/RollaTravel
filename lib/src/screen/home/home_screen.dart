@@ -43,34 +43,25 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
 
   Future<void> _followedTrips() async {
     try {
-      final blockUsers =
-          await apiService.fetchBlockUsers(GlobalVariables.userId!);
+      final blockUsers = await apiService.fetchBlockUsers(GlobalVariables.userId!);
       // logger.i(blockUsers);
-
       final blockedUserIds = blockUsers.isEmpty
           ? <String>{}
           : blockUsers.map((user) => user['id'].toString()).toSet();
-
       final data = await apiService.fetchFollowerTrip(GlobalVariables.userId!);
-
       final currentUserId = GlobalVariables.userId.toString();
-
       final filteredTrips = data.where((trip) {
         final user = trip['user'];
         final userId = user['id'].toString();
-
         if (blockedUserIds.contains(userId)) {
           return false;
         }
-
         final mutedIds = trip['muted_ids']?.split(',') ?? [];
         if (mutedIds.contains(currentUserId)) {
           return false;
         }
-
         return true;
       }).toList();
-
       setState(() {
          trips = filteredTrips.reversed.toList();
       });

@@ -68,19 +68,59 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   Future<void> _loadUserTrips() async {
     try {
       final apiService = ApiService();
-      final result  = await apiService.fetchUserTrips(GlobalVariables.userId!);
-      // logger.i(result);
+      final result = await apiService.fetchUserTrips(GlobalVariables.userId!);
+      logger.i(result);
+
       if (result.isNotEmpty) { 
         final trips = result['trips'] as List<dynamic>;
         final userInfoList = result['userInfo'] as List<dynamic>?;
+        final now = DateTime.now();
+        List<Map<String, dynamic>> filteredTrips = [];
 
-        List<dynamic> allDroppins = [] ;
         for (var trip in trips) {
           if (trip['droppins'] != null) {
-            allDroppins.addAll(trip['droppins'] as List<dynamic>);
+            // Filter droppins based on deley_time
+            List<dynamic> originalDroppins = List<dynamic>.from(trip['droppins']);
+            List<dynamic> filteredDroppins = [];
+            List<dynamic> filteredStopLocations = [];
+
+            for (int i = 0; i < originalDroppins.length; i++) {
+              final droppin = originalDroppins[i];
+              bool includeDroppin = true;
+
+              try {
+                final delayStr = droppin['deley_time'];
+                if (delayStr == null || delayStr.isEmpty) {
+                  includeDroppin = true; // If no delay, include it
+                } else {
+                  final delayTime = DateTime.parse(delayStr);
+                  includeDroppin = !delayTime.isAfter(now); // Include if deley_time <= now
+                }
+              } catch (e) {
+                logger.e('Error parsing deley_time: $e');
+                includeDroppin = true; // Include if error parsing
+              }
+
+              if (includeDroppin) {
+                filteredDroppins.add(droppin);
+                filteredStopLocations.add(trip['stop_locations'][i]);
+              }
+            }
+
+            // Only add the trip if it has valid droppins
+            if (filteredDroppins.isNotEmpty) {
+              Map<String, dynamic> filteredTrip = Map<String, dynamic>.from(trip);
+              filteredTrip['droppins'] = filteredDroppins;
+              filteredTrip['stop_locations'] = filteredStopLocations;
+              filteredTrips.add(filteredTrip);
+            }
+          } else {
+            // Add the trip if it has no droppins
+            filteredTrips.add(Map<String, dynamic>.from(trip));
           }
         }
 
+        // Extract user info and set state
         if (userInfoList != null && userInfoList.isNotEmpty) {
           final user = Map<String, dynamic>.from(userInfoList.first);
 
@@ -106,11 +146,21 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
           });
         }
 
+        // Collect all droppins from filtered trips
+        List<dynamic> allDroppins = [];
+        for (var trip in filteredTrips) {
+          if (trip['droppins'] != null) {
+            allDroppins.addAll(trip['droppins']);
+          }
+        }
+
+        // Update state with filtered trips and droppins
         setState(() {
-          userTrips = List<Map<String, dynamic>>.from(trips.reversed);
+          userTrips = filteredTrips.reversed.toList().cast<Map<String, dynamic>>();
           dropPinsData = allDroppins.isNotEmpty ? allDroppins.reversed.toList() : [];
           isLoadingTrips = false;
         });
+
       } else {
         setState(() {
           userTrips = [];

@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:RollaTravel/main.dart';
+// import 'package:RollaTravel/main.dart';
 import 'package:RollaTravel/src/constants/app_button.dart';
 import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/screen/trip/end_trip.dart';
@@ -25,7 +25,7 @@ import 'dart:async';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
-import 'package:workmanager/workmanager.dart';
+// import 'package:workmanager/workmanager.dart';
 
 class StartTripScreen extends ConsumerStatefulWidget {
   const StartTripScreen({super.key});
@@ -136,10 +136,11 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
         // logger.i("GlobalVariables.editDestination : ${GlobalVariables.editDestination}");
 
         GlobalVariables.tripStartDate = tripData['trips'][0]['trip_start_date'];
-        var startLocation = tripData['trips'][0]['start_location'];
+        // var startLocation = tripData['trips'][0]['start_location'];
         List stopLocations = tripData['trips'][0]['stop_locations'];
         List droppins = tripData['trips'][0]['droppins'];
         List<MarkerData> markers = [];
+        
         stopLocations.asMap().forEach((i, stop) {
           if (stop is Map &&
               stop.containsKey('latitude') &&
@@ -170,28 +171,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
         });
         
         ref.read(markersProvider.notifier).state = markers;
-
-        if (startLocation is String) {
-          RegExp regExp =
-              RegExp(r'LatLng\((latitude:([0-9.-]+), longitude:([0-9.-]+))\)');
-          Match? match = regExp.firstMatch(startLocation);
-
-          if (match != null) {
-            double latitude = double.tryParse(match.group(2) ?? "0.0") ?? 0.0;
-            double longitude = double.tryParse(match.group(3) ?? "0.0") ?? 0.0;
-            LatLng startLatLng = LatLng(latitude, longitude);
-            ref.read(staticStartingPointProvider.notifier).state ??=
-                startLatLng;
-            setState(() {
-              isStateRestored = true;
-            });
-          } else {
-            logger.e("Failed to parse start location string");
-            setState(() {
-              isStateRestored = true;
-            });
-          }
-        }
+        
       } catch (e) {
         logger.e("Error fetching trip data: $e");
       } finally {
@@ -563,42 +543,42 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
         );
       }
     }else {
-      Duration delay;
+      // Duration delay;
       String message;
           
-      final uniqueTaskId = "uploadTripTask_${uuid.v4()}"; 
-      final String taskKey = uniqueTaskId; 
-      await prefs.setInt('${taskKey}_tripId', tripId!);
-      await prefs.setInt('${taskKey}_userId', GlobalVariables.userId!);
-      await prefs.setString('${taskKey}_startAddress', startAddress ?? '');
-      await prefs.setString('${taskKey}_stopAddressesString', stopAddressesString);
-      await prefs.setString('${taskKey}_formattedDestination', formattedDestination);
-      await prefs.setString('${taskKey}_tripCaption', GlobalVariables.tripCaption ?? '');
-      await prefs.setString('${taskKey}_tripStartDate', GlobalVariables.tripStartDate ?? '');
-      await prefs.setString('${taskKey}_tripEndDate', formattedDate);
-      await prefs.setString('${taskKey}_tripMiles', tripMiles);
-      await prefs.setString('${taskKey}_tripSound', arrangedSongs);
-      await prefs.setString('${taskKey}_tripTag', GlobalVariables.selectedUserIds.toString());
-      await prefs.setString('${taskKey}_startLocation', startLocation.toString());
-      await prefs.setString('${taskKey}_destinationLocation', endLocation.toString());
-      await prefs.setString('${taskKey}_stopLocations', jsonEncode(stopLocations));
-      await prefs.setString('${taskKey}_tripCoordinates', jsonEncode(tripCoordinates));
+      // final uniqueTaskId = "uploadTripTask_${uuid.v4()}"; 
+      // final String taskKey = uniqueTaskId; 
+      // await prefs.setInt('${taskKey}_tripId', tripId!);
+      // await prefs.setInt('${taskKey}_userId', GlobalVariables.userId!);
+      // await prefs.setString('${taskKey}_startAddress', startAddress ?? '');
+      // await prefs.setString('${taskKey}_stopAddressesString', stopAddressesString);
+      // await prefs.setString('${taskKey}_formattedDestination', formattedDestination);
+      // await prefs.setString('${taskKey}_tripCaption', GlobalVariables.tripCaption ?? '');
+      // await prefs.setString('${taskKey}_tripStartDate', GlobalVariables.tripStartDate ?? '');
+      // await prefs.setString('${taskKey}_tripEndDate', formattedDate);
+      // await prefs.setString('${taskKey}_tripMiles', tripMiles);
+      // await prefs.setString('${taskKey}_tripSound', arrangedSongs);
+      // await prefs.setString('${taskKey}_tripTag', GlobalVariables.selectedUserIds.toString());
+      // await prefs.setString('${taskKey}_startLocation', startLocation.toString());
+      // await prefs.setString('${taskKey}_destinationLocation', endLocation.toString());
+      // await prefs.setString('${taskKey}_stopLocations', jsonEncode(stopLocations));
+      // await prefs.setString('${taskKey}_tripCoordinates', jsonEncode(tripCoordinates));
 
       switch (GlobalVariables.delaySetting) {
         case 1:
-          delay = const Duration(minutes: 30);
-          message = "Your trip will be uploaded after 30 minutes.";
+          // delay = const Duration(minutes: 30);
+          message = "The trip ends in 30 minutes.";
           break;
         case 2:
-          delay = const Duration(hours: 2);
-          message = "Your trip will be uploaded after 2 hours.";
+          // delay = const Duration(hours: 2);
+          message = "The trip ends in 2 hours.";
           break;
         case 3:
-          delay = const Duration(hours: 12);
-          message = "Your trip will be uploaded after 12 hours.";
+          // delay = const Duration(hours: 12);
+          message = "The trip ends in 12 hours.";
           break;
         default:
-          delay = Duration.zero;
+          // delay = Duration.zero;
           message = "Your trip will be uploaded immediately.";
       }
 
@@ -618,47 +598,102 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                   child: const Text("Cancel"),
                 ),
                 TextButton(
-                  onPressed: () {
-                    Workmanager().registerOneOffTask(
-                      uniqueTaskId, 
-                      tripUploadTask,
-                      inputData: {
-                        "taskKey": taskKey, 
-                      },
-                      initialDelay: delay,
-                      constraints: Constraints(
-                        networkType: NetworkType.connected,
+                  onPressed: () async {
+                    final response = await apiserice.updateTrip(
+                    tripId: tripId!,
+                    userId: GlobalVariables.userId!,
+                    startAddress: startAddress!,
+                    stopAddresses: stopAddressesString,
+                    destinationAddress: endAddress!,
+                    destinationTextAddress: formattedDestination,
+                    tripStartDate: GlobalVariables.tripStartDate!,
+                    tripEndDate: GlobalVariables.tripEndDate!,
+                    tripCaption: GlobalVariables.tripCaption ?? "",
+                    tripTag: GlobalVariables.selectedUserIds.toString(),
+                    tripMiles: tripMiles,
+                    tripSound: arrangedSongs,
+                    stopLocations: stopLocations,
+                    tripCoordinates: tripCoordinates,
+                    startLocation: startLocation.toString(),
+                    destinationLocation: endLocation.toString(),
+                    droppins: [],
+                    mapStyle: GlobalVariables.mapStyleSelected.toString()
+                  );
+
+                  if (!mounted) return;
+
+                  if (response['success'] == true) {
+                    logger.i(response);
+                    await prefs.remove("tripId");
+                    await prefs.remove("dropcount");
+                    await prefs.remove("destination_text");
+                    await prefs.remove("start_date");
+                    await prefs.remove("caption_text");
+                    String jsonStr = response['trip']['destination_text_address'] ?? '[]';
+
+                    // Parse it to a List<String>
+                    List<dynamic> parsedList = [];
+                    try {
+                      parsedList = jsonDecode(jsonStr);
+                    } catch (e) {
+                      logger.e("Failed to parse destination_text_address: $e");
+                    }
+
+                    // Extract first element or empty string if list is empty
+                    String destination = parsedList.isNotEmpty ? parsedList[0].toString() : "";
+
+                    _hideLoadingDialog();
+                    if (!mounted) return;
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EndTripScreen(
+                          startLocation: startLocation,
+                          endLocation: endLocation,
+                          stopMarkers: stopMarkers,
+                          tripStartDate: GlobalVariables.tripStartDate!,
+                          tripEndDate: GlobalVariables.tripEndDate!,
+                          endDestination: destination,
+                        ),
                       ),
-                    ).then((_) async {
-                       ref.read(isTripStartedProvider.notifier).state = false;
-                      GlobalVariables.isTripStarted = false;
-                      ref.read(staticStartingPointProvider.notifier).state = ref.read(movingLocationProvider);
-                      ref.read(movingLocationProvider.notifier).state = null;
-                      ref.read(markersProvider.notifier).state = [];
-                      ref.read(totalDistanceProvider.notifier).state = 0.0;
-                      GlobalVariables.totalDistance = 0.0;
-                      GlobalVariables.tripCaption = null;
-                      GlobalVariables.song1 = null;
-                      GlobalVariables.song2 = null;
-                      GlobalVariables.song3 = null;
-                      GlobalVariables.song4 = null;
-                      GlobalVariables.editDestination = null;
-                      GlobalVariables.selectedUserIds = [];
-                      ref.read(pathCoordinatesProvider.notifier).state = [];
-                      await prefs.remove("tripId");
-                      await prefs.remove("dropcount");
-                      await prefs.remove("destination_text");
-                      await prefs.remove("start_date");
-                      await prefs.remove("caption_text");
-                      if (mounted) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const StartTripScreen(),
-                          ),
+                    );
+                    ref.read(isTripStartedProvider.notifier).state = false;
+                    GlobalVariables.isTripStarted = false;
+                    ref.read(staticStartingPointProvider.notifier).state = ref.read(movingLocationProvider);
+                    ref.read(movingLocationProvider.notifier).state = null;
+                    ref.read(markersProvider.notifier).state = [];
+                    ref.read(totalDistanceProvider.notifier).state = 0.0;
+                    GlobalVariables.totalDistance = 0.0;
+                    GlobalVariables.tripCaption = null;
+                    GlobalVariables.song1 = null;
+                    GlobalVariables.song2 = null;
+                    GlobalVariables.song3 = null;
+                    GlobalVariables.song4 = null;
+                    GlobalVariables.editDestination = null;
+                    GlobalVariables.selectedUserIds = [];
+                    ref.read(pathCoordinatesProvider.notifier).state = [];
+                  } else {
+                    _hideLoadingDialog();
+                    String errorMessage = response['error'] ?? 'Failed to create the trip. Please try again.';
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text("Error"),
+                          content: Text(errorMessage),
+                          actions: [
+                            TextButton(
+                              child: const Text("OK"),
+                              onPressed: () {
+                                ref.read(pathCoordinatesProvider.notifier).state = [];
+                                Navigator.of(context).pop(); 
+                              },
+                            ),
+                          ],
                         );
-                      }
-                    });
+                      },
+                    );
+                  }
                   },
                   child: const Text("OK"),
                 ),

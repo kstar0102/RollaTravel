@@ -343,27 +343,78 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
       int? dropcount = prefs.getInt("dropcount");
       int currentDropId = dropPinId ?? 0; 
 
+      DateTime now = DateTime.now();
+      Duration delay;
+      switch (GlobalVariables.delaySetting) {
+        case 1:
+          delay = const Duration(minutes: 30);
+          break;
+        case 2:
+          delay = const Duration(hours: 2);
+          break;
+        case 3:
+          delay = const Duration(hours: 12);
+          break;
+        default:
+          delay = Duration.zero;
+      }
+      DateTime uploadTime = now.add(delay);
+      String formattedUploadTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(uploadTime);
+
+
+      // droppins = stopMarkers.asMap().entries.map((entry) {
+      //   final int index = entry.key + 1; 
+      //   final MarkerData marker = entry.value;
+
+      //   if (dropPinId != null && entry.key < dropcount!) {
+      //     final mapData = {
+      //       "id": currentDropId, 
+      //       "stop_index": index,
+      //       "image_path": marker.imagePath,
+      //       "image_caption": marker.caption,
+      //       "delay_time" : formattedUploadTime
+      //     };
+      //     currentDropId++; 
+      //     return mapData;
+      //   } else {
+      //     return {
+      //       "stop_index": index,
+      //       "image_path": marker.imagePath,
+      //       "image_caption": marker.caption,
+      //       "delay_time" : formattedUploadTime
+      //     };
+      //   }
+      // }).toList();
+
       droppins = stopMarkers.asMap().entries.map((entry) {
-        final int index = entry.key + 1; 
+        final int index = entry.key + 1;
         final MarkerData marker = entry.value;
+        final bool isLast = entry.key == stopMarkers.length - 1;
 
         if (dropPinId != null && entry.key < dropcount!) {
-          final mapData = {
-            "id": currentDropId, 
-            "stop_index": index,
-            "image_path": marker.imagePath,
-            "image_caption": marker.caption,
-          };
-          currentDropId++; 
-          return mapData;
-        } else {
+          // For earlier entries before dropcount, no delay_time
           return {
+            "id": currentDropId,
+            "stop_index": index,
+            "image_path": marker.imagePath,
+            "image_caption": marker.caption,
+          }..addAll(isLast ? {"delay_time": formattedUploadTime} : {});
+        } else {
+          // For entries at or after dropcount
+          final mapData = {
             "stop_index": index,
             "image_path": marker.imagePath,
             "image_caption": marker.caption,
           };
+          if (isLast) {
+            mapData["delay_time"] = formattedUploadTime;
+          }
+          return mapData;
         }
+        // currentDropId++; // increment only if used
       }).toList();
+      logger.i(droppins);
+
 
       List<String> songs = [
         if (GlobalVariables.song1 != null && GlobalVariables.song1!.isNotEmpty) GlobalVariables.song1!,
@@ -441,27 +492,27 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
           );
         }
       }else {
-        Duration delay;
+        // Duration delay;
         String message;
             
-        final uniqueTaskId = "uploadTripTask_${uuid.v4()}"; 
-        final String taskKey = uniqueTaskId; 
-        await prefs.setInt('${taskKey}_tripId', tripId);
-        await prefs.setInt('${taskKey}_userId', GlobalVariables.userId!);
-        await prefs.setString('${taskKey}_startAddress', startAddress ?? '');
-        await prefs.setString('${taskKey}_stopAddressesString', stopAddressesString);
-        await prefs.setString('${taskKey}_formattedDestination', formattedDestination);
-        await prefs.setString('${taskKey}_tripCaption', GlobalVariables.tripCaption ?? '');
-        await prefs.setString('${taskKey}_tripStartDate', GlobalVariables.tripStartDate ?? '');
-        await prefs.setString('${taskKey}_tripEndDate', formattedDate);
-        await prefs.setString('${taskKey}_tripMiles', tripMiles ?? '');
-        await prefs.setString('${taskKey}_tripSound', arrangedSongs);
-        await prefs.setString('${taskKey}_tripTag', GlobalVariables.selectedUserIds.toString());
-        await prefs.setString('${taskKey}_startLocation', startLocation.toString());
-        await prefs.setString('${taskKey}_destinationLocation', endLocation.toString());
-        await prefs.setString('${taskKey}_stopLocations', jsonEncode(stopLocations));
-        await prefs.setString('${taskKey}_droppins', jsonEncode(droppins));
-        await prefs.setString('${taskKey}_tripCoordinates', jsonEncode(tripCoordinates));
+        // final uniqueTaskId = "uploadTripTask_${uuid.v4()}"; 
+        // final String taskKey = uniqueTaskId; 
+        // await prefs.setInt('${taskKey}_tripId', tripId);
+        // await prefs.setInt('${taskKey}_userId', GlobalVariables.userId!);
+        // await prefs.setString('${taskKey}_startAddress', startAddress ?? '');
+        // await prefs.setString('${taskKey}_stopAddressesString', stopAddressesString);
+        // await prefs.setString('${taskKey}_formattedDestination', formattedDestination);
+        // await prefs.setString('${taskKey}_tripCaption', GlobalVariables.tripCaption ?? '');
+        // await prefs.setString('${taskKey}_tripStartDate', GlobalVariables.tripStartDate ?? '');
+        // await prefs.setString('${taskKey}_tripEndDate', formattedDate);
+        // await prefs.setString('${taskKey}_tripMiles', tripMiles ?? '');
+        // await prefs.setString('${taskKey}_tripSound', arrangedSongs);
+        // await prefs.setString('${taskKey}_tripTag', GlobalVariables.selectedUserIds.toString());
+        // await prefs.setString('${taskKey}_startLocation', startLocation.toString());
+        // await prefs.setString('${taskKey}_destinationLocation', endLocation.toString());
+        // await prefs.setString('${taskKey}_stopLocations', jsonEncode(stopLocations));
+        // await prefs.setString('${taskKey}_droppins', jsonEncode(droppins));
+        // await prefs.setString('${taskKey}_tripCoordinates', jsonEncode(tripCoordinates));
 
         setState(() {
           isuploadingData = false;
@@ -469,19 +520,19 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
 
         switch (GlobalVariables.delaySetting) {
           case 1:
-            delay = const Duration(minutes: 1);
+            // delay = const Duration(minutes: 30);
             message = "Your trip will be uploaded after 30 minutes.";
             break;
           case 2:
-            delay = const Duration(hours: 2);
+            // delay = const Duration(hours: 2);
             message = "Your trip will be uploaded after 2 hours.";
             break;
           case 3:
-            delay = const Duration(hours: 12);
+            // delay = const Duration(hours: 12);
             message = "Your trip will be uploaded after 12 hours.";
             break;
           default:
-            delay = Duration.zero;
+            // delay = Duration.zero;
             message = "Your trip will be uploaded immediately.";
         }
 
@@ -501,32 +552,74 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                     child: const Text("Cancel"),
                   ),
                   TextButton(
-                    onPressed: () {
-                      Workmanager().registerOneOffTask(
-                        uniqueTaskId, 
-                        tripUploadTask,
-                        inputData: {
-                          "taskKey": taskKey, 
-                        },
-                        initialDelay: delay,
-                        constraints: Constraints(
-                          networkType: NetworkType.connected,
-                        ),
-                      ).then((_) {
+                    onPressed: () async {
+                      setState(() {
+                        isuploadingData = true;
+                      });
+                      final Map<String, dynamic> response;
+                      response = await apiserice.updateTrip(
+                        tripId: tripId,
+                        userId: GlobalVariables.userId!,
+                        startAddress: startAddress!,
+                        stopAddresses: stopAddressesString,
+                        destinationAddress: "Destination address for DropPin",
+                        destinationTextAddress: formattedDestination,
+                        tripStartDate: GlobalVariables.tripStartDate!,
+                        tripCaption: GlobalVariables.tripCaption.toString(),
+                        tripEndDate: formattedDate,
+                        tripMiles: tripMiles!,
+                        tripSound: arrangedSongs,
+                        tripTag: GlobalVariables.selectedUserIds.toString(),
+                        stopLocations: stopLocations,
+                        tripCoordinates: tripCoordinates,
+                        droppins: droppins,
+                        startLocation: startLocation.toString(),
+                        mapStyle: GlobalVariables.mapStyleSelected.toString(),
+                        destinationLocation: endLocation.toString());
+
+                      if (response['success'] == true) {
+                        setState(() {
+                          isuploadingData = false;
+                        });
+                        await prefs.setInt("tripId", response['trip']['id']);
+                        await prefs.setInt("dropcount", response['trip']['droppins'].length);
                         if (mounted) {
                           Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ChoosenLocationScreen(
-                                caption: widget.caption,
-                                imagePath: widget.imagePath,
-                                location: _currentLocation,
-                                soundList: arrangedSongs,
-                              ),
-                            ),
-                          );
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => ChoosenLocationScreen(
+                                        caption: widget.caption,
+                                        imagePath: widget.imagePath,
+                                        location: _currentLocation,
+                                        soundList: response['trip']['trip_sound'],
+                                      )));
                         }
-                      });
+                      } else {
+                        setState(() {
+                          isuploadingData = false;
+                        });
+                        String errorMessage =
+                            response['error'] ?? 'Failed to create the trip. Please try again.';
+                        
+                        if(!mounted) return;
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text("Error"),
+                              content: Text(errorMessage),
+                              actions: [
+                                TextButton(
+                                  child: const Text("OK"),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      }
                     },
                     child: const Text("OK"),
                   ),
