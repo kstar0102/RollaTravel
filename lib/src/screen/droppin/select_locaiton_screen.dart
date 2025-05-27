@@ -538,6 +538,24 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
       }
       
     } else {
+      DateTime now = DateTime.now();
+      Duration delay;
+      switch (GlobalVariables.delaySetting) {
+        case 1:
+          delay = const Duration(minutes: 30);
+          break;
+        case 2:
+          delay = const Duration(hours: 2);
+          break;
+        case 3:
+          delay = const Duration(hours: 12);
+          break;
+        default:
+          delay = Duration.zero;
+      }
+      DateTime uploadTime = now.add(delay);
+      String formattedUploadTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(uploadTime);
+
       droppins = stopMarkers.asMap().entries.map((entry) {
         final int index = entry.key + 1;
         final MarkerData marker = entry.value;
@@ -545,6 +563,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
           "stop_index": index,
           "image_path": marker.imagePath,
           "image_caption": marker.caption,
+          "delay_time" : formattedUploadTime
         };
       }).toList();
 
@@ -557,7 +576,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
       String arrangedSongs = songs.isNotEmpty ? songs.join(',') : "tripSound";
 
       if(GlobalVariables.delaySetting == 0) {
-        
+
         DateTime now = DateTime.now();
         String delayDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
 
@@ -630,31 +649,12 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
         Duration delay;
         String message;
 
-        final uniqueTaskId = "uploadTripTask_${uuid.v4()}"; 
-        final String taskKey = uniqueTaskId; 
-        await prefs.setInt('${taskKey}_userId', GlobalVariables.userId!);
-        await prefs.setString('${taskKey}_startAddress', startAddress ?? '');
-        await prefs.setString('${taskKey}_stopAddressesString', stopAddressesString);
-        await prefs.setString('${taskKey}_formattedDestination', formattedDestination);
-        await prefs.setString('${taskKey}_tripCaption', GlobalVariables.tripCaption ?? '');
-        await prefs.setString('${taskKey}_tripStartDate', GlobalVariables.tripStartDate ?? '');
-        await prefs.setString('${taskKey}_tripEndDate', formattedDate);
-        await prefs.setString('${taskKey}_tripMiles', tripMiles ?? '');
-        await prefs.setString('${taskKey}_tripSound', arrangedSongs);
-        await prefs.setString('${taskKey}_tripTag', GlobalVariables.selectedUserIds.toString());
-        await prefs.setString('${taskKey}_startLocation', startLocation.toString());
-        await prefs.setString('${taskKey}_destinationLocation', endLocation.toString());
-        await prefs.setString('${taskKey}_mapstyle', GlobalVariables.mapStyleSelected.toString());
-        await prefs.setString('${taskKey}_stopLocations', jsonEncode(stopLocations));
-        await prefs.setString('${taskKey}_droppins', jsonEncode(droppins));
-        await prefs.setString('${taskKey}_tripCoordinates', jsonEncode(tripCoordinates));
-
         setState(() {
           isuploadingData = false;
         });
         switch (GlobalVariables.delaySetting) {
           case 1:
-            delay = const Duration(minutes: 1);
+            delay = const Duration(minutes: 30);
             message = "Your trip will be uploaded after 30 minutes.";
             break;
           case 2:
@@ -669,6 +669,9 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
             delay = Duration.zero;
             message = "Your trip will be uploaded immediately.";
         }
+
+        DateTime uploadTime = now.add(delay);
+        String formattedUploadTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(uploadTime);
 
 
         if (mounted) {
@@ -687,32 +690,76 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                     child: const Text("Cancel"),
                   ),
                   TextButton(
-                    onPressed: () {
-                      Workmanager().registerOneOffTask(
-                        uniqueTaskId, 
-                        tripUploadTask,
-                        inputData: {
-                          "taskKey": taskKey, 
-                        },
-                        initialDelay: delay,
-                        constraints: Constraints(
-                          networkType: NetworkType.connected,
-                        ),
-                      ).then((_) {
+                    onPressed: () async {
+                      setState(() {
+                        isuploadingData = true;
+                      });
+                      final Map<String, dynamic> response;
+                      response = await apiserice.createTrip(
+                        userId: GlobalVariables.userId!,
+                        startAddress: startAddress!,
+                        stopAddresses: stopAddressesString,
+                        destinationAddress: "Destination address for DropPin",
+                        destinationTextAddress: formattedDestination,
+                        tripStartDate: GlobalVariables.tripStartDate!,
+                        tripEndDate: "",
+                        tripMiles: tripMiles!,
+                        tripCaption: GlobalVariables.tripCaption?? "",
+                        tripTag: GlobalVariables.selectedUserIds.toString(),
+                        tripSound: arrangedSongs,
+                        stopLocations: stopLocations,
+                        tripCoordinates: tripCoordinates,
+                        droppins: droppins,
+                        startLocation: startLocation.toString(),
+                        destinationLocation: endLocation.toString(),
+                        mapstyle: GlobalVariables.mapStyleSelected.toString(),
+                        delayTime: formattedUploadTime);
+
+                      if (response['success'] == true) {
+                        logger.i(response['trip']);
+                        setState(() {
+                          isuploadingData = false;
+                        });
+                        await prefs.setInt("tripId", response['trip']['id']);
+                        await prefs.setInt("droppinId", response['trip']['droppins'][0]['id']);
+                        await prefs.setInt("dropcount", response['trip']['droppins'].length);
                         if (mounted) {
                           Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ChoosenLocationScreen(
-                                caption: widget.caption,
-                                imagePath: widget.imagePath,
-                                location: _currentLocation,
-                                soundList: arrangedSongs,
-                              ),
-                            ),
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => ChoosenLocationScreen(
+                                        caption: widget.caption,
+                                        imagePath: widget.imagePath,
+                                        location: _currentLocation,
+                                        soundList: response['trip']['trip_sound'],
+                                      )));
+                        } else {
+                          setState(() {
+                            isuploadingData = false;
+                          });
+                          String errorMessage = response['error'] ??
+                              'Failed to create the trip. Please try again.';
+
+                          if(!mounted) return;
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text("Error"),
+                                content: Text(errorMessage),
+                                actions: [
+                                  TextButton(
+                                    child: const Text("OK"),
+                                    onPressed: () {
+                                      Navigator.of(context).pop(); 
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
                           );
                         }
-                      });
+                      }
                     },
                     child: const Text("OK"),
                   ),

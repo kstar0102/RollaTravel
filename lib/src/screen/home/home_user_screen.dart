@@ -34,7 +34,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
   bool showLikesDropdown = false;
   Map<String, dynamic>? userProfile;
   String? rollaUserName;
-  String? UserRealName;
+  String? userRealName;
   String? rollaUserImage;
   String? tripCount;
   String? followingCount;
@@ -82,7 +82,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
       logger.i(userInfo);
 
       rollaUserName = userInfo[0]['rolla_username'];
-      UserRealName = "${userInfo[0]['first_name'] ?? ''} ${userInfo[0]['last_name'] ?? ''}";
+      userRealName = "${userInfo[0]['first_name'] ?? ''} ${userInfo[0]['last_name'] ?? ''}";
       rollaUserImage = userInfo[0]['photo'];
       userid = userInfo[0]['id'];
 
@@ -191,13 +191,18 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          caption,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey,
-                            fontFamily: 'inter',
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.7, 
+                          child: Text(
+                            caption,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey,
+                              fontFamily: 'inter',
+                            ),
                           ),
                         ),
                         IconButton(
@@ -493,7 +498,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                         ),
                         SizedBox(height: vhh(context, 1)),
                         Text(
-                          UserRealName ?? "",
+                          userRealName ?? "",
                           style: const TextStyle(
                             color: kColorBlack,
                             fontSize: 17,
