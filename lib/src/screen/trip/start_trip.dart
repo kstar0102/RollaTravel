@@ -136,59 +136,59 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
         // logger.i("GlobalVariables.editDestination : ${GlobalVariables.editDestination}");
 
         GlobalVariables.tripStartDate = tripData['trips'][0]['trip_start_date'];
-        // var startLocation = tripData['trips'][0]['start_location'];
         List stopLocations = tripData['trips'][0]['stop_locations'];
         List droppins = tripData['trips'][0]['droppins'];
-        List<MarkerData> markers = [];
+        List<MarkerData> activeMarkers = [];
+        List<MarkerDataWithDelayLabel> futureMarkers = [];
         final now = DateTime.now();
 
         stopLocations.asMap().forEach((i, stop) {
           if (stop is Map && stop.containsKey('latitude') && stop.containsKey('longitude')) {
-            // Find the corresponding droppin for this stop_index (i+1)
             var droppin = droppins.firstWhere(
               (d) => d['stop_index'] == (i + 1),
               orElse: () => null,
             );
 
-            // If droppin exists and delay time is present
             if (droppin != null) {
               final delayTimeStr = droppin['deley_time'];
-              bool includeMarker = true;
-
               if (delayTimeStr != null && delayTimeStr.isNotEmpty) {
                 try {
                   final delayTime = DateTime.parse(delayTimeStr);
-                  // Show marker only if delayTime <= now
                   if (delayTime.isAfter(now)) {
-                    includeMarker = false;
+                    final difference = delayTime.difference(now);
+                    final hours = difference.inHours;
+                    final minutes = difference.inMinutes % 60;
+                    final label =
+                        "Will be posted in ${hours > 0 ? '$hours h ' : ''}${minutes} min";
+
+                    futureMarkers.add(MarkerDataWithDelayLabel(
+                      location: LatLng(stop['latitude'], stop['longitude']),
+                      label: label,
+                    ));
+                    return; // skip normal marker for future droppin
                   }
                 } catch (e) {
-                  // Parsing error — default to include marker
-                  includeMarker = true;
+                  // Parsing error — fallback to active marker
                 }
               }
-
-              if (!includeMarker) {
-                // Skip adding marker for this droppin
-                return;
-              }
-            } else {
-              // If no droppin found for this stop, decide if you want to show marker or not
-              // For safety, let's skip marker if no droppin info
-              return;
+              
+              // Add normal marker
+              activeMarkers.add(
+                MarkerData(
+                  location: LatLng(stop['latitude'], stop['longitude']),
+                  imagePath: droppin['image_path'] ?? "",
+                  caption: droppin['image_caption'] ?? "Trip Stop",
+                ),
+              );
             }
-
-            // Add marker if above checks passed
-            MarkerData marker = MarkerData(
-              location: LatLng(stop['latitude'], stop['longitude']),
-              imagePath: droppin?['image_path'] ?? "",
-              caption: droppin?['image_caption'] ?? "Trip Stop",
-            );
-            markers.add(marker);
           }
         });
+
+        // Combine and update your provider state (adapt your provider to accept both lists or combine here)
+        ref.read(markersProvider.notifier).state = activeMarkers;
+        ref.read(futureMarkersProvider.notifier).state = futureMarkers;
         
-        ref.read(markersProvider.notifier).state = markers;
+        // ref.read(markersProvider.notifier).state = markers;
 
         var startLocation = tripData['trips'][0]['start_location'];
         if (startLocation is String) {
@@ -1130,108 +1130,66 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                   ),
                                   MarkerLayer(
                                     markers: [
-                                      ...ref
-                                          .watch(markersProvider)
-                                          .asMap()
-                                          .entries
-                                          .map((entry) {
+                                      // Normal markers
+                                      ...ref.watch(markersProvider).asMap().entries.map((entry) {
                                         int index = entry.key + 1;
                                         MarkerData markerData = entry.value;
                                         return Marker(
-                                          width: 20.0,
-                                          height: 20.0,
+                                          width: 20,
+                                          height: 20,
                                           point: markerData.location,
                                           child: GestureDetector(
                                             onTap: () {
-                                              showDialog(
-                                                context: context,
-                                                builder: (context) => AlertDialog(
-                                                  content: Column(
-                                                    mainAxisSize: MainAxisSize.min,
-                                                    children: [
-                                                      Padding(
-                                                        padding: const EdgeInsets.symmetric(
-                                                                horizontal: 8.0,
-                                                                vertical: 4.0),
-                                                        child: Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment.spaceBetween,
-                                                          children: [
-                                                            Text(
-                                                              markerData.caption,
-                                                              style:
-                                                                  const TextStyle(
-                                                                fontSize: 16,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                                color:
-                                                                    Colors.grey,
-                                                                fontFamily:
-                                                                    'inter',
-                                                              ),
-                                                            ),
-                                                            IconButton(
-                                                              icon: const Icon(
-                                                                  Icons.close,
-                                                                  color: Colors
-                                                                      .black),
-                                                              onPressed: () {
-                                                                Navigator.of(
-                                                                        context)
-                                                                    .pop();
-                                                              },
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                      Image.network(
-                                                        markerData.imagePath,
-                                                        fit: BoxFit.cover,
-                                                        loadingBuilder: (context,
-                                                            child,
-                                                            loadingProgress) {
-                                                          if (loadingProgress ==
-                                                              null) {
-                                                            return child;
-                                                          } else {
-                                                            return const Center(
-                                                              child:SpinningLoader(),
-                                                            );
-                                                          }
-                                                        },
-                                                        errorBuilder: (context,
-                                                            error, stackTrace) {
-                                                          return const Icon(
-                                                              Icons
-                                                                  .broken_image,
-                                                              size: 100);
-                                                        },
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              );
+                                              // Show your image dialog here
                                             },
                                             child: Container(
                                               width: 10,
                                               height: 10,
                                               decoration: BoxDecoration(
                                                 shape: BoxShape.circle,
-                                                color: Colors
-                                                    .white, // White background
-                                                border: Border.all(
-                                                    color: Colors.black,
-                                                    width: 2), // Black border
+                                                color: Colors.white,
+                                                border: Border.all(color: Colors.black, width: 2),
                                               ),
                                               alignment: Alignment.center,
                                               child: Text(
-                                                index
-                                                    .toString(), // Display index number
+                                                index.toString(),
                                                 style: const TextStyle(
-                                                  fontSize: 13,
+                                                    fontSize: 13,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.black),
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      }),
+
+                                      // Future delay label markers
+                                      ...ref.watch(futureMarkersProvider).map((futureMarker) {
+                                        return Marker(
+                                          point: futureMarker.location,
+                                          width: 150,
+                                          height: 20,
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 0),
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey.withValues(alpha: 0.5),
+                                              borderRadius: BorderRadius.circular(8),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.black.withValues(alpha: 0.3),
+                                                  blurRadius: 4,
+                                                  offset: const Offset(2, 2),
+                                                ),
+                                              ],
+                                            ),
+                                            child: Center(
+                                              child: Text(
+                                                futureMarker.label,
+                                                style: const TextStyle(
+                                                  color: Colors.white,
                                                   fontWeight: FontWeight.bold,
-                                                  color: Colors.black,
+                                                  fontSize: 10,
+                                                  fontFamily: 'inter'
                                                 ),
                                               ),
                                             ),
@@ -1240,6 +1198,108 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                       }),
                                     ],
                                   ),
+                                  // MarkerLayer(
+                                  //   markers: [
+                                  //     ...ref
+                                  //         .watch(markersProvider)
+                                  //         .asMap()
+                                  //         .entries
+                                  //         .map((entry) {
+                                  //       int index = entry.key + 1;
+                                  //       MarkerData markerData = entry.value;
+                                  //       return Marker(
+                                  //         width: 20.0,
+                                  //         height: 20.0,
+                                  //         point: markerData.location,
+                                  //         child: GestureDetector(
+                                  //           onTap: () {
+                                  //             showDialog(
+                                  //               context: context,
+                                  //               builder: (context) => AlertDialog(
+                                  //                 content: Column(
+                                  //                   mainAxisSize: MainAxisSize.min,
+                                  //                   children: [
+                                  //                     Padding(
+                                  //                       padding: const EdgeInsets.symmetric(
+                                  //                         horizontal: 8.0,
+                                  //                         vertical: 4.0
+                                  //                       ),
+                                  //                       child: Row(
+                                  //                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  //                         children: [
+                                  //                           Text(
+                                  //                             markerData.caption,
+                                  //                             style: const TextStyle(
+                                  //                               fontSize: 16,
+                                  //                               fontWeight:FontWeight.bold,
+                                  //                               color: Colors.grey,
+                                  //                               fontFamily: 'inter',
+                                  //                             ),
+                                  //                           ),
+                                  //                           IconButton(
+                                  //                             icon: const Icon(
+                                  //                               Icons.close,
+                                  //                               color: Colors.black),
+                                  //                             onPressed: () {
+                                  //                               Navigator.of(context).pop();
+                                  //                             },
+                                  //                           ),
+                                  //                         ],
+                                  //                       ),
+                                  //                     ),
+                                  //                     Image.network(
+                                  //                       markerData.imagePath,
+                                  //                       fit: BoxFit.cover,
+                                  //                       loadingBuilder: (context,
+                                  //                           child,
+                                  //                           loadingProgress) {
+                                  //                         if (loadingProgress ==
+                                  //                             null) {
+                                  //                           return child;
+                                  //                         } else {
+                                  //                           return const Center(
+                                  //                             child:SpinningLoader(),
+                                  //                           );
+                                  //                         }
+                                  //                       },
+                                  //                       errorBuilder: (context,error, stackTrace) {
+                                  //                         return const Icon(
+                                  //                           Icons.broken_image,
+                                  //                           size: 100
+                                  //                         );
+                                  //                       },
+                                  //                     ),
+                                  //                   ],
+                                  //                 ),
+                                  //               ),
+                                  //             );
+                                  //           },
+                                  //           child: Container(
+                                  //             width: 10,
+                                  //             height: 10,
+                                  //             decoration: BoxDecoration(
+                                  //               shape: BoxShape.circle,
+                                  //               color: Colors.white, 
+                                  //               border: Border.all(
+                                  //                 color: Colors.black,
+                                  //                 width: 2
+                                  //               ), 
+                                  //             ),
+                                  //             alignment: Alignment.center,
+                                  //             child: Text(
+                                  //               index.toString(),
+                                  //               style: const TextStyle(
+                                  //                 fontSize: 13,
+                                  //                 fontWeight: FontWeight.bold,
+                                  //                 color: Colors.black,
+                                  //               ),
+                                  //             ),
+                                  //           ),
+                                  //         ),
+                                  //       );
+                                  //     }),
+                                  //   ],
+                                  // ),
                                   PolylineLayer(polylines: [
                                     Polyline(
                                         points: pathCoordinates,
@@ -1393,3 +1453,11 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     );
   }
 }
+
+
+class MarkerDataWithDelayLabel {
+  final LatLng location;
+  final String label;
+  MarkerDataWithDelayLabel({required this.location, required this.label});
+}
+final futureMarkersProvider = StateProvider<List<MarkerDataWithDelayLabel>>((ref) => []);
