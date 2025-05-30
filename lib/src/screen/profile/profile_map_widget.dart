@@ -8,7 +8,6 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-// import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class TripMapWidget extends StatefulWidget {
   final Map<String, dynamic> trip;
@@ -42,7 +41,7 @@ class _TripMapWidgetState extends State<TripMapWidget> {
   bool isLoading = true;
   final logger = Logger();
   bool _isSelected = false; 
-
+  List<dynamic> droppins = [];
   @override
   void initState() {
     super.initState();
@@ -55,7 +54,7 @@ class _TripMapWidgetState extends State<TripMapWidget> {
         });
       }
     });
-    logger.i(widget.isSelectMode);
+    // logger.i(widget.isSelectMode);
   }
 
   @override
@@ -106,8 +105,9 @@ class _TripMapWidgetState extends State<TripMapWidget> {
   }
 
   Future<void> _getLocations() async {
+    logger.i(widget.trip);
     List<LatLng> tempLocations = [];
-
+    
     try {
       final startCoordinates =
           await _getCoordinates(widget.trip['start_address']);
@@ -127,6 +127,7 @@ class _TripMapWidgetState extends State<TripMapWidget> {
           final longitude = double.parse(location['longitude'].toString());
           tempLocations.add(LatLng(latitude, longitude));
         }
+        droppins = widget.trip['droppins'];
       } catch (e) {
         logger.e('Failed to process stop locations: $e');
       }
@@ -218,22 +219,6 @@ class _TripMapWidgetState extends State<TripMapWidget> {
                       ),
                       MarkerLayer(
                         markers: [
-                          // if (startPoint != null)
-                          //   Marker(
-                          //     width: 80,
-                          //     height: 80,
-                          //     point: startPoint!,
-                          //     child: Icon(Icons.location_on,
-                          //         color: Colors.red, size: 60.sp),
-                          //   ),
-                          // if (endPoint != null)
-                          //   Marker(
-                          //     width: 80.0,
-                          //     height: 80.0,
-                          //     point: endPoint!,
-                          //     child: Icon(Icons.location_on,
-                          //         color: Colors.green, size: 60.sp),
-                          //   ),
                           ...locations.map((location) {
                             return Marker(
                               width: 20.0,
@@ -260,7 +245,8 @@ class _TripMapWidgetState extends State<TripMapWidget> {
                                 ),
                                 child: Center(
                                   child: Text(
-                                    '${locations.indexOf(location) + 1}',
+                                    // '${locations.indexOf(location) + 1}',
+                                    '${droppins[locations.indexOf(location)]['stop_index']}',
                                     style: const TextStyle(
                                       color: Colors.black,
                                       fontSize: 13,

@@ -1411,17 +1411,21 @@ class PostWidgetState extends State<PostWidget> {
             //         )),
             //   ],
             // ),
-            Padding(
-              padding: const EdgeInsets.only(left: 10),
-              child: Text(
-                widget.post['trip_caption'] ?? "",
-                style: const TextStyle(
-                    fontFamily: 'inter',
-                    fontWeight: FontWeight.w500,
-                    fontSize: 13,
-                    letterSpacing: -0.1),
-              ),
-            ),
+            widget.post['trip_caption'] == "null" || widget.post['trip_caption'].isEmpty
+              ? const SizedBox.shrink()
+              : Padding(
+                  padding: const EdgeInsets.only(left: 10),
+                  child: Text(
+                    widget.post['trip_caption'],
+                    style: const TextStyle(
+                      fontFamily: 'inter',
+                      fontWeight: FontWeight.w500,
+                      fontSize: 13,
+                      letterSpacing: -0.1,
+                    ),
+                  ),
+                ),
+
             const SizedBox(height: 12),
             Center(
               child: GestureDetector(

@@ -62,14 +62,13 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
       }
     });
     garageImageUrl = GlobalVariables.garageLogoUrl;
-   
   }
 
   Future<void> _loadUserTrips() async {
     try {
       final apiService = ApiService();
       final result = await apiService.fetchUserTrips(GlobalVariables.userId!);
-      logger.i(result);
+      // logger.i(result);
 
       if (result.isNotEmpty) { 
         final trips = result['trips'] as List<dynamic>;

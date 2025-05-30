@@ -79,7 +79,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
       final result  = await ApiService().fetchUserTrips(widget.userId);
       var userProfile = result['trips'];
       final userInfo = result['userInfo'];
-      logger.i(userInfo);
+      logger.i(userProfile);
 
       rollaUserName = userInfo[0]['rolla_username'];
       userRealName = "${userInfo[0]['first_name'] ?? ''} ${userInfo[0]['last_name'] ?? ''}";
@@ -171,7 +171,21 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
   }
 
   void _showImageDialog(
-      String imagePath, String caption, int likes, List<dynamic> likedUsers) {
+    String imagePath,
+    String caption,
+    int droppinlikes,
+    List<dynamic> likedUsers,
+    int droppinId,
+    int userId,
+    String? viewlist,
+    int droppinIndexF,) {
+    if (likedUsers.map((user) => user['id']).contains(GlobalVariables.userId)) {
+      isLiked = true;
+    } else {
+      isLiked = false;
+    }
+    int droppinIndex = droppinIndexF - 1;
+    logger.i(droppinIndex);
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -248,10 +262,51 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                       children: [
                         GestureDetector(
                           behavior: HitTestBehavior.opaque,
-                          onTap: () {
-                            setState(() {
-                              isLiked = !isLiked;
-                            });
+                          onTap: () async {
+                            final ApiService apiService = ApiService();
+                            final response = await apiService.toggleDroppinLike(
+                              userId: GlobalVariables.userId!,
+                              droppinId: droppinId,
+                              flag: !isLiked,
+                            );
+                            if (response != null &&
+                                response['statusCode'] == true) {
+                              setState(() {
+                                isLiked = !isLiked;
+                                if (isLiked) {
+                                  droppinlikes++;
+                                  final names =
+                                      GlobalVariables.realName?.split(' ') ??
+                                          ['Unknown', ''];
+                                  final firstName = names[0];
+                                  final lastName =
+                                      names.length > 1 ? names[1] : '';
+
+                                  userTrips![0]['droppins'][droppinIndex]
+                                          ['liked_users']
+                                      .add({
+                                    'photo': GlobalVariables.userImageUrl,
+                                    'first_name': firstName,
+                                    'last_name': lastName,
+                                    'rolla_username': GlobalVariables.userName,
+                                  });
+                                } else {
+                                  droppinlikes--;
+                                  userTrips![0]['droppins'][droppinIndex]
+                                          ['liked_users']
+                                      .removeWhere((user) =>
+                                          user['rolla_username'] ==
+                                          GlobalVariables.userName);
+                                }
+                                setState(() {
+                                  droppinlikes = _calculateTotalLikes(
+                                      userTrips![0]['droppins']);
+                                });
+                              });
+                              logger.i(response['message']);
+                            } else {
+                              logger.e('Failed to toggle like');
+                            }
                           },
                           child: Icon(
                             isLiked ? Icons.favorite : Icons.favorite_border,
@@ -266,7 +321,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                             });
                           },
                           child: Text(
-                            '$likes likes',
+                            '$droppinlikes likes',
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
@@ -345,6 +400,14 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
       },
     );
   }
+
+  int _calculateTotalLikes(List<dynamic> droppins) {
+    return droppins.fold<int>(
+      0,
+      (sum, droppin) => sum + (droppin['liked_users'].length as int),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -668,18 +731,25 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                         as Map<String, dynamic>;
                                     final String imagePath =
                                         dropPin['image_path'] ?? '';
-                                    final String caption =
-                                        dropPin['image_caption'] ?? 'No caption';
-                                    final List<dynamic> likedUsers =
-                                        dropPin['liked_users'] ?? [];
+                                    // final String caption =
+                                    //     dropPin['image_caption'] ?? 'No caption';
+                                    // final List<dynamic> likedUsers =
+                                    //     dropPin['liked_users'] ?? [];
 
                                     return Padding(
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 3),
                                       child: GestureDetector(
                                         onTap: () {
-                                          _showImageDialog(imagePath, caption,
-                                              likedUsers.length, likedUsers);
+                                          _showImageDialog(
+                                            dropPin['image_path'], 
+                                            dropPin['image_caption'],
+                                            dropPin['liked_users'].length,
+                                            dropPin['liked_users'],
+                                            dropPin['id'],
+                                            widget.userId,
+                                            dropPin['view_count'],
+                                            dropPin['stop_index'],);
                                         },
                                         child: imagePath.isNotEmpty
                                             ? Container(
