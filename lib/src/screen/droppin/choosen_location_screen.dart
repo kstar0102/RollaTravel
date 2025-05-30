@@ -69,31 +69,31 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
         MaterialPageRoute(builder: (context) => const StartTripScreen()));
   }
 
-  Future<XFile> _getImageFileFromAssets(String assetPath) async {
-    final byteData = await rootBundle.load(assetPath);
-    final tempDir = await getTemporaryDirectory();
-    final file = File('${tempDir.path}/${assetPath.split('/').last}');
-    await file.writeAsBytes(byteData.buffer.asUint8List());
-    return XFile(file.path);
-  }
+  // Future<XFile> _getImageFileFromAssets(String assetPath) async {
+  //   final byteData = await rootBundle.load(assetPath);
+  //   final tempDir = await getTemporaryDirectory();
+  //   final file = File('${tempDir.path}/${assetPath.split('/').last}');
+  //   await file.writeAsBytes(byteData.buffer.asUint8List());
+  //   return XFile(file.path);
+  // }
 
-  Future<void> _onTestShareClicked() async {
-    try {
-      if (!mounted) return;
-       final xfile = await _getImageFileFromAssets('assets/images/background/1.png');
-      await Share.shareXFiles(
-        [xfile],
-        subject: 'Rolla Travel trip!',
-        text: 'I just created a trip with Rolla Travel!',
-      );
+  // Future<void> _onTestShareClicked() async {
+  //   try {
+  //     if (!mounted) return;
+  //      final xfile = await _getImageFileFromAssets('assets/images/background/1.png');
+  //     await Share.shareXFiles(
+  //       [xfile],
+  //       subject: 'Rolla Travel trip!',
+  //       text: 'I just created a trip with Rolla Travel!',
+  //     );
 
-      logger.i("Share completed");
-    } catch (e) {
-      if (!mounted) return;
-      _showErrorDialog("Sharing failed: ${e.toString().replaceAll('Exception: ', '')}");
-      logger.e("Sharing error: $e");
-    }
-  }
+  //     logger.i("Share completed");
+  //   } catch (e) {
+  //     if (!mounted) return;
+  //     _showErrorDialog("Sharing failed: ${e.toString().replaceAll('Exception: ', '')}");
+  //     logger.e("Sharing error: $e");
+  //   }
+  // }
 
   Future<void> _onShareClicked() async {
     if (_isSharing) return;
@@ -445,37 +445,37 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                         ),
                       ),
                       const SizedBox(height: 10,),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              _onShareClicked();
-                            },
-                            child: Image.asset(
-                              "assets/images/icons/upload_icon.png",
-                              height: 30,
-                            ),
-                          ),
-                          const SizedBox(width: 50,),
-                          GestureDetector(
-                            onTap: () {
-                              _onTestShareClicked();
-                            },
-                            child: Text("test share static")
-                          ),
-                        ],
-                      ),
-                      // GestureDetector(
-                      //   onTap: () {
-                      //     _onShareClicked();
-                      //   },
-                      //   child: Image.asset(
-                      //     "assets/images/icons/upload_icon.png",
-                      //     height: 30,
-                      //   ),
+                      // Row(
+                      //   mainAxisAlignment: MainAxisAlignment.center,
+                      //   crossAxisAlignment: CrossAxisAlignment.center,
+                      //   children: [
+                      //     GestureDetector(
+                      //       onTap: () {
+                      //         _onShareClicked();
+                      //       },
+                      //       child: Image.asset(
+                      //         "assets/images/icons/upload_icon.png",
+                      //         height: 30,
+                      //       ),
+                      //     ),
+                      //     const SizedBox(width: 50,),
+                      //     GestureDetector(
+                      //       onTap: () {
+                      //         _onTestShareClicked();
+                      //       },
+                      //       child: Text("test share static")
+                      //     ),
+                      //   ],
                       // ),
+                      GestureDetector(
+                        onTap: () {
+                          _onShareClicked();
+                        },
+                        child: Image.asset(
+                          "assets/images/icons/upload_icon.png",
+                          height: 30,
+                        ),
+                      ),
                     ],
                   ),
                 ),

@@ -49,71 +49,23 @@ class PostWidgetState extends State<PostWidget> {
   final ApiService apiService = ApiService();
   int likes = 0;
   bool isFollowing = false;
-  bool _hasFutureDroppins = false;
 
   @override
   void initState() {
     super.initState();
     mapController = MapController();
-    _filterDroppinsByDelayTime();
+    
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      setState(() {
-        isLoading = false;
-        likes = _calculateTotalLikes(widget.post['droppins']);
+      _initializeRoutePoints();
+      startAndendMark();
+      _getlocaionts().then((_) {
+        setState(() {
+          isLoading = false;
+          likes = _calculateTotalLikes(widget.post['droppins']);
+        });
       });
-      _adjustZoom();
     });
   }
-
-  void _filterDroppinsByDelayTime() {
-    final now = DateTime.now();
-
-    List<dynamic> originalDroppins = widget.post['droppins'] ?? [];
-    List<dynamic> originalLocations = widget.post['stop_locations'] ?? [];
-
-    List<dynamic> filteredDroppins = [];
-    List<dynamic> filteredLocations = [];
-
-    _hasFutureDroppins = false;
-
-    for (int i = 0; i < originalDroppins.length; i++) {
-      final droppin = originalDroppins[i];
-      bool include = true;
-      try {
-        final delayTimeStr = droppin['deley_time'];
-        if (delayTimeStr != null && delayTimeStr.isNotEmpty) {
-          final delayTime = DateTime.parse(delayTimeStr);
-          include = !delayTime.isAfter(now);
-          _hasFutureDroppins = true;
-        }
-      } catch (e) {
-        logger.e("Error parsing deley_time: $e");
-        include = true;
-      }
-
-      if (include) {
-        filteredDroppins.add(droppin);
-        if (i < originalLocations.length) {
-          filteredLocations.add(originalLocations[i]);
-        }
-      }
-    }
-
-    setState(() {
-      widget.post['droppins'] = filteredDroppins;
-      locations = filteredLocations
-          .map((loc) => LatLng(
-                double.parse(loc['latitude'].toString()),
-                double.parse(loc['longitude'].toString()),
-              ))
-          .toList();
-      if (locations.isNotEmpty) {
-        lastDropPoint = locations.last;
-      }
-    });
-  }
-
-
 
   String get mapStyleUrl {
     const accessToken = 'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw';
@@ -137,53 +89,53 @@ class PostWidgetState extends State<PostWidget> {
     return "https://api.mapbox.com/styles/v1/mapbox/$styleId/tiles/{z}/{x}/{y}?access_token=$accessToken";
   }
 
-  // Future<void> startAndendMark() async {
-  //   try {
-  //     if (widget.post['start_location'] != null &&
-  //         widget.post['start_location'].toString().contains("LatLng")) {
-  //       final regex =
-  //           RegExp(r"LatLng\(latitude:([\d\.-]+), longitude:([\d\.-]+)\)");
-  //       final match = regex.firstMatch(widget.post['start_location']);
+  Future<void> startAndendMark() async {
+    try {
+      if (widget.post['start_location'] != null &&
+          widget.post['start_location'].toString().contains("LatLng")) {
+        final regex =
+            RegExp(r"LatLng\(latitude:([\d\.-]+), longitude:([\d\.-]+)\)");
+        final match = regex.firstMatch(widget.post['start_location']);
 
-  //       if (match != null) {
-  //         final double startlatitude = double.parse(match.group(1)!);
-  //         final double startlongitude = double.parse(match.group(2)!);
-  //         setState(() {
-  //           startPoint = LatLng(startlatitude, startlongitude);
-  //         });
-  //       }
-  //     } else {
-  //       final startCoordinates =
-  //           await getCoordinates(widget.post['start_address']);
-  //       setState(() {
-  //         startPoint = LatLng(
-  //             startCoordinates['latitude']!, startCoordinates['longitude']!);
-  //       });
-  //     }
-  //   } catch (e) {
-  //     logger.e('Failed to fetch start address coordinates: $e');
-  //   }
+        if (match != null) {
+          final double startlatitude = double.parse(match.group(1)!);
+          final double startlongitude = double.parse(match.group(2)!);
+          setState(() {
+            startPoint = LatLng(startlatitude, startlongitude);
+          });
+        }
+      } else {
+        final startCoordinates =
+            await getCoordinates(widget.post['start_address']);
+        setState(() {
+          startPoint = LatLng(
+              startCoordinates['latitude']!, startCoordinates['longitude']!);
+        });
+      }
+    } catch (e) {
+      logger.e('Failed to fetch start address coordinates: $e');
+    }
 
-  //   try {
-  //     if (widget.post['destination_location'] != null) {
-  //       final locationString = widget.post['destination_location'];
-  //       final regex = RegExp(
-  //           r"LatLng\(\s*latitude:\s*([\d\.-]+),\s*longitude:\s*([\d\.-]+)\s*\)");
-  //       final match = regex.firstMatch(locationString ?? '');
-  //       if (match != null) {
-  //         final double endlatitude = double.parse(match.group(1)!);
-  //         final double endlongitude = double.parse(match.group(2)!);
-  //         setState(() {
-  //           endPoint = LatLng(endlatitude, endlongitude);
-  //         });
-  //       } else {
-  //         logger.i("No match found for destination location.");
-  //       }
-  //     }
-  //   } catch (e) {
-  //     logger.e('Failed to fetch destination address coordinates: $e');
-  //   }
-  // }
+    try {
+      if (widget.post['destination_location'] != null) {
+        final locationString = widget.post['destination_location'];
+        final regex = RegExp(
+            r"LatLng\(\s*latitude:\s*([\d\.-]+),\s*longitude:\s*([\d\.-]+)\s*\)");
+        final match = regex.firstMatch(locationString ?? '');
+        if (match != null) {
+          final double endlatitude = double.parse(match.group(1)!);
+          final double endlongitude = double.parse(match.group(2)!);
+          setState(() {
+            endPoint = LatLng(endlatitude, endlongitude);
+          });
+        } else {
+          logger.i("No match found for destination location.");
+        }
+      }
+    } catch (e) {
+      logger.e('Failed to fetch destination address coordinates: $e');
+    }
+  }
 
   void _adjustZoom() {
     if (lastDropPoint != null) {
@@ -207,26 +159,50 @@ class PostWidgetState extends State<PostWidget> {
     );
   }
 
-  // void _initializeRoutePoints() {
-  //   if (widget.post['trip_coordinates'] != null) {
-  //     setState(() {
-  //       routePoints =
-  //           List<Map<String, dynamic>>.from(widget.post['trip_coordinates'])
-  //               .map((coord) {
-  //                 if (coord['latitude'] is double &&
-  //                     coord['longitude'] is double) {
-  //                   return LatLng(coord['latitude'], coord['longitude']);
-  //                 } else {
-  //                   logger.e('Invalid coordinate data: $coord');
-  //                   return null;
-  //                 }
-  //               })
-  //               .where((latLng) => latLng != null)
-  //               .cast<LatLng>()
-  //               .toList();
-  //     });
-  //   }
-  // }
+  void _initializeRoutePoints() {
+    if (widget.post['trip_coordinates'] != null) {
+      setState(() {
+        routePoints =
+            List<Map<String, dynamic>>.from(widget.post['trip_coordinates'])
+                .map((coord) {
+                  if (coord['latitude'] is double &&
+                      coord['longitude'] is double) {
+                    return LatLng(coord['latitude'], coord['longitude']);
+                  } else {
+                    logger.e('Invalid coordinate data: $coord');
+                    return null;
+                  }
+                })
+                .where((latLng) => latLng != null)
+                .cast<LatLng>()
+                .toList();
+      });
+    }
+  }
+
+  Future<void> _getlocaionts() async {
+    List<LatLng> tempLocations = [];
+    if (widget.post['stop_locations'] != null) {
+      try {
+        final stopLocations = List<Map<String, dynamic>>.from(widget.post['stop_locations']);
+        for (var location in stopLocations) {
+          final latitude = double.parse(location['latitude'].toString());
+          final longitude = double.parse(location['longitude'].toString());
+          tempLocations.add(LatLng(latitude, longitude));
+        }
+      } catch (e) {
+        logger.e('Failed to process stop locations: $e');
+      }
+    }
+
+    setState(() {
+      locations = tempLocations;
+      if (tempLocations.isNotEmpty) {
+        lastDropPoint = tempLocations.last;
+      }
+    });
+    _adjustZoom();
+  }
 
   Future<Map<String, double>> getCoordinates(String address) async {
     String accessToken =
@@ -875,12 +851,9 @@ class PostWidgetState extends State<PostWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final now = DateTime.now();
     final updatedAt = DateTime.parse(widget.post["updated_at"]);
+    final now = DateTime.now();
     final difference = now.difference(updatedAt);
-    if (_hasFutureDroppins) {
-      return const SizedBox.shrink();
-    }
     return Padding(padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 5),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1055,59 +1028,88 @@ class PostWidgetState extends State<PostWidget> {
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: List.generate(
-            widget.post['droppins'].length,
-            (index) => Container(
-              margin: const EdgeInsets.symmetric(horizontal: 4),
-              padding: const EdgeInsets.all(1),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.black,
-                  width: 1,
+            widget.post['droppins']
+                .where((droppin) {
+                  try {
+                    final delay = DateTime.parse(droppin['deley_time']);
+                    return delay.isBefore(DateTime.now());
+                  } catch (_) {
+                    return true; 
+                  }
+                })
+                .toList()
+                .length,
+            (index) {
+              final filteredDroppins = widget.post['droppins']
+                  .where((droppin) {
+                    try {
+                      final delay = DateTime.parse(droppin['deley_time']);
+                      return delay.isBefore(DateTime.now());
+                    } catch (_) {
+                      return true;
+                    }
+                  })
+                  .toList();
+
+              final droppin = filteredDroppins[index];
+              return Container(
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                padding: const EdgeInsets.all(1),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.black,
+                    width: 1,
+                  ),
                 ),
-              ),
-              child: GestureDetector(
-                onTap: () {
-                  _showImageDialog(
-                      widget.post['droppins'][index]['image_path'],
-                      widget.post['droppins'][index]['image_caption'],
-                      widget.post['droppins'][index]['liked_users'].length,
-                      widget.post['droppins'][index]['liked_users'],
-                      widget.post['droppins'][index]['id'],
+                child: GestureDetector(
+                  onTap: () {
+                    _showImageDialog(
+                      droppin['image_path'],
+                      droppin['image_caption'],
+                      droppin['liked_users'].length,
+                      droppin['liked_users'],
+                      droppin['id'],
                       widget.post['user_id'],
-                      widget.post['droppins'][index]['view_count'],
-                      index);
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(1),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: Colors.white, // Background color
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.4),
-                        spreadRadius: 0.5,
-                        blurRadius: 6,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: CircleAvatar(
-                    radius: 10,
-                    backgroundColor: Colors.white,
-                    child: Text('${index + 1}',
+                      droppin['view_count'],
+                      index,
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(1),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.4),
+                          spreadRadius: 0.5,
+                          blurRadius: 6,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: CircleAvatar(
+                      radius: 10,
+                      backgroundColor: Colors.white,
+                      child: Text(
+                        '${index + 1}',
                         style: const TextStyle(
-                            color: Colors.black,
-                            fontFamily: 'inter',
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: -0.1)),
+                          color: Colors.black,
+                          fontFamily: 'inter',
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: -0.1,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
         ),
+
         const SizedBox(height: 10),
         Container(
           height: 250,
@@ -1142,6 +1144,69 @@ class PostWidgetState extends State<PostWidget> {
                         ),
                         MarkerLayer(
                           markers: [
+                            ...locations.where((location) {
+                              final index = locations.indexOf(location);
+                              final droppin = widget.post['droppins'][index];
+                              
+                              try {
+                                final delay = DateTime.parse(droppin['deley_time']);
+                                return delay.isBefore(DateTime.now());
+                              } catch (_) {
+                                return true;
+                              }
+                            }).map((location) {
+                              return Marker(
+                                width: 25.0,
+                                height: 25.0,
+                                point: location,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    final index = locations.indexOf(location);
+                                    final droppin = widget.post['droppins'][index];
+                                    _showImageDialog(
+                                      droppin['image_path'],
+                                      droppin['image_caption'],
+                                      droppin['liked_users'].length,
+                                      droppin['liked_users'],
+                                      droppin['id'],
+                                      widget.post['user_id'],
+                                      droppin['view_count'],
+                                      index,
+                                    );
+                                  },
+                                  child: Container(
+                                    width: 14, 
+                                    height: 14,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.white,
+                                      border: Border.all(
+                                        color: kColorBlack,
+                                        width: 1, 
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withValues(alpha: 0.4),
+                                          spreadRadius: 0.5,
+                                          blurRadius: 6,
+                                          offset: const Offset(0, 5),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        '${locations.indexOf(location) + 1}',
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }),
                             // if (startPoint != null)
                             //   Marker(
                             //     width: 80.0,
@@ -1166,62 +1231,6 @@ class PostWidgetState extends State<PostWidget> {
                             //           color: Colors.green, size: 30),
                             //     ),
                             //   ),
-                            ...locations.map((location) {
-                              return Marker(
-                                width: 25.0,
-                                height: 25.0,
-                                point: location,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    // Handle tap logic here
-                                    final index = locations.indexOf(location);
-                                    final droppin =
-                                        widget.post['droppins'][index];
-                                    _showImageDialog(
-                                      droppin['image_path'],
-                                      droppin['image_caption'],
-                                      droppin['liked_users'].length,
-                                      droppin['liked_users'],
-                                      droppin['id'],
-                                      widget.post['user_id'],
-                                      droppin['view_count'],
-                                      index,
-                                    );
-                                  },
-                                  child: Container(
-                                    width: 14, // Smaller width
-                                    height: 14, // Smaller height
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.white,
-                                      border: Border.all(
-                                        color: kColorBlack, // Border color
-                                        width: 1, // Border width
-                                      ),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black
-                                              .withValues(alpha: 0.4),
-                                          spreadRadius: 0.5,
-                                          blurRadius: 6,
-                                          offset: const Offset(0, 5),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        '${locations.indexOf(location) + 1}',
-                                        style: const TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }),
                           ],
                         ),
                         PolylineLayer(
@@ -1311,9 +1320,8 @@ class PostWidgetState extends State<PostWidget> {
                         ),
                       ),
                       contentPadding: EdgeInsets.symmetric(
-                        vertical:
-                            10.0, // Adjust vertical padding to center text
-                        horizontal: 8.0, // Optional: Adjust horizontal padding
+                        vertical:10.0, 
+                        horizontal: 8.0, 
                       ),
                     ),
                     style: const TextStyle(
@@ -1458,7 +1466,6 @@ class PostWidgetState extends State<PostWidget> {
                           ),
                         ),
                         const SizedBox(width: 5),
-                        // Username
                         Text(
                           comment['user']['rolla_username'] ?? 'Unknown User',
                           style: const TextStyle(
@@ -1489,9 +1496,7 @@ class PostWidgetState extends State<PostWidget> {
                   );
                 }).toList(),
               ),
-            SizedBox(
-              height: vh(context, 4),
-            ),
+            SizedBox(height: vh(context, 4),),
             Padding(
               padding: const EdgeInsets.only(left: 7),
               child: Text(

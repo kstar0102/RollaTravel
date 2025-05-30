@@ -13,6 +13,7 @@ import 'package:RollaTravel/src/utils/index.dart';
 import 'package:RollaTravel/src/utils/location.permission.dart';
 import 'package:RollaTravel/src/utils/spinner_loader.dart';
 import 'package:RollaTravel/src/utils/stop_marker_provider.dart';
+import 'package:RollaTravel/src/utils/trip_marker_provider.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -92,133 +93,176 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   void _getFetchTripData() async {
     final prefs = await SharedPreferences.getInstance();
     int? tripId = prefs.getInt("tripId");
-    ref.read(markersProvider.notifier).state = [];
-    String? destinationText = prefs.getString('destination_text');
-    if(destinationText != null){
-      ref.read(isTripStartedProvider.notifier).state = true;
-      GlobalVariables.editDestination = destinationText;
-      GlobalVariables.tripStartDate = prefs.getString('start_date');
-      GlobalVariables.tripCaption = prefs.getString('caption_text');
-    }
+    // logger.i("saved tripid : $tripId");
     if (tripId != null) {
-      _showLoadingDialog();
       final apiserice = ApiService();
-      GlobalVariables.isTripStarted = true;
-      ref.read(isTripStartedProvider.notifier).state = true;
       try {
+        _showLoadingDialog();
         final tripData = await apiserice.fetchTripData(tripId);
         // logger.i(tripData);
-        var destinationTextAddress =
-            tripData['trips'][0]['destination_text_address'];
-        if(tripData['trips'][0]['trip_caption'] != null && tripData['trips'][0]['trip_caption'] != "null"){
-          _captionController.text = tripData['trips'][0]['trip_caption'];
-        }
-        if (destinationTextAddress is String) {
-          destinationTextAddress = jsonDecode(destinationTextAddress);
-        }
-         if (tripData['trip_tags'] != null && tripData['trip_tags'] != "null") {
-          try {
-            List<int> tags = List<int>.from(jsonDecode(tripData['trip_tags']));
-            GlobalVariables.selectedUserIds.addAll(tags);
-            logger.i(GlobalVariables.selectedUserIds);
-          } catch (e) {
-            logger.i('Error parsing trip_tags: $e');
+        if ((tripData['trips'] as List).isEmpty){
+          logger.i("no trip in server");
+          _hideLoadingDialog();
+          ref.read(tripMarkersProvider.notifier).state = [];
+          GlobalVariables.isTripStarted = false;
+          ref.read(isTripStartedProvider.notifier).state = false;
+          await prefs.remove("tripId");
+          await prefs.remove("dropcount");
+          await prefs.remove("destination_text");
+          await prefs.remove("start_date");
+          await prefs.remove("caption_text");
+          _getCurrentLocation();
+        } else{
+          ref.read(tripMarkersProvider.notifier).state = [];
+          GlobalVariables.isTripStarted = true;
+          ref.read(isTripStartedProvider.notifier).state = true;
+          String? destinationText = prefs.getString('destination_text');
+          if(destinationText != null){
+            ref.read(isTripStartedProvider.notifier).state = true;
+            GlobalVariables.editDestination = destinationText;
+            GlobalVariables.tripStartDate = prefs.getString('start_date');
+            GlobalVariables.tripCaption = prefs.getString('caption_text');
           }
-        }
-        List<String> songs = tripData['trips'][0]['trip_sound'].split(',');
+          
+          var destinationTextAddress =
+              tripData['trips'][0]['destination_text_address'];
+          if(tripData['trips'][0]['trip_caption'] != null && tripData['trips'][0]['trip_caption'] != "null"){
+            _captionController.text = tripData['trips'][0]['trip_caption'];
+          }
+          if (destinationTextAddress is String) {
+            destinationTextAddress = jsonDecode(destinationTextAddress);
+          }
+          if (tripData['trip_tags'] != null && tripData['trip_tags'] != "null") {
+            try {
+              List<int> tags = List<int>.from(jsonDecode(tripData['trip_tags']));
+              GlobalVariables.selectedUserIds.addAll(tags);
+              logger.i(GlobalVariables.selectedUserIds);
+            } catch (e) {
+              logger.i('Error parsing trip_tags: $e');
+            }
+          }
+          List<String> songs = tripData['trips'][0]['trip_sound'].split(',');
 
-        GlobalVariables.song1 = songs.isNotEmpty ? songs[0].trim() : null;
-        GlobalVariables.song2 = songs.length > 1 ? songs[1].trim() : null;
-        GlobalVariables.song3 = songs.length > 2 ? songs[2].trim() : null;
-        GlobalVariables.song4 = songs.length > 3 ? songs[3].trim() : null;
-                                    
-        GlobalVariables.editDestination = destinationTextAddress[0];
-        // logger.i("GlobalVariables.editDestination : ${GlobalVariables.editDestination}");
+          GlobalVariables.song1 = songs.isNotEmpty ? songs[0].trim() : null;
+          GlobalVariables.song2 = songs.length > 1 ? songs[1].trim() : null;
+          GlobalVariables.song3 = songs.length > 2 ? songs[2].trim() : null;
+          GlobalVariables.song4 = songs.length > 3 ? songs[3].trim() : null;
+                                      
+          GlobalVariables.editDestination = destinationTextAddress[0];
 
-        GlobalVariables.tripStartDate = tripData['trips'][0]['trip_start_date'];
-        List stopLocations = tripData['trips'][0]['stop_locations'];
-        List droppins = tripData['trips'][0]['droppins'];
-        List<MarkerData> activeMarkers = [];
-        List<MarkerDataWithDelayLabel> futureMarkers = [];
-        final now = DateTime.now();
+          GlobalVariables.tripStartDate = tripData['trips'][0]['trip_start_date'];
+          List stopLocations = tripData['trips'][0]['stop_locations'];
+          List droppins = tripData['trips'][0]['droppins'];
 
-        stopLocations.asMap().forEach((i, stop) {
-          if (stop is Map && stop.containsKey('latitude') && stop.containsKey('longitude')) {
+          List<TripMarkerData> markers = [];
+
+          stopLocations.asMap().forEach((i, stop) {
+          if (stop is Map &&
+              stop.containsKey('latitude') &&
+              stop.containsKey('longitude')) {
+            double latitude = stop['latitude'];
+            double longitude = stop['longitude'];
+
+            String imagePath = "";
+            String caption = "Trip Stop";
+            String delayTime = "";
+
             var droppin = droppins.firstWhere(
               (d) => d['stop_index'] == (i + 1),
               orElse: () => null,
             );
 
             if (droppin != null) {
-              final delayTimeStr = droppin['deley_time'];
-              if (delayTimeStr != null && delayTimeStr.isNotEmpty) {
-                try {
-                  final delayTime = DateTime.parse(delayTimeStr);
-                  if (delayTime.isAfter(now)) {
-                    final difference = delayTime.difference(now);
-                    final hours = difference.inHours;
-                    final minutes = difference.inMinutes % 60;
-                    final label =
-                        "Will be posted in ${hours > 0 ? '$hours h ' : ''}${minutes} min";
-
-                    futureMarkers.add(MarkerDataWithDelayLabel(
-                      location: LatLng(stop['latitude'], stop['longitude']),
-                      label: label,
-                    ));
-                    return; // skip normal marker for future droppin
-                  }
-                } catch (e) {
-                  // Parsing error — fallback to active marker
-                }
-              }
-              
-              // Add normal marker
-              activeMarkers.add(
-                MarkerData(
-                  location: LatLng(stop['latitude'], stop['longitude']),
-                  imagePath: droppin['image_path'] ?? "",
-                  caption: droppin['image_caption'] ?? "Trip Stop",
-                ),
-              );
+              imagePath = droppin['image_path'] ?? "";
+              caption = droppin['image_caption'] ?? "No caption";
+              delayTime = droppin['deley_time'];
             }
+
+            TripMarkerData marker = TripMarkerData(
+              location: LatLng(latitude, longitude),
+              imagePath: imagePath,
+              caption: caption,
+              delayTime: delayTime
+            );
+            markers.add(marker);
           }
         });
+        ref.read(tripMarkersProvider.notifier).state = markers;
+          // List<MarkerData> activeMarkers = [];
+          // List<MarkerDataWithDelayLabel> futureMarkers = [];
+          // final now = DateTime.now();
 
-        // Combine and update your provider state (adapt your provider to accept both lists or combine here)
-        ref.read(markersProvider.notifier).state = activeMarkers;
-        ref.read(futureMarkersProvider.notifier).state = futureMarkers;
-        
-        // ref.read(markersProvider.notifier).state = markers;
+          // stopLocations.asMap().forEach((i, stop) {
+          //   if (stop is Map && stop.containsKey('latitude') && stop.containsKey('longitude')) {
+          //     var droppin = droppins.firstWhere(
+          //       (d) => d['stop_index'] == (i + 1),
+          //       orElse: () => null,
+          //     );
 
-        var startLocation = tripData['trips'][0]['start_location'];
-        if (startLocation is String) {
-          RegExp regExp =
-              RegExp(r'LatLng\((latitude:([0-9.-]+), longitude:([0-9.-]+))\)');
-          Match? match = regExp.firstMatch(startLocation);
+          //     if (droppin != null) {
+          //       final delayTimeStr = droppin['deley_time'];
+          //       if (delayTimeStr != null && delayTimeStr.isNotEmpty) {
+          //         try {
+          //           final delayTime = DateTime.parse(delayTimeStr);
+          //           if (delayTime.isAfter(now)) {
+          //             final difference = delayTime.difference(now);
+          //             final hours = difference.inHours;
+          //             final minutes = difference.inMinutes % 60;
+          //             final label =
+          //                 "Will be posted in ${hours > 0 ? '$hours h ' : ''}${minutes} min";
+          //             futureMarkers.add(MarkerDataWithDelayLabel(
+          //               location: LatLng(stop['latitude'], stop['longitude']),
+          //               label: label,
+          //             ));
+          //             return; // skip normal marker for future droppin
+          //           }
+          //         } catch (e) {
+          //           // Parsing error — fallback to active marker
+          //         }
+          //       }
+          //       activeMarkers.add(
+          //         MarkerData(
+          //           location: LatLng(stop['latitude'], stop['longitude']),
+          //           imagePath: droppin['image_path'] ?? "",
+          //           caption: droppin['image_caption'] ?? "Trip Stop",
+          //         ),
+          //       );
+          //     }
+          //   }
+          // });
+          // ref.read(markersProvider.notifier).state = activeMarkers;
+          // ref.read(futureMarkersProvider.notifier).state = futureMarkers;
+          var startLocation = tripData['trips'][0]['start_location'];
+          if (startLocation is String) {
+            RegExp regExp =
+                RegExp(r'LatLng\((latitude:([0-9.-]+), longitude:([0-9.-]+))\)');
+            Match? match = regExp.firstMatch(startLocation);
 
-          if (match != null) {
-            double latitude = double.tryParse(match.group(2) ?? "0.0") ?? 0.0;
-            double longitude = double.tryParse(match.group(3) ?? "0.0") ?? 0.0;
-            LatLng startLatLng = LatLng(latitude, longitude);
-            ref.read(staticStartingPointProvider.notifier).state ??=
-                startLatLng;
-            setState(() {
-              isStateRestored = true;
-            });
-          } else {
-            logger.e("Failed to parse start location string");
-            setState(() {
-              isStateRestored = true;
-            });
+            if (match != null) {
+              double latitude = double.tryParse(match.group(2) ?? "0.0") ?? 0.0;
+              double longitude = double.tryParse(match.group(3) ?? "0.0") ?? 0.0;
+              LatLng startLatLng = LatLng(latitude, longitude);
+              ref.read(staticStartingPointProvider.notifier).state ??=
+                  startLatLng;
+              setState(() {
+                isStateRestored = true;
+              });
+            } else {
+              logger.e("Failed to parse start location string");
+              setState(() {
+                isStateRestored = true;
+              });
+            }
           }
+          _hideLoadingDialog();
         }
-        
       } catch (e) {
         logger.e("Error fetching trip data: $e");
       } finally {
         _hideLoadingDialog();
       }
     } else {
+      ref.read(tripMarkersProvider.notifier).state = [];
       setState(() {
         isStateRestored = true;
       });
@@ -241,9 +285,9 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
           content: Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              SpinningLoader(), // Progress bar
+              SpinningLoader(),
               SizedBox(width: 20),
-              Text("Loading..."), // Loading text
+              Text("Loading..."),
             ],
           ),
         );
@@ -329,20 +373,19 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
       );
       setState(() {
         currentLocation = LatLng(position.latitude, position.longitude);
-        ref.read(staticStartingPointProvider.notifier).state ??=
-            currentLocation;
+        ref.read(staticStartingPointProvider.notifier).state ??= currentLocation;
       });
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Future.delayed(const Duration(milliseconds: 500), () {
-          if (mounted) {
-            try {
-              _mapController.move(currentLocation!, 12.0);
-            } catch (e) {
-              logger.e("Error moving map: $e");
-            }
-          }
-        });
-      });
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Future.delayed(const Duration(milliseconds: 500));
+      if (mounted && currentLocation != null) {
+        try {
+          // Only move the map if the controller is ready
+          _mapController.move(currentLocation!, 12.0);
+        } catch (e) {
+          logger.e("Error moving map: $e");
+        }
+      }
+    });
       return;
     }
 
@@ -1130,33 +1173,126 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                   ),
                                   MarkerLayer(
                                     markers: [
-                                      // Normal markers
-                                      ...ref.watch(markersProvider).asMap().entries.map((entry) {
-                                        int index = entry.key + 1;
-                                        MarkerData markerData = entry.value;
+                                      ...ref.watch(tripMarkersProvider).asMap().entries.map((entry) {
+                                        int index = entry.key + 1; 
+                                        TripMarkerData markerData = entry.value;
+                                        bool isDelayed = false;
+                                        try {
+                                          final delay = DateTime.parse(markerData.delayTime);
+                                          isDelayed = delay.isAfter(DateTime.now());
+                                        } catch (_) {
+                                          isDelayed = false;
+                                        }
                                         return Marker(
-                                          width: 20,
-                                          height: 20,
+                                          width: 20.0,
+                                          height: 20.0,
                                           point: markerData.location,
                                           child: GestureDetector(
                                             onTap: () {
-                                              // Show your image dialog here
+                                              showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  Duration? delayDuration;
+                                                  String delayText = "";
+                                                  try {
+                                                    final delay = DateTime.parse(markerData.delayTime);
+                                                    final now = DateTime.now();
+                                                    if (delay.isAfter(now)) {
+                                                      delayDuration = delay.difference(now);
+                                                      final hours = delayDuration.inHours;
+                                                      final minutes = delayDuration.inMinutes.remainder(60);
+                                                      delayText = "Will be posted in ";
+                                                      if (hours > 0) delayText += "$hours hour${hours > 1 ? 's' : ''}";
+                                                      if (hours > 0 && minutes > 0) delayText += " and ";
+                                                      if (minutes > 0) delayText += "$minutes minute${minutes > 1 ? 's' : ''}";
+                                                    }
+                                                  } catch (_) {
+                                                    delayText = "";
+                                                  }
+
+                                                  return AlertDialog(
+                                                    content: Column(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        Padding(
+                                                          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                                                          child: Row(
+                                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                            children: [
+                                                              Text(
+                                                                markerData.caption,
+                                                                style: const TextStyle(
+                                                                  fontSize: 16,
+                                                                  fontWeight: FontWeight.bold,
+                                                                  color: Colors.grey,
+                                                                  fontFamily: 'inter',
+                                                                ),
+                                                              ),
+                                                              IconButton(
+                                                                icon: const Icon(Icons.close, color: Colors.black),
+                                                                onPressed: () {
+                                                                  Navigator.of(context).pop();
+                                                                },
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        Image.network(
+                                                          markerData.imagePath,
+                                                          fit: BoxFit.cover,
+                                                          loadingBuilder: (context, child, loadingProgress) {
+                                                            if (loadingProgress == null) {
+                                                              return child;
+                                                            } else {
+                                                              return const Center(
+                                                                child: SpinningLoader(),
+                                                              );
+                                                            }
+                                                          },
+                                                          errorBuilder: (context, error, stackTrace) {
+                                                            return const Icon(Icons.broken_image, size: 100);
+                                                          },
+                                                        ),
+                                                        if (delayText.isNotEmpty)
+                                                          Padding(
+                                                            padding: const EdgeInsets.only(top: 8.0),
+                                                            child: Text(
+                                                              delayText,
+                                                              style: const TextStyle(
+                                                                fontSize: 14,
+                                                                fontWeight: FontWeight.w600,
+                                                                color: Colors.redAccent,
+                                                                fontFamily: 'inter',
+                                                              ),
+                                                            ),
+                                                          ),
+                                                      ],
+                                                    ),
+                                                  );
+                                                },
+                                              );
                                             },
-                                            child: Container(
-                                              width: 10,
-                                              height: 10,
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                color: Colors.white,
-                                                border: Border.all(color: Colors.black, width: 2),
-                                              ),
-                                              alignment: Alignment.center,
-                                              child: Text(
-                                                index.toString(),
-                                                style: const TextStyle(
+                                            child: Opacity(
+                                              opacity: isDelayed ? 0.5 : 1.0,
+                                              child: Container(
+                                                width: 10,
+                                                height: 10,
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: Colors.white,
+                                                  border: Border.all(
+                                                    color: Colors.black,
+                                                    width: 2),
+                                                ),
+                                                alignment: Alignment.center,
+                                                child: Text(
+                                                  index.toString(),
+                                                  style: const TextStyle(
                                                     fontSize: 13,
                                                     fontWeight: FontWeight.bold,
-                                                    color: Colors.black),
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
                                               ),
                                             ),
                                           ),

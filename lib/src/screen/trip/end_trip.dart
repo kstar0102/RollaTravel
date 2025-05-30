@@ -54,7 +54,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
   List<Map<String, dynamic>> droppins = [];
   final GlobalKey mapKey = GlobalKey();
   final GlobalKey _shareWidgetKey = GlobalKey();
-
+  bool _isSharing = false; 
   @override
   void initState() {
     super.initState();
@@ -100,43 +100,82 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
   // }
 
   Future<void> _onShareClicked() async {
+    if (_isSharing) return;
+    setState(() => _isSharing = true);
     try {
-      final context = _shareWidgetKey.currentContext;
-      if (context == null) throw Exception("Share widget key context is null");
-      final boundary = context.findRenderObject() as RenderRepaintBoundary?;
-      if (boundary == null) throw Exception("Render object is null");
+      if (!mounted) return;
 
+      final boundaryContext = _shareWidgetKey.currentContext;
+      if (boundaryContext == null) {
+        _showErrorDialog("Cannot share: Widget not ready.");
+        return;
+      }
+
+      final boundary = boundaryContext.findRenderObject() as RenderRepaintBoundary?;
+      if (boundary == null) {
+        _showErrorDialog("Cannot share: Unable to capture content.");
+        return;
+      }
+
+      // Wait for rendering if needed
       if (boundary.debugNeedsPaint) {
-        await Future.delayed(const Duration(milliseconds: 20));
+        await Future.delayed(const Duration(milliseconds: 50));
         await WidgetsBinding.instance.endOfFrame;
       }
 
+      // Convert widget to image
       final image = await boundary.toImage(pixelRatio: 3.0);
       final byteData = await image.toByteData(format: ImageByteFormat.png);
-      if (byteData == null) throw Exception("Could not convert image to byte data");
+      if (byteData == null) {
+        _showErrorDialog("Failed to generate image.");
+        return;
+      }
 
       final pngBytes = byteData.buffer.asUint8List();
 
+      // Save to temporary file
       final tempDir = await getTemporaryDirectory();
-      final file = await File('${tempDir.path}/shared_polaroid.png').create();
+      final filePath = '${tempDir.path}/shared_polaroid_${DateTime.now().millisecondsSinceEpoch}.png';
+      final file = File(filePath);
+      
       await file.writeAsBytes(pngBytes);
 
-      try {
-        await Share.shareXFiles([XFile(file.path)]);
-      } catch (e) {
-        debugPrint("Sharing failed: $e");
-        rethrow;
-      }
+      final result = await Share.shareXFiles(
+        [XFile(file.path)],
+        subject: 'Rolla Travel trip!',
+        text: 'I just created a trip with Rolla Travel!',
+      );
+      logger.i("Share result: $result");
+
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to share: $e')),
-      );
+      _showErrorDialog("Sharing failed: ${e.toString().replaceAll('Exception: ', '')}");
+      logger.e("Sharing error: $e");
+    } finally {
+      if (mounted) setState(() => _isSharing = false);
     }
   }
 
+  void _showErrorDialog(String message) {
+    if (!mounted) return;
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Sharing Failed"),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("OK"),
+          ),
+        ],
+      ),
+    );
+  }
 
-   void _playListClicked () {
+
+  void _playListClicked () {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -151,10 +190,11 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
     return Scaffold(
       backgroundColor: kColorWhite,
       body: PopScope(
-          canPop: false,
+          canPop: !_isSharing, // Blocks pop when sharing is in progress
           onPopInvokedWithResult: (didPop, result) {
-            if (!didPop) {
-              return;
+            if (didPop) return;
+            if (_isSharing) {
+              _showErrorDialog("Please wait while sharing completes");
             }
           },
           child: SizedBox.expand(

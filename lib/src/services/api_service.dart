@@ -312,7 +312,7 @@ class ApiService {
       'key': apiKey,
       'image': base64,
     });
-    logger.i(jsonDecode(response.body)['data']['url']);
+    // logger.i(jsonDecode(response.body)['data']['url']);
     return jsonDecode(response.body)['data']['url'];
   }
 
@@ -587,7 +587,7 @@ class ApiService {
       'map_style' : mapstyle,
       'delay_time' : delayTime
     };
-    // logger.i(requestBody);
+    logger.i(requestBody);
 
     try {
       final response = await http.post(

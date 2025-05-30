@@ -273,7 +273,7 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
                   imagePath: widget.imagePath,
                   selectedLocation: _selectedLocation,
                 )));
-    logger.i("Selected location: $_selectedLocation");
+    // logger.i("Selected location: $_selectedLocation");
   }
 
   @override
@@ -325,11 +325,10 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
                                 hintText: "Search Locations",
                                 hintStyle: const TextStyle(
                                     fontSize: 15,
-                                    fontFamily:
-                                        'inter'), // Set font size for hint text
+                                    fontFamily:'inter'),
                                 contentPadding: const EdgeInsets.symmetric(
                                     vertical: 0.0,
-                                    horizontal: 16.0), // Set inner padding
+                                    horizontal: 16.0),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(4.0),
                                   borderSide: const BorderSide(
@@ -351,8 +350,7 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
                               style: const TextStyle(
                                   fontSize: 15,
                                   color: Colors.black,
-                                  fontFamily:
-                                      'inter'), // Set font size for input text
+                                  fontFamily:'inter'), 
                             ),
                             suggestionsCallback: (pattern) async {
                               return await fetchAddressSuggestions(pattern);
@@ -445,8 +443,7 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
                                   child: Column(
                                     children: [
                                       FloatingActionButton(
-                                        heroTag:
-                                            'zoom_in_button_otherlocation', // Unique tag for the zoom in button
+                                        heroTag:'zoom_in_button_otherlocation',
                                         onPressed: () {
                                           _mapController.move(
                                             _mapController.camera.center,
@@ -458,8 +455,7 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
                                       ),
                                       const SizedBox(height: 8),
                                       FloatingActionButton(
-                                        heroTag:
-                                            'zoom_out_button_otherlocation', // Unique tag for the zoom out button
+                                        heroTag:'zoom_out_button_otherlocation', 
                                         onPressed: () {
                                           _mapController.move(
                                             _mapController.camera.center,
@@ -477,17 +473,14 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
                                   left: 0,
                                   right: 0,
                                   child: Padding(
-                                    padding:
-                                        EdgeInsets.zero, // Adjust for width
+                                    padding:EdgeInsets.zero,
                                     child: Container(
                                       padding: const EdgeInsets.all(5.0),
-                                      color:
-                                          Colors.white.withValues(alpha: 0.5),
+                                      color:Colors.white.withValues(alpha: 0.5),
                                       child: Text(
                                         'Search or tap on the map where you want to \ndrop a pin',
                                         style: TextStyle(
-                                            color: Colors.black
-                                                .withValues(alpha: 0.9),
+                                            color: Colors.black.withValues(alpha: 0.9),
                                             fontSize: 14,
                                             letterSpacing: -0.43,
                                             fontFamily: 'inter'),
@@ -505,24 +498,16 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
                                       _onChooseLocation();
                                     },
                                     child: Container(
-                                      margin: const EdgeInsets.symmetric(
-                                          horizontal:
-                                              20), // Spacing from screen edges
-                                      padding: const EdgeInsets.all(
-                                          8.0), // Adjust padding for content
+                                      margin: const EdgeInsets.symmetric(horizontal:20), 
+                                      padding: const EdgeInsets.all(8.0), 
                                       decoration: BoxDecoration(
-                                        color: Colors.white.withValues(
-                                            alpha:
-                                                0.9), // Semi-transparent background
-                                        borderRadius: BorderRadius.circular(
-                                            8), // Rounded corners
+                                        color: Colors.white.withValues(alpha:0.9),
+                                        borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Text(
                                         'Choose this location',
                                         style: TextStyle(
-                                          color: Colors.black.withValues(
-                                              alpha:
-                                                  0.95), // Semi-transparent text color
+                                          color: Colors.black.withValues(alpha:0.95), 
                                           fontSize: 14,
                                           fontFamily: 'interBold',
                                         ),

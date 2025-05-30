@@ -2,8 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 import 'package:RollaTravel/src/utils/spinner_loader.dart';
+import 'package:RollaTravel/src/utils/trip_marker_provider.dart';
 import 'package:uuid/uuid.dart';
-import 'package:RollaTravel/main.dart';
+// import 'package:RollaTravel/main.dart';
 import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/screen/droppin/another_location_screen.dart';
 import 'package:RollaTravel/src/screen/droppin/choosen_location_screen.dart';
@@ -11,7 +12,7 @@ import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/utils/common.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:RollaTravel/src/utils/location.permission.dart';
-import 'package:RollaTravel/src/utils/stop_marker_provider.dart';
+// import 'package:RollaTravel/src/utils/stop_marker_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,7 +25,7 @@ import 'package:logger/logger.dart';
 import 'dart:async';
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:workmanager/workmanager.dart';
+// import 'package:workmanager/workmanager.dart';
 
 class SelectLocationScreen extends ConsumerStatefulWidget {
   final LatLng? selectedLocation;
@@ -213,34 +214,6 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
     );
   }
 
-  Future<void> scheduleTripUpload() async {
-    Duration delay;
-    switch (GlobalVariables.delaySetting) {
-      case 1:
-        delay = const Duration(minutes: 1);
-        break;
-      case 2:
-        delay = const Duration(hours: 2);
-        break;
-      case 3:
-        delay = const Duration(hours: 12);
-        break;
-      case 0:
-      default:
-        delay = Duration.zero;
-    }
-
-    await Workmanager().registerOneOffTask(
-      "uniqueTripUploadTaskId",
-      tripUploadTask,
-      initialDelay: delay,
-      constraints: Constraints(
-        networkType: NetworkType.connected,
-      ),
-    );
-  }
-
-
   Future<void> _dropPinButtonSelected() async {
     final apiserice = ApiService();
     final prefs = await SharedPreferences.getInstance();
@@ -259,12 +232,12 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
         isuploadingData = true;
       });
     } else {
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed upload image....'),
-        ),
-      );
+      if(!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed upload image....'),
+          ),
+        );
       return;
     }
 
@@ -275,20 +248,38 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
         (testlocation!.latitude == 0.0 && testlocation.longitude == 0.0)
             ? _currentLocation!
             : testlocation;
-
-    final markerData = MarkerData(
+    DateTime now = DateTime.now();
+    Duration delay;
+    switch (GlobalVariables.delaySetting) {
+      case 1:
+        delay = const Duration(minutes: 30);
+        break;
+      case 2:
+        delay = const Duration(hours: 2);
+        break;
+      case 3:
+        delay = const Duration(hours: 12);
+        break;
+      default:
+        delay = Duration.zero;
+    }
+    DateTime uploadTime = now.add(delay);
+    String formattedUploadTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(uploadTime);
+    
+    final markerData = TripMarkerData(
         location: selectedLocation,
         imagePath: imageUrl,
-        caption: widget.caption);
+        caption: widget.caption,
+        delayTime: formattedUploadTime);
 
-    ref.read(markersProvider.notifier).state = [
-      ...ref.read(markersProvider),
+    ref.read(tripMarkersProvider.notifier).state = [
+      ...ref.read(tripMarkersProvider),
       markerData,
     ];
 
     LatLng? startLocation = ref.read(staticStartingPointProvider);
     LatLng? endLocation = ref.read(movingLocationProvider);
-    List<MarkerData> stopMarkers = ref.read(markersProvider);
+    List<TripMarkerData> stopMarkers = ref.read(tripMarkersProvider);
     tripMiles = "${GlobalVariables.totalDistance.toStringAsFixed(3)} miles";
     if (startLocation != null) {
       startAddress = await Common.getAddressFromLocation(startLocation);
@@ -314,7 +305,6 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
       stopAddressesString = '[${formattedStopAddresses.join(', ')}]';
     }
 
-    DateTime now = DateTime.now();
     String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
 
     final tripCoordinates = ref
@@ -362,57 +352,57 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
       String formattedUploadTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(uploadTime);
 
 
-      // droppins = stopMarkers.asMap().entries.map((entry) {
-      //   final int index = entry.key + 1; 
-      //   final MarkerData marker = entry.value;
-
-      //   if (dropPinId != null && entry.key < dropcount!) {
-      //     final mapData = {
-      //       "id": currentDropId, 
-      //       "stop_index": index,
-      //       "image_path": marker.imagePath,
-      //       "image_caption": marker.caption,
-      //       "delay_time" : formattedUploadTime
-      //     };
-      //     currentDropId++; 
-      //     return mapData;
-      //   } else {
-      //     return {
-      //       "stop_index": index,
-      //       "image_path": marker.imagePath,
-      //       "image_caption": marker.caption,
-      //       "delay_time" : formattedUploadTime
-      //     };
-      //   }
-      // }).toList();
-
       droppins = stopMarkers.asMap().entries.map((entry) {
-        final int index = entry.key + 1;
-        final MarkerData marker = entry.value;
-        final bool isLast = entry.key == stopMarkers.length - 1;
+        final int index = entry.key + 1; 
+        final TripMarkerData marker = entry.value;
 
         if (dropPinId != null && entry.key < dropcount!) {
-          // For earlier entries before dropcount, no delay_time
-          return {
-            "id": currentDropId,
-            "stop_index": index,
-            "image_path": marker.imagePath,
-            "image_caption": marker.caption,
-          }..addAll(isLast ? {"delay_time": formattedUploadTime} : {});
-        } else {
-          // For entries at or after dropcount
           final mapData = {
+            "id": currentDropId, 
             "stop_index": index,
             "image_path": marker.imagePath,
             "image_caption": marker.caption,
+            "delay_time" : marker.delayTime
           };
-          if (isLast) {
-            mapData["delay_time"] = formattedUploadTime;
-          }
+          currentDropId++; 
           return mapData;
+        } else {
+          return {
+            "stop_index": index,
+            "image_path": marker.imagePath,
+            "image_caption": marker.caption,
+            "delay_time" : formattedUploadTime
+          };
         }
-        // currentDropId++; // increment only if used
       }).toList();
+
+      // droppins = stopMarkers.asMap().entries.map((entry) {
+      //   final int index = entry.key + 1;
+      //   final TripMarkerData marker = entry.value;
+      //   final bool isLast = entry.key == stopMarkers.length - 1;
+
+      //   if (dropPinId != null && entry.key < dropcount!) {
+      //     // For earlier entries before dropcount, no delay_time
+      //     return {
+      //       "id": currentDropId,
+      //       "stop_index": index,
+      //       "image_path": marker.imagePath,
+      //       "image_caption": marker.caption,
+      //     }..addAll(isLast ? {"delay_time": formattedUploadTime} : {});
+      //   } else {
+      //     // For entries at or after dropcount
+      //     final mapData = {
+      //       "stop_index": index,
+      //       "image_path": marker.imagePath,
+      //       "image_caption": marker.caption,
+      //     };
+      //     if (isLast) {
+      //       mapData["delay_time"] = formattedUploadTime;
+      //     }
+      //     return mapData;
+      //   }
+      //   // currentDropId++; // increment only if used
+      // }).toList();
       logger.i(droppins);
 
 
@@ -424,7 +414,6 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
       ];
 
       String arrangedSongs = songs.join(',');
-      
   
 
       if(GlobalVariables.delaySetting == 0) {
@@ -651,14 +640,16 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
 
       droppins = stopMarkers.asMap().entries.map((entry) {
         final int index = entry.key + 1;
-        final MarkerData marker = entry.value;
+        final TripMarkerData marker = entry.value;
         return {
           "stop_index": index,
           "image_path": marker.imagePath,
-          "image_caption": marker.caption,
+          "image_caption": widget.caption,
           "delay_time" : formattedUploadTime
         };
       }).toList();
+      logger.i(droppins);
+      logger.i(stopLocations);
 
       List<String> songs = [
         if (GlobalVariables.song1?.isNotEmpty ?? false) GlobalVariables.song1!,
