@@ -26,9 +26,10 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
   bool _isCapturing = false;
   bool _isCameraInitialized = false;
   FlashMode _currentFlashMode = FlashMode.off;
-  DateTime _lastFlashChange = DateTime.now();
-  bool _flashLocked = false;
-  bool _isReadyToDisplay = false;
+  FlashMode _userFlashMode = FlashMode.off; // default: OFF
+  // DateTime _lastFlashChange = DateTime.now();
+  // bool _flashLocked = false;
+  // bool _isReadyToDisplay = false;
 
 
   @override
@@ -119,8 +120,8 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
         _initializeControllerFuture = _cameraController!.initialize();
         await _initializeControllerFuture;
         await _cameraController!.setFlashMode(FlashMode.off);
-        _currentFlashMode = FlashMode.off;
-        await _cameraController!.startImageStream(_processCameraImage);
+        // _currentFlashMode = FlashMode.off;
+        // await _cameraController!.startImageStream(_processCameraImage);
         setState(() {
           _isCameraInitialized = true;
         });
@@ -133,53 +134,53 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
     }
   }
 
-  void _processCameraImage(CameraImage image) {
-    if (_isReadyToDisplay) return; // already processed
+  // void _processCameraImage(CameraImage image) {
+  //   if (_isReadyToDisplay) return; // already processed
 
-    final bytes = image.planes[0].bytes;
-    int sumBrightness = 0;
+  //   final bytes = image.planes[0].bytes;
+  //   int sumBrightness = 0;
 
-    for (var byte in bytes) {
-      sumBrightness += byte;
-    }
+  //   for (var byte in bytes) {
+  //     sumBrightness += byte;
+  //   }
 
-    final avgBrightness = sumBrightness / bytes.length;
-    final now = DateTime.now();
+  //   final avgBrightness = sumBrightness / bytes.length;
+  //   final now = DateTime.now();
 
-    // Debounce
-    if (now.difference(_lastFlashChange).inMilliseconds < 3000) return;
+  //   // Debounce
+  //   if (now.difference(_lastFlashChange).inMilliseconds < 3000) return;
 
-    const onThreshold = 45.0;
-    const offThreshold = 60.0;
+  //   const onThreshold = 45.0;
+  //   const offThreshold = 60.0;
 
-    if (_flashLocked) return;
+  //   if (_flashLocked) return;
 
-    if (avgBrightness < onThreshold && _currentFlashMode != FlashMode.torch) {
-      _cameraController?.setFlashMode(FlashMode.torch);
-      setState(() {
-        _currentFlashMode = FlashMode.torch;
-        _flashLocked = true;
-        _isReadyToDisplay = true; // ✅ Ready to show UI
-      });
-      _lastFlashChange = now;
+  //   if (avgBrightness < onThreshold && _currentFlashMode != FlashMode.torch) {
+  //     _cameraController?.setFlashMode(FlashMode.torch);
+  //     setState(() {
+  //       _currentFlashMode = FlashMode.torch;
+  //       _flashLocked = true;
+  //       _isReadyToDisplay = true; // ✅ Ready to show UI
+  //     });
+  //     _lastFlashChange = now;
 
-      Timer(const Duration(seconds: 15), () {
-        if (mounted) {
-          setState(() => _flashLocked = false);
-        }
-      });
-    } else if (avgBrightness > offThreshold && _currentFlashMode != FlashMode.off) {
-      _cameraController?.setFlashMode(FlashMode.off);
-      setState(() {
-        _currentFlashMode = FlashMode.off;
-        _isReadyToDisplay = true; // ✅ Ready to show UI
-      });
-      _lastFlashChange = now;
-    } else {
-      // if brightness is in between thresholds, still unlock view
-      setState(() => _isReadyToDisplay = true); // ✅ Show anyway
-    }
-  }
+  //     Timer(const Duration(seconds: 30), () {
+  //       if (mounted) {
+  //         setState(() => _flashLocked = false);
+  //       }
+  //     });
+  //   } else if (avgBrightness > offThreshold && _currentFlashMode != FlashMode.off) {
+  //     _cameraController?.setFlashMode(FlashMode.off);
+  //     setState(() {
+  //       _currentFlashMode = FlashMode.off;
+  //       _isReadyToDisplay = true; // ✅ Ready to show UI
+  //     });
+  //     _lastFlashChange = now;
+  //   } else {
+  //     // if brightness is in between thresholds, still unlock view
+  //     setState(() => _isReadyToDisplay = true); // ✅ Show anyway
+  //   }
+  // }
 
 
   Future<void> _capturePhoto() async {
@@ -237,20 +238,21 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
 
   Future<void> _toggleFlash() async {
     if (_cameraController == null) return;
-    FlashMode newFlashMode;
-    if (_currentFlashMode == FlashMode.auto) {
-      newFlashMode = FlashMode.always;
-    } else if (_currentFlashMode == FlashMode.always) {
-      newFlashMode = FlashMode.off;
-    } else {
-      newFlashMode = FlashMode.auto;
-    }
-    await _cameraController!.setFlashMode(newFlashMode);
+
+    FlashMode newMode = (_userFlashMode == FlashMode.off)
+        ? FlashMode.always
+        : FlashMode.off;
+
+    _userFlashMode = newMode;
+    await _cameraController!.setFlashMode(_userFlashMode);
+
     setState(() {
-      _currentFlashMode = newFlashMode;
+      _currentFlashMode = _userFlashMode;
     });
-    logger.i("⚡ Flash mode set to: $_currentFlashMode");
+
+    logger.i("🔦 Flash set to: $_userFlashMode");
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -303,9 +305,7 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
                         width: double.infinity,
                         height: double.infinity,
                       ),
-                      if (!_isReadyToDisplay)
-                        const Center(child: SpinningLoader())
-                      else if (_isCameraInitialized)
+                       if (_isCameraInitialized)
                         CameraPreview(_cameraController!)
                       else
                         const Center(child: SpinningLoader()),
@@ -331,11 +331,9 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
                         right: 20,
                         child: IconButton(
                           icon: Icon(
-                            _currentFlashMode == FlashMode.auto
-                                ? Icons.flash_auto
-                                : _currentFlashMode == FlashMode.always
-                                    ? Icons.flash_on
-                                    : Icons.flash_off,
+                            _currentFlashMode == FlashMode.always
+                                ? Icons.flash_on
+                                : Icons.flash_off,
                             color: Colors.white,
                             size: 30,
                           ),

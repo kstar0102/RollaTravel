@@ -42,57 +42,55 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Future<void> _followedTrips() async {
-    try {
-      final blockUsers =
-          await apiService.fetchBlockUsers(GlobalVariables.userId!);
-      // logger.i(blockUsers);
-      final blockedUserIds = blockUsers.isEmpty
-          ? <String>{}
-          : blockUsers.map((user) => user['id'].toString()).toSet();
-      final data = await apiService.fetchFollowerTrip(GlobalVariables.userId!);
-      final currentUserId = GlobalVariables.userId.toString();
-      final now = DateTime.now();
+  try {
+    final blockUsers = await apiService.fetchBlockUsers(GlobalVariables.userId!);
+    final blockedUserIds = blockUsers.isEmpty
+        ? <String>{}
+        : blockUsers.map((user) => user['id'].toString()).toSet();
 
-      final filteredTrips = data.where((trip) {
-        final user = trip['user'];
-        final userId = user['id'].toString();
-        if (blockedUserIds.contains(userId)) {
-          return false;
+    final data = await apiService.fetchFollowerTrip(GlobalVariables.userId!);
+    final currentUserId = GlobalVariables.userId.toString();
+    final now = DateTime.now();
+
+    final filteredTrips = data.where((trip) {
+      final user = trip['user'];
+      final userId = user['id'].toString();
+      if (blockedUserIds.contains(userId)) return false;
+
+      final mutedIds = trip['muted_ids']?.split(',') ?? [];
+      if (mutedIds.contains(currentUserId)) return false;
+
+      // ✅ Keep only if at least one droppin is visible now
+      final droppins = trip['droppins'] as List<dynamic>? ?? [];
+      final hasVisibleDroppin = droppins.any((droppin) {
+        final delayTimeStr = droppin['deley_time'];
+        if (delayTimeStr == null || delayTimeStr.isEmpty) {
+          return true;
         }
-        final mutedIds = trip['muted_ids']?.split(',') ?? [];
-        if (mutedIds.contains(currentUserId)) {
-          return false;
-        }
-        // Check droppins for future deley_time
-        final droppins = trip['droppins'] as List<dynamic>? ?? [];
-        for (final droppin in droppins) {
-          final delayTimeStr = droppin['deley_time'];
-          if (delayTimeStr != null && delayTimeStr.isNotEmpty) {
-            final delayTime = DateTime.tryParse(delayTimeStr);
-            if (delayTime != null && delayTime.isAfter(now)) {
-              return false; // Exclude trip
-            }
-          }
-        }
-        return true;
-      }).toList();
-      setState(() {
-        trips = filteredTrips.reversed.toList();
+        final delayTime = DateTime.tryParse(delayTimeStr);
+        return delayTime == null || !delayTime.isAfter(now);
       });
-      // logger.i(trips);
 
-      if (GlobalVariables.homeTripID != null) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _scrollToTrip(GlobalVariables.homeTripID!);
-        });
-      }
-    } catch (error) {
-      logger.i('Error fetching trips: $error');
-      setState(() {
-        trips = [];
+      return hasVisibleDroppin;
+    }).toList();
+
+    setState(() {
+      trips = filteredTrips.reversed.toList();
+    });
+
+    if (GlobalVariables.homeTripID != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollToTrip(GlobalVariables.homeTripID!);
       });
     }
+  } catch (error) {
+    logger.i('Error fetching trips: $error');
+    setState(() {
+      trips = [];
+    });
   }
+}
+
 
   void _scrollToTrip(int tripId) {
     if (trips != null) {

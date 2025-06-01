@@ -1096,7 +1096,7 @@ class PostWidgetState extends State<PostWidget> {
                           radius: 10,
                           backgroundColor: Colors.white,
                           child: Text(
-                            '${index + 1}',
+                            droppin['stop_index'].toString(),
                             style: const TextStyle(
                               color: Colors.black,
                               fontFamily: 'inter',

@@ -1047,11 +1047,11 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     const Text(
                                       mygarage,
                                       style: TextStyle(
-                                        color: kColorBlack,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                        letterSpacing: -0.1,
-                                        fontFamily: 'inter'),
+                                          color: kColorBlack,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: -0.1,
+                                          fontFamily: 'inter'),
                                     ),
                                     garageImageUrl != null
                                         ? Image.network(
