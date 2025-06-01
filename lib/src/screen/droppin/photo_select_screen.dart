@@ -25,7 +25,7 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
   final ImagePicker _picker = ImagePicker();
   bool _isCapturing = false;
   bool _isCameraInitialized = false;
-  FlashMode _currentFlashMode = FlashMode.off;
+  // FlashMode _currentFlashMode = FlashMode.off;
   FlashMode _userFlashMode = FlashMode.off; // default: OFF
   // DateTime _lastFlashChange = DateTime.now();
   // bool _flashLocked = false;
@@ -191,6 +191,11 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
     setState(() => _isCapturing = true);
     try {
       await _initializeControllerFuture;
+      if (_userFlashMode == FlashMode.always) {
+        await _cameraController!.setFlashMode(FlashMode.torch);
+        await Future.delayed(
+            const Duration(milliseconds: 300)); // allow exposure
+      }
       await _cameraController!.setFocusMode(FocusMode.locked);
       await _cameraController!.setExposureMode(ExposureMode.locked);
       final image = await _cameraController!.takePicture();
@@ -210,6 +215,14 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
     } finally {
       setState(() => _isCapturing = false);
     }
+  }
+
+  Future<void> _toggleFlash() async {
+    setState(() {
+      _userFlashMode =
+          (_userFlashMode == FlashMode.off) ? FlashMode.always : FlashMode.off;
+    });
+    logger.i("🔦 Flash mode toggled to: $_userFlashMode");
   }
 
   Future<void> _pickImageFromGallery() async {
@@ -234,21 +247,21 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
     }
   }
 
-  Future<void> _toggleFlash() async {
-    if (_cameraController == null) return;
+  // Future<void> _toggleFlash() async {
+  //   if (_cameraController == null) return;
 
-    FlashMode newMode =
-        (_userFlashMode == FlashMode.off) ? FlashMode.torch : FlashMode.off;
+  //   FlashMode newMode =
+  //       (_userFlashMode == FlashMode.off) ? FlashMode.torch : FlashMode.off;
 
-    _userFlashMode = newMode;
-    await _cameraController!.setFlashMode(_userFlashMode);
+  //   _userFlashMode = newMode;
+  //   await _cameraController!.setFlashMode(_userFlashMode);
 
-    setState(() {
-      _currentFlashMode = _userFlashMode;
-    });
+  //   setState(() {
+  //     _currentFlashMode = _userFlashMode;
+  //   });
 
-    logger.i("🔦 Flash set to: $_userFlashMode");
-  }
+  //   logger.i("🔦 Flash set to: $_userFlashMode");
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -327,7 +340,7 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
                         right: 20,
                         child: IconButton(
                           icon: Icon(
-                            _currentFlashMode == FlashMode.always
+                            _userFlashMode == FlashMode.always
                                 ? Icons.flash_on
                                 : Icons.flash_off,
                             color: Colors.white,
