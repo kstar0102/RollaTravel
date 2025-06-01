@@ -31,7 +31,6 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
   // bool _flashLocked = false;
   // bool _isReadyToDisplay = false;
 
-
   @override
   void initState() {
     super.initState();
@@ -182,7 +181,6 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
   //   }
   // }
 
-
   Future<void> _capturePhoto() async {
     if (_isCapturing ||
         _cameraController == null ||
@@ -239,9 +237,8 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
   Future<void> _toggleFlash() async {
     if (_cameraController == null) return;
 
-    FlashMode newMode = (_userFlashMode == FlashMode.off)
-        ? FlashMode.always
-        : FlashMode.off;
+    FlashMode newMode =
+        (_userFlashMode == FlashMode.off) ? FlashMode.torch : FlashMode.off;
 
     _userFlashMode = newMode;
     await _cameraController!.setFlashMode(_userFlashMode);
@@ -252,7 +249,6 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
 
     logger.i("🔦 Flash set to: $_userFlashMode");
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -305,7 +301,7 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
                         width: double.infinity,
                         height: double.infinity,
                       ),
-                       if (_isCameraInitialized)
+                      if (_isCameraInitialized)
                         CameraPreview(_cameraController!)
                       else
                         const Center(child: SpinningLoader()),

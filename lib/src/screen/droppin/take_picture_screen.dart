@@ -1,4 +1,5 @@
 import 'package:RollaTravel/src/constants/app_styles.dart';
+import 'package:RollaTravel/src/screen/droppin/photo_select_screen.dart';
 import 'package:RollaTravel/src/screen/droppin/select_locaiton_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -78,13 +79,20 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Image.asset('assets/images/icons/logo.png',
-                          width: 90,
-                          height: 80,),
+                      Image.asset(
+                        'assets/images/icons/logo.png',
+                        width: 90,
+                        height: 80,
+                      ),
                       IconButton(
                         icon: const Icon(Icons.close, size: 30),
                         onPressed: () {
-                          Navigator.of(context).pop(); // Close the screen
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    const PhotoSelectScreen()),
+                          );
                         },
                       ),
                     ],
@@ -129,10 +137,13 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
                                 maxLines: 2,
                                 decoration: InputDecoration(
                                   hintText: 'Caption...',
-                                  hintStyle: const TextStyle(fontFamily: 'inter'),
+                                  hintStyle:
+                                      const TextStyle(fontFamily: 'inter'),
                                   filled: true,
-                                  fillColor: Colors.white.withValues(alpha: 0.95),
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                  fillColor:
+                                      Colors.white.withValues(alpha: 0.95),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 8),
                                 ),
                                 style: const TextStyle(fontFamily: 'inter'),
                               ),
@@ -227,8 +238,8 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.grey.withValues(alpha: 0.6), 
-                            offset: const Offset(0, 5),           
+                            color: Colors.grey.withValues(alpha: 0.6),
+                            offset: const Offset(0, 5),
                             blurRadius: 10,
                             spreadRadius: -2,
                           ),
@@ -243,7 +254,7 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          elevation: 0, 
+                          elevation: 0,
                         ),
                         child: const Text(
                           'Select Location',
@@ -258,7 +269,6 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
                       ),
                     ),
                   ),
-
                 ),
                 const SizedBox(height: 16),
               ],
