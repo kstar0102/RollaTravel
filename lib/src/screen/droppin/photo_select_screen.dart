@@ -218,6 +218,8 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
       final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
       if (pickedFile != null) {
         logger.i('📷 Image selected from gallery: ${pickedFile.path}');
+        // ✅ Immediately turn off flash before navigation
+        await _cameraController!.setFlashMode(FlashMode.off);
         if (mounted) {
           Navigator.push(
             context,
