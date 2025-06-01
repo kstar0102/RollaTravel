@@ -163,7 +163,7 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
       });
       _lastFlashChange = now;
 
-      Timer(const Duration(seconds: 30), () {
+      Timer(const Duration(seconds: 15), () {
         if (mounted) {
           setState(() => _flashLocked = false);
         }

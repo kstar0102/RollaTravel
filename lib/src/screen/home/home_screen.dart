@@ -43,7 +43,8 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
 
   Future<void> _followedTrips() async {
     try {
-      final blockUsers = await apiService.fetchBlockUsers(GlobalVariables.userId!);
+      final blockUsers =
+          await apiService.fetchBlockUsers(GlobalVariables.userId!);
       // logger.i(blockUsers);
       final blockedUserIds = blockUsers.isEmpty
           ? <String>{}
@@ -76,7 +77,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
         return true;
       }).toList();
       setState(() {
-         trips = filteredTrips.reversed.toList();
+        trips = filteredTrips.reversed.toList();
       });
       // logger.i(trips);
 
@@ -168,20 +169,19 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
                     width: 90,
                     height: 80,
                   ),
-                  const Spacer(), 
+                  const Spacer(),
                   Center(
                     child: Image.asset(
                       'assets/images/icons/notification.png',
                       width: vww(context, 4),
                     ),
                   ),
-                  const Spacer(), 
+                  const Spacer(),
                   IconButton(
-                      icon: const Icon(Icons.close, color: Colors.white),
-                      iconSize: 45.0,
-                      onPressed: () {
-                      },
-                    ),
+                    icon: const Icon(Icons.close, color: Colors.white),
+                    iconSize: 45.0,
+                    onPressed: () {},
+                  ),
                 ],
               ),
               const Padding(
@@ -220,4 +220,3 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 }
-
