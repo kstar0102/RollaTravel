@@ -675,7 +675,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   const Text(
-                                    happy_place,
+                                    happyplace,
                                     style: TextStyle(
                                       color: kColorBlack,
                                       fontSize: 14,
@@ -696,7 +696,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   const Text(
-                                    my_garage,
+                                    mygarage,
                                     style: TextStyle(
                                       color: kColorBlack,
                                       fontSize: 14,

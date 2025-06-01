@@ -1,4 +1,4 @@
-import 'package:RollaTravel/src/constants/app_styles.dart';
+
 import 'package:RollaTravel/src/screen/home/home_user_screen.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/utils/index.dart';
@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
 import 'package:logger/logger.dart';
+import 'package:RollaTravel/src/constants/app_styles.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});

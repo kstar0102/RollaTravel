@@ -329,7 +329,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                             // Spacer to center the "Edit Profile" text
                             const Spacer(),
                             const Text(
-                              edit_profile,
+                              editprofile,
                               style: TextStyle(
                                   color: kColorBlack,
                                   fontSize: 22,
@@ -419,7 +419,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const Text(
-                                  edit_profile_username,
+                                  editprofileusername,
                                   style: TextStyle(
                                       color: kColorGrey,
                                       fontSize: 14,
@@ -462,7 +462,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const Text(
-                                  edit_profile_name,
+                                  editprofilename,
                                   style: TextStyle(
                                       color: kColorGrey,
                                       fontSize: 14,
@@ -471,24 +471,21 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                       fontFamily: 'inter'),
                                 ),
                                 SizedBox(
-                                  width: 200, // Adjust width as needed
+                                  width: 200,
                                   height: 25,
                                   child: TextField(
                                     controller: nameController,
                                     textAlign: TextAlign.right,
-                                    maxLines: 1, // Restrict to a single line
+                                    maxLines: 1,
                                     maxLength: 20,
                                     decoration: const InputDecoration(
-                                      border:
-                                          InputBorder.none, // Remove underline
+                                      border: InputBorder.none,
                                       contentPadding:
                                           EdgeInsets.only(bottom: 14),
-                                      counterText:
-                                          '', // Removes the counter text (10/10)
+                                      counterText: '', 
                                     ),
                                     style: const TextStyle(
-                                        color: Colors
-                                            .black, // Replace with kColorBlack
+                                        color: Colors.black, 
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
                                         letterSpacing: -0.1,
@@ -505,7 +502,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const Text(
-                                  edit_profile_bio,
+                                  editprofilebio,
                                   style: TextStyle(
                                       color: kColorGrey,
                                       fontSize: 14,
@@ -557,7 +554,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const Text(
-                                  edit_profile_garage,
+                                  editprofilegarage,
                                   style: TextStyle(
                                       color: kColorGrey,
                                       fontSize: 14,
@@ -594,7 +591,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const Text(
-                                  edit_profile_happy_place,
+                                  editprofilehappyplace,
                                   style: TextStyle(
                                       color: kColorGrey,
                                       fontSize: 14,

@@ -282,23 +282,19 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                                 BorderSide(color: kColorBlack, width: 1.5),
                           ),
                           errorText: passwordError,
-                          hintText: password_title,
+                          hintText: passwordtitle,
                           hintStyle: const TextStyle(
                               color: kColorGrey,
                               fontSize: 14,
                               fontFamily: 'inter'),
                           contentPadding: const EdgeInsets.only(
-                            top: -8, // Push hint closer to the top
-                            bottom:
-                                -5, // Reduce space between text and underline
+                            top: -8, 
+                            bottom: -5,
                           ),
                           errorStyle: const TextStyle(
-                              color:
-                                  Colors.red, // Customize error message color
-                              fontSize:
-                                  12, // Reduce font size of the error message
-                              height:
-                                  0.5, // Adjust line height for tighter spacing
+                              color: Colors.red, 
+                              fontSize: 12,
+                              height: 0.5, 
                               fontFamily: 'inter'),
                           counterText: '',
                         ),
@@ -310,7 +306,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                             } else if (value.isEmpty) {
                               passwordError = "Password is required";
                             } else {
-                              passwordError = null; // No error
+                              passwordError = null;
                             }
                           });
                         },
@@ -339,23 +335,19 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                                 BorderSide(color: kColorBlack, width: 1.5),
                           ),
                           errorText: rePasswordError,
-                          hintText: re_enter_password,
+                          hintText: reenterpassword,
                           hintStyle: const TextStyle(
                               color: kColorGrey,
                               fontSize: 14,
                               fontFamily: 'inter'),
                           contentPadding: const EdgeInsets.only(
-                            top: -8, // Push hint closer to the top
-                            bottom:
-                                -5, // Reduce space between text and underline
+                            top: -8,
+                            bottom: -5, 
                           ),
                           errorStyle: const TextStyle(
-                              color:
-                                  Colors.red, // Customize error message color
-                              fontSize:
-                                  12, // Reduce font size of the error message
-                              height:
-                                  0.5, // Adjust line height for tighter spacing
+                              color: Colors.red,
+                              fontSize: 12,
+                              height:0.5, 
                               fontFamily: 'inter'),
                           counterText: '',
                         ),
@@ -370,7 +362,7 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                               rePasswordError =
                                   'Re-enter password is required.';
                             } else {
-                              rePasswordError = null; // No error
+                              rePasswordError = null; 
                             }
                           });
                         },
@@ -388,29 +380,24 @@ class _SignupStep2ScreenState extends ConsumerState<SignupStep2Screen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            how_did_you_hear,
-                            style: TextStyle(
-                                fontSize: 14, fontFamily: 'interBold'),
+                            howdidyouhear,
+                            style: TextStyle(fontSize: 14, fontFamily: 'interBold'),
                           ),
                           SizedBox(height: vhh(context, 1)),
                           RadioListTile<String>(
                             controlAffinity: ListTileControlAffinity.trailing,
-                            contentPadding:
-                                EdgeInsets.zero, // Remove extra padding
+                            contentPadding: EdgeInsets.zero, 
                             visualDensity: const VisualDensity(
                                 horizontal: -4,
-                                vertical:
-                                    -4), // Adjust density to reduce spacing
+                                vertical: -4),
                             title: const Padding(
-                              padding: EdgeInsets.only(
-                                  left:
-                                      20), // Indent the text by approximately 10 inches
+                              padding: EdgeInsets.only(left:20),
                               child: Text(
-                                i_saw_ad,
+                                isawad,
                                 style: TextStyle(fontFamily: 'inter'),
                               ),
                             ),
-                            value: i_saw_ad,
+                            value: isawad,
                             groupValue: _selectedOption,
                             onChanged: (value) {
                               setState(() {

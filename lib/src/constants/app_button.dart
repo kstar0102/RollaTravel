@@ -38,16 +38,16 @@ class _ButtonWidgetState extends State<ButtonWidget> {
     String btnTitle;
     switch (widget.btnType) {
       case ButtonWidgetType.loginText:
-        btnTitle = login_title;
+        btnTitle = logintitle;
         break;
       case ButtonWidgetType.continueText:
-        btnTitle = continue_text;
+        btnTitle = continuetext;
         break;
       case ButtonWidgetType.createAccountTitle:
-        btnTitle = create_account;
+        btnTitle = createaccount;
         break;
       case ButtonWidgetType.editProfileText:
-        btnTitle = edit_profile;
+        btnTitle = editprofile;
         break;
       case ButtonWidgetType.followingText:
         btnTitle = following;
@@ -56,10 +56,10 @@ class _ButtonWidgetState extends State<ButtonWidget> {
         btnTitle = settings;
         break;
       case ButtonWidgetType.startTripTitle:
-        btnTitle = start_trip;
+        btnTitle = starttrip;
         break;
       case ButtonWidgetType.endTripTitle:
-        btnTitle = end_trip;
+        btnTitle = endtrip;
         break;
       // default:
       //   btnTitle = "unknow";

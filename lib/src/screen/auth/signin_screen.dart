@@ -264,7 +264,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                                 borderSide:
                                     BorderSide(color: kColorBlack, width: 1.5),
                               ),
-                              hintText: user_name,
+                              hintText: username,
                               errorText: (usernameError != null &&
                                       usernameError!.isNotEmpty)
                                   ? usernameError
@@ -314,7 +314,7 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                                 borderSide:
                                     BorderSide(color: kColorBlack, width: 1.5),
                               ),
-                              hintText: password_title,
+                              hintText: passwordtitle,
                               errorText: (passwordError != null &&
                                       passwordError!.isNotEmpty)
                                   ? passwordError
@@ -376,21 +376,21 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
                             TextSpan(
                               children: [
                                 const TextSpan(
-                                  text: dont_have_account,
+                                  text: donthaveaccount,
                                   style: TextStyle(
                                       color: kColorGrey,
                                       fontSize: 14,
                                       fontFamily: 'inter'),
                                 ),
                                 TextSpan(
-                                  text: here_title,
+                                  text: heretitle,
                                   style: const TextStyle(
-                                      color: kColorHereButton,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      decoration: TextDecoration.underline,
-                                      decorationColor: kColorHereButton,
-                                      fontFamily: 'inter'),
+                                    color: kColorHereButton,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: kColorHereButton,
+                                    fontFamily: 'inter'),
                                   recognizer: TapGestureRecognizer()
                                     ..onTap = () {
                                       Navigator.push(

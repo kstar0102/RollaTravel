@@ -1088,7 +1088,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                               }
                             },
                             child: const Text(
-                              edit_playlist,
+                              editplaylist,
                               style: TextStyle(
                                   color: kColorButtonPrimary,
                                   fontSize: 13,
@@ -1242,15 +1242,17 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                                               .remainder(60);
                                                       delayText =
                                                           "Will be posted in ";
-                                                      if (hours > 0)
+                                                      if (hours > 0) {
                                                         delayText +=
                                                             "$hours hour${hours > 1 ? 's' : ''}";
-                                                      if (hours > 0 &&
-                                                          minutes > 0)
+                                                      }
+                                                      if (hours > 0 && minutes > 0) {
                                                         delayText += " and ";
-                                                      if (minutes > 0)
+                                                      }
+                                                      if (minutes > 0) {
                                                         delayText +=
                                                             "$minutes minute${minutes > 1 ? 's' : ''}";
+                                                      }
                                                     }
                                                   } catch (_) {
                                                     delayText = "";

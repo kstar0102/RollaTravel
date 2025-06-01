@@ -203,7 +203,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const Text(
-                                private_account,
+                                privateaccount,
                                 style: TextStyle(
                                   fontSize: 16,
                                   letterSpacing: -0.1,
@@ -212,7 +212,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               ),
                               SizedBox(height: vhh(context, 1)),
                               Text(
-                                private_account_descrition,
+                                privateaccountdescrition,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 13,
@@ -324,7 +324,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           children: [
                             Flexible(
                               child: Text(
-                                logout_description,
+                                logoutdescription,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   color: Colors.grey[600],
@@ -350,7 +350,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                       "Are you sure you want to delete your account?");
                               },
                               child: const Text(
-                                delete_account,
+                                deleteaccount,
                                 style: TextStyle(
                                   fontSize: 16,
                                   decoration: TextDecoration.underline,
@@ -366,7 +366,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           children: [
                             Flexible(
                               child: Text(
-                                delete_description,
+                                deletedescription,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   color: Colors.grey[600],

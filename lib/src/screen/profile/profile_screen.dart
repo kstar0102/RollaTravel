@@ -1020,7 +1020,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     const Text(
-                                      happy_place,
+                                      happyplace,
                                       style: TextStyle(
                                           color: kColorBlack,
                                           fontSize: 14,
@@ -1045,13 +1045,13 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     const Text(
-                                      my_garage,
+                                      mygarage,
                                       style: TextStyle(
-                                          color: kColorBlack,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                          letterSpacing: -0.1,
-                                          fontFamily: 'inter'),
+                                        color: kColorBlack,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: -0.1,
+                                        fontFamily: 'inter'),
                                     ),
                                     garageImageUrl != null
                                         ? Image.network(

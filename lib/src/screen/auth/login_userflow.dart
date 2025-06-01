@@ -78,7 +78,7 @@ class _LoginUserFlowScreenState extends ConsumerState<LoginUserFlowScreen> {
                           height: vhh(context, 2),
                         ),
                         const Text(
-                          how_to_create_post,
+                          howtocreatepost,
                           style: TextStyle(
                               color: kColorGrey,
                               fontSize: 16,

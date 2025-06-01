@@ -105,10 +105,10 @@ class BottomNavBar extends ConsumerWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  buildTab(context, ref, bottom_home, 0, customfontSize),
-                  buildTab(context, ref, bottom_search, 1, customfontSize),
+                  buildTab(context, ref, bottomhome, 0, customfontSize),
+                  buildTab(context, ref, bottomsearch, 1, customfontSize),
                   buildCarTab(context, ref, 2),
-                  buildTab(context, ref, bottom_drop_pin, 3,customfontSize),
+                  buildTab(context, ref, bottomdroppin, 3,customfontSize),
                   buildProfileTab(context, ref, 4),
                 ],
               ),
