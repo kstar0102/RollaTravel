@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:RollaTravel/src/screen/droppin/take_picture_screen.dart';
 import 'package:RollaTravel/src/utils/index.dart';
 import 'package:RollaTravel/src/utils/spinner_loader.dart';
@@ -24,6 +26,8 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
   bool _isCapturing = false;
   bool _isCameraInitialized = false;
   FlashMode _currentFlashMode = FlashMode.off;
+  DateTime _lastFlashChange = DateTime.now();
+  bool _flashLocked = false;
 
   @override
   void initState() {
@@ -31,7 +35,6 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkCameraPermission();
     });
-    
   }
 
   Future<void> _checkCameraPermission() async {
@@ -131,42 +134,70 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
   void _processCameraImage(CameraImage image) {
     final bytes = image.planes[0].bytes;
     int sumBrightness = 0;
+
     for (var byte in bytes) {
       sumBrightness += byte;
     }
+
     final avgBrightness = sumBrightness / bytes.length;
-    const threshold = 50;
-    if (avgBrightness < threshold && _currentFlashMode != FlashMode.auto) {
-      _cameraController?.setFlashMode(FlashMode.auto);
+    final now = DateTime.now();
+
+    // Debounce: prevent changes too often
+    if (now.difference(_lastFlashChange).inMilliseconds < 3000) return;
+
+    // Thresholds
+    const onThreshold = 45.0;
+    const offThreshold = 60.0;
+
+    // If already locked, skip turning off the torch
+    if (_flashLocked) {
+      logger.i("Flash is locked. Skipping changes. Brightness: $avgBrightness");
+      return;
+    }
+
+    if (avgBrightness < onThreshold && _currentFlashMode != FlashMode.torch) {
+      _cameraController?.setFlashMode(FlashMode.torch);
       setState(() {
-        _currentFlashMode = FlashMode.auto;
+        _currentFlashMode = FlashMode.torch;
+        _flashLocked = true;
       });
-      logger.i("Flash mode set to auto due to low brightness: $avgBrightness");
-    } else if (avgBrightness >= threshold && _currentFlashMode != FlashMode.off) {
+      _lastFlashChange = now;
+      logger.i("Flash mode set to torch due to low brightness: $avgBrightness");
+
+      // Lock flash for 10 seconds before allowing changes again
+      Timer(const Duration(seconds: 30), () {
+        setState(() {
+          _flashLocked = false;
+        });
+        logger.i("Flash lock released");
+      });
+    } else if (avgBrightness > offThreshold &&
+        _currentFlashMode != FlashMode.off) {
       _cameraController?.setFlashMode(FlashMode.off);
       setState(() {
         _currentFlashMode = FlashMode.off;
       });
-      logger.i("Flash mode set to off due to sufficient brightness: $avgBrightness");
+      _lastFlashChange = now;
+      logger.i(
+          "Flash mode set to off due to sufficient brightness: $avgBrightness");
     }
   }
-
 
   Future<void> _capturePhoto() async {
     if (_isCapturing ||
         _cameraController == null ||
         !_cameraController!.value.isInitialized) {
       logger.e("🚨 Camera not ready");
-      return; 
+      return;
     }
-    setState(() => _isCapturing = true); 
+    setState(() => _isCapturing = true);
     try {
-      await _initializeControllerFuture; 
+      await _initializeControllerFuture;
       await _cameraController!.setFocusMode(FocusMode.locked);
       await _cameraController!.setExposureMode(ExposureMode.locked);
       final image = await _cameraController!.takePicture();
       logger.i('📸 Image captured at: ${image.path}');
-      await _cameraController?.setFlashMode(FlashMode.off); 
+      await _cameraController?.setFlashMode(FlashMode.off);
       if (mounted) {
         Navigator.push(
           context,
@@ -239,13 +270,19 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
               SizedBox(height: vhh(context, 5)),
               Align(
                 alignment: Alignment.centerLeft,
-                child: Image.asset('assets/images/icons/logo.png', width: 90,
-                    height: 80,),
+                child: Image.asset(
+                  'assets/images/icons/logo.png',
+                  width: 90,
+                  height: 80,
+                ),
               ),
               const Text(
                 'Select photo to drop on your map',
                 style: TextStyle(
-                    fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'inter'),
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                    fontFamily: 'inter'),
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: vhh(context, 2)),
@@ -253,7 +290,8 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
                 child: SizedBox(
                   width: vww(context, 96),
                   height: (() {
-                    final desiredHeight = MediaQuery.of(context).size.height * 0.6;
+                    final desiredHeight =
+                        MediaQuery.of(context).size.height * 0.6;
                     return desiredHeight.clamp(250.0, 450.0);
                   })(),
                   child: Stack(
@@ -325,7 +363,8 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
                     onPressed: _pickImageFromGallery,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
-                      elevation: 0, // remove default shadow since we add custom one
+                      elevation:
+                          0, // remove default shadow since we add custom one
                     ),
                     child: const Text(
                       'photo library',
@@ -340,7 +379,6 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
                   ),
                 ),
               ),
-
             ],
           ),
         ),

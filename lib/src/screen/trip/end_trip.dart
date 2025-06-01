@@ -5,7 +5,8 @@ import 'package:RollaTravel/src/screen/trip/sound_screen.dart';
 import 'package:RollaTravel/src/screen/trip/start_trip.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:RollaTravel/src/utils/spinner_loader.dart';
-import 'package:RollaTravel/src/utils/stop_marker_provider.dart';
+// import 'package:RollaTravel/src/utils/stop_marker_provider.dart';
+import 'package:RollaTravel/src/utils/trip_marker_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,7 +24,7 @@ import 'package:share_plus/share_plus.dart';
 class EndTripScreen extends ConsumerStatefulWidget {
   final LatLng? startLocation;
   final LatLng? endLocation;
-  final List<MarkerData> stopMarkers;
+  final List<TripMarkerData> stopMarkers;
   final String tripStartDate;
   final String tripEndDate;
   final String endDestination;
@@ -54,7 +55,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
   List<Map<String, dynamic>> droppins = [];
   final GlobalKey mapKey = GlobalKey();
   final GlobalKey _shareWidgetKey = GlobalKey();
-  bool _isSharing = false; 
+  bool _isSharing = false;
   @override
   void initState() {
     super.initState();
@@ -65,7 +66,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
     super.dispose();
     _mapController.dispose();
   }
-  
+
   // Future<void> _onShareClicked() async {
   //   try {
   //     RenderRepaintBoundary boundary = _shareWidgetKey.currentContext?.findRenderObject() as RenderRepaintBoundary;
@@ -79,7 +80,6 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
   //     if (byteData == null) throw Exception("Could not convert image to byte data");
 
   //     final pngBytes = byteData.buffer.asUint8List();
-
 
   //     final tempDir = await Directory.systemTemp.createTemp();
   //     final file = await File('${tempDir.path}/shared_polaroid.png').create();
@@ -111,7 +111,8 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
         return;
       }
 
-      final boundary = boundaryContext.findRenderObject() as RenderRepaintBoundary?;
+      final boundary =
+          boundaryContext.findRenderObject() as RenderRepaintBoundary?;
       if (boundary == null) {
         _showErrorDialog("Cannot share: Unable to capture content.");
         return;
@@ -135,9 +136,10 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
 
       // Save to temporary file
       final tempDir = await getTemporaryDirectory();
-      final filePath = '${tempDir.path}/shared_polaroid_${DateTime.now().millisecondsSinceEpoch}.png';
+      final filePath =
+          '${tempDir.path}/shared_polaroid_${DateTime.now().millisecondsSinceEpoch}.png';
       final file = File(filePath);
-      
+
       await file.writeAsBytes(pngBytes);
 
       final result = await Share.shareXFiles(
@@ -146,10 +148,10 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
         text: 'I just created a trip with Rolla Travel!',
       );
       logger.i("Share result: $result");
-
     } catch (e) {
       if (!mounted) return;
-      _showErrorDialog("Sharing failed: ${e.toString().replaceAll('Exception: ', '')}");
+      _showErrorDialog(
+          "Sharing failed: ${e.toString().replaceAll('Exception: ', '')}");
       logger.e("Sharing error: $e");
     } finally {
       if (mounted) setState(() => _isSharing = false);
@@ -158,7 +160,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
 
   void _showErrorDialog(String message) {
     if (!mounted) return;
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -174,8 +176,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
     );
   }
 
-
-  void _playListClicked () {
+  void _playListClicked() {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -211,26 +212,23 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                       key: _shareWidgetKey,
                       child: Container(
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
                               BoxShadow(
                                 color: Colors.grey.withValues(alpha: 0.9),
                                 spreadRadius: 1.5,
                                 blurRadius: 15,
                                 offset: const Offset(0, 0),
                               ),
-                            ]
-                        ),
+                            ]),
                         child: Column(
                           children: [
                             Stack(
                               children: [
                                 Center(
                                   child: GestureDetector(
-                                    onTap: () {
-
-                                    },
+                                    onTap: () {},
                                     child: Image.asset(
                                       'assets/images/icons/logo.png',
                                       width: 90,
@@ -247,7 +245,8 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                                     onPressed: () {
                                       GlobalVariables.editDestination = null;
                                       ref
-                                          .read(pathCoordinatesProvider.notifier)
+                                          .read(
+                                              pathCoordinatesProvider.notifier)
                                           .state = [];
                                       Navigator.push(
                                           context,
@@ -260,19 +259,21 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                               ],
                             ),
                             Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 11.0), 
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 11.0),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   const Text(
                                     destination,
                                     style: TextStyle(
-                                        color: kColorBlack,
-                                        fontSize: 13,
-                                        letterSpacing: -0.1,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'inter',),
+                                      color: kColorBlack,
+                                      fontSize: 13,
+                                      letterSpacing: -0.1,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'inter',
+                                    ),
                                   ),
                                   Flexible(
                                     child: Text(
@@ -284,7 +285,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                                         decorationColor: kColorButtonPrimary,
                                         fontFamily: 'inter',
                                       ),
-                                      softWrap: true, 
+                                      softWrap: true,
                                       overflow: TextOverflow.visible,
                                     ),
                                   ),
@@ -296,75 +297,79 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10.0, vertical: 10),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   const Text(
                                     soundtrack,
                                     style: TextStyle(
-                                        color: kColorBlack,
-                                        fontSize: 13,
-                                        letterSpacing: -0.1,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'inter',),
+                                      color: kColorBlack,
+                                      fontSize: 13,
+                                      letterSpacing: -0.1,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'inter',
+                                    ),
                                   ),
                                   Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(20),
-                                        color: Colors.white,
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black.withValues(alpha: 0.3),
-                                            spreadRadius: 0.5,
-                                            blurRadius: 6,
-                                            offset: const Offset(-3, 5),
-                                          ),
-                                        ],
-                                        border: Border.all(
-                                          color: kColorButtonPrimary,
-                                          width: 1,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(20),
+                                      color: Colors.white,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black
+                                              .withValues(alpha: 0.3),
+                                          spreadRadius: 0.5,
+                                          blurRadius: 6,
+                                          offset: const Offset(-3, 5),
                                         ),
-                                      ),
-                                      padding:
-                                          const EdgeInsets.symmetric(horizontal: 12, vertical: 2.5),
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          _playListClicked();
-                                        },
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Image.asset(
-                                              "assets/images/icons/music.png",
-                                              width: 12,
-                                              height: 12,
-                                            ),
-                                            const SizedBox(width: 3),
-                                            const Text(
-                                              'playlist',
-                                              style: TextStyle(
-                                                fontSize: 11,
-                                                color: Colors.black,
-                                                fontWeight: FontWeight.bold,
-                                                letterSpacing: -0.1,
-                                                fontFamily: 'Inter',
-                                              ),
-                                            ),
-                                          ],
-                                        ),
+                                      ],
+                                      border: Border.all(
+                                        color: kColorButtonPrimary,
+                                        width: 1,
                                       ),
                                     ),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 2.5),
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        _playListClicked();
+                                      },
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Image.asset(
+                                            "assets/images/icons/music.png",
+                                            width: 12,
+                                            height: 12,
+                                          ),
+                                          const SizedBox(width: 3),
+                                          const Text(
+                                            'playlist',
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.bold,
+                                              letterSpacing: -0.1,
+                                              fontFamily: 'Inter',
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
                             const SizedBox(height: 10),
                             Padding(
-                              padding: EdgeInsets.symmetric(horizontal: vww(context, 2)),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: vww(context, 2)),
                               child: Container(
                                 height: vhh(context, 30),
                                 decoration: BoxDecoration(
                                   border: Border.all(
                                     color: kColorStrongGrey,
-                                    width: 1,            
+                                    width: 1,
                                   ),
                                 ),
                                 child: Stack(
@@ -434,16 +439,16 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                                                               AlertDialog(
                                                             content: Column(
                                                               mainAxisSize:
-                                                                  MainAxisSize.min,
+                                                                  MainAxisSize
+                                                                      .min,
                                                               children: [
                                                                 Padding(
-                                                                  padding:
-                                                                      const EdgeInsets
-                                                                          .symmetric(
-                                                                          horizontal:
-                                                                              8.0,
-                                                                          vertical:
-                                                                              4.0),
+                                                                  padding: const EdgeInsets
+                                                                      .symmetric(
+                                                                      horizontal:
+                                                                          8.0,
+                                                                      vertical:
+                                                                          4.0),
                                                                   child: Row(
                                                                     mainAxisAlignment:
                                                                         MainAxisAlignment
@@ -457,10 +462,9 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                                                                           fontSize:
                                                                               16,
                                                                           fontWeight:
-                                                                              FontWeight
-                                                                                  .bold,
-                                                                          color: Colors
-                                                                              .grey,
+                                                                              FontWeight.bold,
+                                                                          color:
+                                                                              Colors.grey,
                                                                           fontFamily:
                                                                               'inter',
                                                                         ),
@@ -469,12 +473,11 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                                                                         icon: const Icon(
                                                                             Icons
                                                                                 .close,
-                                                                            color: Colors
-                                                                                .black),
+                                                                            color:
+                                                                                Colors.black),
                                                                         onPressed:
                                                                             () {
-                                                                          Navigator.of(
-                                                                                  context)
+                                                                          Navigator.of(context)
                                                                               .pop();
                                                                         },
                                                                       ),
@@ -484,7 +487,8 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                                                                 Image.network(
                                                                   markerData
                                                                       .imagePath,
-                                                                  fit: BoxFit.cover,
+                                                                  fit: BoxFit
+                                                                      .cover,
                                                                   loadingBuilder:
                                                                       (context,
                                                                           child,
@@ -494,7 +498,8 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                                                                       return child;
                                                                     } else {
                                                                       return const Center(
-                                                                        child: SpinningLoader(),
+                                                                        child:
+                                                                            SpinningLoader(),
                                                                       );
                                                                     }
                                                                   },
@@ -505,7 +510,8 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                                                                     return const Icon(
                                                                         Icons
                                                                             .broken_image,
-                                                                        size: 100);
+                                                                        size:
+                                                                            100);
                                                                   },
                                                                 ),
                                                               ],
@@ -514,23 +520,26 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                                                         );
                                                       },
                                                       child: Container(
-                                                        width:30, 
+                                                        width: 30,
                                                         height: 30,
-                                                        decoration: BoxDecoration(
-                                                          shape: BoxShape.circle,
-                                                          color: Colors
-                                                              .white, 
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          shape:
+                                                              BoxShape.circle,
+                                                          color: Colors.white,
                                                           border: Border.all(
                                                             color: Colors.black,
                                                             width:
                                                                 2, // Black border
                                                           ),
                                                         ),
-                                                        alignment: Alignment.center,
+                                                        alignment:
+                                                            Alignment.center,
                                                         child: Text(
                                                           index
                                                               .toString(), // Display index number
-                                                          style: const TextStyle(
+                                                          style:
+                                                              const TextStyle(
                                                             fontSize: 13,
                                                             fontWeight:
                                                                 FontWeight.bold,
@@ -594,10 +603,10 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                             //       color: Colors.grey),
                             // ),
                             Image.asset(
-                                      'assets/images/icons/logo.png',
-                                      width: 90,
-                                      height: 80,
-                                    ),
+                              'assets/images/icons/logo.png',
+                              width: 90,
+                              height: 80,
+                            ),
                             const SizedBox(height: 15),
                             const Text(
                               'the Rolla travel app',
@@ -615,9 +624,9 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Padding(
-                        padding: EdgeInsets.only(top: 10.0),
-                        child: Text(
-                          "Share this summary:",
+                          padding: EdgeInsets.only(top: 10.0),
+                          child: Text(
+                            "Share this summary:",
                             style: TextStyle(
                               fontSize: 14,
                               color: kColorStrongGrey,
@@ -626,7 +635,9 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 15,),
+                        const SizedBox(
+                          height: 15,
+                        ),
                         GestureDetector(
                           onTap: () {
                             _onShareClicked();

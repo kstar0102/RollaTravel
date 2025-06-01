@@ -60,10 +60,10 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
       "pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw";
 
   final List<String> _mapStyles = [
-    "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=$mapboxAccessToken", 
+    "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=$mapboxAccessToken",
     "https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/{z}/{x}/{y}?access_token=$mapboxAccessToken",
-    "https://api.mapbox.com/styles/v1/mapbox/light-v10/tiles/{z}/{x}/{y}?access_token=$mapboxAccessToken", 
-    "https://api.mapbox.com/styles/v1/mapbox/dark-v10/tiles/{z}/{x}/{y}?access_token=$mapboxAccessToken", 
+    "https://api.mapbox.com/styles/v1/mapbox/light-v10/tiles/{z}/{x}/{y}?access_token=$mapboxAccessToken",
+    "https://api.mapbox.com/styles/v1/mapbox/dark-v10/tiles/{z}/{x}/{y}?access_token=$mapboxAccessToken",
   ];
 
   @override
@@ -71,7 +71,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     super.initState();
     _getFetchTripData();
     _checkLocationServices();
-    if(GlobalVariables.tripCaption != null) {
+    if (GlobalVariables.tripCaption != null) {
       _captionController.text = GlobalVariables.tripCaption!;
     }
   }
@@ -100,7 +100,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
         _showLoadingDialog();
         final tripData = await apiserice.fetchTripData(tripId);
         // logger.i(tripData);
-        if ((tripData['trips'] as List).isEmpty){
+        if ((tripData['trips'] as List).isEmpty) {
           logger.i("no trip in server");
           _hideLoadingDialog();
           ref.read(tripMarkersProvider.notifier).state = [];
@@ -112,29 +112,32 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
           await prefs.remove("start_date");
           await prefs.remove("caption_text");
           _getCurrentLocation();
-        } else{
+        } else {
           ref.read(tripMarkersProvider.notifier).state = [];
           GlobalVariables.isTripStarted = true;
           ref.read(isTripStartedProvider.notifier).state = true;
           String? destinationText = prefs.getString('destination_text');
-          if(destinationText != null){
+          if (destinationText != null) {
             ref.read(isTripStartedProvider.notifier).state = true;
             GlobalVariables.editDestination = destinationText;
             GlobalVariables.tripStartDate = prefs.getString('start_date');
             GlobalVariables.tripCaption = prefs.getString('caption_text');
           }
-          
+
           var destinationTextAddress =
               tripData['trips'][0]['destination_text_address'];
-          if(tripData['trips'][0]['trip_caption'] != null && tripData['trips'][0]['trip_caption'] != "null"){
+          if (tripData['trips'][0]['trip_caption'] != null &&
+              tripData['trips'][0]['trip_caption'] != "null") {
             _captionController.text = tripData['trips'][0]['trip_caption'];
           }
           if (destinationTextAddress is String) {
             destinationTextAddress = jsonDecode(destinationTextAddress);
           }
-          if (tripData['trip_tags'] != null && tripData['trip_tags'] != "null") {
+          if (tripData['trip_tags'] != null &&
+              tripData['trip_tags'] != "null") {
             try {
-              List<int> tags = List<int>.from(jsonDecode(tripData['trip_tags']));
+              List<int> tags =
+                  List<int>.from(jsonDecode(tripData['trip_tags']));
               GlobalVariables.selectedUserIds.addAll(tags);
               logger.i(GlobalVariables.selectedUserIds);
             } catch (e) {
@@ -147,47 +150,47 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
           GlobalVariables.song2 = songs.length > 1 ? songs[1].trim() : null;
           GlobalVariables.song3 = songs.length > 2 ? songs[2].trim() : null;
           GlobalVariables.song4 = songs.length > 3 ? songs[3].trim() : null;
-                                      
+
           GlobalVariables.editDestination = destinationTextAddress[0];
 
-          GlobalVariables.tripStartDate = tripData['trips'][0]['trip_start_date'];
+          GlobalVariables.tripStartDate =
+              tripData['trips'][0]['trip_start_date'];
           List stopLocations = tripData['trips'][0]['stop_locations'];
           List droppins = tripData['trips'][0]['droppins'];
 
           List<TripMarkerData> markers = [];
 
           stopLocations.asMap().forEach((i, stop) {
-          if (stop is Map &&
-              stop.containsKey('latitude') &&
-              stop.containsKey('longitude')) {
-            double latitude = stop['latitude'];
-            double longitude = stop['longitude'];
+            if (stop is Map &&
+                stop.containsKey('latitude') &&
+                stop.containsKey('longitude')) {
+              double latitude = stop['latitude'];
+              double longitude = stop['longitude'];
 
-            String imagePath = "";
-            String caption = "Trip Stop";
-            String delayTime = "";
+              String imagePath = "";
+              String caption = "Trip Stop";
+              String delayTime = "";
 
-            var droppin = droppins.firstWhere(
-              (d) => d['stop_index'] == (i + 1),
-              orElse: () => null,
-            );
+              var droppin = droppins.firstWhere(
+                (d) => d['stop_index'] == (i + 1),
+                orElse: () => null,
+              );
 
-            if (droppin != null) {
-              imagePath = droppin['image_path'] ?? "";
-              caption = droppin['image_caption'] ?? "No caption";
-              delayTime = droppin['deley_time'];
+              if (droppin != null) {
+                imagePath = droppin['image_path'] ?? "";
+                caption = droppin['image_caption'] ?? "No caption";
+                delayTime = droppin['deley_time'];
+              }
+
+              TripMarkerData marker = TripMarkerData(
+                  location: LatLng(latitude, longitude),
+                  imagePath: imagePath,
+                  caption: caption,
+                  delayTime: delayTime);
+              markers.add(marker);
             }
-
-            TripMarkerData marker = TripMarkerData(
-              location: LatLng(latitude, longitude),
-              imagePath: imagePath,
-              caption: caption,
-              delayTime: delayTime
-            );
-            markers.add(marker);
-          }
-        });
-        ref.read(tripMarkersProvider.notifier).state = markers;
+          });
+          ref.read(tripMarkersProvider.notifier).state = markers;
           // List<MarkerData> activeMarkers = [];
           // List<MarkerDataWithDelayLabel> futureMarkers = [];
           // final now = DateTime.now();
@@ -234,13 +237,14 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
           // ref.read(futureMarkersProvider.notifier).state = futureMarkers;
           var startLocation = tripData['trips'][0]['start_location'];
           if (startLocation is String) {
-            RegExp regExp =
-                RegExp(r'LatLng\((latitude:([0-9.-]+), longitude:([0-9.-]+))\)');
+            RegExp regExp = RegExp(
+                r'LatLng\((latitude:([0-9.-]+), longitude:([0-9.-]+))\)');
             Match? match = regExp.firstMatch(startLocation);
 
             if (match != null) {
               double latitude = double.tryParse(match.group(2) ?? "0.0") ?? 0.0;
-              double longitude = double.tryParse(match.group(3) ?? "0.0") ?? 0.0;
+              double longitude =
+                  double.tryParse(match.group(3) ?? "0.0") ?? 0.0;
               LatLng startLatLng = LatLng(latitude, longitude);
               ref.read(staticStartingPointProvider.notifier).state ??=
                   startLatLng;
@@ -373,19 +377,20 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
       );
       setState(() {
         currentLocation = LatLng(position.latitude, position.longitude);
-        ref.read(staticStartingPointProvider.notifier).state ??= currentLocation;
+        ref.read(staticStartingPointProvider.notifier).state ??=
+            currentLocation;
       });
       WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await Future.delayed(const Duration(milliseconds: 500));
-      if (mounted && currentLocation != null) {
-        try {
-          // Only move the map if the controller is ready
-          _mapController.move(currentLocation!, 12.0);
-        } catch (e) {
-          logger.e("Error moving map: $e");
+        await Future.delayed(const Duration(milliseconds: 500));
+        if (mounted && currentLocation != null) {
+          try {
+            // Only move the map if the controller is ready
+            _mapController.move(currentLocation!, 12.0);
+          } catch (e) {
+            logger.e("Error moving map: $e");
+          }
         }
-      }
-    });
+      });
       return;
     }
 
@@ -431,7 +436,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('destination_text', GlobalVariables.editDestination!);
     await prefs.setString('start_date', formattedDate);
-    if(GlobalVariables.tripCaption != null){
+    if (GlobalVariables.tripCaption != null) {
       await prefs.setString('caption_text', GlobalVariables.tripCaption!);
     }
   }
@@ -468,7 +473,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
 
     LatLng? startLocation = ref.read(staticStartingPointProvider);
     LatLng? endLocation = LatLng(position.latitude, position.longitude);
-    List<MarkerData> stopMarkers = ref.read(markersProvider);
+    List<TripMarkerData> stopMarkers = ref.read(tripMarkersProvider);
     // logger.i("stopmakers : $stopMarkers");
     await _fetchAddresses(startLocation, endLocation, stopMarkers);
 
@@ -524,33 +529,36 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     int? tripId = prefs.getInt("tripId");
 
     List<String> songs = [
-        if (GlobalVariables.song1 != null && GlobalVariables.song1!.isNotEmpty) GlobalVariables.song1!,
-        if (GlobalVariables.song2 != null && GlobalVariables.song2!.isNotEmpty) GlobalVariables.song2!,
-        if (GlobalVariables.song3 != null && GlobalVariables.song3!.isNotEmpty) GlobalVariables.song3!,
-        if (GlobalVariables.song4 != null && GlobalVariables.song4!.isNotEmpty) GlobalVariables.song4!
-      ];
+      if (GlobalVariables.song1 != null && GlobalVariables.song1!.isNotEmpty)
+        GlobalVariables.song1!,
+      if (GlobalVariables.song2 != null && GlobalVariables.song2!.isNotEmpty)
+        GlobalVariables.song2!,
+      if (GlobalVariables.song3 != null && GlobalVariables.song3!.isNotEmpty)
+        GlobalVariables.song3!,
+      if (GlobalVariables.song4 != null && GlobalVariables.song4!.isNotEmpty)
+        GlobalVariables.song4!
+    ];
     String arrangedSongs = songs.join(',');
-    if(GlobalVariables.delaySetting == 0) {
+    if (GlobalVariables.delaySetting == 0) {
       final response = await apiserice.updateTrip(
-        tripId: tripId!,
-        userId: GlobalVariables.userId!,
-        startAddress: startAddress!,
-        stopAddresses: stopAddressesString,
-        destinationAddress: endAddress!,
-        destinationTextAddress: formattedDestination,
-        tripStartDate: GlobalVariables.tripStartDate!,
-        tripEndDate: GlobalVariables.tripEndDate!,
-        tripCaption: GlobalVariables.tripCaption ?? "",
-        tripTag: GlobalVariables.selectedUserIds.toString(),
-        tripMiles: tripMiles,
-        tripSound: arrangedSongs,
-        stopLocations: stopLocations,
-        tripCoordinates: tripCoordinates,
-        startLocation: startLocation.toString(),
-        destinationLocation: endLocation.toString(),
-        droppins: [],
-        mapStyle: GlobalVariables.mapStyleSelected.toString()
-      );
+          tripId: tripId!,
+          userId: GlobalVariables.userId!,
+          startAddress: startAddress!,
+          stopAddresses: stopAddressesString,
+          destinationAddress: endAddress!,
+          destinationTextAddress: formattedDestination,
+          tripStartDate: GlobalVariables.tripStartDate!,
+          tripEndDate: GlobalVariables.tripEndDate!,
+          tripCaption: GlobalVariables.tripCaption ?? "",
+          tripTag: GlobalVariables.selectedUserIds.toString(),
+          tripMiles: tripMiles,
+          tripSound: arrangedSongs,
+          stopLocations: stopLocations,
+          tripCoordinates: tripCoordinates,
+          startLocation: startLocation.toString(),
+          destinationLocation: endLocation.toString(),
+          droppins: [],
+          mapStyle: GlobalVariables.mapStyleSelected.toString());
 
       if (!mounted) return;
 
@@ -572,7 +580,8 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
         }
 
         // Extract first element or empty string if list is empty
-        String destination = parsedList.isNotEmpty ? parsedList[0].toString() : "";
+        String destination =
+            parsedList.isNotEmpty ? parsedList[0].toString() : "";
 
         _hideLoadingDialog();
         if (!mounted) return;
@@ -591,7 +600,8 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
         );
         ref.read(isTripStartedProvider.notifier).state = false;
         GlobalVariables.isTripStarted = false;
-        ref.read(staticStartingPointProvider.notifier).state = ref.read(movingLocationProvider);
+        ref.read(staticStartingPointProvider.notifier).state =
+            ref.read(movingLocationProvider);
         ref.read(movingLocationProvider.notifier).state = null;
         ref.read(markersProvider.notifier).state = [];
         ref.read(totalDistanceProvider.notifier).state = 0.0;
@@ -606,7 +616,8 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
         ref.read(pathCoordinatesProvider.notifier).state = [];
       } else {
         _hideLoadingDialog();
-        String errorMessage = response['error'] ?? 'Failed to create the trip. Please try again.';
+        String errorMessage =
+            response['error'] ?? 'Failed to create the trip. Please try again.';
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -618,7 +629,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                   child: const Text("OK"),
                   onPressed: () {
                     ref.read(pathCoordinatesProvider.notifier).state = [];
-                    Navigator.of(context).pop(); 
+                    Navigator.of(context).pop();
                   },
                 ),
               ],
@@ -626,12 +637,12 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
           },
         );
       }
-    }else {
+    } else {
       // Duration delay;
       String message;
-          
-      // final uniqueTaskId = "uploadTripTask_${uuid.v4()}"; 
-      // final String taskKey = uniqueTaskId; 
+
+      // final uniqueTaskId = "uploadTripTask_${uuid.v4()}";
+      // final String taskKey = uniqueTaskId;
       // await prefs.setInt('${taskKey}_tripId', tripId!);
       // await prefs.setInt('${taskKey}_userId', GlobalVariables.userId!);
       // await prefs.setString('${taskKey}_startAddress', startAddress ?? '');
@@ -684,100 +695,106 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                 TextButton(
                   onPressed: () async {
                     final response = await apiserice.updateTrip(
-                    tripId: tripId!,
-                    userId: GlobalVariables.userId!,
-                    startAddress: startAddress!,
-                    stopAddresses: stopAddressesString,
-                    destinationAddress: endAddress!,
-                    destinationTextAddress: formattedDestination,
-                    tripStartDate: GlobalVariables.tripStartDate!,
-                    tripEndDate: GlobalVariables.tripEndDate!,
-                    tripCaption: GlobalVariables.tripCaption ?? "",
-                    tripTag: GlobalVariables.selectedUserIds.toString(),
-                    tripMiles: tripMiles,
-                    tripSound: arrangedSongs,
-                    stopLocations: stopLocations,
-                    tripCoordinates: tripCoordinates,
-                    startLocation: startLocation.toString(),
-                    destinationLocation: endLocation.toString(),
-                    droppins: [],
-                    mapStyle: GlobalVariables.mapStyleSelected.toString()
-                  );
+                        tripId: tripId!,
+                        userId: GlobalVariables.userId!,
+                        startAddress: startAddress!,
+                        stopAddresses: stopAddressesString,
+                        destinationAddress: endAddress!,
+                        destinationTextAddress: formattedDestination,
+                        tripStartDate: GlobalVariables.tripStartDate!,
+                        tripEndDate: GlobalVariables.tripEndDate!,
+                        tripCaption: GlobalVariables.tripCaption ?? "",
+                        tripTag: GlobalVariables.selectedUserIds.toString(),
+                        tripMiles: tripMiles,
+                        tripSound: arrangedSongs,
+                        stopLocations: stopLocations,
+                        tripCoordinates: tripCoordinates,
+                        startLocation: startLocation.toString(),
+                        destinationLocation: endLocation.toString(),
+                        droppins: [],
+                        mapStyle: GlobalVariables.mapStyleSelected.toString());
 
-                  if (!mounted) return;
-
-                  if (response['success'] == true) {
-                    logger.i(response);
-                    await prefs.remove("tripId");
-                    await prefs.remove("dropcount");
-                    await prefs.remove("destination_text");
-                    await prefs.remove("start_date");
-                    await prefs.remove("caption_text");
-                    String jsonStr = response['trip']['destination_text_address'] ?? '[]';
-
-                    // Parse it to a List<String>
-                    List<dynamic> parsedList = [];
-                    try {
-                      parsedList = jsonDecode(jsonStr);
-                    } catch (e) {
-                      logger.e("Failed to parse destination_text_address: $e");
-                    }
-
-                    // Extract first element or empty string if list is empty
-                    String destination = parsedList.isNotEmpty ? parsedList[0].toString() : "";
-
-                    _hideLoadingDialog();
                     if (!mounted) return;
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => EndTripScreen(
-                          startLocation: startLocation,
-                          endLocation: endLocation,
-                          stopMarkers: stopMarkers,
-                          tripStartDate: GlobalVariables.tripStartDate!,
-                          tripEndDate: GlobalVariables.tripEndDate!,
-                          endDestination: destination,
+
+                    if (response['success'] == true) {
+                      logger.i(response);
+                      await prefs.remove("tripId");
+                      await prefs.remove("dropcount");
+                      await prefs.remove("destination_text");
+                      await prefs.remove("start_date");
+                      await prefs.remove("caption_text");
+                      String jsonStr =
+                          response['trip']['destination_text_address'] ?? '[]';
+
+                      // Parse it to a List<String>
+                      List<dynamic> parsedList = [];
+                      try {
+                        parsedList = jsonDecode(jsonStr);
+                      } catch (e) {
+                        logger
+                            .e("Failed to parse destination_text_address: $e");
+                      }
+
+                      // Extract first element or empty string if list is empty
+                      String destination =
+                          parsedList.isNotEmpty ? parsedList[0].toString() : "";
+
+                      _hideLoadingDialog();
+                      if (!mounted) return;
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EndTripScreen(
+                            startLocation: startLocation,
+                            endLocation: endLocation,
+                            stopMarkers: stopMarkers,
+                            tripStartDate: GlobalVariables.tripStartDate!,
+                            tripEndDate: GlobalVariables.tripEndDate!,
+                            endDestination: destination,
+                          ),
                         ),
-                      ),
-                    );
-                    ref.read(isTripStartedProvider.notifier).state = false;
-                    GlobalVariables.isTripStarted = false;
-                    ref.read(staticStartingPointProvider.notifier).state = ref.read(movingLocationProvider);
-                    ref.read(movingLocationProvider.notifier).state = null;
-                    ref.read(markersProvider.notifier).state = [];
-                    ref.read(totalDistanceProvider.notifier).state = 0.0;
-                    GlobalVariables.totalDistance = 0.0;
-                    GlobalVariables.tripCaption = null;
-                    GlobalVariables.song1 = null;
-                    GlobalVariables.song2 = null;
-                    GlobalVariables.song3 = null;
-                    GlobalVariables.song4 = null;
-                    GlobalVariables.editDestination = null;
-                    GlobalVariables.selectedUserIds = [];
-                    ref.read(pathCoordinatesProvider.notifier).state = [];
-                  } else {
-                    _hideLoadingDialog();
-                    String errorMessage = response['error'] ?? 'Failed to create the trip. Please try again.';
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text("Error"),
-                          content: Text(errorMessage),
-                          actions: [
-                            TextButton(
-                              child: const Text("OK"),
-                              onPressed: () {
-                                ref.read(pathCoordinatesProvider.notifier).state = [];
-                                Navigator.of(context).pop(); 
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  }
+                      );
+                      ref.read(isTripStartedProvider.notifier).state = false;
+                      GlobalVariables.isTripStarted = false;
+                      ref.read(staticStartingPointProvider.notifier).state =
+                          ref.read(movingLocationProvider);
+                      ref.read(movingLocationProvider.notifier).state = null;
+                      ref.read(markersProvider.notifier).state = [];
+                      ref.read(totalDistanceProvider.notifier).state = 0.0;
+                      GlobalVariables.totalDistance = 0.0;
+                      GlobalVariables.tripCaption = null;
+                      GlobalVariables.song1 = null;
+                      GlobalVariables.song2 = null;
+                      GlobalVariables.song3 = null;
+                      GlobalVariables.song4 = null;
+                      GlobalVariables.editDestination = null;
+                      GlobalVariables.selectedUserIds = [];
+                      ref.read(pathCoordinatesProvider.notifier).state = [];
+                    } else {
+                      _hideLoadingDialog();
+                      String errorMessage = response['error'] ??
+                          'Failed to create the trip. Please try again.';
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text("Error"),
+                            content: Text(errorMessage),
+                            actions: [
+                              TextButton(
+                                child: const Text("OK"),
+                                onPressed: () {
+                                  ref
+                                      .read(pathCoordinatesProvider.notifier)
+                                      .state = [];
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    }
                   },
                   child: const Text("OK"),
                 ),
@@ -792,10 +809,10 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   Future<void> _fetchAddresses(
     LatLng? startLocation,
     LatLng? endLocation,
-    List<MarkerData> stopMarkers,
+    List<TripMarkerData> stopMarkers,
   ) async {
     // logger.i(stopMarkers);
-    
+
     if (startLocation != null) {
       startAddress = await Common.getAddressFromLocation(startLocation);
     }
@@ -808,16 +825,19 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
       List<String?> stopMarkerAddresses = await Future.wait(
         stopMarkers.map((marker) async {
           try {
-            final address = await Common.getAddressFromLocation(marker.location);
+            final address =
+                await Common.getAddressFromLocation(marker.location);
             return address ?? "";
           } catch (e) {
-            logger.e("Error fetching address for marker at ${marker.location}: $e");
+            logger.e(
+                "Error fetching address for marker at ${marker.location}: $e");
             return "";
           }
         }).toList(),
       );
 
-      formattedStopAddresses = stopMarkerAddresses.map((address) => '"$address"').toList();
+      formattedStopAddresses =
+          stopMarkerAddresses.map((address) => '"$address"').toList();
       stopAddressesString = '[${formattedStopAddresses.join(', ')}]';
     }
   }
@@ -882,15 +902,16 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
               hintText: "Enter destination",
               hintStyle: TextStyle(fontFamily: 'inter'),
               focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: kColorHereButton), // your desired color
+                borderSide:
+                    BorderSide(color: kColorHereButton), // your desired color
               ),
               enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey), // color when not focused
+                borderSide:
+                    BorderSide(color: Colors.grey), // color when not focused
               ),
             ),
             style: const TextStyle(fontFamily: 'inter', fontSize: 14),
           ),
-
           actions: [
             TextButton(
               onPressed: () {
@@ -1053,8 +1074,9 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                               final result = await Navigator.push(
                                 context,
                                 PageRouteBuilder(
-                                  pageBuilder: (context, animation1,
-                                          animation2) => const SoundScreen(),
+                                  pageBuilder:
+                                      (context, animation1, animation2) =>
+                                          const SoundScreen(),
                                   transitionDuration: Duration.zero,
                                   reverseTransitionDuration: Duration.zero,
                                 ),
@@ -1096,7 +1118,8 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                         color: Colors.grey[200],
                         border: Border.all(color: Colors.black),
                       ),
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 1.0),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8.0, vertical: 1.0),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -1117,7 +1140,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                           Expanded(
                             child: TextField(
                               controller: _captionController,
-                              focusNode: _captionFocusNode,  
+                              focusNode: _captionFocusNode,
                               decoration: const InputDecoration(
                                 isDense: true,
                                 border: InputBorder.none,
@@ -1146,7 +1169,8 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                 ),
 
                 // MapBox integration with a customized size
-                !isStateRestored || (movingLocation == null && staticStartingPoint == null)
+                !isStateRestored ||
+                        (movingLocation == null && staticStartingPoint == null)
                     ? const SizedBox.shrink()
                     : Padding(
                         padding:
@@ -1165,7 +1189,8 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                 ),
                                 children: [
                                   TileLayer(
-                                    urlTemplate: _mapStyles[GlobalVariables.mapStyleSelected],
+                                    urlTemplate: _mapStyles[
+                                        GlobalVariables.mapStyleSelected],
                                     additionalOptions: const {
                                       'access_token':
                                           'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw',
@@ -1173,13 +1198,19 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                   ),
                                   MarkerLayer(
                                     markers: [
-                                      ...ref.watch(tripMarkersProvider).asMap().entries.map((entry) {
-                                        int index = entry.key + 1; 
+                                      ...ref
+                                          .watch(tripMarkersProvider)
+                                          .asMap()
+                                          .entries
+                                          .map((entry) {
+                                        int index = entry.key + 1;
                                         TripMarkerData markerData = entry.value;
                                         bool isDelayed = false;
                                         try {
-                                          final delay = DateTime.parse(markerData.delayTime);
-                                          isDelayed = delay.isAfter(DateTime.now());
+                                          final delay = DateTime.parse(
+                                              markerData.delayTime);
+                                          isDelayed =
+                                              delay.isAfter(DateTime.now());
                                         } catch (_) {
                                           isDelayed = false;
                                         }
@@ -1195,16 +1226,31 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                                   Duration? delayDuration;
                                                   String delayText = "";
                                                   try {
-                                                    final delay = DateTime.parse(markerData.delayTime);
+                                                    final delay =
+                                                        DateTime.parse(
+                                                            markerData
+                                                                .delayTime);
                                                     final now = DateTime.now();
                                                     if (delay.isAfter(now)) {
-                                                      delayDuration = delay.difference(now);
-                                                      final hours = delayDuration.inHours;
-                                                      final minutes = delayDuration.inMinutes.remainder(60);
-                                                      delayText = "Will be posted in ";
-                                                      if (hours > 0) delayText += "$hours hour${hours > 1 ? 's' : ''}";
-                                                      if (hours > 0 && minutes > 0) delayText += " and ";
-                                                      if (minutes > 0) delayText += "$minutes minute${minutes > 1 ? 's' : ''}";
+                                                      delayDuration =
+                                                          delay.difference(now);
+                                                      final hours =
+                                                          delayDuration.inHours;
+                                                      final minutes =
+                                                          delayDuration
+                                                              .inMinutes
+                                                              .remainder(60);
+                                                      delayText =
+                                                          "Will be posted in ";
+                                                      if (hours > 0)
+                                                        delayText +=
+                                                            "$hours hour${hours > 1 ? 's' : ''}";
+                                                      if (hours > 0 &&
+                                                          minutes > 0)
+                                                        delayText += " and ";
+                                                      if (minutes > 0)
+                                                        delayText +=
+                                                            "$minutes minute${minutes > 1 ? 's' : ''}";
                                                     }
                                                   } catch (_) {
                                                     delayText = "";
@@ -1212,26 +1258,46 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
 
                                                   return AlertDialog(
                                                     content: Column(
-                                                      mainAxisSize: MainAxisSize.min,
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
                                                       children: [
                                                         Padding(
-                                                          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                                  horizontal:
+                                                                      8.0,
+                                                                  vertical:
+                                                                      4.0),
                                                           child: Row(
-                                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceBetween,
                                                             children: [
                                                               Text(
-                                                                markerData.caption,
-                                                                style: const TextStyle(
+                                                                markerData
+                                                                    .caption,
+                                                                style:
+                                                                    const TextStyle(
                                                                   fontSize: 16,
-                                                                  fontWeight: FontWeight.bold,
-                                                                  color: Colors.grey,
-                                                                  fontFamily: 'inter',
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  color: Colors
+                                                                      .grey,
+                                                                  fontFamily:
+                                                                      'inter',
                                                                 ),
                                                               ),
                                                               IconButton(
-                                                                icon: const Icon(Icons.close, color: Colors.black),
+                                                                icon: const Icon(
+                                                                    Icons.close,
+                                                                    color: Colors
+                                                                        .black),
                                                                 onPressed: () {
-                                                                  Navigator.of(context).pop();
+                                                                  Navigator.of(
+                                                                          context)
+                                                                      .pop();
                                                                 },
                                                               ),
                                                             ],
@@ -1240,29 +1306,47 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                                         Image.network(
                                                           markerData.imagePath,
                                                           fit: BoxFit.cover,
-                                                          loadingBuilder: (context, child, loadingProgress) {
-                                                            if (loadingProgress == null) {
+                                                          loadingBuilder: (context,
+                                                              child,
+                                                              loadingProgress) {
+                                                            if (loadingProgress ==
+                                                                null) {
                                                               return child;
                                                             } else {
                                                               return const Center(
-                                                                child: SpinningLoader(),
+                                                                child:
+                                                                    SpinningLoader(),
                                                               );
                                                             }
                                                           },
-                                                          errorBuilder: (context, error, stackTrace) {
-                                                            return const Icon(Icons.broken_image, size: 100);
+                                                          errorBuilder:
+                                                              (context, error,
+                                                                  stackTrace) {
+                                                            return const Icon(
+                                                                Icons
+                                                                    .broken_image,
+                                                                size: 100);
                                                           },
                                                         ),
-                                                        if (delayText.isNotEmpty)
+                                                        if (delayText
+                                                            .isNotEmpty)
                                                           Padding(
-                                                            padding: const EdgeInsets.only(top: 8.0),
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .only(
+                                                                    top: 8.0),
                                                             child: Text(
                                                               delayText,
-                                                              style: const TextStyle(
+                                                              style:
+                                                                  const TextStyle(
                                                                 fontSize: 14,
-                                                                fontWeight: FontWeight.w600,
-                                                                color: Colors.redAccent,
-                                                                fontFamily: 'inter',
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600,
+                                                                color: Colors
+                                                                    .redAccent,
+                                                                fontFamily:
+                                                                    'inter',
                                                               ),
                                                             ),
                                                           ),
@@ -1281,8 +1365,8 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                                   shape: BoxShape.circle,
                                                   color: Colors.white,
                                                   border: Border.all(
-                                                    color: Colors.black,
-                                                    width: 2),
+                                                      color: Colors.black,
+                                                      width: 2),
                                                 ),
                                                 alignment: Alignment.center,
                                                 child: Text(
@@ -1300,19 +1384,25 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                       }),
 
                                       // Future delay label markers
-                                      ...ref.watch(futureMarkersProvider).map((futureMarker) {
+                                      ...ref
+                                          .watch(futureMarkersProvider)
+                                          .map((futureMarker) {
                                         return Marker(
                                           point: futureMarker.location,
                                           width: 150,
                                           height: 20,
                                           child: Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 0),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 2, vertical: 0),
                                             decoration: BoxDecoration(
-                                              color: Colors.grey.withValues(alpha: 0.5),
-                                              borderRadius: BorderRadius.circular(8),
+                                              color: Colors.grey
+                                                  .withValues(alpha: 0.5),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                               boxShadow: [
                                                 BoxShadow(
-                                                  color: Colors.black.withValues(alpha: 0.3),
+                                                  color: Colors.black
+                                                      .withValues(alpha: 0.3),
                                                   blurRadius: 4,
                                                   offset: const Offset(2, 2),
                                                 ),
@@ -1322,11 +1412,10 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                               child: Text(
                                                 futureMarker.label,
                                                 style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 10,
-                                                  fontFamily: 'inter'
-                                                ),
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 10,
+                                                    fontFamily: 'inter'),
                                               ),
                                             ),
                                           ),
@@ -1415,11 +1504,11 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                   //             height: 10,
                                   //             decoration: BoxDecoration(
                                   //               shape: BoxShape.circle,
-                                  //               color: Colors.white, 
+                                  //               color: Colors.white,
                                   //               border: Border.all(
                                   //                 color: Colors.black,
                                   //                 width: 2
-                                  //               ), 
+                                  //               ),
                                   //             ),
                                   //             alignment: Alignment.center,
                                   //             child: Text(
@@ -1590,10 +1679,11 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   }
 }
 
-
 class MarkerDataWithDelayLabel {
   final LatLng location;
   final String label;
   MarkerDataWithDelayLabel({required this.location, required this.label});
 }
-final futureMarkersProvider = StateProvider<List<MarkerDataWithDelayLabel>>((ref) => []);
+
+final futureMarkersProvider =
+    StateProvider<List<MarkerDataWithDelayLabel>>((ref) => []);

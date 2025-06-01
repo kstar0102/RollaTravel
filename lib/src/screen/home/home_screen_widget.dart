@@ -54,7 +54,7 @@ class PostWidgetState extends State<PostWidget> {
   void initState() {
     super.initState();
     mapController = MapController();
-    
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeRoutePoints();
       startAndendMark();
@@ -68,7 +68,8 @@ class PostWidgetState extends State<PostWidget> {
   }
 
   String get mapStyleUrl {
-    const accessToken = 'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw';
+    const accessToken =
+        'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw';
     final styleId = () {
       final style = widget.post['map_style'];
       // logger.i(style);
@@ -141,13 +142,15 @@ class PostWidgetState extends State<PostWidget> {
     if (lastDropPoint != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         final bounds = LatLngBounds(
-          LatLng(lastDropPoint!.latitude - 0.03, lastDropPoint!.longitude - 0.03),
-          LatLng(lastDropPoint!.latitude + 0.03, lastDropPoint!.longitude + 0.03), 
+          LatLng(
+              lastDropPoint!.latitude - 0.03, lastDropPoint!.longitude - 0.03),
+          LatLng(
+              lastDropPoint!.latitude + 0.03, lastDropPoint!.longitude + 0.03),
         );
 
         final center = bounds.center;
 
-        mapController.move(center, 12.0); 
+        mapController.move(center, 12.0);
       });
     }
   }
@@ -184,7 +187,8 @@ class PostWidgetState extends State<PostWidget> {
     List<LatLng> tempLocations = [];
     if (widget.post['stop_locations'] != null) {
       try {
-        final stopLocations = List<Map<String, dynamic>>.from(widget.post['stop_locations']);
+        final stopLocations =
+            List<Map<String, dynamic>>.from(widget.post['stop_locations']);
         for (var location in stopLocations) {
           final latitude = double.parse(location['latitude'].toString());
           final longitude = double.parse(location['longitude'].toString());
@@ -684,7 +688,7 @@ class PostWidgetState extends State<PostWidget> {
   }
 
   void _goUserScreen() {
-    if(GlobalVariables.userId != widget.post['user_id']){
+    if (GlobalVariables.userId != widget.post['user_id']) {
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -695,8 +699,7 @@ class PostWidgetState extends State<PostWidget> {
     } else {
       Navigator.push(
         context,
-        MaterialPageRoute(
-            builder: (context) => const ProfileScreen()),
+        MaterialPageRoute(builder: (context) => const ProfileScreen()),
       );
     }
   }
@@ -815,7 +818,7 @@ class PostWidgetState extends State<PostWidget> {
     }
   }
 
-  void _playListClicked () {
+  void _playListClicked() {
     if (widget.post['trip_sound'] == "tripSound") {
       // Show an alert
       showDialog(
@@ -854,671 +857,685 @@ class PostWidgetState extends State<PostWidget> {
     final updatedAt = DateTime.parse(widget.post["updated_at"]);
     final now = DateTime.now();
     final difference = now.difference(updatedAt);
-    return Padding(padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 5),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(
-              width: 10,
-            ),
-            GestureDetector(
-              onTap: () {
-                _goUserScreen();
-              },
-              child: Container(
-                height: vhh(context, 7),
-                width: vhh(context, 7),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(100),
-                  border: Border.all(
-                    color: kColorHereButton,
-                    width: 1,
-                  ),
-                  image: widget.post['user']['photo'] != null
-                      ? DecorationImage(
-                          image: NetworkImage(widget.post['user']['photo']),
-                          fit: BoxFit.cover,
-                          onError: (exception, stackTrace) {},
-                        )
-                      : null,
-                ),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Text(
-              "@${widget.post['user']['rolla_username']}",
-              style: const TextStyle(
-                  fontSize: 15,
-                  fontFamily: 'inter',
-                  letterSpacing: -0.1,
-                  fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(width: 5),
-            const Icon(Icons.verified, color: kColorHereButton, size: 18),
-            const Spacer(),
-            GestureDetector(
-              onTap: () {
-                if (GlobalVariables.userId == widget.post['user']['id']) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('It is your post!'),
-                      duration: Duration(seconds: 1),
-                    ),
-                  );
-                } else {
-                  _showLikeDialog(
-                      context,
-                      widget.post['user']['photo'],
-                      widget.post['user']['following_user_id'],
-                      widget.post['user']['id'],
-                      widget.post['id']);
-                }
-              },
-              child: Image.asset(
-                "assets/images/icons/reference.png",
-                width: 24,
-                height: 24,
-              ),
-            ),
-            const SizedBox(
-              width: 10,
-            ),
-          ],
-        ),
-        SizedBox(height: vhh(context, 0.5)),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('destination',
-                    style: TextStyle(
-                        fontSize: 13,
-                        fontFamily: 'inter',
-                        letterSpacing: -0.1,
-                        fontWeight: FontWeight.bold)),
-                SizedBox(height: 3),
-                Text('soundtrack',
-                    style: TextStyle(
-                        fontSize: 13,
-                        fontFamily: 'inter',
-                        letterSpacing: -0.1,
-                        fontWeight: FontWeight.bold)),
-              ],
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                SizedBox(
-                  width: 210,
-                  child: Text(
-                    widget.post['destination_text_address']
-                                .replaceAll(RegExp(r'[\[\]"]'), '') ==
-                            "Edit destination"
-                        ? " "
-                        : widget.post['destination_text_address']
-                            .replaceAll(RegExp(r'[\[\]"]'), ''),
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: kColorButtonPrimary,
-                      fontFamily: 'inter',
-                      letterSpacing: -0.1,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.right,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.3),
-                        spreadRadius: 0.5,
-                        blurRadius: 6,
-                        offset: const Offset(-3, 5),
-                      ),
-                    ],
-                    border: Border.all(
-                      color: Colors.brown, // Border color
-                      width: 1, // Thin border
-                    ),
-                  ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  child: GestureDetector(
-                    onTap: () {
-                      _playListClicked();
-                    },
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Image.asset(
-                          "assets/images/icons/music.png",
-                          width: 12,
-                          height: 12,
-                        ),
-                        const SizedBox(width: 3),
-                        const Text(
-                          'playlist',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: -0.1,
-                            fontFamily: 'Inter',
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-        SizedBox(height: vhh(context, 1)),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: List.generate(
-            widget.post['droppins']
-                .where((droppin) {
-                  try {
-                    final delay = DateTime.parse(droppin['deley_time']);
-                    return delay.isBefore(DateTime.now());
-                  } catch (_) {
-                    return true; 
-                  }
-                })
-                .toList()
-                .length,
-            (index) {
-              final filteredDroppins = widget.post['droppins']
-                  .where((droppin) {
-                    try {
-                      final delay = DateTime.parse(droppin['deley_time']);
-                      return delay.isBefore(DateTime.now());
-                    } catch (_) {
-                      return true;
-                    }
-                  })
-                  .toList();
-
-              final droppin = filteredDroppins[index];
-              return Container(
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                padding: const EdgeInsets.all(1),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Colors.black,
-                    width: 1,
-                  ),
-                ),
-                child: GestureDetector(
-                  onTap: () {
-                    _showImageDialog(
-                      droppin['image_path'],
-                      droppin['image_caption'],
-                      droppin['liked_users'].length,
-                      droppin['liked_users'],
-                      droppin['id'],
-                      widget.post['user_id'],
-                      droppin['view_count'],
-                      index,
-                    );
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(1),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.4),
-                          spreadRadius: 0.5,
-                          blurRadius: 6,
-                          offset: const Offset(0, 5),
-                        ),
-                      ],
-                    ),
-                    child: CircleAvatar(
-                      radius: 10,
-                      backgroundColor: Colors.white,
-                      child: Text(
-                        '${index + 1}',
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontFamily: 'inter',
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: -0.1,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-
-        const SizedBox(height: 10),
-        Container(
-          height: 250,
-          decoration: BoxDecoration(
-            color: Colors.black,
-            border: Border.all(
-              color: Colors.black, 
-              width: 0.5,
-            ),
-          ),
-          child: Stack(
-            children: [
-              isLoading
-                  ? const Center(
-                      child: SpinningLoader(),
-                    )
-                  : FlutterMap(
-                     key: ValueKey(widget.post['map_style']), 
-                      mapController: mapController,
-                      options: MapOptions(
-                        initialCenter: lastDropPoint ?? startPoint ?? const LatLng(37.7749, -122.4194),  
-                        initialZoom: 12.0,
-                      ),
-                      children: [
-                        TileLayer(
-                          key: ValueKey(widget.post['map_style']), 
-                          urlTemplate: mapStyleUrl,
-                          additionalOptions: const {
-                            'access_token':
-                                'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw',
-                          },
-                        ),
-                        MarkerLayer(
-                          markers: [
-                            ...locations.where((location) {
-                              final index = locations.indexOf(location);
-                              final droppin = widget.post['droppins'][index];
-                              
-                              try {
-                                final delay = DateTime.parse(droppin['deley_time']);
-                                return delay.isBefore(DateTime.now());
-                              } catch (_) {
-                                return true;
-                              }
-                            }).map((location) {
-                              return Marker(
-                                width: 25.0,
-                                height: 25.0,
-                                point: location,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    final index = locations.indexOf(location);
-                                    final droppin = widget.post['droppins'][index];
-                                    _showImageDialog(
-                                      droppin['image_path'],
-                                      droppin['image_caption'],
-                                      droppin['liked_users'].length,
-                                      droppin['liked_users'],
-                                      droppin['id'],
-                                      widget.post['user_id'],
-                                      droppin['view_count'],
-                                      index,
-                                    );
-                                  },
-                                  child: Container(
-                                    width: 14, 
-                                    height: 14,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.white,
-                                      border: Border.all(
-                                        color: kColorBlack,
-                                        width: 1, 
-                                      ),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withValues(alpha: 0.4),
-                                          spreadRadius: 0.5,
-                                          blurRadius: 6,
-                                          offset: const Offset(0, 5),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        '${locations.indexOf(location) + 1}',
-                                        style: const TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }),
-                            // if (startPoint != null)
-                            //   Marker(
-                            //     width: 80.0,
-                            //     height: 80.0,
-                            //     point: startPoint!,
-                            //     child: const SizedBox(
-                            //       width: 40,
-                            //       height: 40,
-                            //       child: Icon(Icons.flag,
-                            //           color: Colors.red, size: 30),
-                            //     ),
-                            //   ),
-                            // if (endPoint != null)
-                            //   Marker(
-                            //     width: 80.0,
-                            //     height: 80.0,
-                            //     point: endPoint!,
-                            //     child: const SizedBox(
-                            //       width: 40,
-                            //       height: 40,
-                            //       child: Icon(Icons.flag,
-                            //           color: Colors.green, size: 30),
-                            //     ),
-                            //   ),
-                          ],
-                        ),
-                        PolylineLayer(
-                          polylines: [
-                            Polyline(
-                              points: routePoints,
-                              strokeWidth: 4.0,
-                              color: Colors.blue,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-              Positioned(
-                right: 10,
-                top: 10,
-                child: Column(
-                  children: [
-                    FloatingActionButton(
-                      heroTag:
-                          'zoom_in_button_homescreen_tap1_${DateTime.now().millisecondsSinceEpoch}',
-                      onPressed: () {
-                        mapController.move(
-                          mapController.camera.center,
-                          mapController.camera.zoom + 1,
-                        );
-                      },
-                      mini: true,
-                      child: const Icon(Icons.zoom_in),
-                    ),
-                    const SizedBox(height: 8),
-                    FloatingActionButton(
-                      heroTag:
-                          'zoom_out_button_homescreen_tap2_${DateTime.now().millisecondsSinceEpoch}',
-                      onPressed: () {
-                        mapController.move(
-                          mapController.camera.center,
-                          mapController.camera.zoom - 1,
-                        );
-                      },
-                      mini: true,
-                      child: const Icon(Icons.zoom_out),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(
-          height: 5,
-        ),
-        if (isAddComments)
-          Row(
-            children: [
-              Expanded(
-                child: SizedBox(
-                  height: 40,
-                  child: TextField(
-                    controller: _addCommitController,
-                    decoration: const InputDecoration(
-                      hintText: 'add a comment',
-                      hintStyle: TextStyle(
-                          color: Colors.grey,
-                          fontSize: 15,
-                          letterSpacing: -0.1,
-                          fontFamily: 'inter'),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(
-                          color: Colors.grey,
-                          width: 1.0,
-                        ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(
-                          color: Colors.grey,
-                          width: 1.0,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(
-                          color: Colors.grey,
-                          width: 1.0,
-                        ),
-                      ),
-                      contentPadding: EdgeInsets.symmetric(
-                        vertical:10.0, 
-                        horizontal: 8.0, 
-                      ),
-                    ),
-                    style: const TextStyle(
-                      fontFamily: 'inter',
-                      fontSize: 15,
-                      letterSpacing: -0.1,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.send, color: kColorHereButton),
-                onPressed: _sendComment,
-              ),
-            ],
-          ),
-        Column(
+    return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 5),
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const SizedBox(
                   width: 10,
                 ),
                 GestureDetector(
                   onTap: () {
-                    setState(() {
-                      showLikesDropdown = true;
-                    });
+                    _goUserScreen();
                   },
-                  child: Text(
-                    '$likes likes',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w400,
-                      color: widget.post['userId'] == GlobalVariables.userId
-                          ? Colors.red
-                          : Colors.grey,
-                      fontSize: 13,
-                      letterSpacing: -0.1,
-                      fontFamily: 'inter',
+                  child: Container(
+                    height: vhh(context, 7),
+                    width: vhh(context, 7),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(100),
+                      border: Border.all(
+                        color: kColorHereButton,
+                        width: 1,
+                      ),
+                      image: widget.post['user']['photo'] != null
+                          ? DecorationImage(
+                              image: NetworkImage(widget.post['user']['photo']),
+                              fit: BoxFit.cover,
+                              onError: (exception, stackTrace) {},
+                            )
+                          : null,
                     ),
                   ),
                 ),
+                const SizedBox(width: 10),
+                Text(
+                  "@${widget.post['user']['rolla_username']}",
+                  style: const TextStyle(
+                      fontSize: 15,
+                      fontFamily: 'inter',
+                      letterSpacing: -0.1,
+                      fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(width: 5),
+                const Icon(Icons.verified, color: kColorHereButton, size: 18),
                 const Spacer(),
                 GestureDetector(
                   onTap: () {
-                    setState(() {
-                      isAddComments =
-                          !isAddComments; // Toggle the visibility of comments
-                    });
+                    if (GlobalVariables.userId == widget.post['user']['id']) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('It is your post!'),
+                          duration: Duration(seconds: 1),
+                        ),
+                      );
+                    } else {
+                      _showLikeDialog(
+                          context,
+                          widget.post['user']['photo'],
+                          widget.post['user']['following_user_id'],
+                          widget.post['user']['id'],
+                          widget.post['id']);
+                    }
                   },
-                  child: Image.asset("assets/images/icons/messageicon.png",
-                      width: vww(context, 4)),
-                ),
-                const SizedBox(width: 15),
-                GestureDetector(
-                  onTap: () {
-                    _goTagScreen();
-                  },
-                  child: Image.asset("assets/images/icons/add_car.png",
-                      width: vww(context, 7)),
+                  child: Image.asset(
+                    "assets/images/icons/reference.png",
+                    width: 24,
+                    height: 24,
+                  ),
                 ),
                 const SizedBox(
-                  width: 5,
+                  width: 10,
                 ),
               ],
             ),
-            const SizedBox(height: 1),
-            // Row(
-            //   crossAxisAlignment: CrossAxisAlignment.start,
-            //   children: [
-            //     Text(widget.post['user']['rolla_username'],
-            //         style: const TextStyle(
-            //           fontWeight: FontWeight.bold,
-            //           fontSize: 15,
-            //           letterSpacing: -0.1,
-            //           fontFamily: 'inter',
-            //         )),
-            //     const SizedBox(width: 15),
-            //     Text(widget.post['trip_caption'] ?? " ",
-            //         style: const TextStyle(
-            //           color: kColorButtonPrimary,
-            //           fontSize: 15,
-            //           letterSpacing: -0.1,
-            //           fontFamily: 'inter',
-            //         )),
-            //   ],
-            // ),
-            widget.post['trip_caption'] == "null" || widget.post['trip_caption'].isEmpty
-              ? const SizedBox.shrink()
-              : Padding(
-                  padding: const EdgeInsets.only(left: 10),
-                  child: Text(
-                    widget.post['trip_caption'],
-                    style: const TextStyle(
-                      fontFamily: 'inter',
-                      fontWeight: FontWeight.w500,
-                      fontSize: 13,
-                      letterSpacing: -0.1,
+            SizedBox(height: vhh(context, 0.5)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('destination',
+                        style: TextStyle(
+                            fontSize: 13,
+                            fontFamily: 'inter',
+                            letterSpacing: -0.1,
+                            fontWeight: FontWeight.bold)),
+                    SizedBox(height: 3),
+                    Text('soundtrack',
+                        style: TextStyle(
+                            fontSize: 13,
+                            fontFamily: 'inter',
+                            letterSpacing: -0.1,
+                            fontWeight: FontWeight.bold)),
+                  ],
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    SizedBox(
+                      width: 210,
+                      child: Text(
+                        widget.post['destination_text_address']
+                                    .replaceAll(RegExp(r'[\[\]"]'), '') ==
+                                "Edit destination"
+                            ? " "
+                            : widget.post['destination_text_address']
+                                .replaceAll(RegExp(r'[\[\]"]'), ''),
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: kColorButtonPrimary,
+                          fontFamily: 'inter',
+                          letterSpacing: -0.1,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.right,
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 3),
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.3),
+                            spreadRadius: 0.5,
+                            blurRadius: 6,
+                            offset: const Offset(-3, 5),
+                          ),
+                        ],
+                        border: Border.all(
+                          color: Colors.brown, // Border color
+                          width: 1, // Thin border
+                        ),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 2),
+                      child: GestureDetector(
+                        onTap: () {
+                          _playListClicked();
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Image.asset(
+                              "assets/images/icons/music.png",
+                              width: 12,
+                              height: 12,
+                            ),
+                            const SizedBox(width: 3),
+                            const Text(
+                              'playlist',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: -0.1,
+                                fontFamily: 'Inter',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
+              ],
+            ),
+            SizedBox(height: vhh(context, 1)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: List.generate(
+                widget.post['droppins']
+                    .where((droppin) {
+                      try {
+                        final delay = DateTime.parse(droppin['deley_time']);
+                        return delay.isBefore(DateTime.now());
+                      } catch (_) {
+                        return true;
+                      }
+                    })
+                    .toList()
+                    .length,
+                (index) {
+                  final filteredDroppins =
+                      widget.post['droppins'].where((droppin) {
+                    try {
+                      final delay = DateTime.parse(droppin['deley_time']);
+                      return delay.isBefore(DateTime.now());
+                    } catch (_) {
+                      return true;
+                    }
+                  }).toList();
 
-            const SizedBox(height: 12),
-            Center(
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    showComments = !showComments;
-                  });
+                  final droppin = filteredDroppins[index];
+                  return Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    padding: const EdgeInsets.all(1),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.black,
+                        width: 1,
+                      ),
+                    ),
+                    child: GestureDetector(
+                      onTap: () {
+                        _showImageDialog(
+                          droppin['image_path'],
+                          droppin['image_caption'],
+                          droppin['liked_users'].length,
+                          droppin['liked_users'],
+                          droppin['id'],
+                          widget.post['user_id'],
+                          droppin['view_count'],
+                          index,
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(1),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.4),
+                              spreadRadius: 0.5,
+                              blurRadius: 6,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
+                        ),
+                        child: CircleAvatar(
+                          radius: 10,
+                          backgroundColor: Colors.white,
+                          child: Text(
+                            '${index + 1}',
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontFamily: 'inter',
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: -0.1,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
                 },
-                child: Text(
-                  '${widget.post["comments"].length} comments',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w400,
-                    fontSize: 13,
-                    fontFamily: 'inter',
-                  ),
-                ),
               ),
             ),
-            if (showComments)
-              Column(
-                children: widget.post['comments'].map<Widget>((comment) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4.0),
-                    child: Row(
+            const SizedBox(height: 10),
+            Container(
+              height: 250,
+              decoration: BoxDecoration(
+                color: Colors.black,
+                border: Border.all(
+                  color: Colors.black,
+                  width: 0.5,
+                ),
+              ),
+              child: Stack(
+                children: [
+                  isLoading
+                      ? const Center(
+                          child: SpinningLoader(),
+                        )
+                      : FlutterMap(
+                          key: ValueKey(widget.post['map_style']),
+                          mapController: mapController,
+                          options: MapOptions(
+                            initialCenter: lastDropPoint ??
+                                startPoint ??
+                                const LatLng(37.7749, -122.4194),
+                            initialZoom: 12.0,
+                          ),
+                          children: [
+                            TileLayer(
+                              key: ValueKey(widget.post['map_style']),
+                              urlTemplate: mapStyleUrl,
+                              additionalOptions: const {
+                                'access_token':
+                                    'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw',
+                              },
+                            ),
+                            MarkerLayer(
+                              markers: [
+                                ...locations.where((location) {
+                                  final index = locations.indexOf(location);
+                                  final droppin =
+                                      widget.post['droppins'][index];
+
+                                  try {
+                                    final delay =
+                                        DateTime.parse(droppin['deley_time']);
+                                    return delay.isBefore(DateTime.now());
+                                  } catch (_) {
+                                    return true;
+                                  }
+                                }).map((location) {
+                                  return Marker(
+                                    width: 25.0,
+                                    height: 25.0,
+                                    point: location,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        final index =
+                                            locations.indexOf(location);
+                                        final droppin =
+                                            widget.post['droppins'][index];
+                                        _showImageDialog(
+                                          droppin['image_path'],
+                                          droppin['image_caption'],
+                                          droppin['liked_users'].length,
+                                          droppin['liked_users'],
+                                          droppin['id'],
+                                          widget.post['user_id'],
+                                          droppin['view_count'],
+                                          index,
+                                        );
+                                      },
+                                      child: Container(
+                                        width: 14,
+                                        height: 14,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.white,
+                                          border: Border.all(
+                                            color: kColorBlack,
+                                            width: 1,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black
+                                                  .withValues(alpha: 0.4),
+                                              spreadRadius: 0.5,
+                                              blurRadius: 6,
+                                              offset: const Offset(0, 5),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            '${locations.indexOf(location) + 1}',
+                                            style: const TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }),
+                                // if (startPoint != null)
+                                //   Marker(
+                                //     width: 80.0,
+                                //     height: 80.0,
+                                //     point: startPoint!,
+                                //     child: const SizedBox(
+                                //       width: 40,
+                                //       height: 40,
+                                //       child: Icon(Icons.flag,
+                                //           color: Colors.red, size: 30),
+                                //     ),
+                                //   ),
+                                // if (endPoint != null)
+                                //   Marker(
+                                //     width: 80.0,
+                                //     height: 80.0,
+                                //     point: endPoint!,
+                                //     child: const SizedBox(
+                                //       width: 40,
+                                //       height: 40,
+                                //       child: Icon(Icons.flag,
+                                //           color: Colors.green, size: 30),
+                                //     ),
+                                //   ),
+                              ],
+                            ),
+                            PolylineLayer(
+                              polylines: [
+                                Polyline(
+                                  points: routePoints,
+                                  strokeWidth: 4.0,
+                                  color: Colors.blue,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                  Positioned(
+                    right: 10,
+                    top: 10,
+                    child: Column(
                       children: [
-                        Container(
-                          height: vhh(context, 3),
-                          width: vhh(context, 3),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: kColorHereButton,
-                              width: 2,
-                            ),
-                            image: comment['user']['photo'] != null
-                                ? DecorationImage(
-                                    image:
-                                        NetworkImage(comment['user']['photo']),
-                                    fit: BoxFit.cover,
-                                  )
-                                : null,
-                          ),
+                        FloatingActionButton(
+                          heroTag:
+                              'zoom_in_button_homescreen_tap1_${DateTime.now().millisecondsSinceEpoch}',
+                          onPressed: () {
+                            mapController.move(
+                              mapController.camera.center,
+                              mapController.camera.zoom + 1,
+                            );
+                          },
+                          mini: true,
+                          child: const Icon(Icons.zoom_in),
                         ),
-                        const SizedBox(width: 5),
-                        Text(
-                          comment['user']['rolla_username'] ?? 'Unknown User',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: kColorHereButton,
-                            fontSize: 13,
-                            letterSpacing: -0.1,
-                            fontFamily: 'inter',
-                          ),
-                        ),
-                        const SizedBox(width: 5),
-                        if (comment['user']['rolla_username'] != null)
-                          const Icon(Icons.verified,
-                              color: Colors.blue, size: 16),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            comment['content'] ?? '',
-                            style: const TextStyle(
-                              fontFamily: 'inter',
-                              fontSize: 14,
-                              letterSpacing: 0.1,
-                            ),
-                          ),
+                        const SizedBox(height: 8),
+                        FloatingActionButton(
+                          heroTag:
+                              'zoom_out_button_homescreen_tap2_${DateTime.now().millisecondsSinceEpoch}',
+                          onPressed: () {
+                            mapController.move(
+                              mapController.camera.center,
+                              mapController.camera.zoom - 1,
+                            );
+                          },
+                          mini: true,
+                          child: const Icon(Icons.zoom_out),
                         ),
                       ],
                     ),
-                  );
-                }).toList(),
+                  ),
+                ],
               ),
-            SizedBox(height: vh(context, 4),),
-            Padding(
-              padding: const EdgeInsets.only(left: 7),
-              child: Text(
-                  'last updated ${timeago.format(now.subtract(difference), locale: 'en_short')} ago',
-                  style: const TextStyle(
-                    fontFamily: 'inter',
-                    color: Color(0xFF95989C),
-                    fontSize: 11,
-                  )),
+            ),
+            const SizedBox(
+              height: 5,
+            ),
+            if (isAddComments)
+              Row(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      height: 40,
+                      child: TextField(
+                        controller: _addCommitController,
+                        decoration: const InputDecoration(
+                          hintText: 'add a comment',
+                          hintStyle: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 15,
+                              letterSpacing: -0.1,
+                              fontFamily: 'inter'),
+                          border: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(8.0)),
+                            borderSide: BorderSide(
+                              color: Colors.grey,
+                              width: 1.0,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(8.0)),
+                            borderSide: BorderSide(
+                              color: Colors.grey,
+                              width: 1.0,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(8.0)),
+                            borderSide: BorderSide(
+                              color: Colors.grey,
+                              width: 1.0,
+                            ),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                            vertical: 10.0,
+                            horizontal: 8.0,
+                          ),
+                        ),
+                        style: const TextStyle(
+                          fontFamily: 'inter',
+                          fontSize: 15,
+                          letterSpacing: -0.1,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.send, color: kColorHereButton),
+                    onPressed: _sendComment,
+                  ),
+                ],
+              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          showLikesDropdown = true;
+                        });
+                      },
+                      child: Text(
+                        '$likes likes',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w400,
+                          color: widget.post['userId'] == GlobalVariables.userId
+                              ? Colors.red
+                              : Colors.grey,
+                          fontSize: 13,
+                          letterSpacing: -0.1,
+                          fontFamily: 'inter',
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          isAddComments =
+                              !isAddComments; // Toggle the visibility of comments
+                        });
+                      },
+                      child: Image.asset("assets/images/icons/messageicon.png",
+                          width: vww(context, 4)),
+                    ),
+                    const SizedBox(width: 15),
+                    GestureDetector(
+                      onTap: () {
+                        _goTagScreen();
+                      },
+                      child: Image.asset("assets/images/icons/add_car.png",
+                          width: vww(context, 7)),
+                    ),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 1),
+                // Row(
+                //   crossAxisAlignment: CrossAxisAlignment.start,
+                //   children: [
+                //     Text(widget.post['user']['rolla_username'],
+                //         style: const TextStyle(
+                //           fontWeight: FontWeight.bold,
+                //           fontSize: 15,
+                //           letterSpacing: -0.1,
+                //           fontFamily: 'inter',
+                //         )),
+                //     const SizedBox(width: 15),
+                //     Text(widget.post['trip_caption'] ?? " ",
+                //         style: const TextStyle(
+                //           color: kColorButtonPrimary,
+                //           fontSize: 15,
+                //           letterSpacing: -0.1,
+                //           fontFamily: 'inter',
+                //         )),
+                //   ],
+                // ),
+                widget.post['trip_caption'] == null ||
+                        widget.post['trip_caption'] == "null" ||
+                        widget.post['trip_caption'].isEmpty
+                    ? const SizedBox.shrink()
+                    : Padding(
+                        padding: const EdgeInsets.only(left: 10),
+                        child: Text(
+                          widget.post['trip_caption'],
+                          style: const TextStyle(
+                            fontFamily: 'inter',
+                            fontWeight: FontWeight.w500,
+                            fontSize: 13,
+                            letterSpacing: -0.1,
+                          ),
+                        ),
+                      ),
+
+                const SizedBox(height: 12),
+                Center(
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        showComments = !showComments;
+                      });
+                    },
+                    child: Text(
+                      '${widget.post["comments"].length} comments',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 13,
+                        fontFamily: 'inter',
+                      ),
+                    ),
+                  ),
+                ),
+                if (showComments)
+                  Column(
+                    children: widget.post['comments'].map<Widget>((comment) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4.0),
+                        child: Row(
+                          children: [
+                            Container(
+                              height: vhh(context, 3),
+                              width: vhh(context, 3),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: kColorHereButton,
+                                  width: 2,
+                                ),
+                                image: comment['user']['photo'] != null
+                                    ? DecorationImage(
+                                        image: NetworkImage(
+                                            comment['user']['photo']),
+                                        fit: BoxFit.cover,
+                                      )
+                                    : null,
+                              ),
+                            ),
+                            const SizedBox(width: 5),
+                            Text(
+                              comment['user']['rolla_username'] ??
+                                  'Unknown User',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: kColorHereButton,
+                                fontSize: 13,
+                                letterSpacing: -0.1,
+                                fontFamily: 'inter',
+                              ),
+                            ),
+                            const SizedBox(width: 5),
+                            if (comment['user']['rolla_username'] != null)
+                              const Icon(Icons.verified,
+                                  color: Colors.blue, size: 16),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                comment['content'] ?? '',
+                                style: const TextStyle(
+                                  fontFamily: 'inter',
+                                  fontSize: 14,
+                                  letterSpacing: 0.1,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                SizedBox(
+                  height: vh(context, 4),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 7),
+                  child: Text(
+                      'last updated ${timeago.format(now.subtract(difference), locale: 'en_short')} ago',
+                      style: const TextStyle(
+                        fontFamily: 'inter',
+                        color: Color(0xFF95989C),
+                        fontSize: 11,
+                      )),
+                ),
+              ],
+            ),
+            const SizedBox(height: 2),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: Divider(),
             ),
           ],
-        ),
-        const SizedBox(height: 2),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
-          child: Divider(),
-        ),
-      ],
-    ));
+        ));
   }
 }
