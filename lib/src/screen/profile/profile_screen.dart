@@ -70,7 +70,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
       final result = await apiService.fetchUserTrips(GlobalVariables.userId!);
       // logger.i(result);
 
-      if (result.isNotEmpty) { 
+      if (result.isNotEmpty) {
         final trips = result['trips'] as List<dynamic>;
         final userInfoList = result['userInfo'] as List<dynamic>?;
         final now = DateTime.now();
@@ -79,7 +79,8 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
         for (var trip in trips) {
           if (trip['droppins'] != null) {
             // Filter droppins based on deley_time
-            List<dynamic> originalDroppins = List<dynamic>.from(trip['droppins']);
+            List<dynamic> originalDroppins =
+                List<dynamic>.from(trip['droppins']);
             List<dynamic> filteredDroppins = [];
             List<dynamic> filteredStopLocations = [];
 
@@ -93,7 +94,8 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                   includeDroppin = true; // If no delay, include it
                 } else {
                   final delayTime = DateTime.parse(delayStr);
-                  includeDroppin = !delayTime.isAfter(now); // Include if deley_time <= now
+                  includeDroppin =
+                      !delayTime.isAfter(now); // Include if deley_time <= now
                 }
               } catch (e) {
                 logger.e('Error parsing deley_time: $e');
@@ -108,7 +110,8 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
 
             // Only add the trip if it has valid droppins
             if (filteredDroppins.isNotEmpty) {
-              Map<String, dynamic> filteredTrip = Map<String, dynamic>.from(trip);
+              Map<String, dynamic> filteredTrip =
+                  Map<String, dynamic>.from(trip);
               filteredTrip['droppins'] = filteredDroppins;
               filteredTrip['stop_locations'] = filteredStopLocations;
               filteredTrips.add(filteredTrip);
@@ -129,7 +132,8 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
 
             final following = user['following_user_id'];
             if (following != null && following.toString().isNotEmpty) {
-              followingCount = following.toString().split(',').length.toString();
+              followingCount =
+                  following.toString().split(',').length.toString();
             } else {
               followingCount = "0";
             }
@@ -155,11 +159,12 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
 
         // Update state with filtered trips and droppins
         setState(() {
-          userTrips = filteredTrips.reversed.toList().cast<Map<String, dynamic>>();
-          dropPinsData = allDroppins.isNotEmpty ? allDroppins.reversed.toList() : [];
+          userTrips =
+              filteredTrips.reversed.toList().cast<Map<String, dynamic>>();
+          dropPinsData =
+              allDroppins.isNotEmpty ? allDroppins.reversed.toList() : [];
           isLoadingTrips = false;
         });
-
       } else {
         setState(() {
           userTrips = [];
@@ -214,7 +219,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
       });
     }
   }
-  
+
   void _onSelectTrip(int tripId) {
     setState(() {
       if (_selectedMapIndices.contains(tripId)) {
@@ -241,7 +246,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     _showLoadingDialog();
     for (int tripId in _selectedMapIndices) {
       try {
-        if(tripId == localTripId){
+        if (tripId == localTripId) {
           await prefs.remove("tripId");
           await prefs.remove("dropcount");
           await prefs.remove("destination_text");
@@ -249,7 +254,8 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
           await prefs.remove("caption_text");
           ref.read(isTripStartedProvider.notifier).state = false;
           GlobalVariables.isTripStarted = false;
-          ref.read(staticStartingPointProvider.notifier).state = ref.read(movingLocationProvider);
+          ref.read(staticStartingPointProvider.notifier).state =
+              ref.read(movingLocationProvider);
           ref.read(movingLocationProvider.notifier).state = null;
           ref.read(markersProvider.notifier).state = [];
           ref.read(totalDistanceProvider.notifier).state = 0.0;
@@ -266,12 +272,12 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
         final result = await apiService.deleteTrip(tripId);
 
         if (result['statusCode'] != true) {
-          allDeletedSuccessfully = false; 
+          allDeletedSuccessfully = false;
           logger.e('Failed to delete trip with ID: $tripId');
-          break; 
+          break;
         }
       } catch (e) {
-        allDeletedSuccessfully = false; 
+        allDeletedSuccessfully = false;
         logger.e('Error deleting trip with ID: $tripId. $e');
         break;
       }
@@ -284,7 +290,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
         _selectedMapIndices.clear();
       });
 
-      if(!mounted) return;
+      if (!mounted) return;
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const ProfileScreen()),
@@ -293,10 +299,13 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   void _onFollowers() {
-    Navigator.push(context,
+    Navigator.push(
+        context,
         MaterialPageRoute(
-          builder: (context) => 
-          HomeFollowScreen(userid: GlobalVariables.userId!, fromUser: "You",)));
+            builder: (context) => HomeFollowScreen(
+                  userid: GlobalVariables.userId!,
+                  fromUser: "You",
+                )));
   }
 
   void _onFollowing() {
@@ -304,7 +313,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
       context,
       PageRouteBuilder(
         pageBuilder: (context, animation1, animation2) =>
-              ProfileFollowingScreen(userid: GlobalVariables.userId!),
+            ProfileFollowingScreen(userid: GlobalVariables.userId!),
         transitionDuration: Duration.zero,
         reverseTransitionDuration: Duration.zero,
       ),
@@ -316,7 +325,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
       context,
       PageRouteBuilder(
         pageBuilder: (context, animation1, animation2) =>
-              const SettingsScreen(),
+            const SettingsScreen(),
         transitionDuration: Duration.zero,
         reverseTransitionDuration: Duration.zero,
       ),
@@ -328,7 +337,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
       context,
       PageRouteBuilder(
         pageBuilder: (context, animation1, animation2) =>
-              const EditProfileScreen(),
+            const EditProfileScreen(),
         transitionDuration: Duration.zero,
         reverseTransitionDuration: Duration.zero,
       ),
@@ -371,7 +380,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                           onPressed: () {
                             Navigator.of(context).pop();
                             setState(() {
-                              showLikesDropdown =false;
+                              showLikesDropdown = false;
                             });
                           },
                         ),
@@ -532,252 +541,298 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
                       SizedBox(height: vhh(context, 5)),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Image.asset(
-                            'assets/images/icons/logo.png',
-                            width: 90,
-                            height: 80,
-                          ),
-                          const Spacer(),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                "@$username!",
-                                style: const TextStyle(
-                                  color: kColorBlack,
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.w500,
-                                  fontFamily: 'inter',
-                                  letterSpacing: -0.1,
-                                ),
-                              ),
-                              const SizedBox(width : 3),
-                              Image.asset(
-                                'assets/images/icons/verify.png',
-                                width: 22,
-                                height: 22,
-                                fit: BoxFit.contain,
-                              ),
-                            ],
-                          ),
-                          const Spacer(),
-                          Row(
-                            children: [
-                              if (_isSelectMode)
-                                SizedBox(
-                                  height: 30,
-                                  child: ElevatedButton(
-                                    onPressed: _onDeleteButtonPressed,
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: kColorStafGrey,
-                                      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 2),
-                                    ),
-                                    child: const Text(
-                                      "Delete",
-                                      style: TextStyle(
-                                        color: Colors.red,
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'inter',),
-                                    ),
-                                  ),
-                                ),
-                              if (_isSelectMode)
-                                const SizedBox(width: 3,),
-                              SizedBox(
-                                height: 30, 
-                                child: ElevatedButton(
-                                  onPressed: _onSelectButtonPressed,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: kColorStafGrey,
-                                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                                  ),
-                                  child: Text(
-                                    _isSelectMode ? 'Cancel' : 'Select',
-                                    style: const TextStyle(
-                                      color: Colors.black54,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 13,
-                                      fontFamily: 'inter',),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(width: 10,)
-                        ],
-                      ),
-
-                      Padding(
-                        padding: EdgeInsets.only(top: vhh(context, 0)), 
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Container(),
-                            Column(
+                      Stack(
+                        alignment: Alignment.topCenter,
+                        children: <Widget>[
+                          Positioned(
+                            top: vhh(context, 0),
+                            left: 0,
+                            right: 0,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 Image.asset(
-                                  'assets/images/icons/trips1.png',
-                                  width: vww(context, 20),
+                                  'assets/images/icons/logo.png',
+                                  width: 90,
+                                  height: 80,
                                 ),
-                                Text(
-                                  GlobalVariables.tripCount?.toString() ?? "0",
-                                  style: const TextStyle(
-                                      fontSize: 20,
-                                      color: kColorButtonPrimary,
-                                      fontFamily: 'interBold'),
+                                const Spacer(),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      "@$username!",
+                                      style: const TextStyle(
+                                        color: kColorBlack,
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.w500,
+                                        fontFamily: 'inter',
+                                        letterSpacing: -0.1,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 3),
+                                    Image.asset(
+                                      'assets/images/icons/verify.png',
+                                      width: 22,
+                                      height: 22,
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ],
                                 ),
+                                const Spacer(),
+                                Row(
+                                  children: [
+                                    if (_isSelectMode)
+                                      SizedBox(
+                                        height: 30,
+                                        child: ElevatedButton(
+                                          onPressed: _onDeleteButtonPressed,
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: kColorStafGrey,
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 0, vertical: 2),
+                                          ),
+                                          child: const Text(
+                                            "Delete",
+                                            style: TextStyle(
+                                              color: Colors.red,
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.bold,
+                                              fontFamily: 'inter',
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    if (_isSelectMode)
+                                      const SizedBox(
+                                        width: 3,
+                                      ),
+                                    SizedBox(
+                                      height: 30,
+                                      child: ElevatedButton(
+                                        onPressed: _onSelectButtonPressed,
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: kColorStafGrey,
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 5, vertical: 2),
+                                        ),
+                                        child: Text(
+                                          _isSelectMode ? 'Cancel' : 'Select',
+                                          style: const TextStyle(
+                                            color: Colors.black54,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 13,
+                                            fontFamily: 'inter',
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(
+                                  width: 10,
+                                )
                               ],
                             ),
-                            Stack(
-                              alignment: Alignment.center,
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(top: vhh(context, 7.5)),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
+                                Container(),
+                                Column(
+                                  children: [
+                                    Image.asset(
+                                      'assets/images/icons/trips1.png',
+                                      width: vww(context, 20),
+                                    ),
+                                    Text(
+                                      GlobalVariables.tripCount?.toString() ??
+                                          "0",
+                                      style: const TextStyle(
+                                        fontSize: 20,
+                                        color: kColorButtonPrimary,
+                                        fontFamily: 'interBold',
+                                      ),
+                                    ),
+                                  ],
+                                ),
                                 Container(
                                   height: vhh(context, 15),
                                   width: vhh(context, 15),
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(100),
-                                    border: Border.all(
-                                      color: kColorHereButton,
-                                      width: 2,
+                                      borderRadius: BorderRadius.circular(100),
+                                      border: Border.all(
+                                        color: kColorHereButton,
+                                        width: 2,
+                                      ),
+                                      image: GlobalVariables.userImageUrl !=
+                                              null
+                                          ? DecorationImage(
+                                              image: NetworkImage(GlobalVariables
+                                                  .userImageUrl!), // Use NetworkImage for URL
+                                              fit: BoxFit.cover,
+                                            )
+                                          : null),
+                                ),
+                                Column(
+                                  children: [
+                                    Image.asset(
+                                      'assets/images/icons/follower1.png',
+                                      width: vww(context, 21),
                                     ),
-                                  ),
-                                  child: ClipOval(
-                                    child: GlobalVariables.userImageUrl != null
-                                        ? Image.network(
-                                            GlobalVariables.userImageUrl!,
-                                            fit: BoxFit.cover,
-                                            height: vhh(context, 15),
-                                            width: vhh(context, 15),
-                                            loadingBuilder: (context, child, loadingProgress) {
-                                              if (loadingProgress == null) return child;
-                                              return const Center(
-                                                child: SpinningLoader(),
-                                              );
-                                            },
-                                            errorBuilder: (context, error, stackTrace) {
-                                              return Container(
-                                                height: vhh(context, 15),
-                                                width: vhh(context, 15),
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  color: Colors.grey[300],
-                                                ),
-                                                child: Icon(Icons.person, color: Colors.grey[600]),
-                                              );
-                                            },
-                                          )
-                                        : Container(
-                                            height: vhh(context, 15),
-                                            width: vhh(context, 15),
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              color: Colors.grey[300],
-                                            ),
-                                            child: Icon(Icons.person, color: Colors.grey[600]),
-                                          ),
-                                  ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        _onFollowers();
+                                      },
+                                      child: Text(
+                                        followingCount!,
+                                        style: const TextStyle(
+                                          fontSize: 20,
+                                          color: kColorButtonPrimary,
+                                          fontFamily: 'interBold',
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                
+                                Container(),
                               ],
                             ),
-                            Column(
-                              children: [
-                                Image.asset(
-                                  'assets/images/icons/follower1.png',
-                                  width: vww(context, 21),
-                                ),
-                                GestureDetector(
-                                  onTap: _onFollowers,
-                                  child: Text(
-                                    followingCount ?? "0",
-                                    style: const TextStyle(
-                                        fontSize: 20,
-                                        color: kColorButtonPrimary,
-                                        fontFamily: 'interBold'),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Container(),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                      // Stack(
-                      //   alignment: Alignment.topCenter,
+                      // Row(
+                      //   mainAxisAlignment: MainAxisAlignment.start,
                       //   children: [
-                      //     // === Trips - Avatar - Followers Row ===
-                      //     Padding(
-                      //       padding: EdgeInsets.only(top: vhh(context, 8)), 
-                      //       child: Row(
-                      //         mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      //         crossAxisAlignment: CrossAxisAlignment.center,
-                      //         children: [
-                      //           Container(),
-                      //           Column(
-                      //             children: [
-                      //               Image.asset(
-                      //                 'assets/images/icons/trips1.png',
-                      //                 width: vww(context, 20),
-                      //               ),
-                      //               Text(
-                      //                 GlobalVariables.tripCount?.toString() ?? "0",
-                      //                 style: const TextStyle(
-                      //                     fontSize: 20,
-                      //                     color: kColorButtonPrimary,
-                      //                     fontFamily: 'interBold'),
-                      //               ),
-                      //             ],
+                      //     Image.asset(
+                      //       'assets/images/icons/logo.png',
+                      //       width: 90,
+                      //       height: 80,
+                      //     ),
+                      //     const Spacer(),
+                      //     Row(
+                      //       crossAxisAlignment: CrossAxisAlignment.center,
+                      //       children: [
+                      //         Text(
+                      //           "@$username!",
+                      //           style: const TextStyle(
+                      //             color: kColorBlack,
+                      //             fontSize: 17,
+                      //             fontWeight: FontWeight.w500,
+                      //             fontFamily: 'inter',
+                      //             letterSpacing: -0.1,
                       //           ),
-                      //           Stack(
-                      //             alignment: Alignment.center,
-                      //             children: [
-                      //               Container(
-                      //                 height: vhh(context, 15),
-                      //                 width: vhh(context, 15),
-                      //                 decoration: BoxDecoration(
-                      //                   borderRadius: BorderRadius.circular(100),
-                      //                   border: Border.all(
-                      //                     color: kColorHereButton,
-                      //                     width: 2,
-                      //                   ),
-                      //                 ),
-                      //                 child: ClipOval(
-                      //                   child: GlobalVariables.userImageUrl != null
-                      //                       ? Image.network(
-                      //                           GlobalVariables.userImageUrl!,
-                      //                           fit: BoxFit.cover,
-                      //                           height: vhh(context, 15),
-                      //                           width: vhh(context, 15),
-                      //                           loadingBuilder: (context, child, loadingProgress) {
-                      //                             if (loadingProgress == null) return child;
-                      //                             return Center(
-                      //                               child: SpinningLoader(
-                      //                                 value: loadingProgress.expectedTotalBytes != null
-                      //                                     ? loadingProgress.cumulativeBytesLoaded /
-                      //                                         (loadingProgress.expectedTotalBytes ?? 1)
-                      //                                     : null,
-                      //                                 strokeWidth: 2,
-                      //                               ),
-                      //                             );
-                      //                           },
-                      //                           errorBuilder: (context, error, stackTrace) {
-                      //                             return Container(
-                      //                               height: vhh(context, 15),
-                      //                               width: vhh(context, 15),
-                      //                               decoration: BoxDecoration(
-                      //                                 shape: BoxShape.circle,
-                      //                                 color: Colors.grey[300],
-                      //                               ),
-                      //                               child: Icon(Icons.person, color: Colors.grey[600]),
-                      //                             );
-                      //                           },
-                      //                         )
-                      //                       : Container(
+                      //         ),
+                      //         const SizedBox(width : 3),
+                      //         Image.asset(
+                      //           'assets/images/icons/verify.png',
+                      //           width: 22,
+                      //           height: 22,
+                      //           fit: BoxFit.contain,
+                      //         ),
+                      //       ],
+                      //     ),
+                      //     const Spacer(),
+                      //     Row(
+                      //       children: [
+                      //         if (_isSelectMode)
+                      //           SizedBox(
+                      //             height: 30,
+                      //             child: ElevatedButton(
+                      //               onPressed: _onDeleteButtonPressed,
+                      //               style: ElevatedButton.styleFrom(
+                      //                 backgroundColor: kColorStafGrey,
+                      //                 padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 2),
+                      //               ),
+                      //               child: const Text(
+                      //                 "Delete",
+                      //                 style: TextStyle(
+                      //                   color: Colors.red,
+                      //                   fontSize: 13,
+                      //                   fontWeight: FontWeight.bold,
+                      //                   fontFamily: 'inter',),
+                      //               ),
+                      //             ),
+                      //           ),
+                      //         if (_isSelectMode)
+                      //           const SizedBox(width: 3,),
+                      //         SizedBox(
+                      //           height: 30,
+                      //           child: ElevatedButton(
+                      //             onPressed: _onSelectButtonPressed,
+                      //             style: ElevatedButton.styleFrom(
+                      //               backgroundColor: kColorStafGrey,
+                      //               padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                      //             ),
+                      //             child: Text(
+                      //               _isSelectMode ? 'Cancel' : 'Select',
+                      //               style: const TextStyle(
+                      //                 color: Colors.black54,
+                      //                 fontWeight: FontWeight.bold,
+                      //                 fontSize: 13,
+                      //                 fontFamily: 'inter',),
+                      //             ),
+                      //           ),
+                      //         ),
+                      //       ],
+                      //     ),
+                      //     const SizedBox(width: 10,)
+                      //   ],
+                      // ),
+
+                      // Padding(
+                      //   padding: EdgeInsets.only(top: vhh(context, 0)),
+                      //   child: Row(
+                      //     mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      //     crossAxisAlignment: CrossAxisAlignment.center,
+                      //     children: [
+                      //       Container(),
+                      //       Column(
+                      //         children: [
+                      //           Image.asset(
+                      //             'assets/images/icons/trips1.png',
+                      //             width: vww(context, 20),
+                      //           ),
+                      //           Text(
+                      //             GlobalVariables.tripCount?.toString() ?? "0",
+                      //             style: const TextStyle(
+                      //                 fontSize: 20,
+                      //                 color: kColorButtonPrimary,
+                      //                 fontFamily: 'interBold'),
+                      //           ),
+                      //         ],
+                      //       ),
+                      //       Stack(
+                      //         alignment: Alignment.center,
+                      //         children: [
+                      //           Container(
+                      //             height: vhh(context, 15),
+                      //             width: vhh(context, 15),
+                      //             decoration: BoxDecoration(
+                      //               borderRadius: BorderRadius.circular(100),
+                      //               border: Border.all(
+                      //                 color: kColorHereButton,
+                      //                 width: 2,
+                      //               ),
+                      //             ),
+                      //             child: ClipOval(
+                      //               child: GlobalVariables.userImageUrl != null
+                      //                   ? Image.network(
+                      //                       GlobalVariables.userImageUrl!,
+                      //                       fit: BoxFit.cover,
+                      //                       height: vhh(context, 15),
+                      //                       width: vhh(context, 15),
+                      //                       loadingBuilder: (context, child, loadingProgress) {
+                      //                         if (loadingProgress == null) return child;
+                      //                         return const Center(
+                      //                           child: SpinningLoader(),
+                      //                         );
+                      //                       },
+                      //                       errorBuilder: (context, error, stackTrace) {
+                      //                         return Container(
                       //                           height: vhh(context, 15),
                       //                           width: vhh(context, 15),
                       //                           decoration: BoxDecoration(
@@ -785,384 +840,321 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                       //                             color: Colors.grey[300],
                       //                           ),
                       //                           child: Icon(Icons.person, color: Colors.grey[600]),
-                      //                         ),
-                      //                 ),
-                      //               ),
-                                    
-                      //             ],
+                      //                         );
+                      //                       },
+                      //                     )
+                      //                   : Container(
+                      //                       height: vhh(context, 15),
+                      //                       width: vhh(context, 15),
+                      //                       decoration: BoxDecoration(
+                      //                         shape: BoxShape.circle,
+                      //                         color: Colors.grey[300],
+                      //                       ),
+                      //                       child: Icon(Icons.person, color: Colors.grey[600]),
+                      //                     ),
+                      //             ),
                       //           ),
-                      //           Column(
-                      //             children: [
-                      //               Image.asset(
-                      //                 'assets/images/icons/follower1.png',
-                      //                 width: vww(context, 21),
-                      //               ),
-                      //               GestureDetector(
-                      //                 onTap: _onFollowers,
-                      //                 child: Text(
-                      //                   followingCount ?? "0",
-                      //                   style: const TextStyle(
-                      //                       fontSize: 20,
-                      //                       color: kColorButtonPrimary,
-                      //                       fontFamily: 'interBold'),
-                      //                 ),
-                      //               ),
-                      //             ],
-                      //           ),
-                      //           Container(),
+
                       //         ],
                       //       ),
-                      //     ),
-
-                      //     // === Username & Verified Row (overlays the top center) ===
-                      //     Positioned(
-                      //       top: vhh(context, 0.5), 
-                      //       left: 0,
-                      //       right: 0,
-                      //       child: Row(
-                      //         mainAxisAlignment: MainAxisAlignment.start,
+                      //       Column(
                       //         children: [
                       //           Image.asset(
-                      //             'assets/images/icons/logo.png',
-                      //             width: 90,
-                      //             height: 80,
+                      //             'assets/images/icons/follower1.png',
+                      //             width: vww(context, 21),
                       //           ),
-                      //           const Spacer(),
-                      //           Row(
-                      //             crossAxisAlignment: CrossAxisAlignment.center,
-                      //             children: [
-                      //               Text(
-                      //                 "@$username!",
-                      //                 style: const TextStyle(
-                      //                   color: kColorBlack,
-                      //                   fontSize: 17,
-                      //                   fontWeight: FontWeight.w500,
-                      //                   fontFamily: 'inter',
-                      //                   letterSpacing: -0.1,
-                      //                 ),
-                      //               ),
-                      //               const SizedBox(width : 3),
-                      //               Image.asset(
-                      //                 'assets/images/icons/verify.png',
-                      //                 width: 22,
-                      //                 height: 22,
-                      //                 fit: BoxFit.contain,
-                      //               ),
-                      //             ],
-                      //           ),
-                      //           const Spacer(),
-                      //           Row(
-                      //             children: [
-                      //               if (_isSelectMode)
-                      //                 SizedBox(
-                      //                   height: 30,
-                      //                   child: ElevatedButton(
-                      //                     onPressed: _onDeleteButtonPressed,
-                      //                     style: ElevatedButton.styleFrom(
-                      //                       backgroundColor: kColorStafGrey,
-                      //                       padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 2),
-                      //                     ),
-                      //                     child: const Text(
-                      //                       "Delete",
-                      //                       style: TextStyle(
-                      //                         color: Colors.red,
-                      //                         fontSize: 13,
-                      //                         fontWeight: FontWeight.bold,
-                      //                         fontFamily: 'inter',),
-                      //                     ),
-                      //                   ),
-                      //                 ),
-                      //               if (_isSelectMode)
-                      //                 const SizedBox(width: 3,),
-                      //               SizedBox(
-                      //                 height: 30, 
-                      //                 child: ElevatedButton(
-                      //                   onPressed: _onSelectButtonPressed,
-                      //                   style: ElevatedButton.styleFrom(
-                      //                     backgroundColor: kColorStafGrey,
-                      //                     padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                      //                   ),
-                      //                   child: Text(
-                      //                     _isSelectMode ? 'Cancel' : 'Select',
-                      //                     style: const TextStyle(
-                      //                       color: Colors.black54,
-                      //                       fontWeight: FontWeight.bold,
-                      //                       fontSize: 13,
-                      //                       fontFamily: 'inter',),
-                      //                   ),
-                      //                 ),
-                      //               ),
-                      //             ],
+                      //           GestureDetector(
+                      //             onTap: _onFollowers,
+                      //             child: Text(
+                      //               followingCount ?? "0",
+                      //               style: const TextStyle(
+                      //                   fontSize: 20,
+                      //                   color: kColorButtonPrimary,
+                      //                   fontFamily: 'interBold'),
+                      //             ),
                       //           ),
                       //         ],
                       //       ),
-                      //     ),
-                      //   ],
+                      //       Container(),
+                      //     ],
+                      //   ),
                       // ),
-                      Padding(padding: EdgeInsets.symmetric(horizontal: vww(context, 2)),
-                      child: Column(
-                        children: [
-                          SizedBox(height: vhh(context, 1)),
-                          Text(
-                            GlobalVariables.realName!,
-                            style: const TextStyle(
-                                color: kColorBlack,
-                                fontSize: 17,
-                                letterSpacing: -0.1,
-                                fontWeight: FontWeight.w500,
-                                fontFamily: 'inter'),
-                          ),
-                          SizedBox(height: vhh(context, 0.5)),
-                          Text(
-                            GlobalVariables.bio != null
-                                ? GlobalVariables.bio!
-                                : " ",
-                            style: const TextStyle(
-                                color: kColorGrey,
-                                fontSize: 15,
-                                letterSpacing: -0.1,
-                                fontWeight: FontWeight.w400,
-                                fontFamily: 'inter'),
-                          ),
-                          SizedBox(height: vhh(context, 2)),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              SizedBox(
-                                width: vww(context, 30),
-                                height: 23,
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        kColorStrongBlue,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                          30),
-                                    ),
-                                    shadowColor:
-                                        Colors.black
-                                            .withValues(alpha: 0.9),
-                                    elevation: 3,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 2, vertical: 2),
-                                  ),
-                                  onPressed: () {
-                                    _onEditButtonClicked();
-                                  },
-                                  child: Text("Edit Profile",
-                                      style: TextStyle(
-                                          color: kColorWhite,
-                                          fontSize: 36.sp,
-                                          letterSpacing: -0.1,
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: 'inter')),
-                                ),
-                              ),
-                              SizedBox(
-                                width: vww(context, 30),
-                                height: 23,
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: kColorStrongBlue,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30),
-                                    ),
-                                    shadowColor:
-                                        Colors.black.withValues(alpha: 0.9),
-                                    elevation: 3,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 2, vertical: 2),
-                                  ),
-                                  onPressed: () {
-                                    _onFollowing();
-                                  },
-                                  child: Text("Following",
-                                      style: TextStyle(
-                                          color: kColorWhite,
-                                          fontSize: 36.sp,
-                                          fontWeight: FontWeight.bold,
-                                          letterSpacing: -0.1,
-                                          fontFamily: 'inter')),
-                                ),
-                              ),
-                              SizedBox(
-                                width: vww(context, 30),
-                                height: 23,
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        kColorStrongBlue, 
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                          30),
-                                    ),
-                                    shadowColor:
-                                        Colors.black
-                                            .withValues(alpha: 0.9),
-                                    elevation: 3,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 2, vertical: 2),
-                                  ),
-                                  onPressed: () {
-                                    _onSettingButtonClicked();
-                                  },
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const Icon(
-                                        Icons.settings, // Settings icon
-                                        size: 16,
-                                        color: kColorWhite,
+
+                      Padding(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: vww(context, 2)),
+                        child: Column(
+                          children: [
+                            SizedBox(height: vhh(context, 1)),
+                            Text(
+                              GlobalVariables.realName!,
+                              style: const TextStyle(
+                                  color: kColorBlack,
+                                  fontSize: 17,
+                                  letterSpacing: -0.1,
+                                  fontWeight: FontWeight.w500,
+                                  fontFamily: 'inter'),
+                            ),
+                            SizedBox(height: vhh(context, 0.5)),
+                            Text(
+                              GlobalVariables.bio != null
+                                  ? GlobalVariables.bio!
+                                  : " ",
+                              style: const TextStyle(
+                                  color: kColorGrey,
+                                  fontSize: 15,
+                                  letterSpacing: -0.1,
+                                  fontWeight: FontWeight.w400,
+                                  fontFamily: 'inter'),
+                            ),
+                            SizedBox(height: vhh(context, 2)),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                SizedBox(
+                                  width: vww(context, 30),
+                                  height: 23,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: kColorStrongBlue,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(30),
                                       ),
-                                      const SizedBox(
-                                          width:
-                                              2), // Spacing between icon and text
-                                      Text(
-                                        'Settings',
+                                      shadowColor:
+                                          Colors.black.withValues(alpha: 0.9),
+                                      elevation: 3,
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 2, vertical: 2),
+                                    ),
+                                    onPressed: () {
+                                      _onEditButtonClicked();
+                                    },
+                                    child: Text("Edit Profile",
                                         style: TextStyle(
-                                            color:kColorWhite,
+                                            color: kColorWhite,
+                                            fontSize: 36.sp,
+                                            letterSpacing: -0.1,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: 'inter')),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: vww(context, 30),
+                                  height: 23,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: kColorStrongBlue,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(30),
+                                      ),
+                                      shadowColor:
+                                          Colors.black.withValues(alpha: 0.9),
+                                      elevation: 3,
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 2, vertical: 2),
+                                    ),
+                                    onPressed: () {
+                                      _onFollowing();
+                                    },
+                                    child: Text("Following",
+                                        style: TextStyle(
+                                            color: kColorWhite,
                                             fontSize: 36.sp,
                                             fontWeight: FontWeight.bold,
                                             letterSpacing: -0.1,
-                                            fontFamily:
-                                                'inter' // Customize font size
-                                            ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: vhh(context, 1)),
-                          Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text(
-                                    happy_place,
-                                    style: TextStyle(
-                                        color: kColorBlack,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                        letterSpacing: -0.1,
-                                        fontFamily: 'inter'),
-                                  ),
-                                  Text(
-                                    GlobalVariables.happyPlace != null
-                                        ? GlobalVariables.happyPlace!
-                                        : " ",
-                                    style: const TextStyle(
-                                        color: kColorButtonPrimary,
-                                        fontSize: 14,
-                                        letterSpacing: -0.1,
-                                        fontFamily: 'inter'),
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text(
-                                    my_garage,
-                                    style: TextStyle(
-                                        color: kColorBlack,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                        letterSpacing: -0.1,
-                                        fontFamily: 'inter'),
-                                  ),
-                                  garageImageUrl != null
-                                      ? Image.network(
-                                          garageImageUrl!,
-                                          width: 25, // Adjust width as needed
-                                          height: 25, // Adjust height as needed
-                                        )
-                                      : const Text(""),
-                                ],
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: vhh(context, 1)),
-                          SizedBox(
-                            height: 100,
-                            child: (dropPinsData).isEmpty
-                                ? const Center(
-                                    child: Text("No drop pins available",
-                                        style: TextStyle(
-                                            color: Colors.grey,
-                                            letterSpacing: -0.1,
                                             fontFamily: 'inter')),
-                                  )
-                                : ListView.builder(
-                                    scrollDirection: Axis.horizontal,
-                                    itemCount: dropPinsData.length,
-                                    itemBuilder: (context, index) {
-                                      final dropPin = dropPinsData[index]
-                                          as Map<String, dynamic>;
-                                      final String imagePath =
-                                          dropPin['image_path'] ?? '';
-                                      final String caption =
-                                          dropPin['image_caption'] ?? 'No caption';
-                                      final List<dynamic> likedUsers =
-                                          dropPin['liked_users'] ?? [];
-
-                                      return Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 1),
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            _showImageDialog(imagePath, caption,
-                                                likedUsers.length, likedUsers);
-                                          },
-                                          child: imagePath.isNotEmpty
-                                              ? Container(
-                                                  width: 100,
-                                                  height: 100,
-                                                  decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(8),
-                                                    gradient: LinearGradient(
-                                                      colors: [
-                                                        Colors.black
-                                                            .withValues(alpha: 0.5),
-                                                        Colors.transparent
-                                                      ],
-                                                      begin: Alignment.bottomCenter,
-                                                      end: Alignment.topCenter,
-                                                    ),
-                                                  ),
-                                                  child: Image.network(
-                                                    imagePath,
-                                                    fit: BoxFit.cover,
-                                                    loadingBuilder: (context, child,
-                                                        loadingProgress) {
-                                                      if (loadingProgress == null) {
-                                                        return child;
-                                                      } else {
-                                                        return const Center(
-                                                            child:SpinningLoader());
-                                                      }
-                                                    },
-                                                    errorBuilder: (context, error,
-                                                        stackTrace) {
-                                                      return const Icon(
-                                                          Icons.broken_image,
-                                                          size: 100);
-                                                    },
-                                                  ),
-                                                )
-                                              : const Icon(
-                                                  Icons.image_not_supported,
-                                                  size: 100),
-                                        ),
-                                      );
-                                    },
                                   ),
                                 ),
-                            ],
-                          ),
+                                SizedBox(
+                                  width: vww(context, 30),
+                                  height: 23,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: kColorStrongBlue,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(30),
+                                      ),
+                                      shadowColor:
+                                          Colors.black.withValues(alpha: 0.9),
+                                      elevation: 3,
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 2, vertical: 2),
+                                    ),
+                                    onPressed: () {
+                                      _onSettingButtonClicked();
+                                    },
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        const Icon(
+                                          Icons.settings, // Settings icon
+                                          size: 16,
+                                          color: kColorWhite,
+                                        ),
+                                        const SizedBox(
+                                            width:
+                                                2), // Spacing between icon and text
+                                        Text(
+                                          'Settings',
+                                          style: TextStyle(
+                                              color: kColorWhite,
+                                              fontSize: 36.sp,
+                                              fontWeight: FontWeight.bold,
+                                              letterSpacing: -0.1,
+                                              fontFamily:
+                                                  'inter' // Customize font size
+                                              ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: vhh(context, 1)),
+                            Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text(
+                                      happy_place,
+                                      style: TextStyle(
+                                          color: kColorBlack,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: -0.1,
+                                          fontFamily: 'inter'),
+                                    ),
+                                    Text(
+                                      GlobalVariables.happyPlace != null
+                                          ? GlobalVariables.happyPlace!
+                                          : " ",
+                                      style: const TextStyle(
+                                          color: kColorButtonPrimary,
+                                          fontSize: 14,
+                                          letterSpacing: -0.1,
+                                          fontFamily: 'inter'),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text(
+                                      my_garage,
+                                      style: TextStyle(
+                                          color: kColorBlack,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: -0.1,
+                                          fontFamily: 'inter'),
+                                    ),
+                                    garageImageUrl != null
+                                        ? Image.network(
+                                            garageImageUrl!,
+                                            width: 25, // Adjust width as needed
+                                            height:
+                                                25, // Adjust height as needed
+                                          )
+                                        : const Text(""),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: vhh(context, 1)),
+                            SizedBox(
+                              height: 100,
+                              child: (dropPinsData).isEmpty
+                                  ? const Center(
+                                      child: Text("No drop pins available",
+                                          style: TextStyle(
+                                              color: Colors.grey,
+                                              letterSpacing: -0.1,
+                                              fontFamily: 'inter')),
+                                    )
+                                  : ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: dropPinsData.length,
+                                      itemBuilder: (context, index) {
+                                        final dropPin = dropPinsData[index]
+                                            as Map<String, dynamic>;
+                                        final String imagePath =
+                                            dropPin['image_path'] ?? '';
+                                        final String caption =
+                                            dropPin['image_caption'] ??
+                                                'No caption';
+                                        final List<dynamic> likedUsers =
+                                            dropPin['liked_users'] ?? [];
+
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 1),
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              _showImageDialog(
+                                                  imagePath,
+                                                  caption,
+                                                  likedUsers.length,
+                                                  likedUsers);
+                                            },
+                                            child: imagePath.isNotEmpty
+                                                ? Container(
+                                                    width: 100,
+                                                    height: 100,
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8),
+                                                      gradient: LinearGradient(
+                                                        colors: [
+                                                          Colors.black
+                                                              .withValues(
+                                                                  alpha: 0.5),
+                                                          Colors.transparent
+                                                        ],
+                                                        begin: Alignment
+                                                            .bottomCenter,
+                                                        end:
+                                                            Alignment.topCenter,
+                                                      ),
+                                                    ),
+                                                    child: Image.network(
+                                                      imagePath,
+                                                      fit: BoxFit.cover,
+                                                      loadingBuilder: (context,
+                                                          child,
+                                                          loadingProgress) {
+                                                        if (loadingProgress ==
+                                                            null) {
+                                                          return child;
+                                                        } else {
+                                                          return const Center(
+                                                              child:
+                                                                  SpinningLoader());
+                                                        }
+                                                      },
+                                                      errorBuilder: (context,
+                                                          error, stackTrace) {
+                                                        return const Icon(
+                                                            Icons.broken_image,
+                                                            size: 100);
+                                                      },
+                                                    ),
+                                                  )
+                                                : const Icon(
+                                                    Icons.image_not_supported,
+                                                    size: 100),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                            ),
+                          ],
+                        ),
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(vertical: 7),
@@ -1179,8 +1171,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             ),
                             SizedBox(height: vhh(context, 1)),
                             userTrips == null
-                                ? const Center(
-                                    child: SpinningLoader())
+                                ? const Center(child: SpinningLoader())
                                 : userTrips!.isEmpty
                                     ? const Center(
                                         child: Text("No trips to display"))
@@ -1194,7 +1185,11 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                     MainAxisAlignment.center,
                                                 children: [
                                                   Container(
-                                                    width: MediaQuery.of(context).size.width * 0.4,
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.4,
                                                     height: 110,
                                                     decoration: BoxDecoration(
                                                       border: Border.all(
@@ -1206,17 +1201,27 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                       trip: userTrips![
                                                           rowIndex * 2],
                                                       index: rowIndex * 2,
-                                                      isSelectMode: _isSelectMode,
-                                                      selectedMapIndices: _selectedMapIndices, 
-                                                      onSelectTrip: _onSelectTrip, 
-                                                      onDeleteButtonPressed: _onDeleteButtonPressed,
+                                                      isSelectMode:
+                                                          _isSelectMode,
+                                                      selectedMapIndices:
+                                                          _selectedMapIndices,
+                                                      onSelectTrip:
+                                                          _onSelectTrip,
+                                                      onDeleteButtonPressed:
+                                                          _onDeleteButtonPressed,
                                                     ),
                                                   ),
-                                                  const SizedBox(width: 12,),
+                                                  const SizedBox(
+                                                    width: 12,
+                                                  ),
                                                   if (rowIndex * 2 + 1 <
                                                       userTrips!.length)
                                                     Container(
-                                                      width: MediaQuery.of(context).size.width * 0.4,
+                                                      width:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width *
+                                                              0.4,
                                                       height: 110,
                                                       decoration: BoxDecoration(
                                                         border: Border.all(
@@ -1228,10 +1233,14 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                         trip: userTrips![
                                                             rowIndex * 2 + 1],
                                                         index: rowIndex * 2 + 1,
-                                                        isSelectMode: _isSelectMode,
-                                                        selectedMapIndices: _selectedMapIndices,
-                                                        onSelectTrip: _onSelectTrip,
-                                                        onDeleteButtonPressed: _onDeleteButtonPressed,
+                                                        isSelectMode:
+                                                            _isSelectMode,
+                                                        selectedMapIndices:
+                                                            _selectedMapIndices,
+                                                        onSelectTrip:
+                                                            _onSelectTrip,
+                                                        onDeleteButtonPressed:
+                                                            _onDeleteButtonPressed,
                                                       ),
                                                     ),
                                                   if (rowIndex * 2 + 1 >=
@@ -1250,7 +1259,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                       1)
                                                 Column(
                                                   children: [
-                                                    SizedBox(height: vhh(context, 1)),
+                                                    SizedBox(
+                                                        height:
+                                                            vhh(context, 1)),
                                                   ],
                                                 ),
                                             ],
