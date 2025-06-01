@@ -28,6 +28,8 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
   FlashMode _currentFlashMode = FlashMode.off;
   DateTime _lastFlashChange = DateTime.now();
   bool _flashLocked = false;
+  bool _isReadyToDisplay = false;
+
 
   @override
   void initState() {
@@ -35,6 +37,14 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkCameraPermission();
     });
+  }
+
+  @override
+  void dispose() {
+    _cameraController?.setFlashMode(FlashMode.off);
+    _cameraController?.stopImageStream();
+    _cameraController?.dispose();
+    super.dispose();
   }
 
   Future<void> _checkCameraPermission() async {
@@ -123,15 +133,9 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
     }
   }
 
-  @override
-  void dispose() {
-    _cameraController?.setFlashMode(FlashMode.off);
-    _cameraController?.stopImageStream();
-    _cameraController?.dispose();
-    super.dispose();
-  }
-
   void _processCameraImage(CameraImage image) {
+    if (_isReadyToDisplay) return; // already processed
+
     final bytes = image.planes[0].bytes;
     int sumBrightness = 0;
 
@@ -142,46 +146,41 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
     final avgBrightness = sumBrightness / bytes.length;
     final now = DateTime.now();
 
-    // Debounce: prevent changes too often
+    // Debounce
     if (now.difference(_lastFlashChange).inMilliseconds < 3000) return;
 
-    // Thresholds
     const onThreshold = 45.0;
     const offThreshold = 60.0;
 
-    // If already locked, skip turning off the torch
-    if (_flashLocked) {
-      logger.i("Flash is locked. Skipping changes. Brightness: $avgBrightness");
-      return;
-    }
+    if (_flashLocked) return;
 
     if (avgBrightness < onThreshold && _currentFlashMode != FlashMode.torch) {
       _cameraController?.setFlashMode(FlashMode.torch);
       setState(() {
         _currentFlashMode = FlashMode.torch;
         _flashLocked = true;
+        _isReadyToDisplay = true; // ✅ Ready to show UI
       });
       _lastFlashChange = now;
-      logger.i("Flash mode set to torch due to low brightness: $avgBrightness");
 
-      // Lock flash for 10 seconds before allowing changes again
       Timer(const Duration(seconds: 30), () {
-        setState(() {
-          _flashLocked = false;
-        });
-        logger.i("Flash lock released");
+        if (mounted) {
+          setState(() => _flashLocked = false);
+        }
       });
-    } else if (avgBrightness > offThreshold &&
-        _currentFlashMode != FlashMode.off) {
+    } else if (avgBrightness > offThreshold && _currentFlashMode != FlashMode.off) {
       _cameraController?.setFlashMode(FlashMode.off);
       setState(() {
         _currentFlashMode = FlashMode.off;
+        _isReadyToDisplay = true; // ✅ Ready to show UI
       });
       _lastFlashChange = now;
-      logger.i(
-          "Flash mode set to off due to sufficient brightness: $avgBrightness");
+    } else {
+      // if brightness is in between thresholds, still unlock view
+      setState(() => _isReadyToDisplay = true); // ✅ Show anyway
     }
   }
+
 
   Future<void> _capturePhoto() async {
     if (_isCapturing ||
@@ -302,12 +301,13 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
                         width: double.infinity,
                         height: double.infinity,
                       ),
-                      if (_isCameraInitialized)
+                      if (!_isReadyToDisplay)
+                        const Center(child: SpinningLoader())
+                      else if (_isCameraInitialized)
                         CameraPreview(_cameraController!)
                       else
-                        const Center(
-                          child: SpinningLoader(),
-                        ),
+                        const Center(child: SpinningLoader()),
+
                       // Capture Button
                       Positioned(
                         bottom: 20,

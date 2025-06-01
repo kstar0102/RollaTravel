@@ -50,6 +50,8 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
           : blockUsers.map((user) => user['id'].toString()).toSet();
       final data = await apiService.fetchFollowerTrip(GlobalVariables.userId!);
       final currentUserId = GlobalVariables.userId.toString();
+      final now = DateTime.now();
+
       final filteredTrips = data.where((trip) {
         final user = trip['user'];
         final userId = user['id'].toString();
@@ -59,6 +61,17 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
         final mutedIds = trip['muted_ids']?.split(',') ?? [];
         if (mutedIds.contains(currentUserId)) {
           return false;
+        }
+        // Check droppins for future deley_time
+        final droppins = trip['droppins'] as List<dynamic>? ?? [];
+        for (final droppin in droppins) {
+          final delayTimeStr = droppin['deley_time'];
+          if (delayTimeStr != null && delayTimeStr.isNotEmpty) {
+            final delayTime = DateTime.tryParse(delayTimeStr);
+            if (delayTime != null && delayTime.isAfter(now)) {
+              return false; // Exclude trip
+            }
+          }
         }
         return true;
       }).toList();
