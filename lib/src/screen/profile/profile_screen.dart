@@ -649,8 +649,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                       width: vww(context, 20),
                                     ),
                                     Text(
-                                      GlobalVariables.tripCount?.toString() ??
-                                          "0",
+                                      userTrips?.length.toString() ?? "0",
                                       style: const TextStyle(
                                         fontSize: 20,
                                         color: kColorButtonPrimary,
