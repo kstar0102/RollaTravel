@@ -53,8 +53,15 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-    
-  });
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+        if (mounted) {
+          setState(() {
+            this.keyboardHeight = keyboardHeight;
+          });
+        }
+      });
+    });
   }
 
   @override

@@ -16,11 +16,22 @@ class HomeSoundScreen extends ConsumerStatefulWidget {
 class HomeSoundScreenState extends ConsumerState<HomeSoundScreen> {
   final int _currentIndex = 5;
   final logger = Logger();
+  double keyboardHeight = 0;
   List<String> songList = [];
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+        if (mounted) {
+          setState(() {
+            this.keyboardHeight = keyboardHeight;
+          });
+        }
+      });
+    });
     logger.i(widget.tripSound);
     if (widget.tripSound.isNotEmpty && widget.tripSound != 'null') {
       songList =

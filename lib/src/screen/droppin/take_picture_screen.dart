@@ -21,9 +21,25 @@ class TakePictureScreen extends ConsumerStatefulWidget {
 class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
   bool showLikes = true;
   final logger = Logger();
+  double keyboardHeight = 0;
   final int _currentIndex = 3;
   final LatLng photoLocation = const LatLng(0, 0);
   final TextEditingController _captionController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+        if (mounted) {
+          setState(() {
+            this.keyboardHeight = keyboardHeight;
+          });
+        }
+      });
+    });
+  }
 
   Future<void> _handleLocationSelection() async {
     // logger.i(showLikes);

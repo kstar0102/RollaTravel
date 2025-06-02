@@ -19,11 +19,22 @@ class HomeTagScreenState extends ConsumerState<HomeTagScreen> {
   final int _currentIndex = 0;
   final logger = Logger();
   List<dynamic> taggedUsers = []; 
+  double keyboardHeight = 0;
   bool isLoading = true; 
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+        if (mounted) {
+          setState(() {
+            this.keyboardHeight = keyboardHeight;
+          });
+        }
+      });
+    });
     logger.i(widget.taglist);
     fetchTaggedUsers();
   }

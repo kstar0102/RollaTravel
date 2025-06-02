@@ -20,10 +20,21 @@ class _GarageScreenState extends ConsumerState<GarageScreen> {
   int? selectedCarId;
   final ApiService apiService = ApiService();
   final logger = Logger();
+  double keyboardHeight = 0;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+        if (mounted) {
+          setState(() {
+            this.keyboardHeight = keyboardHeight;
+          });
+        }
+      });
+    });
     loadCarData();
   }
 

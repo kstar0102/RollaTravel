@@ -18,11 +18,22 @@ class HomeViewScreen extends StatefulWidget {
 class HomeViewScreenState extends State<HomeViewScreen> {
   List<dynamic> viewdUsers = [];
   bool isLoading = true;
+  double keyboardHeight = 0;
   final logger = Logger();
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+        if (mounted) {
+          setState(() {
+            this.keyboardHeight = keyboardHeight;
+          });
+        }
+      });
+    });
     _fetchUsersFromViewlist(widget.viewdList);
     logger.i(widget.viewdList);
   }
