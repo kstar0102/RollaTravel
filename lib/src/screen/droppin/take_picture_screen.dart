@@ -21,23 +21,27 @@ class TakePictureScreen extends ConsumerStatefulWidget {
 class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
   bool showLikes = true;
   final logger = Logger();
-  double keyboardHeight = 0;
   final int _currentIndex = 3;
   final LatLng photoLocation = const LatLng(0, 0);
   final TextEditingController _captionController = TextEditingController();
+  int _currentLength = 0;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-        if (mounted) {
-          setState(() {
-            this.keyboardHeight = keyboardHeight;
-          });
-        }
-      });
+    _captionController.addListener(_updateTextLength);
+  }
+
+  @override
+  void dispose() {
+    _captionController.removeListener(_updateTextLength);
+    _captionController.dispose();
+    super.dispose();
+  }
+
+  void _updateTextLength() {
+    setState(() {
+      _currentLength = _captionController.text.length;
     });
   }
 
@@ -143,100 +147,71 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
                       Column(
                         children: [
                           // Caption text field with padding and blue border
-                          Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Container(
-                              color: Colors.transparent,
-                              child: TextField(
-                                controller: _captionController,
-                                textInputAction: TextInputAction.done,
-                                maxLines: 2,
-                                decoration: InputDecoration(
-                                  hintText: 'Caption...',
-                                  hintStyle:
-                                      const TextStyle(fontFamily: 'inter'),
-                                  filled: true,
-                                  fillColor:
-                                      Colors.white.withValues(alpha: 0.95),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 8),
-                                ),
-                                style: const TextStyle(fontFamily: 'inter'),
-                              ),
-                            ),
-                          ),
-
-                          // const Spacer(),
-                          // // Radio buttons for "hide likes" and "show likes"
-                          // Align(
-                          //   alignment: Alignment.centerLeft,
+                          // Padding(
+                          //   padding: const EdgeInsets.all(10.0),
                           //   child: Container(
-                          //     padding: const EdgeInsets.symmetric(
-                          //         horizontal: 16.0, vertical: 8.0),
-                          //     child: Column(
-                          //       mainAxisAlignment: MainAxisAlignment.center,
-                          //       children: [
-                          //         Container(
-                          //           // ignore: deprecated_member_use
-                          //           color: Colors.white.withOpacity(0.9),
-                          //           width: vww(context, 40),
-                          //           height: vhh(context, 4),
-                          //           padding: EdgeInsets.zero,
-                          //           child: Row(
-                          //             children: [
-                          //               Radio<bool>(
-                          //                 value: false,
-                          //                 groupValue: showLikes,
-                          //                 onChanged: (value) {
-                          //                   setState(() {
-                          //                     showLikes = value!;
-                          //                   });
-                          //                 },
-                          //                 activeColor: Colors.blue,
-                          //               ),
-                          //               const Text(
-                          //                 'hide likes',
-                          //                 style: TextStyle(
-                          //                     color: Colors.black,
-                          //                     fontWeight: FontWeight.w500,
-                          //                     fontFamily: 'inter'),
-                          //               ),
-                          //             ],
-                          //           ),
-                          //         ),
-                          //         const SizedBox(height: 10),
-                          //         Container(
-                          //           // ignore: deprecated_member_use
-                          //           color: Colors.white.withOpacity(0.9),
-                          //           width: vww(context, 40),
-                          //           height: vhh(context, 4),
-                          //           child: Row(
-                          //             children: [
-                          //               Radio<bool>(
-                          //                 value: true,
-                          //                 groupValue: showLikes,
-                          //                 onChanged: (value) {
-                          //                   setState(() {
-                          //                     showLikes = value!;
-                          //                   });
-                          //                 },
-                          //                 activeColor: Colors.blue,
-                          //               ),
-                          //               const Text(
-                          //                 'show likes',
-                          //                 style: TextStyle(
-                          //                     color: Colors.black,
-                          //                     fontWeight: FontWeight.w500,
-                          //                     fontFamily: 'inter'),
-                          //               ),
-                          //             ],
-                          //           ),
-                          //         ),
-                          //       ],
+                          //     color: Colors.transparent,
+                          //     child: TextField(
+                          //       controller: _captionController,
+                          //       textInputAction: TextInputAction.done,
+                          //       maxLines: 2,
+                          //       decoration: InputDecoration(
+                          //         hintText: 'Caption...',
+                          //         hintStyle:
+                          //             const TextStyle(fontFamily: 'inter'),
+                          //         filled: true,
+                          //         fillColor:
+                          //             Colors.white.withValues(alpha: 0.95),
+                          //         contentPadding: const EdgeInsets.symmetric(
+                          //             horizontal: 10, vertical: 8),
+                          //       ),
+                          //       style: const TextStyle(fontFamily: 'inter'),
                           //     ),
                           //   ),
                           // ),
-                          // const SizedBox(height: 16),
+
+                          Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  color: Colors.transparent,
+                                  child: TextField(
+                                    controller: _captionController,
+                                    textInputAction: TextInputAction.done,
+                                    maxLines: 2,
+                                    maxLength: 100, 
+                                    decoration: InputDecoration(
+                                      hintText: 'Caption...',
+                                      hintStyle: const TextStyle(fontFamily: 'inter'),
+                                      filled: true,
+                                      fillColor: Colors.white.withValues(alpha: 0.95),
+                                      contentPadding: const EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 8),
+                                      counterText: '$_currentLength/100', 
+                                      counterStyle: const TextStyle(
+                                        fontFamily: 'inter',
+                                        fontSize: 10,
+                                        letterSpacing: -0.1,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                    style: const TextStyle(fontFamily: 'inter'),
+                                  ),
+                                ),
+                                Text(
+                                  '${_captionController.text.length}/100',
+                                  style: const TextStyle(
+                                    fontFamily: 'inter',
+                                    fontSize: 10,
+                                    letterSpacing: -0.1,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
                         ],
                       ),
                     ],

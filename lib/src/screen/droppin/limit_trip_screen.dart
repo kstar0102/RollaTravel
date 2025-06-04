@@ -49,7 +49,7 @@ class LimitDropPinScreenState extends ConsumerState<LimitDropPinScreen> with Wid
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               SizedBox(
-                height: vhh(context, 4),
+                height: vhh(context, 5),
               ),
               Align(
                 alignment: Alignment.topLeft,
@@ -59,16 +59,31 @@ class LimitDropPinScreenState extends ConsumerState<LimitDropPinScreen> with Wid
                   height: 80,
                 ),
               ),
-              SizedBox(height: vhh(context, 8)),
-              const Text("Maximum of 7 pins/trip. You have reached the limit. To drop more pins, please start a new trip",
-                style: TextStyle(
-                  fontFamily: 'inter',
-                  fontSize: 17,
-                  letterSpacing: -0.1,
-                  fontWeight: FontWeight.w500
+              const Spacer(),
+              const Center(
+                child: Text(
+                  "Maximum of 7 pins/trip. You have \nreached the limit. To drop more pins, \nplease start a new trip",
+                  style: TextStyle(
+                    fontFamily: 'inter',
+                    fontSize: 17,
+                    letterSpacing: -0.1,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
               ),
-
+              const Spacer(),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Image.asset(
+                  'assets/images/icons/logo.png',
+                  width: 90,
+                  height: 80,
+                ),
+              ),
+              SizedBox(
+                height: vhh(context, 2),
+              ),
             ],
           ),
         ),

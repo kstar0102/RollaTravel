@@ -55,6 +55,16 @@ class BottomNavBar extends ConsumerWidget {
         break;
       case 3:
         if (!isTripStarted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const DropPinScreen()),
+          );
+          
+        } else {
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(builder: (context) => const LimitDropPinScreen()),
+          // );
           if(GlobalVariables.droppinCount > 7 ){
             Navigator.push(
               context,
@@ -63,14 +73,9 @@ class BottomNavBar extends ConsumerWidget {
           }else {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const DropPinScreen()),
+              MaterialPageRoute(builder: (context) => const PhotoSelectScreen()),
             );
           }
-        } else {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const PhotoSelectScreen()),
-          );
         }
         break;
       case 4:

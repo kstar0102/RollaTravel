@@ -267,6 +267,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
           GlobalVariables.song4 = null;
           GlobalVariables.editDestination = null;
           GlobalVariables.selectedUserIds = [];
+          GlobalVariables.droppinCount = 0;
           ref.read(pathCoordinatesProvider.notifier).state = [];
         }
         final result = await apiService.deleteTrip(tripId);

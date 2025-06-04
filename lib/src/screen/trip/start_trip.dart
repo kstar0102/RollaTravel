@@ -105,6 +105,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
           _hideLoadingDialog();
           ref.read(tripMarkersProvider.notifier).state = [];
           GlobalVariables.isTripStarted = false;
+          GlobalVariables.droppinCount = 0;
           ref.read(isTripStartedProvider.notifier).state = false;
           await prefs.remove("tripId");
           await prefs.remove("dropcount");
@@ -193,7 +194,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
           ref.read(tripMarkersProvider.notifier).state = markers;
           GlobalVariables.droppinCount = markers.length;
           logger.i(GlobalVariables.droppinCount);
-          
+
           var startLocation = tripData['trips'][0]['start_location'];
           if (startLocation is String) {
             RegExp regExp = RegExp(
@@ -572,6 +573,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
         GlobalVariables.song4 = null;
         GlobalVariables.editDestination = null;
         GlobalVariables.selectedUserIds = [];
+        GlobalVariables.droppinCount = 0;
         ref.read(pathCoordinatesProvider.notifier).state = [];
       } else {
         _hideLoadingDialog();
