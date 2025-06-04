@@ -15,28 +15,30 @@ class HomeTagScreen extends ConsumerStatefulWidget {
   ConsumerState<HomeTagScreen> createState() => HomeTagScreenState();
 }
 
-class HomeTagScreenState extends ConsumerState<HomeTagScreen> {
+class HomeTagScreenState extends ConsumerState<HomeTagScreen> with WidgetsBindingObserver{
   final int _currentIndex = 0;
   final logger = Logger();
   List<dynamic> taggedUsers = []; 
-  double keyboardHeight = 0;
   bool isLoading = true; 
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-        if (mounted) {
-          setState(() {
-            this.keyboardHeight = keyboardHeight;
-          });
-        }
-      });
-    });
-    logger.i(widget.taglist);
+    WidgetsBinding.instance.addObserver(this);    
     fetchTaggedUsers();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      setState(() {});
+    }
   }
 
   Future<void> fetchTaggedUsers() async {

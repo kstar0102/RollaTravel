@@ -9,13 +9,16 @@ class HomeViewScreen extends StatefulWidget {
   final String imagePath;
 
   const HomeViewScreen(
-      {super.key, required this.viewdList, required this.imagePath});
+    {super.key, 
+    required this.viewdList, 
+    required this.imagePath
+  });
 
   @override
   HomeViewScreenState createState() => HomeViewScreenState();
 }
 
-class HomeViewScreenState extends State<HomeViewScreen> {
+class HomeViewScreenState extends State<HomeViewScreen>  with WidgetsBindingObserver{
   List<dynamic> viewdUsers = [];
   bool isLoading = true;
   double keyboardHeight = 0;
@@ -24,24 +27,27 @@ class HomeViewScreenState extends State<HomeViewScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-        if (mounted) {
-          setState(() {
-            this.keyboardHeight = keyboardHeight;
-          });
-        }
-      });
-    });
+    WidgetsBinding.instance.addObserver(this);   
     _fetchUsersFromViewlist(widget.viewdList);
     logger.i(widget.viewdList);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      setState(() {});
+    }
   }
 
   Future<void> _fetchUsersFromViewlist(String viewlist) async {
     final userIds = viewlist.split(',');
     final apiService = ApiService();
-
     try {
       final userDataNested = await Future.wait(userIds.map((userId) async {
         try {
@@ -60,7 +66,6 @@ class HomeViewScreenState extends State<HomeViewScreen> {
 
       final userData = userDataNested.expand((element) => element).toList();
 
-
       setState(() {
         viewdUsers = userData;
         isLoading = false; 
@@ -68,7 +73,7 @@ class HomeViewScreenState extends State<HomeViewScreen> {
 
     } catch (e) {
       setState(() {
-        isLoading = false; // Set loading to false even if an error occurs
+        isLoading = false;
       });
       logger.e("Error fetching users: $e");
     }
@@ -81,11 +86,9 @@ class HomeViewScreenState extends State<HomeViewScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(
-                context); // This will pop the current screen and go back
+            Navigator.pop(context); 
           },
         ),
-        // title is set to null to remove it
         title: null,
       ),
       body: Column(

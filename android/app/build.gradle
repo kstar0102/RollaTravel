@@ -36,7 +36,7 @@ android {
 
     signingConfigs {
        release {
-           keyAlias 'rollakeyalias'
+           keyAlias 'rollatravel'
            keyPassword 'rollatravel'
            storeFile  file('rollakeystore.jks')
            storePassword 'rollatravel'

@@ -191,50 +191,9 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
             }
           });
           ref.read(tripMarkersProvider.notifier).state = markers;
-          // List<MarkerData> activeMarkers = [];
-          // List<MarkerDataWithDelayLabel> futureMarkers = [];
-          // final now = DateTime.now();
-
-          // stopLocations.asMap().forEach((i, stop) {
-          //   if (stop is Map && stop.containsKey('latitude') && stop.containsKey('longitude')) {
-          //     var droppin = droppins.firstWhere(
-          //       (d) => d['stop_index'] == (i + 1),
-          //       orElse: () => null,
-          //     );
-
-          //     if (droppin != null) {
-          //       final delayTimeStr = droppin['deley_time'];
-          //       if (delayTimeStr != null && delayTimeStr.isNotEmpty) {
-          //         try {
-          //           final delayTime = DateTime.parse(delayTimeStr);
-          //           if (delayTime.isAfter(now)) {
-          //             final difference = delayTime.difference(now);
-          //             final hours = difference.inHours;
-          //             final minutes = difference.inMinutes % 60;
-          //             final label =
-          //                 "Will be posted in ${hours > 0 ? '$hours h ' : ''}${minutes} min";
-          //             futureMarkers.add(MarkerDataWithDelayLabel(
-          //               location: LatLng(stop['latitude'], stop['longitude']),
-          //               label: label,
-          //             ));
-          //             return; // skip normal marker for future droppin
-          //           }
-          //         } catch (e) {
-          //           // Parsing error — fallback to active marker
-          //         }
-          //       }
-          //       activeMarkers.add(
-          //         MarkerData(
-          //           location: LatLng(stop['latitude'], stop['longitude']),
-          //           imagePath: droppin['image_path'] ?? "",
-          //           caption: droppin['image_caption'] ?? "Trip Stop",
-          //         ),
-          //       );
-          //     }
-          //   }
-          // });
-          // ref.read(markersProvider.notifier).state = activeMarkers;
-          // ref.read(futureMarkersProvider.notifier).state = futureMarkers;
+          GlobalVariables.droppinCount = markers.length;
+          logger.i(GlobalVariables.droppinCount);
+          
           var startLocation = tripData['trips'][0]['start_location'];
           if (startLocation is String) {
             RegExp regExp = RegExp(

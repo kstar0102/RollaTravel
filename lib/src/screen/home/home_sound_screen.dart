@@ -13,7 +13,7 @@ class HomeSoundScreen extends ConsumerStatefulWidget {
   ConsumerState<HomeSoundScreen> createState() => HomeSoundScreenState();
 }
 
-class HomeSoundScreenState extends ConsumerState<HomeSoundScreen> {
+class HomeSoundScreenState extends ConsumerState<HomeSoundScreen> with WidgetsBindingObserver {
   final int _currentIndex = 5;
   final logger = Logger();
   double keyboardHeight = 0;
@@ -22,16 +22,7 @@ class HomeSoundScreenState extends ConsumerState<HomeSoundScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-        if (mounted) {
-          setState(() {
-            this.keyboardHeight = keyboardHeight;
-          });
-        }
-      });
-    });
+    WidgetsBinding.instance.addObserver(this);
     logger.i(widget.tripSound);
     if (widget.tripSound.isNotEmpty && widget.tripSound != 'null') {
       songList =
@@ -49,7 +40,15 @@ class HomeSoundScreenState extends ConsumerState<HomeSoundScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      setState(() {});
+    }
   }
 
   @override

@@ -32,7 +32,7 @@ class PostWidget extends StatefulWidget {
   PostWidgetState createState() => PostWidgetState();
 }
 
-class PostWidgetState extends State<PostWidget> {
+class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
   late MapController mapController;
   List<LatLng> routePoints = [];
   bool showComments = false;
@@ -54,7 +54,7 @@ class PostWidgetState extends State<PostWidget> {
   void initState() {
     super.initState();
     mapController = MapController();
-
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeRoutePoints();
       startAndendMark();
@@ -65,6 +65,19 @@ class PostWidgetState extends State<PostWidget> {
         });
       });
     });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      setState(() {});
+    }
   }
 
   String get mapStyleUrl {

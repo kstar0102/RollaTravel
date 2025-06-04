@@ -3,33 +3,33 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
 import 'package:RollaTravel/src/utils/index.dart';
 
-class DropPinScreen extends ConsumerStatefulWidget {
+class DropPinScreen extends ConsumerStatefulWidget{
   const DropPinScreen({super.key});
   @override
   ConsumerState<DropPinScreen> createState() => DropPinScreenState();
 }
 
-class DropPinScreenState extends ConsumerState<DropPinScreen> {
+class DropPinScreenState extends ConsumerState<DropPinScreen> with WidgetsBindingObserver{
   double screenHeight = 0;
-  double keyboardHeight = 0;
   final int _currentIndex = 3;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-      if (mounted) {
-        setState(() {
-          this.keyboardHeight = keyboardHeight;
-        });
-      }
-    });
+    WidgetsBinding.instance.addObserver(this);
   }
 
   @override
   void dispose() {
     super.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      setState(() {});
+    }
   }
 
   Widget buildInstructionItem(int number, String text) {

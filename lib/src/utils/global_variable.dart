@@ -38,4 +38,5 @@ class GlobalVariables {
   static List<dynamic>? dropPinsData;
   static bool isTripStarted = false;
   static int mapStyleSelected = 0;
+  static int droppinCount= 0;
 }

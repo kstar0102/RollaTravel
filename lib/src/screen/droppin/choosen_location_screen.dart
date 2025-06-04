@@ -120,7 +120,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
 
       // Wait for rendering if needed
       if (boundary.debugNeedsPaint) {
-        await Future.delayed(const Duration(milliseconds: 50));
+        await Future.delayed(const Duration(milliseconds: 100));
         await WidgetsBinding.instance.endOfFrame;
       }
 
@@ -140,13 +140,18 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
       final file = File(filePath);
       
       await file.writeAsBytes(pngBytes);
-
-      final result = await Share.shareXFiles(
-        [XFile(file.path)],
-        subject: 'Rolla Travel trip!',
-        text: 'I just created a trip with Rolla Travel!',
-      );
-      logger.i("Share result: $result");
+       // Declare result before usage, assign inside try
+      try {
+        await Share.shareXFiles(
+          [XFile(file.path)],
+          subject: 'Rolla Travel trip!',
+          text: 'I just created a trip with Rolla Travel!',
+        );
+        logger.i("Share dialog opened successfully");
+      } catch (e) {
+        logger.e("in Sharing failed: $e");
+        if (mounted) _showErrorDialog("in Sharing failed: $e");
+      }
 
     } catch (e) {
       if (!mounted) return;

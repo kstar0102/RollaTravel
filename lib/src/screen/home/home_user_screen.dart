@@ -25,9 +25,8 @@ class HomeUserScreen extends ConsumerStatefulWidget {
   ConsumerState<HomeUserScreen> createState() => HomeUserScreenState();
 }
 
-class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
+class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBindingObserver{
   double screenHeight = 0;
-  double keyboardHeight = 0;
   final int _currentIndex = 5;
   int? userid;
   bool isLiked = false;
@@ -54,20 +53,21 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-      if (mounted) {
-        setState(() {
-          this.keyboardHeight = keyboardHeight;
-        });
-      }
-    });
+    WidgetsBinding.instance.addObserver(this);    
     _fetchUserProfile();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      setState(() {});
+    }
   }
 
   Future<void> _fetchUserProfile() async {

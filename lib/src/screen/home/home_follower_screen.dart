@@ -15,25 +15,29 @@ class HomeFollowScreen extends ConsumerStatefulWidget {
   ConsumerState<HomeFollowScreen> createState() => HomeFollowScreenState();
 }
 
-class HomeFollowScreenState extends ConsumerState<HomeFollowScreen> {
+class HomeFollowScreenState extends ConsumerState<HomeFollowScreen> with WidgetsBindingObserver {
   final int _currentIndex = 0;
-  double keyboardHeight = 0;
   List<Map<String, dynamic>> followers = [];
   final logger = Logger();
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-      if (mounted) {
-        setState(() {
-          this.keyboardHeight = keyboardHeight;
-        });
-      }
-    });
-
+    WidgetsBinding.instance.addObserver(this);
     _loadFollowers();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      setState(() {});
+    }
   }
 
   Future<void> _loadFollowers() async {

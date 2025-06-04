@@ -1,5 +1,6 @@
 import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/screen/droppin/drop_pin.dart';
+import 'package:RollaTravel/src/screen/droppin/limit_trip_screen.dart';
 import 'package:RollaTravel/src/screen/droppin/photo_select_screen.dart';
 import 'package:RollaTravel/src/screen/home/home_screen.dart';
 import 'package:RollaTravel/src/screen/profile/profile_screen.dart';
@@ -54,10 +55,17 @@ class BottomNavBar extends ConsumerWidget {
         break;
       case 3:
         if (!isTripStarted) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const DropPinScreen()),
-          );
+          if(GlobalVariables.droppinCount > 7 ){
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const LimitDropPinScreen()),
+            );
+          }else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const DropPinScreen()),
+            );
+          }
         } else {
           Navigator.push(
             context,
