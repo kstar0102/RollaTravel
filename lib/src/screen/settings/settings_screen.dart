@@ -212,7 +212,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               ),
                               SizedBox(height: vhh(context, 1)),
                               Text(
-                                privateaccountdescrition,
+                                privateaccountdescrition1,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 13,
@@ -222,56 +222,56 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 ),
                               ),
                               SizedBox(height: vhh(context, 2)),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment
-                                    .spaceEvenly,
-                                children: [
-                                  Column(
-                                    children: [
-                                      const Text(
-                                        "Private\naccount",
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                            fontFamily: 'inter',
-                                            letterSpacing: -0.1,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      Radio<bool>(
-                                        value: true,
-                                        groupValue: isPrivateAccount,
-                                        activeColor: Colors.blue,
-                                        onChanged: (bool? value) {
-                                          setState(() {
-                                            isPrivateAccount = value ?? true;
-                                          });
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                  Column(
-                                    children: [
-                                      const Text(
-                                        "Public\naccount",
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                            fontFamily: 'inter',
-                                            letterSpacing: -0.1,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      Radio<bool>(
-                                        value: false,
-                                        groupValue: isPrivateAccount,
-                                        activeColor: Colors.blue,
-                                        onChanged: (bool? value) {
-                                          setState(() {
-                                            isPrivateAccount = value ?? false;
-                                          });
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
+                              // Row(
+                              //   mainAxisAlignment: MainAxisAlignment
+                              //       .spaceEvenly,
+                              //   children: [
+                              //     Column(
+                              //       children: [
+                              //         const Text(
+                              //           "Private\naccount",
+                              //           textAlign: TextAlign.center,
+                              //           style: TextStyle(
+                              //               fontFamily: 'inter',
+                              //               letterSpacing: -0.1,
+                              //               fontWeight: FontWeight.bold),
+                              //         ),
+                              //         Radio<bool>(
+                              //           value: true,
+                              //           groupValue: isPrivateAccount,
+                              //           activeColor: Colors.blue,
+                              //           onChanged: (bool? value) {
+                              //             setState(() {
+                              //               isPrivateAccount = value ?? true;
+                              //             });
+                              //           },
+                              //         ),
+                              //       ],
+                              //     ),
+                              //     Column(
+                              //       children: [
+                              //         const Text(
+                              //           "Public\naccount",
+                              //           textAlign: TextAlign.center,
+                              //           style: TextStyle(
+                              //               fontFamily: 'inter',
+                              //               letterSpacing: -0.1,
+                              //               fontWeight: FontWeight.bold),
+                              //         ),
+                              //         Radio<bool>(
+                              //           value: false,
+                              //           groupValue: isPrivateAccount,
+                              //           activeColor: Colors.blue,
+                              //           onChanged: (bool? value) {
+                              //             setState(() {
+                              //               isPrivateAccount = value ?? false;
+                              //             });
+                              //           },
+                              //         ),
+                              //       ],
+                              //     ),
+                              //   ],
+                              // ),
                             ],
                           ),
                         ),

@@ -1,5 +1,4 @@
 import 'dart:convert';
-// import 'package:RollaTravel/main.dart';
 import 'package:RollaTravel/src/constants/app_button.dart';
 import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/screen/trip/end_trip.dart';
@@ -26,7 +25,6 @@ import 'dart:async';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
-// import 'package:workmanager/workmanager.dart';
 
 class StartTripScreen extends ConsumerStatefulWidget {
   const StartTripScreen({super.key});
@@ -56,6 +54,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   List<String> formattedStopAddresses = [];
   final FocusNode _captionFocusNode = FocusNode();
   final uuid = const Uuid();
+  int _currentLength = 0;
   static const String mapboxAccessToken =
       "pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw";
 
@@ -69,6 +68,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
   @override
   void initState() {
     super.initState();
+    _captionController.addListener(_updateTextLength);
     _getFetchTripData();
     _checkLocationServices();
     if (GlobalVariables.tripCaption != null) {
@@ -81,8 +81,15 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
     super.dispose();
     _mapController.dispose();
     _positionStreamSubscription?.cancel();
+    _captionController.removeListener(_updateTextLength);
     _captionFocusNode.dispose();
     _captionController.dispose();
+  }
+
+  void _updateTextLength() {
+    setState(() {
+      _currentLength = _captionController.text.length;
+    });
   }
 
   @override
@@ -555,6 +562,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
               tripStartDate: GlobalVariables.tripStartDate!,
               tripEndDate: GlobalVariables.tripEndDate!,
               endDestination: destination,
+              tripSound: response['trip']['trip_sound'],
             ),
           ),
         );
@@ -712,6 +720,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                             tripStartDate: GlobalVariables.tripStartDate!,
                             tripEndDate: GlobalVariables.tripEndDate!,
                             endDestination: destination,
+                            tripSound: response['trip']['trip_sound'],
                           ),
                         ),
                       );
@@ -1073,10 +1082,10 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                     FocusScope.of(context).unfocus();
                   },
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: vww(context, 4)),
+                    padding: EdgeInsets.symmetric(horizontal: vww(context, 3)),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.grey[200],
+                        color: kColorStafGrey,
                         border: Border.all(color: Colors.black),
                       ),
                       padding: const EdgeInsets.symmetric(
@@ -1084,19 +1093,36 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 5),
-                            child: Text(
-                              'Caption:',
-                              style: TextStyle(
-                                color: kColorBlack,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: -0.1,
-                                fontFamily: 'inter',
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 5),
+                                child: Text(
+                                  'Caption:',
+                                  style: TextStyle(
+                                    color: kColorBlack,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: -0.1,
+                                    fontFamily: 'inter',
+                                  ),
+                                ),
                               ),
-                            ),
+                              const SizedBox(height: 4,),
+                              Text(
+                                '$_currentLength/200',
+                                style: const TextStyle(
+                                  fontFamily: 'inter',
+                                  fontSize: 10,
+                                  letterSpacing: -0.1,
+                                  fontWeight: FontWeight.w500,
+                                  color: kColorStrongGrey,
+                                ),
+                              ),
+                            ],
                           ),
+                          
                           const SizedBox(width: 8),
                           Expanded(
                             child: TextField(
@@ -1106,6 +1132,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                 isDense: true,
                                 border: InputBorder.none,
                                 hintText: '',
+                                counterText: ""
                               ),
                               style: const TextStyle(
                                 fontSize: 14,
@@ -1114,6 +1141,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                               ),
                               minLines: 2,
                               maxLines: 2,
+                              maxLength: 200,
                               textInputAction: TextInputAction.done,
                               onEditingComplete: () {
                                 _captionFocusNode.unfocus();

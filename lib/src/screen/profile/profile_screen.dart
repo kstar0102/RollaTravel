@@ -562,7 +562,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Text(
-                                      "@$username!",
+                                      "@$username",
                                       style: const TextStyle(
                                         color: kColorBlack,
                                         fontSize: 17,
@@ -571,16 +571,15 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                         letterSpacing: -0.1,
                                       ),
                                     ),
-                                    const SizedBox(width: 3),
+                                    const SizedBox(width: 2,),
                                     Image.asset(
-                                      'assets/images/icons/verify.png',
-                                      width: 22,
-                                      height: 22,
-                                      fit: BoxFit.contain,
-                                    ),
+                                        'assets/images/icons/verify1.png',
+                                        width: vww(context, 5),
+                                      ),
                                   ],
                                 ),
                                 const Spacer(),
+                                const SizedBox(width: 10,),
                                 Row(
                                   children: [
                                     if (_isSelectMode)

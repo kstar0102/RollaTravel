@@ -65,6 +65,7 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
         });
       });
     });
+    logger.i(widget.post['droppins']);
   }
 
   @override
@@ -1163,9 +1164,7 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
                               markers: [
                                 ...locations.where((location) {
                                   final index = locations.indexOf(location);
-                                  final droppin =
-                                      widget.post['droppins'][index];
-
+                                  final droppin = widget.post['droppins'][index];
                                   try {
                                     final delay =
                                         DateTime.parse(droppin['deley_time']);

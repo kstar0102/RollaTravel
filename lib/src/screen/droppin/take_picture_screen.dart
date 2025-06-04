@@ -144,69 +144,58 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
                       ),
 
                       // Overlay elements on top of the image
+                      
                       Column(
                         children: [
-                          // Caption text field with padding and blue border
-                          // Padding(
-                          //   padding: const EdgeInsets.all(10.0),
-                          //   child: Container(
-                          //     color: Colors.transparent,
-                          //     child: TextField(
-                          //       controller: _captionController,
-                          //       textInputAction: TextInputAction.done,
-                          //       maxLines: 2,
-                          //       decoration: InputDecoration(
-                          //         hintText: 'Caption...',
-                          //         hintStyle:
-                          //             const TextStyle(fontFamily: 'inter'),
-                          //         filled: true,
-                          //         fillColor:
-                          //             Colors.white.withValues(alpha: 0.95),
-                          //         contentPadding: const EdgeInsets.symmetric(
-                          //             horizontal: 10, vertical: 8),
-                          //       ),
-                          //       style: const TextStyle(fontFamily: 'inter'),
-                          //     ),
-                          //   ),
-                          // ),
-
                           Padding(
                             padding: const EdgeInsets.all(10.0),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Container(
-                                  color: Colors.transparent,
-                                  child: TextField(
-                                    controller: _captionController,
-                                    textInputAction: TextInputAction.done,
-                                    maxLines: 2,
-                                    maxLength: 100, 
-                                    decoration: InputDecoration(
-                                      hintText: 'Caption...',
-                                      hintStyle: const TextStyle(fontFamily: 'inter'),
-                                      filled: true,
-                                      fillColor: Colors.white.withValues(alpha: 0.95),
-                                      contentPadding: const EdgeInsets.symmetric(
-                                          horizontal: 10, vertical: 8),
-                                      counterText: '$_currentLength/100', 
-                                      counterStyle: const TextStyle(
-                                        fontFamily: 'inter',
-                                        fontSize: 10,
-                                        letterSpacing: -0.1,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                    style: const TextStyle(fontFamily: 'inter'),
+                                  decoration: BoxDecoration(
+                                    color: kColorWhite.withValues(alpha: 0.95),
                                   ),
-                                ),
-                                Text(
-                                  '${_captionController.text.length}/100',
-                                  style: const TextStyle(
-                                    fontFamily: 'inter',
-                                    fontSize: 10,
-                                    letterSpacing: -0.1,
-                                    color: Colors.grey,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      TextField(
+                                        controller: _captionController,
+                                        textInputAction: TextInputAction.done,
+                                        maxLines: 2,
+                                        maxLength: 100, 
+                                        decoration: const InputDecoration(
+                                          hintText: 'Caption...',
+                                          hintStyle: TextStyle(fontFamily: 'inter'),
+                                          contentPadding: EdgeInsets.symmetric(
+                                              horizontal: 10, vertical: 8),
+                                          counterText: '', 
+                                          counterStyle: TextStyle(
+                                            fontFamily: 'inter',
+                                            fontSize: 10,
+                                            letterSpacing: -0.1,
+                                            color: Colors.grey,
+                                          ),
+                                          border: InputBorder.none, 
+                                        ),
+                                        style: const TextStyle(fontFamily: 'inter'),
+                                      ),
+                                      Row(
+                                        children: [
+                                          const SizedBox(width: 10,),
+                                          Text(
+                                          '$_currentLength/100',
+                                          style: const TextStyle(
+                                            fontFamily: 'inter',
+                                            fontSize: 10,
+                                            letterSpacing: -0.1,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 3,),
+                                    ],
                                   ),
                                 ),
                               ],

@@ -541,13 +541,15 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
                                           letterSpacing: -0.1,
                                         ),
                                       ),
+                                      const SizedBox(width: 2,),
                                       Image.asset(
-                                        'assets/images/icons/verify.png',
-                                        width: vww(context, 10),
+                                        'assets/images/icons/verify1.png',
+                                        width: vww(context, 5),
                                       ),
                                     ],
                                   ),
                                   const Spacer(),
+                                  const SizedBox(width: 25,),
                                   IconButton(
                                     icon: const Icon(Icons.close, size: 30),
                                     onPressed: () {
@@ -573,10 +575,10 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
                         Text(
                           happlyPlace ?? "",
                           style: const TextStyle(
-                            color: kColorGrey,
-                            fontSize: 15,
+                            color: kColorButtonPrimary,
+                            fontSize: 14,
                             letterSpacing: -0.1,
-                            fontWeight: FontWeight.w400,
+                            fontWeight: FontWeight.bold,
                             fontFamily: 'inter'
                           ),
                         ),
@@ -617,52 +619,6 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
                                 ),
                               ),
                             ),
-
-                            // GestureDetector(
-                            //   onTap: () {
-                            //     // Add functionality for Send Message button
-                            //   },
-                            //   child: Container(
-                            //     width: vww(context, 40),
-                            //     padding: const EdgeInsets.symmetric(
-                            //         horizontal: 10, vertical: 3),
-                            //     decoration: BoxDecoration(
-                            //       color: kColorHereButton,
-                            //       borderRadius: BorderRadius.circular(20), 
-                            //       boxShadow: [
-                            //         BoxShadow(
-                            //           color: Colors.black.withValues(alpha: 0.2),
-                            //           offset: const Offset(0, 2),
-                            //           blurRadius: 4,
-                            //         ),
-                            //       ],
-                            //     ),
-                            //     child: const Center(
-                            //       child: Row(
-                            //         mainAxisSize: MainAxisSize.min,
-                            //         children: [
-                            //           Icon(
-                            //             Icons.message_sharp, // Add an icon
-                            //             color: Colors.white, // Icon color
-                            //             size: 16, // Icon size
-                            //           ),
-                            //           SizedBox(
-                            //               width:
-                            //                   2),
-                            //           Text(
-                            //             'Send Message',
-                            //             style: TextStyle(
-                            //               color: Colors.white, // Text color
-                            //               fontSize: 14, // Font size
-                            //               fontFamily:
-                            //                   'interBold', // Font weight
-                            //             ),
-                            //           ),
-                            //         ],
-                            //       ),
-                            //     ),
-                            //   ),
-                            // ),
                           ],
                         ),
 
@@ -680,6 +636,8 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
                                       color: kColorBlack,
                                       fontSize: 14,
                                       fontFamily: 'inter',
+                                      letterSpacing: -0.1,
+                                      fontWeight: FontWeight.bold
                                     ),
                                   ),
                                   Text(
@@ -688,6 +646,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
                                       color: kColorButtonPrimary,
                                       fontSize: 14,
                                       fontFamily: 'inter',
+                                      letterSpacing: -0.1
                                     ),
                                   ),
                                 ],
@@ -701,6 +660,8 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
                                       color: kColorBlack,
                                       fontSize: 14,
                                       fontFamily: 'inter',
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: -0.1
                                     ),
                                   ),
                                   garageLogoUrl != null

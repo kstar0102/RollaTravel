@@ -37,6 +37,7 @@ const String editprofilegarage = 'Garage';
 const String editprofilehappyplace = 'Happy place:';
 const String privateaccount = "Private Account";
 const String privateaccountdescrition = "When account is private, only your approved followers can view your trips, dropped pins and follower lists.\n\nWhen account is public, your posts and follower list can be viewed by anyone.";
+const String privateaccountdescrition1 = "Your account is private which means that only your approved followers can view your trips, dropped pins and follower lists. \n\nPublic accounts are not yet available.";
 const String private = "Private account";
 const String public = "Public account";
 const String logout = "Log out";
