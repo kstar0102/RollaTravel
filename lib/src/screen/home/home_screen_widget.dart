@@ -2,7 +2,6 @@ import 'package:RollaTravel/src/screen/home/home_screen.dart';
 import 'package:RollaTravel/src/screen/home/home_sound_screen.dart';
 import 'package:RollaTravel/src/screen/home/home_tag_screen.dart';
 import 'package:RollaTravel/src/screen/home/home_user_screen.dart';
-import 'package:RollaTravel/src/screen/home/home_view_screen.dart';
 import 'package:RollaTravel/src/screen/profile/profile_screen.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
@@ -65,7 +64,7 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
         });
       });
     });
-    logger.i(widget.post['droppins']);
+    // logger.i(widget.post['droppins']);
   }
 
   @override
@@ -255,59 +254,18 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
   }
 
   Future<void> _showImageDialog(
-    String imagePath,
-    String caption,
-    int droppinlikes,
-    List<dynamic> likedUsers,
-    int droppinId,
-    int userId,
-    String? viewlist,
-    int droppinIndex,
+    List<dynamic> droppins, 
+    int droppinIndex,   
   ) async {
     final apiservice = ApiService();
-    if (likedUsers.map((user) => user['id']).contains(GlobalVariables.userId)) {
-      isLiked = true;
-    } else {
-      isLiked = false;
-    }
-
-    int? viewcount;
-    if (viewlist != null) {
-      viewcount = viewlist.split(',').length;
-    } else {
-      logger.i("viewlist is null");
-      viewcount = 0;
-    }
-    int currentUserId = GlobalVariables.userId!;
-    bool viewed = hasUserViewed(viewlist, currentUserId);
-    if (viewed == false) {
-      final result = await apiservice.markDropinAsViewed(
-        userId: GlobalVariables.userId!,
-        dropinId: droppinId,
-      );
-      final status = result['statusCode'];
-      if (status == true) {
-        setState(() {
-          if (widget.post['droppins'][droppinIndex]['view_count'] != null) {
-            widget.post['droppins'][droppinIndex]['view_count'] +=
-                ',${GlobalVariables.userId}';
-            viewlist = '${viewlist ?? ''},${GlobalVariables.userId}';
-          } else {
-            widget.post['droppins'][droppinIndex]['view_count'] =
-                '${GlobalVariables.userId}';
-            viewlist = '${GlobalVariables.userId}';
-          }
-
-          viewcount = widget.post['droppins'][droppinIndex]['view_count']
-              .split(',')
-              .length;
-
-          viewed = hasUserViewed(
-              widget.post['droppins'][droppinIndex]['view_count'],
-              currentUserId);
-        });
-      }
-    }
+    
+    // Get the initial liked_users and viewlist
+    List<dynamic> likedUsers = droppins[droppinIndex]['liked_users'];
+    bool isLiked = likedUsers.map((user) => user['id']).contains(GlobalVariables.userId);
+    int droppinlikes = likedUsers.length;
+    int viewcount = droppins[droppinIndex]['view_count'].split(',').length;
+    
+    // Show dialog
     if (!mounted) return;
     showDialog(
       context: context,
@@ -316,62 +274,80 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
           builder: (BuildContext context, StateSetter setState) {
             return Dialog(
               insetPadding: const EdgeInsets.symmetric(horizontal: 30),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Caption and Close button
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8.0, vertical: 4.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          caption,
+                          (droppins[droppinIndex]['image_caption'] ?? '').length > 40 
+                              ? (droppins[droppinIndex]['image_caption'] ?? '').substring(0, 40) + '...' 
+                              : (droppins[droppinIndex]['image_caption'] ?? ''),
                           style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey,
-                              fontFamily: 'inter',
-                              letterSpacing: -0.1),
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey,
+                            fontFamily: 'inter',
+                            letterSpacing: -0.1,
+                          ),
+                          overflow: TextOverflow.ellipsis, // Ensures text overflow shows '...'
+                          maxLines: 1, // Ensures only one line is used for the caption
                         ),
                         IconButton(
                           icon: const Icon(Icons.close, color: Colors.black),
                           onPressed: () {
                             Navigator.of(context).pop();
-                            setState(() {
-                              showLikesDropdown = false;
-                            });
                           },
                         ),
                       ],
                     ),
                   ),
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Image.network(
-                        imagePath,
-                        fit: BoxFit.cover,
-                        width: MediaQuery.of(context).size.width * 0.9,
-                        height: MediaQuery.of(context).size.height * 0.5,
-                        errorBuilder: (context, error, stackTrace) =>
-                            const Icon(Icons.broken_image, size: 100),
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) {
-                            return child;
-                          } else {
-                            return const Center(
-                              child: SpinningLoader(),
-                            );
-                          }
-                        },
-                      ),
-                    ],
+                  // PageView for swiping through images
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.5,
+                    width: MediaQuery.of(context).size.width * 0.9,
+                    child: PageView.builder(
+                      controller: PageController(initialPage: droppinIndex),
+                      itemCount: droppins.length,
+                      itemBuilder: (context, index) {
+                        final droppin = droppins[index];
+                        return Image.network(
+                          droppin['image_path'],
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const Icon(Icons.broken_image, size: 100),
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) {
+                              return child;
+                            } else {
+                              return const Center(
+                                child: SpinningLoader(),
+                              );
+                            }
+                          },
+                        );
+                      },
+                      onPageChanged: (index) {
+                        setState(() {
+                          droppinIndex = index; // Update the index when the page changes
+                          
+                          // Update the likedUsers and viewcount based on the new image
+                          likedUsers = droppins[droppinIndex]['liked_users'];
+                          isLiked = likedUsers.map((user) => user['id']).contains(GlobalVariables.userId);
+                          droppinlikes = likedUsers.length;
+                          viewcount = droppins[droppinIndex]['view_count'].split(',').length;
+                        });
+                      },
+                    ),
                   ),
                   const Divider(height: 1, color: Colors.grey),
+                  // Like and View count buttons
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Row(
@@ -379,43 +355,29 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
                         GestureDetector(
                           behavior: HitTestBehavior.opaque,
                           onTap: () async {
-                            final response = await apiService.toggleDroppinLike(
+                            final response = await apiservice.toggleDroppinLike(
                               userId: GlobalVariables.userId!,
-                              droppinId: droppinId,
+                              droppinId: droppins[droppinIndex]['id'],
                               flag: !isLiked,
                             );
-                            if (response != null &&
-                                response['statusCode'] == true) {
+                            if (response != null && response['statusCode'] == true) {
                               setState(() {
                                 isLiked = !isLiked;
                                 if (isLiked) {
                                   droppinlikes++;
-                                  final names =
-                                      GlobalVariables.realName?.split(' ') ??
-                                          ['Unknown', ''];
-                                  final firstName = names[0];
-                                  final lastName =
-                                      names.length > 1 ? names[1] : '';
-
-                                  widget.post['droppins'][droppinIndex]
-                                          ['liked_users']
-                                      .add({
+                                  droppins[droppinIndex]['liked_users'].add({
                                     'photo': GlobalVariables.userImageUrl,
-                                    'first_name': firstName,
-                                    'last_name': lastName,
+                                    'first_name': GlobalVariables.realName?.split(' ')[0],
+                                    'last_name': GlobalVariables.realName?.split(' ')[1],
                                     'rolla_username': GlobalVariables.userName,
                                   });
                                 } else {
                                   droppinlikes--;
-                                  widget.post['droppins'][droppinIndex]
-                                          ['liked_users']
-                                      .removeWhere((user) =>
-                                          user['rolla_username'] ==
-                                          GlobalVariables.userName);
+                                  droppins[droppinIndex]['liked_users'].removeWhere((user) =>
+                                      user['rolla_username'] == GlobalVariables.userName);
                                 }
                                 setState(() {
-                                  likes = _calculateTotalLikes(
-                                      widget.post['droppins']);
+                                  likes = _calculateTotalLikes(droppins);
                                 });
                               });
                               logger.i(response['message']);
@@ -448,20 +410,10 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
                         const Spacer(),
                         GestureDetector(
                           onTap: () {
-                            if (GlobalVariables.userId == userId) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => HomeViewScreen(
-                                          viewdList: viewlist!,
-                                          imagePath: imagePath,
-                                        )),
-                              );
-                            }
+                            // Handle the view count and actions here if needed
                           },
                           child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 2, horizontal: 8),
+                            padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
                             decoration: BoxDecoration(
                               color: const Color(0xFF933F10),
                               borderRadius: BorderRadius.circular(16),
@@ -477,7 +429,7 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
                               ),
                             ),
                           ),
-                        )
+                        ),
                       ],
                     ),
                   ),
@@ -502,15 +454,10 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
                                     width: 2,
                                   ),
                                   image: photo.isNotEmpty
-                                      ? DecorationImage(
-                                          image: NetworkImage(photo),
-                                          fit: BoxFit.cover,
-                                        )
+                                      ? DecorationImage(image: NetworkImage(photo), fit: BoxFit.cover)
                                       : null,
                                 ),
-                                child: photo.isEmpty
-                                    ? const Icon(Icons.person, size: 20)
-                                    : null,
+                                child: photo.isEmpty ? const Icon(Icons.person, size: 20) : null,
                               ),
                               const SizedBox(width: 5),
                               Column(
@@ -1069,6 +1016,7 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
                   }).toList();
 
                   final droppin = filteredDroppins[index];
+                  logger.i(filteredDroppins);
                   return Container(
                     margin: const EdgeInsets.symmetric(horizontal: 4),
                     padding: const EdgeInsets.all(1),
@@ -1081,17 +1029,29 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
                     ),
                     child: GestureDetector(
                       onTap: () {
-                        _showImageDialog(
-                          droppin['image_path'],
-                          droppin['image_caption'],
-                          droppin['liked_users'].length,
-                          droppin['liked_users'],
-                          droppin['id'],
-                          widget.post['user_id'],
-                          droppin['view_count'],
-                          index,
-                        );
+                        // _showImageDialog(
+                        //   droppin['image_path'],
+                        //   droppin['image_caption'],
+                        //   droppin['liked_users'].length,
+                        //   droppin['liked_users'],
+                        //   droppin['id'],
+                        //   widget.post['user_id'],
+                        //   droppin['view_count'],
+                        //   index,
+                        // );
+                        _showImageDialog(filteredDroppins, index);
                       },
+                      // onTap: () {
+                      //   Navigator.push(
+                      //     context,
+                      //     MaterialPageRoute(
+                      //       builder: (context) => SwipeableImageViewer(
+                      //         droppins: filteredDroppins,
+                      //         currnetIndex: index,
+                      //       ),
+                      //     ),
+                      //   );
+                      // },
                       child: Container(
                         padding: const EdgeInsets.all(1),
                         decoration: BoxDecoration(
@@ -1179,20 +1139,17 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
                                     point: location,
                                     child: GestureDetector(
                                       onTap: () {
-                                        final index =
-                                            locations.indexOf(location);
-                                        final droppin =
-                                            widget.post['droppins'][index];
-                                        _showImageDialog(
-                                          droppin['image_path'],
-                                          droppin['image_caption'],
-                                          droppin['liked_users'].length,
-                                          droppin['liked_users'],
-                                          droppin['id'],
-                                          widget.post['user_id'],
-                                          droppin['view_count'],
-                                          index,
-                                        );
+                                        final filteredDroppins = widget.post['droppins'].where((droppin) {
+                                          try {
+                                            final delay = DateTime.parse(droppin['deley_time']);
+                                            return delay.isBefore(DateTime.now());
+                                          } catch (_) {
+                                            return true;
+                                          }
+                                        }).toList();
+                                        final index = locations.indexOf(location);
+                                        _showImageDialog(filteredDroppins, index);
+                                        
                                       },
                                       child: Container(
                                         width: 14,

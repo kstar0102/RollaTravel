@@ -39,7 +39,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   final logger = Logger();
   List<Map<String, dynamic>>? userTrips;
   Map<String, dynamic>? userInfo;
-
+  int likes = 0;
   bool isLoadingTrips = true;
   LatLng? startPoint;
   LatLng? endPoint;
@@ -345,8 +345,20 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-  void _showImageDialog(
-      String imagePath, String caption, int likes, List<dynamic> likedUsers) {
+  Future<void> _showImageDialog(
+    List<dynamic> droppins, 
+    int droppinIndex,   
+  ) async {
+    final apiservice = ApiService();
+    
+    // Get the initial liked_users and viewlist
+    List<dynamic> likedUsers = droppins[droppinIndex]['liked_users'];
+    bool isLiked = likedUsers.map((user) => user['id']).contains(GlobalVariables.userId);
+    int droppinlikes = likedUsers.length;
+    int viewcount = droppins[droppinIndex]['view_count'].split(',').length;
+    
+    // Show dialog
+    if (!mounted) return;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -354,73 +366,116 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
           builder: (BuildContext context, StateSetter setState) {
             return Dialog(
               insetPadding: const EdgeInsets.symmetric(horizontal: 30),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Caption and Close Icon Row
+                  // Caption and Close button
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8.0, vertical: 4.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          caption,
+                          (droppins[droppinIndex]['image_caption'] ?? '').length > 40 
+                              ? (droppins[droppinIndex]['image_caption'] ?? '').substring(0, 40) + '...' 
+                              : (droppins[droppinIndex]['image_caption'] ?? ''),
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: Colors.grey,
                             fontFamily: 'inter',
+                            letterSpacing: -0.1,
                           ),
+                          overflow: TextOverflow.ellipsis, // Ensures text overflow shows '...'
+                          maxLines: 1, // Ensures only one line is used for the caption
                         ),
                         IconButton(
                           icon: const Icon(Icons.close, color: Colors.black),
                           onPressed: () {
                             Navigator.of(context).pop();
-                            setState(() {
-                              showLikesDropdown = false;
-                            });
                           },
                         ),
                       ],
                     ),
                   ),
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Image.network(
-                        imagePath,
-                        fit: BoxFit.cover,
-                        width: MediaQuery.of(context).size.width * 0.9,
-                        height: MediaQuery.of(context).size.height * 0.5,
-                        errorBuilder: (context, error, stackTrace) =>
-                            const Icon(Icons.broken_image, size: 100),
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) {
-                            return child;
-                          } else {
-                            return const Center(
-                              child: SpinningLoader(),
-                            );
-                          }
-                        },
-                      ),
-                    ],
+                  // PageView for swiping through images
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.5,
+                    width: MediaQuery.of(context).size.width * 0.9,
+                    child: PageView.builder(
+                      controller: PageController(initialPage: droppinIndex),
+                      itemCount: droppins.length,
+                      itemBuilder: (context, index) {
+                        final droppin = droppins[index];
+                        return Image.network(
+                          droppin['image_path'],
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const Icon(Icons.broken_image, size: 100),
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) {
+                              return child;
+                            } else {
+                              return const Center(
+                                child: SpinningLoader(),
+                              );
+                            }
+                          },
+                        );
+                      },
+                      onPageChanged: (index) {
+                        setState(() {
+                          droppinIndex = index; // Update the index when the page changes
+                          
+                          // Update the likedUsers and viewcount based on the new image
+                          likedUsers = droppins[droppinIndex]['liked_users'];
+                          isLiked = likedUsers.map((user) => user['id']).contains(GlobalVariables.userId);
+                          droppinlikes = likedUsers.length;
+                          viewcount = droppins[droppinIndex]['view_count'].split(',').length;
+                        });
+                      },
+                    ),
                   ),
                   const Divider(height: 1, color: Colors.grey),
+                  // Like and View count buttons
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Row(
                       children: [
                         GestureDetector(
                           behavior: HitTestBehavior.opaque,
-                          onTap: () {
-                            setState(() {
-                              isLiked = !isLiked;
-                            });
+                          onTap: () async {
+                            final response = await apiservice.toggleDroppinLike(
+                              userId: GlobalVariables.userId!,
+                              droppinId: droppins[droppinIndex]['id'],
+                              flag: !isLiked,
+                            );
+                            if (response != null && response['statusCode'] == true) {
+                              setState(() {
+                                isLiked = !isLiked;
+                                if (isLiked) {
+                                  droppinlikes++;
+                                  droppins[droppinIndex]['liked_users'].add({
+                                    'photo': GlobalVariables.userImageUrl,
+                                    'first_name': GlobalVariables.realName?.split(' ')[0],
+                                    'last_name': GlobalVariables.realName?.split(' ')[1],
+                                    'rolla_username': GlobalVariables.userName,
+                                  });
+                                } else {
+                                  droppinlikes--;
+                                  droppins[droppinIndex]['liked_users'].removeWhere((user) =>
+                                      user['rolla_username'] == GlobalVariables.userName);
+                                }
+                                setState(() {
+                                  likes = _calculateTotalLikes(droppins);
+                                });
+                              });
+                              logger.i(response['message']);
+                            } else {
+                              logger.e('Failed to toggle like');
+                            }
                           },
                           child: Icon(
                             isLiked ? Icons.favorite : Icons.favorite_border,
@@ -431,16 +486,39 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                         GestureDetector(
                           onTap: () {
                             setState(() {
-                              showLikesDropdown =
-                                  !showLikesDropdown; // Toggle the visibility of the dropdown
+                              showLikesDropdown = !showLikesDropdown;
                             });
                           },
                           child: Text(
-                            '$likes likes',
+                            '$droppinlikes likes',
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
+                              letterSpacing: -0.1,
                               fontFamily: 'inter',
+                            ),
+                          ),
+                        ),
+                        const Spacer(),
+                        GestureDetector(
+                          onTap: () {
+                            // Handle the view count and actions here if needed
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF933F10),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Text(
+                              '$viewcount Views',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                                letterSpacing: -0.1,
+                                fontFamily: 'Inter',
+                              ),
                             ),
                           ),
                         ),
@@ -454,12 +532,10 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                         final firstName = user['first_name'] ?? 'Unknown';
                         final lastName = user['last_name'] ?? '';
                         final username = user['rolla_username'] ?? '@unknown';
-
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 4.0),
                           child: Row(
                             children: [
-                              // User Profile Picture
                               Container(
                                 height: 40,
                                 width: 40,
@@ -470,19 +546,12 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     width: 2,
                                   ),
                                   image: photo.isNotEmpty
-                                      ? DecorationImage(
-                                          image: NetworkImage(photo),
-                                          fit: BoxFit.cover,
-                                        )
+                                      ? DecorationImage(image: NetworkImage(photo), fit: BoxFit.cover)
                                       : null,
                                 ),
-                                child: photo.isEmpty
-                                    ? const Icon(Icons.person,
-                                        size: 20) // Placeholder icon
-                                    : null,
+                                child: photo.isEmpty ? const Icon(Icons.person, size: 20) : null,
                               ),
                               const SizedBox(width: 5),
-                              // User Information
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -491,6 +560,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 13,
+                                      letterSpacing: -0.1,
                                       fontFamily: 'inter',
                                       color: Colors.black,
                                     ),
@@ -499,6 +569,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     username,
                                     style: const TextStyle(
                                       fontSize: 12,
+                                      letterSpacing: -0.1,
                                       color: Colors.grey,
                                       fontFamily: 'inter',
                                     ),
@@ -518,6 +589,188 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
       },
     );
   }
+
+  int _calculateTotalLikes(List<dynamic> droppins) {
+    return droppins.fold<int>(
+      0,
+      (sum, droppin) => sum + (droppin['liked_users'].length as int),
+    );
+  }
+
+
+  // void _showImageDialog(
+  //     String imagePath, String caption, int likes, List<dynamic> likedUsers) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return StatefulBuilder(
+  //         builder: (BuildContext context, StateSetter setState) {
+  //           return Dialog(
+  //             insetPadding: const EdgeInsets.symmetric(horizontal: 30),
+  //             shape: RoundedRectangleBorder(
+  //                 borderRadius: BorderRadius.circular(10)),
+  //             child: Column(
+  //               mainAxisSize: MainAxisSize.min,
+  //               crossAxisAlignment: CrossAxisAlignment.start,
+  //               children: [
+  //                 // Caption and Close Icon Row
+  //                 Padding(
+  //                   padding: const EdgeInsets.symmetric(
+  //                       horizontal: 8.0, vertical: 4.0),
+  //                   child: Row(
+  //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                     children: [
+  //                       Text(
+  //                         caption,
+  //                         style: const TextStyle(
+  //                           fontSize: 16,
+  //                           fontWeight: FontWeight.bold,
+  //                           color: Colors.grey,
+  //                           fontFamily: 'inter',
+  //                         ),
+  //                       ),
+  //                       IconButton(
+  //                         icon: const Icon(Icons.close, color: Colors.black),
+  //                         onPressed: () {
+  //                           Navigator.of(context).pop();
+  //                           setState(() {
+  //                             showLikesDropdown = false;
+  //                           });
+  //                         },
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ),
+  //                 Stack(
+  //                   alignment: Alignment.center,
+  //                   children: [
+  //                     Image.network(
+  //                       imagePath,
+  //                       fit: BoxFit.cover,
+  //                       width: MediaQuery.of(context).size.width * 0.9,
+  //                       height: MediaQuery.of(context).size.height * 0.5,
+  //                       errorBuilder: (context, error, stackTrace) =>
+  //                           const Icon(Icons.broken_image, size: 100),
+  //                       loadingBuilder: (context, child, loadingProgress) {
+  //                         if (loadingProgress == null) {
+  //                           return child;
+  //                         } else {
+  //                           return const Center(
+  //                             child: SpinningLoader(),
+  //                           );
+  //                         }
+  //                       },
+  //                     ),
+  //                   ],
+  //                 ),
+  //                 const Divider(height: 1, color: Colors.grey),
+  //                 Padding(
+  //                   padding: const EdgeInsets.all(8.0),
+  //                   child: Row(
+  //                     children: [
+  //                       GestureDetector(
+  //                         behavior: HitTestBehavior.opaque,
+  //                         onTap: () {
+  //                           setState(() {
+  //                             isLiked = !isLiked;
+  //                           });
+  //                         },
+  //                         child: Icon(
+  //                           isLiked ? Icons.favorite : Icons.favorite_border,
+  //                           color: isLiked ? Colors.red : Colors.black,
+  //                         ),
+  //                       ),
+  //                       const SizedBox(width: 4),
+  //                       GestureDetector(
+  //                         onTap: () {
+  //                           setState(() {
+  //                             showLikesDropdown =
+  //                                 !showLikesDropdown; // Toggle the visibility of the dropdown
+  //                           });
+  //                         },
+  //                         child: Text(
+  //                           '$likes likes',
+  //                           style: const TextStyle(
+  //                             fontWeight: FontWeight.bold,
+  //                             fontSize: 16,
+  //                             fontFamily: 'inter',
+  //                           ),
+  //                         ),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ),
+  //                 if (showLikesDropdown)
+  //                   Column(
+  //                     children: likedUsers.map((user) {
+  //                       final photo = user['photo'] ?? '';
+  //                       final firstName = user['first_name'] ?? 'Unknown';
+  //                       final lastName = user['last_name'] ?? '';
+  //                       final username = user['rolla_username'] ?? '@unknown';
+
+  //                       return Padding(
+  //                         padding: const EdgeInsets.symmetric(vertical: 4.0),
+  //                         child: Row(
+  //                           children: [
+  //                             // User Profile Picture
+  //                             Container(
+  //                               height: 40,
+  //                               width: 40,
+  //                               decoration: BoxDecoration(
+  //                                 borderRadius: BorderRadius.circular(100),
+  //                                 border: Border.all(
+  //                                   color: Colors.grey,
+  //                                   width: 2,
+  //                                 ),
+  //                                 image: photo.isNotEmpty
+  //                                     ? DecorationImage(
+  //                                         image: NetworkImage(photo),
+  //                                         fit: BoxFit.cover,
+  //                                       )
+  //                                     : null,
+  //                               ),
+  //                               child: photo.isEmpty
+  //                                   ? const Icon(Icons.person,
+  //                                       size: 20) // Placeholder icon
+  //                                   : null,
+  //                             ),
+  //                             const SizedBox(width: 5),
+  //                             // User Information
+  //                             Column(
+  //                               crossAxisAlignment: CrossAxisAlignment.start,
+  //                               children: [
+  //                                 Text(
+  //                                   '$firstName $lastName',
+  //                                   style: const TextStyle(
+  //                                     fontWeight: FontWeight.bold,
+  //                                     fontSize: 13,
+  //                                     fontFamily: 'inter',
+  //                                     color: Colors.black,
+  //                                   ),
+  //                                 ),
+  //                                 Text(
+  //                                   username,
+  //                                   style: const TextStyle(
+  //                                     fontSize: 12,
+  //                                     color: Colors.grey,
+  //                                     fontFamily: 'inter',
+  //                                   ),
+  //                                 ),
+  //                               ],
+  //                             ),
+  //                           ],
+  //                         ),
+  //                       );
+  //                     }).toList(),
+  //                   ),
+  //               ],
+  //             ),
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -703,182 +956,6 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                           ),
                         ],
                       ),
-                      // Row(
-                      //   mainAxisAlignment: MainAxisAlignment.start,
-                      //   children: [
-                      //     Image.asset(
-                      //       'assets/images/icons/logo.png',
-                      //       width: 90,
-                      //       height: 80,
-                      //     ),
-                      //     const Spacer(),
-                      //     Row(
-                      //       crossAxisAlignment: CrossAxisAlignment.center,
-                      //       children: [
-                      //         Text(
-                      //           "@$username!",
-                      //           style: const TextStyle(
-                      //             color: kColorBlack,
-                      //             fontSize: 17,
-                      //             fontWeight: FontWeight.w500,
-                      //             fontFamily: 'inter',
-                      //             letterSpacing: -0.1,
-                      //           ),
-                      //         ),
-                      //         const SizedBox(width : 3),
-                      //         Image.asset(
-                      //           'assets/images/icons/verify.png',
-                      //           width: 22,
-                      //           height: 22,
-                      //           fit: BoxFit.contain,
-                      //         ),
-                      //       ],
-                      //     ),
-                      //     const Spacer(),
-                      //     Row(
-                      //       children: [
-                      //         if (_isSelectMode)
-                      //           SizedBox(
-                      //             height: 30,
-                      //             child: ElevatedButton(
-                      //               onPressed: _onDeleteButtonPressed,
-                      //               style: ElevatedButton.styleFrom(
-                      //                 backgroundColor: kColorStafGrey,
-                      //                 padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 2),
-                      //               ),
-                      //               child: const Text(
-                      //                 "Delete",
-                      //                 style: TextStyle(
-                      //                   color: Colors.red,
-                      //                   fontSize: 13,
-                      //                   fontWeight: FontWeight.bold,
-                      //                   fontFamily: 'inter',),
-                      //               ),
-                      //             ),
-                      //           ),
-                      //         if (_isSelectMode)
-                      //           const SizedBox(width: 3,),
-                      //         SizedBox(
-                      //           height: 30,
-                      //           child: ElevatedButton(
-                      //             onPressed: _onSelectButtonPressed,
-                      //             style: ElevatedButton.styleFrom(
-                      //               backgroundColor: kColorStafGrey,
-                      //               padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                      //             ),
-                      //             child: Text(
-                      //               _isSelectMode ? 'Cancel' : 'Select',
-                      //               style: const TextStyle(
-                      //                 color: Colors.black54,
-                      //                 fontWeight: FontWeight.bold,
-                      //                 fontSize: 13,
-                      //                 fontFamily: 'inter',),
-                      //             ),
-                      //           ),
-                      //         ),
-                      //       ],
-                      //     ),
-                      //     const SizedBox(width: 10,)
-                      //   ],
-                      // ),
-
-                      // Padding(
-                      //   padding: EdgeInsets.only(top: vhh(context, 0)),
-                      //   child: Row(
-                      //     mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      //     crossAxisAlignment: CrossAxisAlignment.center,
-                      //     children: [
-                      //       Container(),
-                      //       Column(
-                      //         children: [
-                      //           Image.asset(
-                      //             'assets/images/icons/trips1.png',
-                      //             width: vww(context, 20),
-                      //           ),
-                      //           Text(
-                      //             GlobalVariables.tripCount?.toString() ?? "0",
-                      //             style: const TextStyle(
-                      //                 fontSize: 20,
-                      //                 color: kColorButtonPrimary,
-                      //                 fontFamily: 'interBold'),
-                      //           ),
-                      //         ],
-                      //       ),
-                      //       Stack(
-                      //         alignment: Alignment.center,
-                      //         children: [
-                      //           Container(
-                      //             height: vhh(context, 15),
-                      //             width: vhh(context, 15),
-                      //             decoration: BoxDecoration(
-                      //               borderRadius: BorderRadius.circular(100),
-                      //               border: Border.all(
-                      //                 color: kColorHereButton,
-                      //                 width: 2,
-                      //               ),
-                      //             ),
-                      //             child: ClipOval(
-                      //               child: GlobalVariables.userImageUrl != null
-                      //                   ? Image.network(
-                      //                       GlobalVariables.userImageUrl!,
-                      //                       fit: BoxFit.cover,
-                      //                       height: vhh(context, 15),
-                      //                       width: vhh(context, 15),
-                      //                       loadingBuilder: (context, child, loadingProgress) {
-                      //                         if (loadingProgress == null) return child;
-                      //                         return const Center(
-                      //                           child: SpinningLoader(),
-                      //                         );
-                      //                       },
-                      //                       errorBuilder: (context, error, stackTrace) {
-                      //                         return Container(
-                      //                           height: vhh(context, 15),
-                      //                           width: vhh(context, 15),
-                      //                           decoration: BoxDecoration(
-                      //                             shape: BoxShape.circle,
-                      //                             color: Colors.grey[300],
-                      //                           ),
-                      //                           child: Icon(Icons.person, color: Colors.grey[600]),
-                      //                         );
-                      //                       },
-                      //                     )
-                      //                   : Container(
-                      //                       height: vhh(context, 15),
-                      //                       width: vhh(context, 15),
-                      //                       decoration: BoxDecoration(
-                      //                         shape: BoxShape.circle,
-                      //                         color: Colors.grey[300],
-                      //                       ),
-                      //                       child: Icon(Icons.person, color: Colors.grey[600]),
-                      //                     ),
-                      //             ),
-                      //           ),
-
-                      //         ],
-                      //       ),
-                      //       Column(
-                      //         children: [
-                      //           Image.asset(
-                      //             'assets/images/icons/follower1.png',
-                      //             width: vww(context, 21),
-                      //           ),
-                      //           GestureDetector(
-                      //             onTap: _onFollowers,
-                      //             child: Text(
-                      //               followingCount ?? "0",
-                      //               style: const TextStyle(
-                      //                   fontSize: 20,
-                      //                   color: kColorButtonPrimary,
-                      //                   fontFamily: 'interBold'),
-                      //             ),
-                      //           ),
-                      //         ],
-                      //       ),
-                      //       Container(),
-                      //     ],
-                      //   ),
-                      // ),
-
                       Padding(
                         padding:
                             EdgeInsets.symmetric(horizontal: vww(context, 2)),
@@ -1083,22 +1160,23 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                             as Map<String, dynamic>;
                                         final String imagePath =
                                             dropPin['image_path'] ?? '';
-                                        final String caption =
-                                            dropPin['image_caption'] ??
-                                                'No caption';
-                                        final List<dynamic> likedUsers =
-                                            dropPin['liked_users'] ?? [];
+                                        // final String caption =
+                                        //     dropPin['image_caption'] ??
+                                        //         'No caption';
+                                        // final List<dynamic> likedUsers =
+                                        //     dropPin['liked_users'] ?? [];
 
                                         return Padding(
                                           padding: const EdgeInsets.symmetric(
                                               horizontal: 1),
                                           child: GestureDetector(
                                             onTap: () {
-                                              _showImageDialog(
-                                                  imagePath,
-                                                  caption,
-                                                  likedUsers.length,
-                                                  likedUsers);
+                                              // _showImageDialog(
+                                              //     imagePath,
+                                              //     caption,
+                                              //     likedUsers.length,
+                                              //     likedUsers);
+                                              _showImageDialog(dropPinsData, index);
                                             },
                                             child: imagePath.isNotEmpty
                                                 ? Container(

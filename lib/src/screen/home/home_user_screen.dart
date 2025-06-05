@@ -29,6 +29,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
   double screenHeight = 0;
   final int _currentIndex = 5;
   int? userid;
+  int likes = 0;
   bool isLiked = false;
   bool showLikesDropdown = false;
   Map<String, dynamic>? userProfile;
@@ -79,7 +80,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
       final result  = await ApiService().fetchUserTrips(widget.userId);
       var userProfile = result['trips'];
       final userInfo = result['userInfo'];
-      logger.i(userProfile);
+      // logger.i(userProfile);
 
       rollaUserName = userInfo[0]['rolla_username'];
       userRealName = "${userInfo[0]['first_name'] ?? ''} ${userInfo[0]['last_name'] ?? ''}";
@@ -134,6 +135,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
         dropPinsData = allDroppins.isNotEmpty ? allDroppins : [];
         isLoadingTrips = false;
       });
+      logger.i(dropPinsData);
 
     } catch (e) {
       logger.e("Error fetching user profile: $e");
@@ -170,22 +172,250 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
     }
   }
 
-  void _showImageDialog(
-    String imagePath,
-    String caption,
-    int droppinlikes,
-    List<dynamic> likedUsers,
-    int droppinId,
-    int userId,
-    String? viewlist,
-    int droppinIndexF,) {
-    if (likedUsers.map((user) => user['id']).contains(GlobalVariables.userId)) {
-      isLiked = true;
-    } else {
-      isLiked = false;
-    }
-    int droppinIndex = droppinIndexF - 1;
-    logger.i(droppinIndex);
+  // void _showImageDialog(
+  //   String imagePath,
+  //   String caption,
+  //   int droppinlikes,
+  //   List<dynamic> likedUsers,
+  //   int droppinId,
+  //   int userId,
+  //   String? viewlist,
+  //   int droppinIndexF,) {
+  //   if (likedUsers.map((user) => user['id']).contains(GlobalVariables.userId)) {
+  //     isLiked = true;
+  //   } else {
+  //     isLiked = false;
+  //   }
+  //   int droppinIndex = droppinIndexF - 1;
+  //   logger.i(droppinIndex);
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return StatefulBuilder(
+  //         builder: (BuildContext context, StateSetter setState) {
+  //           return Dialog(
+  //             insetPadding: const EdgeInsets.symmetric(horizontal: 30),
+  //             shape: RoundedRectangleBorder(
+  //                 borderRadius: BorderRadius.circular(10)),
+  //             child: Column(
+  //               mainAxisSize: MainAxisSize.min,
+  //               crossAxisAlignment: CrossAxisAlignment.start,
+  //               children: [
+  //                 Padding(
+  //                   padding: const EdgeInsets.symmetric(
+  //                       horizontal: 8.0, vertical: 4.0),
+  //                   child: Row(
+  //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                     children: [
+  //                       SizedBox(
+  //                         width: MediaQuery.of(context).size.width * 0.7, 
+  //                         child: Text(
+  //                           caption,
+  //                           maxLines: 1,
+  //                           overflow: TextOverflow.ellipsis,
+  //                           style: const TextStyle(
+  //                             fontSize: 16,
+  //                             fontWeight: FontWeight.bold,
+  //                             color: Colors.grey,
+  //                             fontFamily: 'inter',
+  //                           ),
+  //                         ),
+  //                       ),
+  //                       IconButton(
+  //                         icon: const Icon(Icons.close, color: Colors.black),
+  //                         onPressed: () {
+  //                           Navigator.of(context).pop();
+  //                           setState(() {
+  //                             showLikesDropdown = false; 
+  //                           });
+  //                         },
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ),
+  //                 Stack(
+  //                   alignment: Alignment.center,
+  //                   children: [
+  //                     Image.network(
+  //                       imagePath,
+  //                       fit: BoxFit.cover,
+  //                       width: MediaQuery.of(context).size.width * 0.9,
+  //                       height: MediaQuery.of(context).size.height * 0.5,
+  //                       errorBuilder: (context, error, stackTrace) =>
+  //                           const Icon(Icons.broken_image, size: 100),
+  //                       loadingBuilder: (context, child, loadingProgress) {
+  //                         if (loadingProgress == null) {
+  //                           return child;
+  //                         } else {
+  //                           return const Center(
+  //                             child: SpinningLoader(),
+  //                           );
+  //                         }
+  //                       },
+  //                     ),
+  //                   ],
+  //                 ),
+  //                 const Divider(
+  //                     height: 1,
+  //                     color: Colors.grey), 
+  //                 Padding(
+  //                   padding: const EdgeInsets.all(8.0),
+  //                   child: Row(
+  //                     children: [
+  //                       GestureDetector(
+  //                         behavior: HitTestBehavior.opaque,
+  //                         onTap: () async {
+  //                           final ApiService apiService = ApiService();
+  //                           final response = await apiService.toggleDroppinLike(
+  //                             userId: GlobalVariables.userId!,
+  //                             droppinId: droppinId,
+  //                             flag: !isLiked,
+  //                           );
+  //                           if (response != null &&
+  //                               response['statusCode'] == true) {
+  //                             setState(() {
+  //                               isLiked = !isLiked;
+  //                               if (isLiked) {
+  //                                 droppinlikes++;
+  //                                 final names =
+  //                                     GlobalVariables.realName?.split(' ') ??
+  //                                         ['Unknown', ''];
+  //                                 final firstName = names[0];
+  //                                 final lastName =
+  //                                     names.length > 1 ? names[1] : '';
+
+  //                                 userTrips![0]['droppins'][droppinIndex]
+  //                                         ['liked_users']
+  //                                     .add({
+  //                                   'photo': GlobalVariables.userImageUrl,
+  //                                   'first_name': firstName,
+  //                                   'last_name': lastName,
+  //                                   'rolla_username': GlobalVariables.userName,
+  //                                 });
+  //                               } else {
+  //                                 droppinlikes--;
+  //                                 userTrips![0]['droppins'][droppinIndex]
+  //                                         ['liked_users']
+  //                                     .removeWhere((user) =>
+  //                                         user['rolla_username'] ==
+  //                                         GlobalVariables.userName);
+  //                               }
+  //                               setState(() {
+  //                                 droppinlikes = _calculateTotalLikes(
+  //                                     userTrips![0]['droppins']);
+  //                               });
+  //                             });
+  //                             logger.i(response['message']);
+  //                           } else {
+  //                             logger.e('Failed to toggle like');
+  //                           }
+  //                         },
+  //                         child: Icon(
+  //                           isLiked ? Icons.favorite : Icons.favorite_border,
+  //                           color: isLiked ? Colors.red : Colors.black,
+  //                         ),
+  //                       ),
+  //                       const SizedBox(width: 4),
+  //                       GestureDetector(
+  //                         onTap: () {
+  //                           setState(() {
+  //                             showLikesDropdown = !showLikesDropdown; 
+  //                           });
+  //                         },
+  //                         child: Text(
+  //                           '$droppinlikes likes',
+  //                           style: const TextStyle(
+  //                             fontWeight: FontWeight.bold,
+  //                             fontSize: 16,
+  //                             fontFamily: 'inter',
+  //                           ),
+  //                         ),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ),
+  //                 if (showLikesDropdown)
+  //                   Column(
+  //                     children: likedUsers.map((user) {
+  //                       final photo = user['photo'] ?? '';
+  //                       final firstName = user['first_name'] ?? 'Unknown';
+  //                       final lastName = user['last_name'] ?? '';
+  //                       final username = user['rolla_username'] ?? '@unknown';
+  //                       return Padding(
+  //                         padding: const EdgeInsets.symmetric(vertical: 4.0),
+  //                         child: Row(
+  //                           children: [
+  //                             Container(
+  //                               height: 40,
+  //                               width: 40,
+  //                               decoration: BoxDecoration(
+  //                                 borderRadius: BorderRadius.circular(100),
+  //                                 border: Border.all(
+  //                                   color: Colors.grey,
+  //                                   width: 2,
+  //                                 ),
+  //                                 image: photo.isNotEmpty
+  //                                     ? DecorationImage(
+  //                                         image: NetworkImage(photo),
+  //                                         fit: BoxFit.cover,
+  //                                       )
+  //                                     : null,
+  //                               ),
+  //                               child: photo.isEmpty
+  //                                   ? const Icon(Icons.person,
+  //                                       size: 20)
+  //                                   : null,
+  //                             ),
+  //                             const SizedBox(width: 5),
+  //                             Column(
+  //                               crossAxisAlignment: CrossAxisAlignment.start,
+  //                               children: [
+  //                                 Text(
+  //                                   '$firstName $lastName',
+  //                                   style: const TextStyle(
+  //                                     fontWeight: FontWeight.bold,
+  //                                     fontSize: 13,
+  //                                     fontFamily: 'inter',
+  //                                     color: Colors.black,
+  //                                   ),
+  //                                 ),
+  //                                 Text(
+  //                                   username,
+  //                                   style: const TextStyle(
+  //                                     fontSize: 12,
+  //                                     color: Colors.grey,
+  //                                     fontFamily: 'inter',
+  //                                   ),
+  //                                 ),
+  //                               ],
+  //                             ),
+  //                           ],
+  //                         ),
+  //                       );
+  //                     }).toList(),
+  //                   ),
+  //               ],
+  //             ),
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
+Future<void> _showImageDialog(
+    List<dynamic> droppins, 
+    int droppinIndex,   
+  ) async {
+    final apiservice = ApiService();
+    
+    // Get the initial liked_users and viewlist
+    List<dynamic> likedUsers = droppins[droppinIndex]['liked_users'];
+    bool isLiked = likedUsers.map((user) => user['id']).contains(GlobalVariables.userId);
+    int droppinlikes = likedUsers.length;
+    int viewcount = (droppins[droppinIndex]['view_count'] ?? '').split(',').length;
+
+    // Show dialog
+    if (!mounted) return;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -193,69 +423,82 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
           builder: (BuildContext context, StateSetter setState) {
             return Dialog(
               insetPadding: const EdgeInsets.symmetric(horizontal: 30),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Caption and Close button
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8.0, vertical: 4.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.7, 
-                          child: Text(
-                            caption,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey,
-                              fontFamily: 'inter',
-                            ),
+                        Text(
+                          (droppins[droppinIndex]['image_caption'] ?? '').length > 40 
+                              ? (droppins[droppinIndex]['image_caption'] ?? '').substring(0, 40) + '...' 
+                              : (droppins[droppinIndex]['image_caption'] ?? ''),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey,
+                            fontFamily: 'inter',
+                            letterSpacing: -0.1,
                           ),
+                          overflow: TextOverflow.ellipsis, // Ensures text overflow shows '...'
+                          maxLines: 1, // Ensures only one line is used for the caption
                         ),
                         IconButton(
                           icon: const Icon(Icons.close, color: Colors.black),
                           onPressed: () {
                             Navigator.of(context).pop();
-                            setState(() {
-                              showLikesDropdown = false; 
-                            });
                           },
                         ),
                       ],
                     ),
                   ),
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Image.network(
-                        imagePath,
-                        fit: BoxFit.cover,
-                        width: MediaQuery.of(context).size.width * 0.9,
-                        height: MediaQuery.of(context).size.height * 0.5,
-                        errorBuilder: (context, error, stackTrace) =>
-                            const Icon(Icons.broken_image, size: 100),
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) {
-                            return child;
-                          } else {
-                            return const Center(
-                              child: SpinningLoader(),
-                            );
-                          }
-                        },
-                      ),
-                    ],
+                  // PageView for swiping through images
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.5,
+                    width: MediaQuery.of(context).size.width * 0.9,
+                    child: PageView.builder(
+                      controller: PageController(initialPage: droppinIndex),
+                      itemCount: droppins.length,
+                      itemBuilder: (context, index) {
+                        final droppin = droppins[index];
+                        return Image.network(
+                          droppin['image_path'],
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const Icon(Icons.broken_image, size: 100),
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) {
+                              return child;
+                            } else {
+                              return const Center(
+                                child: SpinningLoader(),
+                              );
+                            }
+                          },
+                        );
+                      },
+                      onPageChanged: (index) {
+                        setState(() {
+                          droppinIndex = index; // Update the index when the page changes
+                          
+                          // Update the likedUsers and viewcount based on the new image
+                          likedUsers = droppins[droppinIndex]['liked_users'];
+                          isLiked = likedUsers.map((user) => user['id']).contains(GlobalVariables.userId);
+                          droppinlikes = likedUsers.length;
+                          // viewcount = droppins[droppinIndex]['view_count'].split(',').length;
+                          viewcount = (droppins[droppinIndex]['view_count'] ?? '').split(',').length;
+
+                        });
+                      },
+                    ),
                   ),
-                  const Divider(
-                      height: 1,
-                      color: Colors.grey), 
+                  const Divider(height: 1, color: Colors.grey),
+                  // Like and View count buttons
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Row(
@@ -263,44 +506,29 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
                         GestureDetector(
                           behavior: HitTestBehavior.opaque,
                           onTap: () async {
-                            final ApiService apiService = ApiService();
-                            final response = await apiService.toggleDroppinLike(
+                            final response = await apiservice.toggleDroppinLike(
                               userId: GlobalVariables.userId!,
-                              droppinId: droppinId,
+                              droppinId: droppins[droppinIndex]['id'],
                               flag: !isLiked,
                             );
-                            if (response != null &&
-                                response['statusCode'] == true) {
+                            if (response != null && response['statusCode'] == true) {
                               setState(() {
                                 isLiked = !isLiked;
                                 if (isLiked) {
                                   droppinlikes++;
-                                  final names =
-                                      GlobalVariables.realName?.split(' ') ??
-                                          ['Unknown', ''];
-                                  final firstName = names[0];
-                                  final lastName =
-                                      names.length > 1 ? names[1] : '';
-
-                                  userTrips![0]['droppins'][droppinIndex]
-                                          ['liked_users']
-                                      .add({
+                                  droppins[droppinIndex]['liked_users'].add({
                                     'photo': GlobalVariables.userImageUrl,
-                                    'first_name': firstName,
-                                    'last_name': lastName,
+                                    'first_name': GlobalVariables.realName?.split(' ')[0],
+                                    'last_name': GlobalVariables.realName?.split(' ')[1],
                                     'rolla_username': GlobalVariables.userName,
                                   });
                                 } else {
                                   droppinlikes--;
-                                  userTrips![0]['droppins'][droppinIndex]
-                                          ['liked_users']
-                                      .removeWhere((user) =>
-                                          user['rolla_username'] ==
-                                          GlobalVariables.userName);
+                                  droppins[droppinIndex]['liked_users'].removeWhere((user) =>
+                                      user['rolla_username'] == GlobalVariables.userName);
                                 }
                                 setState(() {
-                                  droppinlikes = _calculateTotalLikes(
-                                      userTrips![0]['droppins']);
+                                  likes = _calculateTotalLikes(droppins);
                                 });
                               });
                               logger.i(response['message']);
@@ -317,7 +545,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
                         GestureDetector(
                           onTap: () {
                             setState(() {
-                              showLikesDropdown = !showLikesDropdown; 
+                              showLikesDropdown = !showLikesDropdown;
                             });
                           },
                           child: Text(
@@ -325,7 +553,31 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
+                              letterSpacing: -0.1,
                               fontFamily: 'inter',
+                            ),
+                          ),
+                        ),
+                        const Spacer(),
+                        GestureDetector(
+                          onTap: () {
+                            // Handle the view count and actions here if needed
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF933F10),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Text(
+                              '$viewcount Views',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                                letterSpacing: -0.1,
+                                fontFamily: 'Inter',
+                              ),
                             ),
                           ),
                         ),
@@ -353,16 +605,10 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
                                     width: 2,
                                   ),
                                   image: photo.isNotEmpty
-                                      ? DecorationImage(
-                                          image: NetworkImage(photo),
-                                          fit: BoxFit.cover,
-                                        )
+                                      ? DecorationImage(image: NetworkImage(photo), fit: BoxFit.cover)
                                       : null,
                                 ),
-                                child: photo.isEmpty
-                                    ? const Icon(Icons.person,
-                                        size: 20)
-                                    : null,
+                                child: photo.isEmpty ? const Icon(Icons.person, size: 20) : null,
                               ),
                               const SizedBox(width: 5),
                               Column(
@@ -373,6 +619,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 13,
+                                      letterSpacing: -0.1,
                                       fontFamily: 'inter',
                                       color: Colors.black,
                                     ),
@@ -381,6 +628,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
                                     username,
                                     style: const TextStyle(
                                       fontSize: 12,
+                                      letterSpacing: -0.1,
                                       color: Colors.grey,
                                       fontFamily: 'inter',
                                     ),
@@ -702,15 +950,16 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
                                           horizontal: 3),
                                       child: GestureDetector(
                                         onTap: () {
-                                          _showImageDialog(
-                                            dropPin['image_path'], 
-                                            dropPin['image_caption'],
-                                            dropPin['liked_users'].length,
-                                            dropPin['liked_users'],
-                                            dropPin['id'],
-                                            widget.userId,
-                                            dropPin['view_count'],
-                                            dropPin['stop_index'],);
+                                          // _showImageDialog(
+                                          //   dropPin['image_path'], 
+                                          //   dropPin['image_caption'],
+                                          //   dropPin['liked_users'].length,
+                                          //   dropPin['liked_users'],
+                                          //   dropPin['id'],
+                                          //   widget.userId,
+                                          //   dropPin['view_count'],
+                                          //   dropPin['stop_index'],);
+                                          _showImageDialog(dropPinsData, index);
                                         },
                                         child: imagePath.isNotEmpty
                                             ? Container(
