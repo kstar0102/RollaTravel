@@ -1,4 +1,5 @@
 import 'package:RollaTravel/src/screen/home/home_screen_widget.dart';
+import 'package:RollaTravel/src/screen/home/pending_screen.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:RollaTravel/src/utils/spinner_loader.dart';
@@ -25,6 +26,8 @@ class HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObser
   final apiService = ApiService();
   final ScrollController _scrollController = ScrollController();
   bool isSelected = false;
+  int pendingCount = 0;
+  List<int> pendingList = [];
 
   @override
   void initState() {
@@ -54,6 +57,17 @@ class HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObser
         : blockUsers.map((user) => user['id'].toString()).toSet();
 
     final data = await apiService.fetchFollowerTrip(GlobalVariables.userId!);
+    final pendingIdsRaw = data[0]['user']['following_pending_userid'];
+    if (pendingIdsRaw != null && pendingIdsRaw.toString().trim().isNotEmpty) {
+      pendingList = pendingIdsRaw
+      .toString()
+      .split(',')
+      .map((e) => int.tryParse(e.trim()))
+      .whereType<int>()
+      .toList();
+      pendingCount = pendingIdsRaw.toString().split(',').length;
+    }
+    // logger.i(pendingCount);
     final currentUserId = GlobalVariables.userId.toString();
     final now = DateTime.now();
 
@@ -82,7 +96,6 @@ class HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObser
     setState(() {
       trips = filteredTrips.reversed.toList();
     });
-
     if (GlobalVariables.homeTripID != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _scrollToTrip(GlobalVariables.homeTripID!);
@@ -173,16 +186,56 @@ class HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObser
                     height: 80,
                   ),
                   const Spacer(),
-                  Center(
-                    child: Image.asset(
-                      'assets/images/icons/notification.png',
-                      width: vww(context, 4),
+                  GestureDetector(
+                    onTap: () {
+                      if (pendingCount != 0) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => NotificationScreen(userid: GlobalVariables.userId,)), // replace with your page
+                        );
+                      }
+                    },
+                    child: SizedBox(
+                      width: vww(context, 4) + 12,
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          Image.asset(
+                            'assets/images/icons/notification.png',
+                            width: vww(context, 4),
+                          ),
+                          if (pendingCount > 0)
+                            Positioned(
+                              top: -4,
+                              left: -20,
+                              child: Container(
+                                width: 25,
+                                height: 16,
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                                decoration: BoxDecoration(
+                                  color: Colors.red,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Text(
+                                  pendingCount > 99 ? '99+' : '$pendingCount',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
                   ),
+
                   const Spacer(),
                   IconButton(
                     icon: const Icon(Icons.close, color: Colors.white),
-                    iconSize: 45.0,
+                    iconSize: 47.0,
                     onPressed: () {},
                   ),
                 ],

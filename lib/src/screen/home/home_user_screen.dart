@@ -50,6 +50,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
   LatLng? endPoint;
   List<LatLng> locations = [];
   late List<dynamic> dropPinsData = [];
+  bool isPending = false;
 
   @override
   void initState() {
@@ -80,7 +81,6 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
       final result  = await ApiService().fetchUserTrips(widget.userId);
       var userProfile = result['trips'];
       final userInfo = result['userInfo'];
-      // logger.i(userProfile);
 
       rollaUserName = userInfo[0]['rolla_username'];
       userRealName = "${userInfo[0]['first_name'] ?? ''} ${userInfo[0]['last_name'] ?? ''}";
@@ -107,6 +107,20 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
         tripCount = "0";
       }
 
+      if(userInfo[0]['following_pending_userid'] != null ){
+        String userIdString = GlobalVariables.userId.toString();
+        List<String> pendingFollowingUserIds = userInfo[0]['following_pending_userid'].split(',');
+        if (pendingFollowingUserIds.contains(userIdString)) {
+          setState(() {
+            isPending = true;  
+          });
+        }else {
+          setState(() {
+            isPending = false;  
+          });
+        }
+      }
+
       int? followcount;
       if (userInfo[0]['following_user_id'] != "") {
         followcount = userInfo[0]['following_user_id'].split(',').length;
@@ -119,7 +133,10 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
       } else {
         followcount = 0;
       }
+      
       followingCount = followcount.toString();
+      logger.i("isPending : $isPending");
+      logger.i("isfollow : $isfollow");
 
       List<dynamic> allDroppins = [];
       for (var trip in userProfile) {
@@ -135,7 +152,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
         dropPinsData = allDroppins.isNotEmpty ? allDroppins : [];
         isLoadingTrips = false;
       });
-      logger.i(dropPinsData);
+      // logger.i(dropPinsData);
 
     } catch (e) {
       logger.e("Error fetching user profile: $e");
@@ -153,256 +170,49 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
   }
 
   void follow() async {
-    try {
-      final apiservice = ApiService();
-      final result = await apiservice.followUser(userid!, GlobalVariables.userId!);
+    final apiservice = ApiService();
 
-      if (result['statusCode'] == true) {
-        setState(() {
-          isfollow = !isfollow;
-          if (isfollow) {
-            followingCount = (int.parse(followingCount!) + 1).toString();
-          } else {
-            followingCount = (int.parse(followingCount!) - 1).toString();
-          }
-        });
+      if(isfollow == false && isPending == false){
+        final result = await apiservice.requestFollowPending(userid!, GlobalVariables.userId!);
+        if (result['statusCode'] == true) {
+          setState(() {
+            isPending = true;  
+          });
+        }
       }
-    } catch (e) {
-      logger.i('Error: $e');
-    }
+
+      if(isfollow == true && isPending == false) {
+        final result = await apiservice.followUser(userid!, GlobalVariables.userId!);  
+        if (result['statusCode'] == true) {
+          setState(() {
+            isPending = false;  
+            isfollow == false;
+          });
+        }
+      }
+    // try {
+    //   final result = await apiservice.requestFollowPending(userid!, GlobalVariables.userId!);
+    //   if (result['statusCode'] == true) {
+    //     if(isfollow == false){
+    //       setState(() {
+    //         isPending = true;  
+    //       });
+    //     }
+        // setState(() {
+        //   isfollow = !isfollow;
+        //   if (isfollow) {
+        //     followingCount = (int.parse(followingCount!) + 1).toString();
+        //   } else {
+        //     followingCount = (int.parse(followingCount!) - 1).toString();
+        //   }
+        // });
+    //   }
+    // } catch (e) {
+    //   logger.i('Error: $e');
+    // }
   }
 
-  // void _showImageDialog(
-  //   String imagePath,
-  //   String caption,
-  //   int droppinlikes,
-  //   List<dynamic> likedUsers,
-  //   int droppinId,
-  //   int userId,
-  //   String? viewlist,
-  //   int droppinIndexF,) {
-  //   if (likedUsers.map((user) => user['id']).contains(GlobalVariables.userId)) {
-  //     isLiked = true;
-  //   } else {
-  //     isLiked = false;
-  //   }
-  //   int droppinIndex = droppinIndexF - 1;
-  //   logger.i(droppinIndex);
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return StatefulBuilder(
-  //         builder: (BuildContext context, StateSetter setState) {
-  //           return Dialog(
-  //             insetPadding: const EdgeInsets.symmetric(horizontal: 30),
-  //             shape: RoundedRectangleBorder(
-  //                 borderRadius: BorderRadius.circular(10)),
-  //             child: Column(
-  //               mainAxisSize: MainAxisSize.min,
-  //               crossAxisAlignment: CrossAxisAlignment.start,
-  //               children: [
-  //                 Padding(
-  //                   padding: const EdgeInsets.symmetric(
-  //                       horizontal: 8.0, vertical: 4.0),
-  //                   child: Row(
-  //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                     children: [
-  //                       SizedBox(
-  //                         width: MediaQuery.of(context).size.width * 0.7, 
-  //                         child: Text(
-  //                           caption,
-  //                           maxLines: 1,
-  //                           overflow: TextOverflow.ellipsis,
-  //                           style: const TextStyle(
-  //                             fontSize: 16,
-  //                             fontWeight: FontWeight.bold,
-  //                             color: Colors.grey,
-  //                             fontFamily: 'inter',
-  //                           ),
-  //                         ),
-  //                       ),
-  //                       IconButton(
-  //                         icon: const Icon(Icons.close, color: Colors.black),
-  //                         onPressed: () {
-  //                           Navigator.of(context).pop();
-  //                           setState(() {
-  //                             showLikesDropdown = false; 
-  //                           });
-  //                         },
-  //                       ),
-  //                     ],
-  //                   ),
-  //                 ),
-  //                 Stack(
-  //                   alignment: Alignment.center,
-  //                   children: [
-  //                     Image.network(
-  //                       imagePath,
-  //                       fit: BoxFit.cover,
-  //                       width: MediaQuery.of(context).size.width * 0.9,
-  //                       height: MediaQuery.of(context).size.height * 0.5,
-  //                       errorBuilder: (context, error, stackTrace) =>
-  //                           const Icon(Icons.broken_image, size: 100),
-  //                       loadingBuilder: (context, child, loadingProgress) {
-  //                         if (loadingProgress == null) {
-  //                           return child;
-  //                         } else {
-  //                           return const Center(
-  //                             child: SpinningLoader(),
-  //                           );
-  //                         }
-  //                       },
-  //                     ),
-  //                   ],
-  //                 ),
-  //                 const Divider(
-  //                     height: 1,
-  //                     color: Colors.grey), 
-  //                 Padding(
-  //                   padding: const EdgeInsets.all(8.0),
-  //                   child: Row(
-  //                     children: [
-  //                       GestureDetector(
-  //                         behavior: HitTestBehavior.opaque,
-  //                         onTap: () async {
-  //                           final ApiService apiService = ApiService();
-  //                           final response = await apiService.toggleDroppinLike(
-  //                             userId: GlobalVariables.userId!,
-  //                             droppinId: droppinId,
-  //                             flag: !isLiked,
-  //                           );
-  //                           if (response != null &&
-  //                               response['statusCode'] == true) {
-  //                             setState(() {
-  //                               isLiked = !isLiked;
-  //                               if (isLiked) {
-  //                                 droppinlikes++;
-  //                                 final names =
-  //                                     GlobalVariables.realName?.split(' ') ??
-  //                                         ['Unknown', ''];
-  //                                 final firstName = names[0];
-  //                                 final lastName =
-  //                                     names.length > 1 ? names[1] : '';
-
-  //                                 userTrips![0]['droppins'][droppinIndex]
-  //                                         ['liked_users']
-  //                                     .add({
-  //                                   'photo': GlobalVariables.userImageUrl,
-  //                                   'first_name': firstName,
-  //                                   'last_name': lastName,
-  //                                   'rolla_username': GlobalVariables.userName,
-  //                                 });
-  //                               } else {
-  //                                 droppinlikes--;
-  //                                 userTrips![0]['droppins'][droppinIndex]
-  //                                         ['liked_users']
-  //                                     .removeWhere((user) =>
-  //                                         user['rolla_username'] ==
-  //                                         GlobalVariables.userName);
-  //                               }
-  //                               setState(() {
-  //                                 droppinlikes = _calculateTotalLikes(
-  //                                     userTrips![0]['droppins']);
-  //                               });
-  //                             });
-  //                             logger.i(response['message']);
-  //                           } else {
-  //                             logger.e('Failed to toggle like');
-  //                           }
-  //                         },
-  //                         child: Icon(
-  //                           isLiked ? Icons.favorite : Icons.favorite_border,
-  //                           color: isLiked ? Colors.red : Colors.black,
-  //                         ),
-  //                       ),
-  //                       const SizedBox(width: 4),
-  //                       GestureDetector(
-  //                         onTap: () {
-  //                           setState(() {
-  //                             showLikesDropdown = !showLikesDropdown; 
-  //                           });
-  //                         },
-  //                         child: Text(
-  //                           '$droppinlikes likes',
-  //                           style: const TextStyle(
-  //                             fontWeight: FontWeight.bold,
-  //                             fontSize: 16,
-  //                             fontFamily: 'inter',
-  //                           ),
-  //                         ),
-  //                       ),
-  //                     ],
-  //                   ),
-  //                 ),
-  //                 if (showLikesDropdown)
-  //                   Column(
-  //                     children: likedUsers.map((user) {
-  //                       final photo = user['photo'] ?? '';
-  //                       final firstName = user['first_name'] ?? 'Unknown';
-  //                       final lastName = user['last_name'] ?? '';
-  //                       final username = user['rolla_username'] ?? '@unknown';
-  //                       return Padding(
-  //                         padding: const EdgeInsets.symmetric(vertical: 4.0),
-  //                         child: Row(
-  //                           children: [
-  //                             Container(
-  //                               height: 40,
-  //                               width: 40,
-  //                               decoration: BoxDecoration(
-  //                                 borderRadius: BorderRadius.circular(100),
-  //                                 border: Border.all(
-  //                                   color: Colors.grey,
-  //                                   width: 2,
-  //                                 ),
-  //                                 image: photo.isNotEmpty
-  //                                     ? DecorationImage(
-  //                                         image: NetworkImage(photo),
-  //                                         fit: BoxFit.cover,
-  //                                       )
-  //                                     : null,
-  //                               ),
-  //                               child: photo.isEmpty
-  //                                   ? const Icon(Icons.person,
-  //                                       size: 20)
-  //                                   : null,
-  //                             ),
-  //                             const SizedBox(width: 5),
-  //                             Column(
-  //                               crossAxisAlignment: CrossAxisAlignment.start,
-  //                               children: [
-  //                                 Text(
-  //                                   '$firstName $lastName',
-  //                                   style: const TextStyle(
-  //                                     fontWeight: FontWeight.bold,
-  //                                     fontSize: 13,
-  //                                     fontFamily: 'inter',
-  //                                     color: Colors.black,
-  //                                   ),
-  //                                 ),
-  //                                 Text(
-  //                                   username,
-  //                                   style: const TextStyle(
-  //                                     fontSize: 12,
-  //                                     color: Colors.grey,
-  //                                     fontFamily: 'inter',
-  //                                   ),
-  //                                 ),
-  //                               ],
-  //                             ),
-  //                           ],
-  //                         ),
-  //                       );
-  //                     }).toList(),
-  //                   ),
-  //               ],
-  //             ),
-  //           );
-  //         },
-  //       );
-  //     },
-  //   );
-  // }
-Future<void> _showImageDialog(
+  Future<void> _showImageDialog(
     List<dynamic> droppins, 
     int droppinIndex,   
   ) async {
@@ -836,37 +646,44 @@ Future<void> _showImageDialog(
                               MainAxisAlignment.center,
                           children: [
                             GestureDetector(
-                              onTap: isMefollow ? null : () {
+                              onTap: (isMefollow || (isPending && !isfollow)) ? null : () {
                                 follow();
                               },
                               child: Container(
                                 width: vww(context, 90),
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                                margin: const EdgeInsets.only(right: 5), 
+                                margin: const EdgeInsets.only(right: 5),
                                 decoration: BoxDecoration(
-                                  color: isMefollow ? Colors.grey : kColorButtonPrimary,
+                                  color: (isMefollow || (isPending && !isfollow)) ? Colors.grey : kColorButtonPrimary,
                                   borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.black.withValues(alpha: 0.2),
                                       offset: const Offset(0, 2),
-                                      blurRadius: 4, 
+                                      blurRadius: 4,
                                     ),
                                   ],
                                 ),
                                 child: Center(
                                   child: Text(
-                                    isfollow ? 'Unfollow' : "Follow",
+                                    isPending && !isfollow
+                                      ? "follow pending"
+                                      : !isPending && !isfollow
+                                          ? "follow"
+                                          : !isPending && isfollow
+                                              ? "unfollow"
+                                              : "",
                                     style: const TextStyle(
                                       color: Colors.white,
-                                      fontSize: 14, 
+                                      fontSize: 14,
                                       fontFamily: 'inter',
-                                      fontWeight: FontWeight.bold
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                 ),
                               ),
                             ),
+
                           ],
                         ),
 

@@ -286,18 +286,13 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          (droppins[droppinIndex]['image_caption'] ?? '').length > 40 
-                              ? (droppins[droppinIndex]['image_caption'] ?? '').substring(0, 40) + '...' 
-                              : (droppins[droppinIndex]['image_caption'] ?? ''),
+                          droppins[droppinIndex]['image_caption'] ?? '',
                           style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey,
-                            fontFamily: 'inter',
-                            letterSpacing: -0.1,
-                          ),
-                          overflow: TextOverflow.ellipsis, // Ensures text overflow shows '...'
-                          maxLines: 1, // Ensures only one line is used for the caption
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey,
+                              fontFamily: 'inter',
+                              letterSpacing: -0.1),
                         ),
                         IconButton(
                           icon: const Icon(Icons.close, color: Colors.black),
@@ -1016,7 +1011,7 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
                   }).toList();
 
                   final droppin = filteredDroppins[index];
-                  logger.i(filteredDroppins);
+                  // logger.i(filteredDroppins);
                   return Container(
                     margin: const EdgeInsets.symmetric(horizontal: 4),
                     padding: const EdgeInsets.all(1),
@@ -1150,6 +1145,18 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
                                         final index = locations.indexOf(location);
                                         _showImageDialog(filteredDroppins, index);
                                         
+                                        // final droppin =
+                                        //     widget.post['droppins'][index];
+                                        // _showImageDialog(
+                                        //   droppin['image_path'],
+                                        //   droppin['image_caption'],
+                                        //   droppin['liked_users'].length,
+                                        //   droppin['liked_users'],
+                                        //   droppin['id'],
+                                        //   widget.post['user_id'],
+                                        //   droppin['view_count'],
+                                        //   index,
+                                        // );
                                       },
                                       child: Container(
                                         width: 14,

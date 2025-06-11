@@ -6,16 +6,15 @@ import 'package:RollaTravel/src/utils/index.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
 import 'package:logger/logger.dart';
 
-class HomeFollowScreen extends ConsumerStatefulWidget {
+class NotificationScreen extends ConsumerStatefulWidget {
   final int? userid;
-  final String? fromUser;
-  const HomeFollowScreen({super.key, required this.userid, required this.fromUser});
+  const NotificationScreen({super.key, required this.userid});
 
   @override
-  ConsumerState<HomeFollowScreen> createState() => HomeFollowScreenState();
+  ConsumerState<NotificationScreen> createState() => NotificationScreenState();
 }
 
-class HomeFollowScreenState extends ConsumerState<HomeFollowScreen> with WidgetsBindingObserver {
+class NotificationScreenState extends ConsumerState<NotificationScreen> with WidgetsBindingObserver {
   final int _currentIndex = 0;
   List<Map<String, dynamic>> followers = [];
   final logger = Logger();
@@ -43,7 +42,7 @@ class HomeFollowScreenState extends ConsumerState<HomeFollowScreen> with Widgets
   Future<void> _loadFollowers() async {
     try {
       final apiservice = ApiService();
-      followers = await apiservice.fetchFollowers(widget.userid!);
+      followers = await apiservice.fetchPendingFollowingUsers(widget.userid!);
       logger.i(followers);
       setState(() {});
     } catch (e) {
@@ -81,27 +80,28 @@ class HomeFollowScreenState extends ConsumerState<HomeFollowScreen> with Widgets
                       height: 20,
                     ),
                   ),
-                  Expanded(
+                  const Expanded(
                     child: Center(
                       child: Column(
                         children: [
-                          const Text(
-                            'Followers',
+                           Text(
+                            'Notifications',
                             style: TextStyle(
                               fontSize: 20,
                               letterSpacing: -0.1,
                               fontFamily: 'interBold',
                             ),
                           ),
-                          Text(
-                            'List of the users who follow ${widget.fromUser}',
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: Colors.grey,
-                              letterSpacing: -0.1,
-                              fontFamily: 'inter',
-                            ),
-                          ),
+                          SizedBox(height: 10,)
+                          // Text(
+                          //   'List of the users who follow ${widget.fromUser}',
+                          //   style: const TextStyle(
+                          //     fontSize: 13,
+                          //     color: Colors.grey,
+                          //     letterSpacing: -0.1,
+                          //     fontFamily: 'inter',
+                          //   ),
+                          // ),
                         ],
                       ),
                     ),
@@ -124,12 +124,12 @@ class HomeFollowScreenState extends ConsumerState<HomeFollowScreen> with Widgets
                       child: Row(
                         children: [
                           Container(
-                            height: 50, // Adjust the size as needed
+                            height: 50, 
                             width: 50,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(
-                                color: kColorHereButton, // Adjust border color
+                                color: kColorHereButton,
                                 width: 2,
                               ),
                             ),
