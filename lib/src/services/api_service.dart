@@ -67,6 +67,36 @@ class ApiService {
     }
   }
 
+  Future<Map<String, dynamic>> removeUserfollow (int userId, int followingId) async {
+    logger.i(userId);
+    logger.i(followingId);
+    final url = Uri.parse('$baseUrl/user/removeUserfollow');
+    
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'user_id': userId,
+        'following_id': followingId,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      
+      if (data.containsKey('statusCode') && data.containsKey('message') && data.containsKey('data')) {
+        return {
+          "statusCode": data['statusCode'],
+          "message": data['message'],
+          "data": data['data'],
+        };
+      } else {
+        throw Exception('Invalid response format: Missing expected keys');
+      }
+    } else {
+      throw Exception('Failed to follow user: ${response.statusCode}');
+    }
+  }
   Future<Map<String, dynamic>> viewAcceptNotification (int userId, int followingId) async {
     final url = Uri.parse('$baseUrl/user/accpetViewed');
     

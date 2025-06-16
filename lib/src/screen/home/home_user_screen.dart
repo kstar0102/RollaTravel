@@ -81,7 +81,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
       final result  = await ApiService().fetchUserTrips(widget.userId);
       var userProfile = result['trips'];
       final userInfo = result['userInfo'];
-      logger.i(userInfo);
+      // logger.i(userInfo);
       rollaUserName = userInfo[0]['rolla_username'];
       userRealName = "${userInfo[0]['first_name'] ?? ''} ${userInfo[0]['last_name'] ?? ''}";
       rollaUserImage = userInfo[0]['photo'];
@@ -203,14 +203,22 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
       }
 
       if(isfollow == true && isPending == false) {
-        final result = await apiservice.followUser(userid!, GlobalVariables.userId!);  
+        logger.i("unfollow cliecked");
+        final result = await apiservice.removeUserfollow(userid!, GlobalVariables.userId!);  
         if (result['statusCode'] == true) {
-          setState(() {
-            isPending = false;  
-            isfollow == false;
-          });
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => HomeUserScreen(userId: userid!,)),
+          );
+          // _fetchUserProfile();
+          // setState(() {
+          //   isPending = false;  
+          //   isfollow == false;
+          // });
         }
       }
+
+      // if(is)
     // try {
     //   final result = await apiservice.requestFollowPending(userid!, GlobalVariables.userId!);
     //   if (result['statusCode'] == true) {
