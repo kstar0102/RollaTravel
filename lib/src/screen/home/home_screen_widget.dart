@@ -263,7 +263,14 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
     List<dynamic> likedUsers = droppins[droppinIndex]['liked_users'];
     bool isLiked = likedUsers.map((user) => user['id']).contains(GlobalVariables.userId);
     int droppinlikes = likedUsers.length;
-    int viewcount = droppins[droppinIndex]['view_count'].split(',').length;
+    // int viewcount = droppins[droppinIndex]['view_count'].split(',').length;
+    int viewcount = 0;
+
+    if (droppins[droppinIndex]['view_count'] != null && droppins[droppinIndex]['view_count'].isNotEmpty) {
+      viewcount = droppins[droppinIndex]['view_count'].split(',').length;
+    } else {
+      viewcount = 0; // Set to 0 if 'view_count' is null or empty
+    }
     
     // Show dialog
     if (!mounted) return;
@@ -336,7 +343,13 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
                           likedUsers = droppins[droppinIndex]['liked_users'];
                           isLiked = likedUsers.map((user) => user['id']).contains(GlobalVariables.userId);
                           droppinlikes = likedUsers.length;
-                          viewcount = droppins[droppinIndex]['view_count'].split(',').length;
+                          
+                          if (droppins[droppinIndex]['view_count'] != null && droppins[droppinIndex]['view_count'].isNotEmpty) {
+                            viewcount = droppins[droppinIndex]['view_count'].split(',').length;
+                          } else {
+                            viewcount = 0; // Set to 0 if 'view_count' is null or empty
+                          }
+                          
                         });
                       },
                     ),
