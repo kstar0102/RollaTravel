@@ -4,8 +4,7 @@ import 'package:logger/logger.dart';
 
 class ApiService {
   // static const String baseUrl = 'http://13.61.4.152/api';
-  static const String baseUrl = 'http://44.244.35.82/api';
-  // static const String baseUrl = 'http://192.168.141.105:8000/api';
+  static const String baseUrl = 'http://98.84.126.74/api';
   String apiKey = 'cfdb0e89363c14687341dbc25d1e1d43';
   final logger = Logger();
 
@@ -41,6 +40,93 @@ class ApiService {
 
   Future<Map<String, dynamic>> requestFollowPending (int userId, int followingId) async {
     final url = Uri.parse('$baseUrl/user/requestfollow');
+    
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'user_id': userId,
+        'following_id': followingId,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      
+      if (data.containsKey('statusCode') && data.containsKey('message') && data.containsKey('data')) {
+        return {
+          "statusCode": data['statusCode'],
+          "message": data['message'],
+          "data": data['data'],
+        };
+      } else {
+        throw Exception('Invalid response format: Missing expected keys');
+      }
+    } else {
+      throw Exception('Failed to follow user: ${response.statusCode}');
+    }
+  }
+
+  Future<Map<String, dynamic>> viewAcceptNotification (int userId, int followingId) async {
+    final url = Uri.parse('$baseUrl/user/accpetViewed');
+    
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'user_id': userId,
+        'following_id': followingId,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      
+      if (data.containsKey('statusCode') && data.containsKey('message') && data.containsKey('data')) {
+        return {
+          "statusCode": data['statusCode'],
+          "message": data['message'],
+          "data": data['data'],
+        };
+      } else {
+        throw Exception('Invalid response format: Missing expected keys');
+      }
+    } else {
+      throw Exception('Failed to follow user: ${response.statusCode}');
+    }
+  }
+
+  Future<Map<String, dynamic>> requestFollowAccept (int userId, int followingId) async {
+    final url = Uri.parse('$baseUrl/user/acceptfollow');
+    
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'user_id': userId,
+        'following_id': followingId,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      
+      if (data.containsKey('statusCode') && data.containsKey('message') && data.containsKey('data')) {
+        return {
+          "statusCode": data['statusCode'],
+          "message": data['message'],
+          "data": data['data'],
+        };
+      } else {
+        throw Exception('Invalid response format: Missing expected keys');
+      }
+    } else {
+      throw Exception('Failed to follow user: ${response.statusCode}');
+    }
+  }
+
+  Future<Map<String, dynamic>> removePendingFollow (int userId, int followingId) async {
+    final url = Uri.parse('$baseUrl/user/removefollow');
     
     final response = await http.post(
       url,
@@ -479,6 +565,28 @@ class ApiService {
 
   Future<List<Map<String, dynamic>>> fetchFollowers(int userId) async {
     final url = Uri.parse('$baseUrl/user/following_users?user_id=$userId');
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      if (data['statusCode'] == true) {
+        return List<Map<String, dynamic>>.from(data['data']);
+      } else {
+        throw Exception('Failed to load followers: ${data['message']}');
+      }
+    } else {
+      throw Exception('Failed to load followers: ${response.statusCode}');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchNotificationUsers(int userId) async {
+    final url = Uri.parse('$baseUrl/user/notification_users?user_id=$userId');
 
     final response = await http.get(
       url,

@@ -1,5 +1,7 @@
 import 'package:RollaTravel/src/constants/app_styles.dart';
+import 'package:RollaTravel/src/screen/home/home_screen.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
+import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:RollaTravel/src/utils/index.dart';
@@ -42,11 +44,79 @@ class NotificationScreenState extends ConsumerState<NotificationScreen> with Wid
   Future<void> _loadFollowers() async {
     try {
       final apiservice = ApiService();
-      followers = await apiservice.fetchPendingFollowingUsers(widget.userid!);
+      followers = await apiservice.fetchNotificationUsers(widget.userid!);
       logger.i(followers);
       setState(() {});
     } catch (e) {
       logger.i('Error loading followers: $e');
+    }
+  }
+
+  Future<void> _acceptButton (int userId) async {
+    try {
+      final apiservice = ApiService();
+      final result = await apiservice.requestFollowAccept(GlobalVariables.userId!, userId);
+      logger.i(result);
+      if(result['statusCode'] == true){
+        if(!mounted) return;
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => NotificationScreen(userid: GlobalVariables.userId,)), 
+        );
+        _loadFollowers();
+      }
+    } catch (e) {
+      logger.i('Error loading followers: $e');
+    }
+  }
+
+  Future<void> _acceptRequestCloseButton (int userId) async {
+    try {
+      final apiservice = ApiService();
+      final result = await apiservice.viewAcceptNotification(GlobalVariables.userId!, userId);
+      logger.i(result);
+      if(result['statusCode'] == true){
+        // if(!mounted) return;
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(builder: (context) => NotificationScreen(userid: GlobalVariables.userId,)), 
+        // );
+        _loadFollowers();
+      }
+    } catch (e) {
+      logger.i('Error loading followers: $e');
+    }
+  }
+
+  Future<void> _denyButton (int userId) async {
+    try {
+      final apiservice = ApiService();
+      final result = await apiservice.removePendingFollow(GlobalVariables.userId!, userId);
+      logger.i(result);
+      if(result['statusCode'] == true){
+        if(!mounted) return;
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => NotificationScreen(userid: GlobalVariables.userId,)), 
+        );
+        _loadFollowers();
+      }
+    } catch (e) {
+      logger.i('Error loading followers: $e');
+    }
+  }
+  
+  String _getFollowStatusText(String from) {
+    switch (from) {
+      case 'pending':
+        return 'Requested to follow you';
+      case 'follow':
+        return 'Accepted your follow request';
+      case 'tagged':
+        return 'Tagged in your post';
+      // Add other cases here if needed
+      default:
+        return 'Unknown status'; // In case the `from` value doesn't match any case
     }
   }
 
@@ -72,7 +142,10 @@ class NotificationScreenState extends ConsumerState<NotificationScreen> with Wid
                   const SizedBox(width: 16),
                   InkWell(
                     onTap: () {
-                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const HomeScreen()), 
+                      );
                     },
                     child: Image.asset(
                       'assets/images/icons/allow-left.png',
@@ -155,20 +228,30 @@ class NotificationScreenState extends ConsumerState<NotificationScreen> with Wid
                                     "@${follower['rolla_username']}",
                                     style: const TextStyle(
                                       fontFamily: 'inter',
-                                      fontSize: 15,
+                                      fontSize: 13,
                                       letterSpacing: -0.1,
+                                      fontWeight: FontWeight.bold
                                     ),
                                   ),
-                                  const SizedBox(width: 5),
+                                  const SizedBox(width: 3),
                                   const Icon(Icons.verified,
-                                      color: Colors.blue, size: 16),
+                                      color: Colors.blue, size: 14),
                                 ],
                               ),
                               Text(
-                                '${follower['first_name'] ?? ''} ${follower['last_name'] ?? ''}',
+                                _getFollowStatusText(follower['from']),
                                 style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
+                                  fontFamily: 'inter',
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 13,
+                                  letterSpacing: -0.1
+                                ),
+                              ),
+                              Text(
+                                '${follower['follow_date'] ?? ''}',
+                                style: const TextStyle(
+                                  fontSize: 9,
+                                  color: kColorStrongGrey,
                                   fontFamily: 'inter',
                                   letterSpacing: -0.1,
                                 ),
@@ -176,7 +259,88 @@ class NotificationScreenState extends ConsumerState<NotificationScreen> with Wid
                             ],
                           ),
                           const Spacer(),
-                          Image.asset("assets/images/icons/reference.png"),
+                          follower['from'] == 'pending'
+                            ? Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    width: 60,
+                                    height: 23,
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        _acceptButton(follower['id']);
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(30),
+                                          side: BorderSide(
+                                            color: Colors.grey.withValues(alpha: 0.4), 
+                                            width: 0.5,  
+                                          ),
+                                        ),
+                                        padding: EdgeInsets.zero,  
+                                        shadowColor: Colors.black.withValues(alpha: 0.4), 
+                                        elevation: 4,  
+                                      ),
+                                      child: const Text(
+                                        'Accept',
+                                        style: TextStyle(
+                                          fontFamily: 'inter',
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: -0.1,
+                                          color: kColorGreen,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  SizedBox(
+                                    width: 60,
+                                    height: 23,
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        _denyButton(follower['id']);
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(30),
+                                          side: BorderSide(
+                                            color: Colors.grey.withValues(alpha: 0.4), 
+                                            width: 0.5,  
+                                          ),
+                                        ),
+                                        padding: EdgeInsets.zero,  
+                                        shadowColor: Colors.black.withValues(alpha: 0.4), 
+                                        elevation: 4,  
+                                      ),
+                                      child: const Text(
+                                        'Deny',
+                                        style: TextStyle(
+                                          fontFamily: 'inter',
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: -0.1,
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : IconButton(
+                                icon: const Icon(Icons.close),
+                                onPressed: () {
+                                  if(follower['from'] == 'follow'){
+                                    _acceptRequestCloseButton(follower['id']);
+                                  }
+                                  // Navigator.pop(context);
+                                },
+                                color: Colors.black,
+                                iconSize: 20,
+                              ),
                         ],
                       ),
                     );

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/screen/home/home_follower_screen.dart';
 import 'package:RollaTravel/src/screen/profile/edit_profile.dart';
@@ -130,10 +132,16 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
             username = user['rolla_username'] ?? '@unknown';
             happyPlace = user['happy_place'];
 
-            final following = user['following_user_id'];
-            if (following != null && following.toString().isNotEmpty) {
-              followingCount =
-                  following.toString().split(',').length.toString();
+            final rawFollowing = user['following_user_id'];
+
+            if (rawFollowing != null && rawFollowing.toString().isNotEmpty) {
+              final parsedFollowing = jsonDecode(rawFollowing.toString());
+
+              if (parsedFollowing is List) {
+                followingCount = parsedFollowing.length.toString();
+              } else {
+                followingCount = "0";
+              }
             } else {
               followingCount = "0";
             }

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:RollaTravel/src/screen/home/home_screen_widget.dart';
 import 'package:RollaTravel/src/screen/home/pending_screen.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
@@ -26,7 +28,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObser
   final apiService = ApiService();
   final ScrollController _scrollController = ScrollController();
   bool isSelected = false;
-  int pendingCount = 0;
+  int totalCount = 0;
   List<int> pendingList = [];
 
   @override
@@ -58,16 +60,29 @@ class HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObser
 
     final data = await apiService.fetchFollowerTrip(GlobalVariables.userId!);
     final pendingIdsRaw = data[0]['user']['following_pending_userid'];
+    final accpetrow = data[0]['user']['following_user_id'];
+    // logger.i(accpetrow);
+    int pendingCount = 0;
+    int acceptedCount = 0;
     if (pendingIdsRaw != null && pendingIdsRaw.toString().trim().isNotEmpty) {
-      pendingList = pendingIdsRaw
-      .toString()
-      .split(',')
-      .map((e) => int.tryParse(e.trim()))
-      .whereType<int>()
-      .toList();
-      pendingCount = pendingIdsRaw.toString().split(',').length;
+      List<dynamic> pendingData = jsonDecode(pendingIdsRaw);
+      pendingList = pendingData
+          .map((e) => e['id'] as int?)
+          .whereType<int>()
+          .toList();
+      pendingCount = pendingData.length;
     }
-    // logger.i(pendingCount);
+
+    if (accpetrow != null && accpetrow.toString().trim().isNotEmpty) {
+      List<dynamic> acceptedData = jsonDecode(accpetrow);
+      acceptedCount = acceptedData
+          .where((item) => item['notificationBool'] == false).length;
+    }
+    // logger.i("Pending Count: $pendingCount");
+    // logger.i("Accepted Count: $acceptedCount");
+
+    totalCount = pendingCount + acceptedCount;
+
     final currentUserId = GlobalVariables.userId.toString();
     final now = DateTime.now();
 
@@ -188,7 +203,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObser
                   const Spacer(),
                   GestureDetector(
                     onTap: () {
-                      if (pendingCount != 0) {
+                      if (totalCount != 0) {
                         Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => NotificationScreen(userid: GlobalVariables.userId,)), // replace with your page
@@ -204,7 +219,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObser
                             'assets/images/icons/notification.png',
                             width: vww(context, 4),
                           ),
-                          if (pendingCount > 0)
+                          if (totalCount > 0)
                             Positioned(
                               top: -4,
                               left: -20,
@@ -217,7 +232,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObser
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Text(
-                                  pendingCount > 99 ? '99+' : '$pendingCount',
+                                  totalCount > 99 ? '99+' : '$totalCount',
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 10,

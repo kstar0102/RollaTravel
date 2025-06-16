@@ -1,6 +1,8 @@
 
 import 'package:RollaTravel/src/screen/home/home_user_screen.dart';
+import 'package:RollaTravel/src/screen/profile/profile_screen.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
+import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:RollaTravel/src/utils/index.dart';
 import 'package:RollaTravel/src/utils/spinner_loader.dart';
 import 'package:flutter/material.dart';
@@ -165,10 +167,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> with SingleTickerPr
       itemBuilder: (context, index) {
         final user = filteredUserData[index];
         final fullName = '${user['first_name']} ${user['last_name']}';
-        // final email = user['email'];
         final userImageUrl = user['photo'];
-        // final createdAt = DateTime.parse(user['created_at']);
-        // final formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(createdAt);
         final userid = user['id'];
         final rollaUsername = user['rolla_username'];
 
@@ -176,13 +175,18 @@ class _SearchScreenState extends ConsumerState<SearchScreen> with SingleTickerPr
           padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 20.0),
           child: GestureDetector(
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => HomeUserScreen(
-                          userId: userid,
-                        )),
-              );
+              if(userid == GlobalVariables.userId){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ProfileScreen()),
+                );
+              }else {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomeUserScreen(userId: userid,)),
+                );
+              }
+              
             },
             child: Container(
               decoration: BoxDecoration(

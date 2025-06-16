@@ -81,7 +81,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
       final result  = await ApiService().fetchUserTrips(widget.userId);
       var userProfile = result['trips'];
       final userInfo = result['userInfo'];
-
+      logger.i(userInfo);
       rollaUserName = userInfo[0]['rolla_username'];
       userRealName = "${userInfo[0]['first_name'] ?? ''} ${userInfo[0]['last_name'] ?? ''}";
       rollaUserImage = userInfo[0]['photo'];
@@ -107,36 +107,57 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
         tripCount = "0";
       }
 
-      if(userInfo[0]['following_pending_userid'] != null ){
+      if (userInfo[0]['following_pending_userid'] != null) {
+        // Parse the JSON string into a list of maps
+        List<dynamic> pendingFollowingList = jsonDecode(userInfo[0]['following_pending_userid']);
+        
+        // Extract user ids from the list of maps
+        List<String> pendingFollowingUserIds = pendingFollowingList
+            .map((user) => user['id'].toString())
+            .toList();
+        
         String userIdString = GlobalVariables.userId.toString();
-        List<String> pendingFollowingUserIds = userInfo[0]['following_pending_userid'].split(',');
+
         if (pendingFollowingUserIds.contains(userIdString)) {
           setState(() {
             isPending = true;  
           });
-        }else {
+        } else {
           setState(() {
             isPending = false;  
           });
         }
       }
 
-      int? followcount;
-      if (userInfo[0]['following_user_id'] != "") {
-        followcount = userInfo[0]['following_user_id'].split(',').length;
+      int followcount = 0;
+      // Check if following_user_id is not null and handle it as a List
+      if (userInfo[0]['following_user_id'] != null) {
+        var followingData = userInfo[0]['following_user_id'];
 
-        String userIdString = GlobalVariables.userId.toString();
-        List<String> followingUserIds = userInfo[0]['following_user_id'].split(',');
-        if (followingUserIds.contains(userIdString)) {
-          isfollow = true;
+        if (followingData is String) {
+          // Decode stringified JSON into a List
+          followingData = jsonDecode(followingData);
+        }
+
+        // Check if it's now a List
+        if (followingData is List) {
+          followcount = followingData.length;
+
+          String userIdString = GlobalVariables.userId.toString();
+
+          bool found = followingData.any((item) => item['id'].toString() == userIdString);
+          if (found) {
+            isfollow = true;
+          }
         }
       } else {
         followcount = 0;
       }
-      
+
       followingCount = followcount.toString();
-      logger.i("isPending : $isPending");
-      logger.i("isfollow : $isfollow");
+
+      // logger.i("isPending : $isPending");
+      // logger.i("isfollow : $isfollow");
 
       List<dynamic> allDroppins = [];
       for (var trip in userProfile) {
