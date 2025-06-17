@@ -123,7 +123,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
             filteredTrips.add(Map<String, dynamic>.from(trip));
           }
         }
-
+        // logger.i(userInfoList);
         // Extract user info and set state
         if (userInfoList != null && userInfoList.isNotEmpty) {
           final user = Map<String, dynamic>.from(userInfoList.first);
@@ -948,7 +948,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                         _onFollowers();
                                       },
                                       child: Text(
-                                        followingCount!,
+                                        followingCount?? "0",
                                         style: const TextStyle(
                                           fontSize: 20,
                                           color: kColorButtonPrimary,

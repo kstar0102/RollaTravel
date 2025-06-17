@@ -97,8 +97,8 @@ class HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObser
       totalCount = pendingCount + acceptedCount;
 
       // Log counts if needed
-      logger.i("Pending Count: $pendingCount");
-      logger.i("Accepted Count: $acceptedCount");
+      // logger.i("Pending Count: $pendingCount");
+      // logger.i("Accepted Count: $acceptedCount");
     } else {
       logger.w("No trip data found for user_id: ${GlobalVariables.userId}");
     }
