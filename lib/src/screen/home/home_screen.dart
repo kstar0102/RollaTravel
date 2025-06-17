@@ -59,29 +59,50 @@ class HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObser
         : blockUsers.map((user) => user['id'].toString()).toSet();
 
     final data = await apiService.fetchFollowerTrip(GlobalVariables.userId!);
-    final pendingIdsRaw = data[0]['user']['following_pending_userid'];
-    final accpetrow = data[0]['user']['following_user_id'];
-    // logger.i(accpetrow);
-    int pendingCount = 0;
-    int acceptedCount = 0;
-    if (pendingIdsRaw != null && pendingIdsRaw.toString().trim().isNotEmpty) {
-      List<dynamic> pendingData = jsonDecode(pendingIdsRaw);
-      pendingList = pendingData
-          .map((e) => e['id'] as int?)
-          .whereType<int>()
-          .toList();
-      pendingCount = pendingData.length;
+    logger.i(data);
+
+    // Find the first trip data where the user_id matches GlobalVariables.userId
+    final userTripData = data.firstWhere(
+      (trip) => trip['user']['id'] == GlobalVariables.userId,
+      orElse: () => {}, // If no trip data is found, return an empty map (safe fallback)
+    );
+
+    if (userTripData.isNotEmpty) {
+      // logger.i(userTripData);
+      // Extract the necessary fields for the user from the first valid trip
+      final pendingIdsRaw = userTripData['user']['following_pending_userid'];
+      final acceptedRow = userTripData['user']['following_user_id'];
+
+      int pendingCount = 0;
+      int acceptedCount = 0;
+
+      // Process pending follow requests
+      if (pendingIdsRaw != null && pendingIdsRaw.toString().trim().isNotEmpty) {
+        List<dynamic> pendingData = jsonDecode(pendingIdsRaw);
+        pendingList = pendingData
+            .map((e) => e['id'] as int?)
+            .whereType<int>()
+            .toList();
+        pendingCount = pendingData.length;
+      }
+
+      // Process accepted follow requests
+      if (acceptedRow != null && acceptedRow.toString().trim().isNotEmpty) {
+        List<dynamic> acceptedData = jsonDecode(acceptedRow);
+        acceptedCount = acceptedData
+            .where((item) => item['notificationBool'] == false)
+            .length;
+      }
+
+      totalCount = pendingCount + acceptedCount;
+
+      // Log counts if needed
+      logger.i("Pending Count: $pendingCount");
+      logger.i("Accepted Count: $acceptedCount");
+    } else {
+      logger.w("No trip data found for user_id: ${GlobalVariables.userId}");
     }
 
-    if (accpetrow != null && accpetrow.toString().trim().isNotEmpty) {
-      List<dynamic> acceptedData = jsonDecode(accpetrow);
-      acceptedCount = acceptedData
-          .where((item) => item['notificationBool'] == false).length;
-    }
-    // logger.i("Pending Count: $pendingCount");
-    // logger.i("Accepted Count: $acceptedCount");
-
-    totalCount = pendingCount + acceptedCount;
 
     final currentUserId = GlobalVariables.userId.toString();
     final now = DateTime.now();
