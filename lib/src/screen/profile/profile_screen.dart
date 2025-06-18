@@ -363,8 +363,8 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     List<dynamic> likedUsers = droppins[droppinIndex]['liked_users'];
     bool isLiked = likedUsers.map((user) => user['id']).contains(GlobalVariables.userId);
     int droppinlikes = likedUsers.length;
-    int viewcount = droppins[droppinIndex]['view_count'].split(',').length;
-    
+    int viewcount = (droppins[droppinIndex]['view_count'] ?? '').split(',').length;
+    logger.i(droppins[droppinIndex]['view_count']);
     // Show dialog
     if (!mounted) return;
     showDialog(
@@ -441,7 +441,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                           likedUsers = droppins[droppinIndex]['liked_users'];
                           isLiked = likedUsers.map((user) => user['id']).contains(GlobalVariables.userId);
                           droppinlikes = likedUsers.length;
-                          viewcount = droppins[droppinIndex]['view_count'].split(',').length;
+                          viewcount = (droppins[droppinIndex]['view_count'] ?? '').split(',').length;
                         });
                       },
                     ),

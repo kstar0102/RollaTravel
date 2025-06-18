@@ -47,23 +47,23 @@ class TakePictureScreenState extends ConsumerState<TakePictureScreen> {
 
   Future<void> _handleLocationSelection() async {
     // logger.i(showLikes);
-    if (_captionController.text.isEmpty) {
-      // Show error dialog if caption is empty
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Warning!'),
-          content: const Text('Please enter a caption before proceeding.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('OK'),
-            ),
-          ],
-        ),
-      );
-      return;
-    }
+    // if (_captionController.text.isEmpty) {
+    //   // Show error dialog if caption is empty
+    //   showDialog(
+    //     context: context,
+    //     builder: (context) => AlertDialog(
+    //       title: const Text('Warning!'),
+    //       content: const Text('Please enter a caption before proceeding.'),
+    //       actions: [
+    //         TextButton(
+    //           onPressed: () => Navigator.of(context).pop(),
+    //           child: const Text('OK'),
+    //         ),
+    //       ],
+    //     ),
+    //   );
+    //   return;
+    // }
 
     // Navigate to the next screen with the entered caption
     Navigator.push(

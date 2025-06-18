@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:RollaTravel/src/utils/index.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
+import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 
 class NotificationScreen extends ConsumerStatefulWidget {
@@ -120,6 +121,15 @@ class NotificationScreenState extends ConsumerState<NotificationScreen> with Wid
     }
   }
 
+  String _formatDate(String date) {
+    try {
+      final DateTime parsedDate = DateTime.parse(date);
+      return DateFormat('MM/dd/yyyy').format(parsedDate);
+    } catch (e) {
+      return ''; // Return an empty string if the date is invalid
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -197,8 +207,8 @@ class NotificationScreenState extends ConsumerState<NotificationScreen> with Wid
                       child: Row(
                         children: [
                           Container(
-                            height: 50, 
-                            width: 50,
+                            height: vhh(context, 7),
+                            width: vhh(context, 7),
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(
@@ -248,7 +258,7 @@ class NotificationScreenState extends ConsumerState<NotificationScreen> with Wid
                                 ),
                               ),
                               Text(
-                                '${follower['follow_date'] ?? ''}',
+                                _formatDate(follower['follow_date'] ?? ''),
                                 style: const TextStyle(
                                   fontSize: 9,
                                   color: kColorStrongGrey,

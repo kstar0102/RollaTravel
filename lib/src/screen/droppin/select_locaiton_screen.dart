@@ -648,8 +648,8 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
           "delay_time" : formattedUploadTime
         };
       }).toList();
-      logger.i(droppins);
-      logger.i(stopLocations);
+      // logger.i(droppins);
+      // logger.i(stopLocations);
 
       List<String> songs = [
         if (GlobalVariables.song1?.isNotEmpty ?? false) GlobalVariables.song1!,

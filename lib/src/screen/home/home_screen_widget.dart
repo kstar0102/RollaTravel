@@ -794,8 +794,8 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: const Text("No Sound List"),
-            content: const Text("There are no playlist for this trip."),
+            title: const Text("No Playlist"),
+            content: const Text("There is no playlist available for this trip"),
             actions: <Widget>[
               TextButton(
                 onPressed: () {

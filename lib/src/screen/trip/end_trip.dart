@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:ui';
+import 'dart:ui' as ui;
 import 'package:RollaTravel/src/screen/home/home_sound_screen.dart';
 // import 'package:RollaTravel/src/screen/trip/sound_screen.dart';
 import 'package:RollaTravel/src/screen/trip/start_trip.dart';
@@ -8,6 +9,7 @@ import 'package:RollaTravel/src/utils/spinner_loader.dart';
 import 'package:RollaTravel/src/utils/trip_marker_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:RollaTravel/src/utils/index.dart';
 import 'package:RollaTravel/src/constants/app_styles.dart';
@@ -66,97 +68,145 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
     super.dispose();
     _mapController.dispose();
   }
+Future<void> _onShareClicked() async {
+    if (_isSharing) return;
+    
+    setState(() => _isSharing = true);
+    
+    try {
+      // Ensure widget is mounted and ready
+      if (!mounted) return;
+      await Future.delayed(const Duration(milliseconds: 50)); // Small delay for rendering
+
+      // Get the boundary
+      final boundaryContext = _shareWidgetKey.currentContext;
+      if (boundaryContext == null || !boundaryContext.mounted) {
+        _showErrorDialog("Widget not ready for sharing.");
+        return;
+      }
+
+      // Wait for the next frame to ensure rendering is complete
+      await WidgetsBinding.instance.endOfFrame;
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      // ignore: use_build_context_synchronously
+      final boundary = boundaryContext.findRenderObject() as RenderRepaintBoundary?;
+      if (boundary == null) {
+        _showErrorDialog("Unable to capture content.");
+        return;
+      }
+
+      // Convert to image with error handling
+      ui.Image? image;
+      try {
+        image = await boundary.toImage(pixelRatio: 3.0);
+      } catch (e) {
+        logger.e("Image capture error: $e");
+        _showErrorDialog("Failed to capture image.");
+        return;
+      }
+
+      // Convert to bytes
+      final byteData = await image.toByteData(format: ImageByteFormat.png);
+      if (byteData == null) {
+        _showErrorDialog("Failed to convert image.");
+        return;
+      }
+
+      // Save to file
+      final tempDir = await getTemporaryDirectory();
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final filePath = '${tempDir.path}/rolla_share_$timestamp.png';
+      final file = File(filePath);
+      
+      try {
+        await file.writeAsBytes(byteData.buffer.asUint8List());
+      } catch (e) {
+        logger.e("File write error: $e");
+        _showErrorDialog("Failed to save image.");
+        return;
+      }
+
+      // Share the file with platform-specific handling
+      try {
+        await Share.shareXFiles(
+          [XFile(file.path)],
+          subject: 'Rolla Travel trip!',
+          text: 'I just created a trip with Rolla Travel!',
+        );
+        logger.i("Share successful");
+      } on PlatformException catch (e) {
+        logger.e("Platform sharing error: ${e.message}");
+        _showErrorDialog("Sharing failed: ${e.message ?? 'Unknown error'}");
+      } catch (e) {
+        logger.e("General sharing error: $e");
+        _showErrorDialog("Sharing failed: ${e.toString().replaceAll('Exception: ', '')}");
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSharing = false);
+      }
+    }
+  }
 
   // Future<void> _onShareClicked() async {
+  //   if (_isSharing) return;
+  //   setState(() => _isSharing = true);
   //   try {
-  //     RenderRepaintBoundary boundary = _shareWidgetKey.currentContext?.findRenderObject() as RenderRepaintBoundary;
+  //     if (!mounted) return;
+
+  //     final boundaryContext = _shareWidgetKey.currentContext;
+  //     if (boundaryContext == null) {
+  //       _showErrorDialog("Cannot share: Widget not ready.");
+  //       return;
+  //     }
+
+  //     final boundary =
+  //         boundaryContext.findRenderObject() as RenderRepaintBoundary?;
+  //     if (boundary == null) {
+  //       _showErrorDialog("Cannot share: Unable to capture content.");
+  //       return;
+  //     }
+
+  //     // Wait for rendering if needed
   //     if (boundary.debugNeedsPaint) {
-  //       await Future.delayed(const Duration(milliseconds: 20));
+  //       await Future.delayed(const Duration(milliseconds: 50));
   //       await WidgetsBinding.instance.endOfFrame;
   //     }
 
+  //     // Convert widget to image
   //     final image = await boundary.toImage(pixelRatio: 3.0);
   //     final byteData = await image.toByteData(format: ImageByteFormat.png);
-  //     if (byteData == null) throw Exception("Could not convert image to byte data");
+  //     if (byteData == null) {
+  //       _showErrorDialog("Failed to generate image.");
+  //       return;
+  //     }
 
   //     final pngBytes = byteData.buffer.asUint8List();
 
-  //     final tempDir = await Directory.systemTemp.createTemp();
-  //     final file = await File('${tempDir.path}/shared_polaroid.png').create();
+  //     // Save to temporary file
+  //     final tempDir = await getTemporaryDirectory();
+  //     final filePath =
+  //         '${tempDir.path}/shared_polaroid_${DateTime.now().millisecondsSinceEpoch}.png';
+  //     final file = File(filePath);
+
   //     await file.writeAsBytes(pngBytes);
 
-  //     try {
-  //       await Share.shareXFiles([XFile(file.path)]);
-  //     } catch (e) {
-  //       debugPrint("Sharing failed: $e");
-  //       rethrow;
-  //     }
+  //     final result = await Share.shareXFiles(
+  //       [XFile(file.path)],
+  //       subject: 'Rolla Travel trip!',
+  //       text: 'I just created a trip with Rolla Travel!',
+  //     );
+  //     logger.i("Share result: $result");
   //   } catch (e) {
   //     if (!mounted) return;
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text('Failed to share: $e')),
-  //     );
+  //     _showErrorDialog(
+  //         "Sharing failed: ${e.toString().replaceAll('Exception: ', '')}");
+  //     logger.e("Sharing error: $e");
+  //   } finally {
+  //     if (mounted) setState(() => _isSharing = false);
   //   }
   // }
-
-  Future<void> _onShareClicked() async {
-    if (_isSharing) return;
-    setState(() => _isSharing = true);
-    try {
-      if (!mounted) return;
-
-      final boundaryContext = _shareWidgetKey.currentContext;
-      if (boundaryContext == null) {
-        _showErrorDialog("Cannot share: Widget not ready.");
-        return;
-      }
-
-      final boundary =
-          boundaryContext.findRenderObject() as RenderRepaintBoundary?;
-      if (boundary == null) {
-        _showErrorDialog("Cannot share: Unable to capture content.");
-        return;
-      }
-
-      // Wait for rendering if needed
-      if (boundary.debugNeedsPaint) {
-        await Future.delayed(const Duration(milliseconds: 50));
-        await WidgetsBinding.instance.endOfFrame;
-      }
-
-      // Convert widget to image
-      final image = await boundary.toImage(pixelRatio: 3.0);
-      final byteData = await image.toByteData(format: ImageByteFormat.png);
-      if (byteData == null) {
-        _showErrorDialog("Failed to generate image.");
-        return;
-      }
-
-      final pngBytes = byteData.buffer.asUint8List();
-
-      // Save to temporary file
-      final tempDir = await getTemporaryDirectory();
-      final filePath =
-          '${tempDir.path}/shared_polaroid_${DateTime.now().millisecondsSinceEpoch}.png';
-      final file = File(filePath);
-
-      await file.writeAsBytes(pngBytes);
-
-      final result = await Share.shareXFiles(
-        [XFile(file.path)],
-        subject: 'Rolla Travel trip!',
-        text: 'I just created a trip with Rolla Travel!',
-      );
-      logger.i("Share result: $result");
-    } catch (e) {
-      if (!mounted) return;
-      _showErrorDialog(
-          "Sharing failed: ${e.toString().replaceAll('Exception: ', '')}");
-      logger.e("Sharing error: $e");
-    } finally {
-      if (mounted) setState(() => _isSharing = false);
-    }
-  }
 
   void _showErrorDialog(String message) {
     if (!mounted) return;
@@ -600,7 +650,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Padding(
-                          padding: EdgeInsets.only(top: 10.0),
+                          padding: EdgeInsets.only(top: 20.0),
                           child: Text(
                             "Share this summary on another platform:",
                             style: TextStyle(
@@ -620,9 +670,10 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                           },
                           child: Image.asset(
                             "assets/images/icons/upload_icon.png",
-                            height: 23,
+                            height: 20,
                           ),
                         ),
+                        const SizedBox(height: 30,),
                       ],
                     ),
                   ],

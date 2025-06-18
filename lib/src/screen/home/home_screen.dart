@@ -69,12 +69,13 @@ class HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObser
 
     if (userTripData.isNotEmpty) {
       // logger.i(userTripData);
-      // Extract the necessary fields for the user from the first valid trip
       final pendingIdsRaw = userTripData['user']['following_pending_userid'];
       final acceptedRow = userTripData['user']['following_user_id'];
+      final tagNotificationRaw = userTripData['user']['tag_notification'];
 
       int pendingCount = 0;
       int acceptedCount = 0;
+      int tagNotificationCount = 0; 
 
       // Process pending follow requests
       if (pendingIdsRaw != null && pendingIdsRaw.toString().trim().isNotEmpty) {
@@ -94,14 +95,21 @@ class HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObser
             .length;
       }
 
-      totalCount = pendingCount + acceptedCount;
+      // Process tag notifications where notificationBool is false
+      if (tagNotificationRaw != null && tagNotificationRaw.toString().trim().isNotEmpty) {
+        List<dynamic> tagNotificationData = jsonDecode(tagNotificationRaw);
+        tagNotificationCount = tagNotificationData
+            .where((item) => item['notificationBool'] == false)
+            .length;
+      }
 
-      // Log counts if needed
-      // logger.i("Pending Count: $pendingCount");
-      // logger.i("Accepted Count: $acceptedCount");
+      // Calculate total count
+      totalCount = pendingCount + acceptedCount + tagNotificationCount;
+
     } else {
       logger.w("No trip data found for user_id: ${GlobalVariables.userId}");
     }
+
 
 
     final currentUserId = GlobalVariables.userId.toString();

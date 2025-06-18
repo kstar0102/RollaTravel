@@ -185,6 +185,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
       await WidgetsBinding.instance.endOfFrame;
       await Future.delayed(const Duration(milliseconds: 100));
 
+      // ignore: use_build_context_synchronously
       final boundary = boundaryContext.findRenderObject() as RenderRepaintBoundary?;
       if (boundary == null) {
         _showErrorDialog("Unable to capture content.");
@@ -570,7 +571,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                         ),
                       ),
                       const Padding(
-                        padding: EdgeInsets.only(top: 10.0),
+                        padding: EdgeInsets.only(top: 20.0),
                         child: Text(
                           "Share this summary on another platform:",
                           style: TextStyle(
@@ -581,16 +582,17 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 10,),
+                      const SizedBox(height: 15,),
                       GestureDetector(
                         onTap: () {
                           _onShareClicked();
                         },
                         child: Image.asset(
                           "assets/images/icons/upload_icon.png",
-                          height: 23,
+                          height: 20,
                         ),
                       ),
+                      const SizedBox(height: 30,),
                     ],
                   ),
                 ),
