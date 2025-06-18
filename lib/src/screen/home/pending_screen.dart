@@ -71,19 +71,37 @@ class NotificationScreenState extends ConsumerState<NotificationScreen> with Wid
     }
   }
 
-  Future<void> _acceptRequestCloseButton (int userId) async {
+  Future<void> _acceptRequestCloseButton (int userId, String fromItem) async {
+    // logger.i('userid : $userId');
+    // logger.i('item : $fromItem');
     try {
       final apiservice = ApiService();
-      final result = await apiservice.viewAcceptNotification(GlobalVariables.userId!, userId);
-      logger.i(result);
-      if(result['statusCode'] == true){
-        // if(!mounted) return;
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(builder: (context) => NotificationScreen(userid: GlobalVariables.userId,)), 
-        // );
-        _loadFollowers();
+      if(fromItem == "follow"){
+        final result = await apiservice.viewAcceptNotification(GlobalVariables.userId!, userId);
+        logger.i(result);
+        if(result['statusCode'] == true){
+          _loadFollowers();
+        }  
+      } else if (fromItem == "tag") {
+        final result = await apiservice.viewedTaged(GlobalVariables.userId!, userId);
+        logger.i(result);
+        if(result['statusCode'] == true){
+          _loadFollowers();
+        } 
+      } else if (fromItem == "comment"){
+        final result = await apiservice.viewedCommented(GlobalVariables.userId!, userId);
+        logger.i(result);
+        if(result['statusCode'] == true){
+          _loadFollowers();
+        }
+      } else if (fromItem == "like"){
+        final result = await apiservice.viewedliked(GlobalVariables.userId!, userId);
+        logger.i(result);
+        if(result['statusCode'] == true){
+          _loadFollowers();
+        }
       }
+      
     } catch (e) {
       logger.i('Error loading followers: $e');
     }
@@ -113,11 +131,14 @@ class NotificationScreenState extends ConsumerState<NotificationScreen> with Wid
         return 'Requested to follow you';
       case 'follow':
         return 'Accepted your follow request';
-      case 'tagged':
+      case 'tag':
         return 'Tagged in your post';
-      // Add other cases here if needed
+      case 'comment':
+        return 'commented on your post';
+      case 'like':
+        return 'liked your post';
       default:
-        return 'Unknown status'; // In case the `from` value doesn't match any case
+        return 'Unknown status';
     }
   }
 
@@ -343,10 +364,7 @@ class NotificationScreenState extends ConsumerState<NotificationScreen> with Wid
                             : IconButton(
                                 icon: const Icon(Icons.close),
                                 onPressed: () {
-                                  if(follower['from'] == 'follow'){
-                                    _acceptRequestCloseButton(follower['id']);
-                                  }
-                                  // Navigator.pop(context);
+                                  _acceptRequestCloseButton(follower['id'], follower['from']);
                                 },
                                 color: Colors.black,
                                 iconSize: 20,

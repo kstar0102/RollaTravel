@@ -97,6 +97,94 @@ class ApiService {
       throw Exception('Failed to follow user: ${response.statusCode}');
     }
   }
+
+  Future<Map<String, dynamic>> viewedTaged (int userId, int followingId) async {
+    final url = Uri.parse('$baseUrl/user/tapviewed');
+    
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'user_id': userId,
+        'tag_id': followingId,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      
+      if (data.containsKey('statusCode') && data.containsKey('message') && data.containsKey('data')) {
+        return {
+          "statusCode": data['statusCode'],
+          "message": data['message'],
+          "data": data['data'],
+        };
+      } else {
+        throw Exception('Invalid response format: Missing expected keys');
+      }
+    } else {
+      throw Exception('Failed to follow user: ${response.statusCode}');
+    }
+  }
+
+  Future<Map<String, dynamic>> viewedCommented (int userId, int commenterId) async {
+    final url = Uri.parse('$baseUrl/user/commentviewed');
+    
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'user_id': userId,
+        'commenter_id': commenterId,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      
+      if (data.containsKey('statusCode') && data.containsKey('message') && data.containsKey('data')) {
+        return {
+          "statusCode": data['statusCode'],
+          "message": data['message'],
+          "data": data['data'],
+        };
+      } else {
+        throw Exception('Invalid response format: Missing expected keys');
+      }
+    } else {
+      throw Exception('Failed to follow user: ${response.statusCode}');
+    }
+  }
+
+  Future<Map<String, dynamic>> viewedliked (int userId, int likedid) async {
+    final url = Uri.parse('$baseUrl/user/likedviewed');
+    
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'user_id': userId,
+        'like_id': likedid,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      
+      if (data.containsKey('statusCode') && data.containsKey('message') && data.containsKey('data')) {
+        return {
+          "statusCode": data['statusCode'],
+          "message": data['message'],
+          "data": data['data'],
+        };
+      } else {
+        throw Exception('Invalid response format: Missing expected keys');
+      }
+    } else {
+      throw Exception('Failed to follow user: ${response.statusCode}');
+    }
+  }
+
   Future<Map<String, dynamic>> viewAcceptNotification (int userId, int followingId) async {
     final url = Uri.parse('$baseUrl/user/accpetViewed');
     

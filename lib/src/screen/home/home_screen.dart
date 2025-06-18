@@ -68,14 +68,18 @@ class HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObser
     );
 
     if (userTripData.isNotEmpty) {
-      // logger.i(userTripData);
+      logger.i(userTripData);
       final pendingIdsRaw = userTripData['user']['following_pending_userid'];
       final acceptedRow = userTripData['user']['following_user_id'];
       final tagNotificationRaw = userTripData['user']['tag_notification'];
+      final commentNotificationRaw = userTripData['user']['comment_notification'];
+      final likenotificationRaw = userTripData['user']['like_notification'];
 
       int pendingCount = 0;
       int acceptedCount = 0;
       int tagNotificationCount = 0; 
+      int commentNotificationCount = 0;
+      int likeNotificationCount = 0; 
 
       // Process pending follow requests
       if (pendingIdsRaw != null && pendingIdsRaw.toString().trim().isNotEmpty) {
@@ -96,6 +100,20 @@ class HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObser
       }
 
       // Process tag notifications where notificationBool is false
+      if (commentNotificationRaw != null && commentNotificationRaw.toString().trim().isNotEmpty) {
+        List<dynamic> commentNotificationRawData = jsonDecode(commentNotificationRaw);
+        commentNotificationCount = commentNotificationRawData
+            .where((item) => item['notificationBool'] == false)
+            .length;
+      }
+
+      if (likenotificationRaw != null && likenotificationRaw.toString().trim().isNotEmpty) {
+        List<dynamic> likenotificationRawData = jsonDecode(likenotificationRaw);
+        likeNotificationCount = likenotificationRawData
+            .where((item) => item['notificationBool'] == false)
+            .length;
+      }
+
       if (tagNotificationRaw != null && tagNotificationRaw.toString().trim().isNotEmpty) {
         List<dynamic> tagNotificationData = jsonDecode(tagNotificationRaw);
         tagNotificationCount = tagNotificationData
@@ -104,7 +122,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObser
       }
 
       // Calculate total count
-      totalCount = pendingCount + acceptedCount + tagNotificationCount;
+      totalCount = pendingCount + acceptedCount + tagNotificationCount + commentNotificationCount + likeNotificationCount;
 
     } else {
       logger.w("No trip data found for user_id: ${GlobalVariables.userId}");
