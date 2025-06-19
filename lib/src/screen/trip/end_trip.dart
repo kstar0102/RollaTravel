@@ -290,7 +290,7 @@ Future<void> _onShareClicked() async {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     SizedBox(
-                      height: vhh(context, 8),
+                      height: vhh(context, 6),
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -617,7 +617,7 @@ Future<void> _onShareClicked() async {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20,),
+                    const SizedBox(height: 15,),
                     Container(
                       width: double.infinity,
                       decoration: BoxDecoration(

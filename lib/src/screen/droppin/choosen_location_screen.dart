@@ -319,7 +319,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      SizedBox(height: vhh(context, 8)),
+                      SizedBox(height: vhh(context, 6)),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: RepaintBoundary(
@@ -398,7 +398,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                                   ),
                                 ),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
+                                  padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 7),
                                   child: Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
@@ -462,7 +462,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                                     ],
                                   ),
                                 ),
-                                const SizedBox(height: 20),
+                                const SizedBox(height: 10),
                                 Center(
                                   child: SizedBox(
                                     width: vww(context, 60),
@@ -512,7 +512,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                                         ),
                                         SizedBox(height: vhh(context, 0.5)),
                                         const Padding(
-                                          padding: EdgeInsets.only(top: 8.0),
+                                          padding: EdgeInsets.only(top: 5.0),
                                           child: Text(
                                             "the Rolla travel app.",
                                             style: TextStyle(
@@ -531,7 +531,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 20,),
+                      const SizedBox(height: 15,),
                       Container(
                         width: double.infinity,
                         decoration: BoxDecoration(

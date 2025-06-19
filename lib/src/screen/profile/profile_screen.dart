@@ -1119,6 +1119,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                       style: const TextStyle(
                                           color: kColorButtonPrimary,
                                           fontSize: 14,
+                                          fontWeight: FontWeight.bold,
                                           letterSpacing: -0.1,
                                           fontFamily: 'inter'),
                                     ),
