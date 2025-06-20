@@ -323,9 +323,8 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
                       },
                       onPageChanged: (index) {
                         setState(() {
-                          droppinIndex = index; // Update the index when the page changes
+                          droppinIndex = index; 
                           
-                          // Update the likedUsers and viewcount based on the new image
                           likedUsers = droppins[droppinIndex]['liked_users'];
                           isLiked = likedUsers.map((user) => user['id']).contains(GlobalVariables.userId);
                           droppinlikes = likedUsers.length;
@@ -1034,6 +1033,29 @@ class _TripMapWidgetState extends State<TripMapWidget> {
     }
   }
 
+  String get mapStyleUrl {
+    const accessToken =
+        'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw';
+    final styleId = () {
+      final style = widget.trip['map_style'];
+      // logger.i(style);
+      switch (style) {
+        case "1":
+          return 'satellite-v9';
+        case "2":
+          return 'light-v10';
+        case "3":
+          return 'dark-v10';
+        case '0':
+        case null:
+        default:
+          return 'streets-v11';
+      }
+    }();
+
+    return "https://api.mapbox.com/styles/v1/mapbox/$styleId/tiles/{z}/{x}/{y}?access_token=$accessToken";
+  }
+
   void _initializeRoutePoints() {
     if (widget.trip['trip_coordinates'] != null) {
       setState(() {
@@ -1157,8 +1179,7 @@ class _TripMapWidgetState extends State<TripMapWidget> {
                   ),
                   children: [
                     TileLayer(
-                      urlTemplate:
-                          "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw",
+                      urlTemplate: mapStyleUrl,
                       additionalOptions: const {
                         'access_token':
                             'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw',

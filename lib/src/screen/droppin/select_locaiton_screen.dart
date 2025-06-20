@@ -59,6 +59,14 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
   List<Map<String, dynamic>> droppins = [];
   bool _isLoading = true;
   final uuid = const Uuid();
+  static const String mapboxAccessToken =
+      "pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw";
+  final List<String> _mapStyles = [
+    "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=$mapboxAccessToken",
+    "https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/{z}/{x}/{y}?access_token=$mapboxAccessToken",
+    "https://api.mapbox.com/styles/v1/mapbox/light-v10/tiles/{z}/{x}/{y}?access_token=$mapboxAccessToken",
+    "https://api.mapbox.com/styles/v1/mapbox/dark-v10/tiles/{z}/{x}/{y}?access_token=$mapboxAccessToken",
+  ];
 
   @override
   void initState() {
@@ -658,6 +666,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
         if (GlobalVariables.song4?.isNotEmpty ?? false) GlobalVariables.song4!
       ];
       String arrangedSongs = songs.isNotEmpty ? songs.join(',') : "tripSound";
+      logger.i(arrangedSongs);
 
       if(GlobalVariables.delaySetting == 0) {
 
@@ -685,7 +694,7 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
           delayTime: delayDate);
 
         if (response['success'] == true) {
-          logger.i(response['trip']);
+          // logger.i(response['trip']);
           setState(() {
             isuploadingData = false;
           });
@@ -940,8 +949,8 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                                     ),
                                     children: [
                                       TileLayer(
-                                        urlTemplate:
-                                            "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw",
+                                        urlTemplate: _mapStyles[
+                                        GlobalVariables.mapStyleSelected],
                                         additionalOptions: const {
                                           'access_token':
                                               'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw',

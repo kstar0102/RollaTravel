@@ -105,7 +105,7 @@ class _TripMapWidgetState extends State<TripMapWidget> {
   }
 
   Future<void> _getLocations() async {
-    // logger.i(widget.trip);
+    logger.i(widget.trip);
     List<LatLng> tempLocations = [];
     
     try {
@@ -167,6 +167,29 @@ class _TripMapWidgetState extends State<TripMapWidget> {
     }
   }
 
+  String get mapStyleUrl {
+    const accessToken =
+        'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw';
+    final styleId = () {
+      final style = widget.trip['map_style'];
+      // logger.i(style);
+      switch (style) {
+        case "1":
+          return 'satellite-v9';
+        case "2":
+          return 'light-v10';
+        case "3":
+          return 'dark-v10';
+        case '0':
+        case null:
+        default:
+          return 'streets-v11';
+      }
+    }();
+
+    return "https://api.mapbox.com/styles/v1/mapbox/$styleId/tiles/{z}/{x}/{y}?access_token=$accessToken";
+  }
+
   void _onSelectTrip() {
     setState(() {
       _isSelected = !_isSelected; 
@@ -210,8 +233,7 @@ class _TripMapWidgetState extends State<TripMapWidget> {
                     ),
                     children: [
                       TileLayer(
-                        urlTemplate:
-                            "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw",
+                        urlTemplate: mapStyleUrl,
                         additionalOptions: const {
                           'access_token':
                               'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw',

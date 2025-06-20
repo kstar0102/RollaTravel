@@ -70,12 +70,13 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     try {
       final apiService = ApiService();
       final result = await apiService.fetchUserTrips(GlobalVariables.userId!);
-      // logger.i(result);
+      logger.i(result);
 
       if (result.isNotEmpty) {
         final trips = result['trips'] as List<dynamic>;
         final userInfoList = result['userInfo'] as List<dynamic>?;
         final now = DateTime.now();
+        logger.i(now);
         List<Map<String, dynamic>> filteredTrips = [];
 
         for (var trip in trips) {
@@ -93,11 +94,10 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
               try {
                 final delayStr = droppin['deley_time'];
                 if (delayStr == null || delayStr.isEmpty) {
-                  includeDroppin = true; // If no delay, include it
+                  includeDroppin = true; 
                 } else {
                   final delayTime = DateTime.parse(delayStr);
-                  includeDroppin =
-                      !delayTime.isAfter(now); // Include if deley_time <= now
+                  includeDroppin = !delayTime.isAfter(now);
                 }
               } catch (e) {
                 logger.e('Error parsing deley_time: $e');

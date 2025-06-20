@@ -466,7 +466,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                                 Center(
                                   child: SizedBox(
                                     width: vww(context, 60),
-                                    height: vhh(context, 45),
+                                    height: vhh(context, 43),
                                     child: Column(
                                       children: [
                                         Container(
@@ -556,7 +556,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                                 color: kColorWhite,
                               ),
                             ),
-                            Text("(limit of 5 pins/trip).",
+                            Text("(limit of 7 pins/trip).",
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,

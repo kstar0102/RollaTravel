@@ -513,31 +513,22 @@ Future<void> _onShareClicked() async {
                                                                           icon: const Icon(
                                                                               Icons.close,
                                                                               color:Colors.black),
-                                                                          onPressed:
-                                                                              () {
-                                                                            Navigator.of(context)
-                                                                                .pop();
+                                                                          onPressed:() {
+                                                                            Navigator.of(context).pop();
                                                                           },
                                                                         ),
                                                                       ],
                                                                     ),
                                                                   ),
                                                                   Image.network(
-                                                                    markerData
-                                                                        .imagePath,
-                                                                    fit: BoxFit
-                                                                        .cover,
-                                                                    loadingBuilder:
-                                                                        (context,
-                                                                            child,
-                                                                            loadingProgress) {
-                                                                      if (loadingProgress ==
-                                                                          null) {
+                                                                    markerData.imagePath,
+                                                                    fit: BoxFit.cover,
+                                                                    loadingBuilder:(context, child, loadingProgress) {
+                                                                      if (loadingProgress ==null) {
                                                                         return child;
                                                                       } else {
                                                                         return const Center(
-                                                                          child:
-                                                                              SpinningLoader(),
+                                                                          child:SpinningLoader(),
                                                                         );
                                                                       }
                                                                     },
@@ -596,13 +587,13 @@ Future<void> _onShareClicked() async {
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 10),
+                              const SizedBox(height: 1),
                               Image.asset(
                                 'assets/images/icons/logo.png',
                                 width: 90,
                                 height: 80,
                               ),
-                              const SizedBox(height: 15),
+                              const SizedBox(height: 1),
                               const Text(
                                 'the Rolla travel app',
                                 style: TextStyle(
@@ -617,7 +608,7 @@ Future<void> _onShareClicked() async {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 15,),
+                    const SizedBox(height: 10),
                     Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
@@ -650,7 +641,7 @@ Future<void> _onShareClicked() async {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Padding(
-                          padding: EdgeInsets.only(top: 20.0),
+                          padding: EdgeInsets.only(top: 15.0),
                           child: Text(
                             "Share this summary on another platform:",
                             style: TextStyle(

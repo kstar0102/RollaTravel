@@ -1,6 +1,7 @@
 // import 'package:RollaTravel/src/screen/droppin/select_locaiton_screen.dart';
 // import 'package:RollaTravel/src/screen/droppin/choosen_location_screen.dart';
 import 'package:RollaTravel/src/screen/droppin/select_locaiton_screen.dart';
+import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:RollaTravel/src/utils/spinner_loader.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
@@ -38,7 +39,16 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
   final MapController _mapController = MapController();
   final logger = Logger();
   final TextEditingController _searchController = TextEditingController();
-  bool _isLoading = false; // Track loading state
+  bool _isLoading = false;
+  static const String mapboxAccessToken =
+      "pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw";
+
+  final List<String> _mapStyles = [
+    "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=$mapboxAccessToken",
+    "https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/{z}/{x}/{y}?access_token=$mapboxAccessToken",
+    "https://api.mapbox.com/styles/v1/mapbox/light-v10/tiles/{z}/{x}/{y}?access_token=$mapboxAccessToken",
+    "https://api.mapbox.com/styles/v1/mapbox/dark-v10/tiles/{z}/{x}/{y}?access_token=$mapboxAccessToken",
+  ];
 
   @override
   void initState() {
@@ -398,8 +408,8 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
                                   ),
                                   children: [
                                     TileLayer(
-                                      urlTemplate:
-                                          "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw",
+                                      urlTemplate: _mapStyles[
+                                        GlobalVariables.mapStyleSelected],
                                       additionalOptions: const {
                                         'access_token':
                                             'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw',

@@ -198,28 +198,51 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
 
   Future<void> _getlocaionts() async {
     List<LatLng> tempLocations = [];
+    
     if (widget.post['stop_locations'] != null) {
       try {
-        final stopLocations =
-            List<Map<String, dynamic>>.from(widget.post['stop_locations']);
-        for (var location in stopLocations) {
+        final stopLocations = List<Map<String, dynamic>>.from(widget.post['stop_locations']);
+        final droppins = List<Map<String, dynamic>>.from(widget.post['droppins']); // Assuming droppins is part of widget.post
+        
+        for (int i = 0; i < stopLocations.length; i++) {
+          final location = stopLocations[i];
+          final droppin = droppins[i];
+          
           final latitude = double.parse(location['latitude'].toString());
           final longitude = double.parse(location['longitude'].toString());
+          
+          // Parse deley_time to DateTime and compare to current time
+          final deleyTime = DateTime.parse(droppin['deley_time']);
+          final currentTime = DateTime.now();
+          
+          // If deley_time is greater than current time, skip the location
+          if (deleyTime.isAfter(currentTime)) {
+            continue;
+          }
+  
+          // Add valid locations to tempLocations
           tempLocations.add(LatLng(latitude, longitude));
+  
+          // Update lastDropPoint with the latest valid point
+          if (tempLocations.isNotEmpty) {
+            lastDropPoint = tempLocations.last;
+          }
         }
       } catch (e) {
         logger.e('Failed to process stop locations: $e');
       }
     }
-
+  
     setState(() {
       locations = tempLocations;
       if (tempLocations.isNotEmpty) {
         lastDropPoint = tempLocations.last;
       }
     });
+  
     _adjustZoom();
   }
+  
 
   Future<Map<String, double>> getCoordinates(String address) async {
     String accessToken =
