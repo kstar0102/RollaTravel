@@ -68,7 +68,24 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
     super.dispose();
     _mapController.dispose();
   }
-Future<void> _onShareClicked() async {
+
+  // String _generateStaticMapUrl() {
+  //   const accessToken = 'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw';
+  //   final List<String> points = widget.stopMarkers
+  //       .map((m) => '${m.location.longitude},${m.location.latitude}')
+  //       .toList();
+
+  //   final pathOverlay = points.isNotEmpty
+  //       ? 'path-5+0000ff-1(${points.join(";")})/'
+  //       : '';
+
+  //   final center = widget.endLocation!;
+  //   return 'https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/'
+  //       '$pathOverlay${center.longitude},${center.latitude},10,0/600x400'
+  //       '?access_token=$accessToken';
+  // }
+
+  Future<void> _onShareClicked() async {
     if (_isSharing) return;
     
     setState(() => _isSharing = true);
@@ -87,7 +104,7 @@ Future<void> _onShareClicked() async {
 
       // Wait for the next frame to ensure rendering is complete
       await WidgetsBinding.instance.endOfFrame;
-      await Future.delayed(const Duration(milliseconds: 100));
+      await Future.delayed(const Duration(milliseconds: 300));
 
       // ignore: use_build_context_synchronously
       final boundary = boundaryContext.findRenderObject() as RenderRepaintBoundary?;
@@ -121,6 +138,10 @@ Future<void> _onShareClicked() async {
       
       try {
         await file.writeAsBytes(byteData.buffer.asUint8List());
+        if (!(await file.exists())) {
+          _showErrorDialog("File not saved.");
+          return;
+        }
       } catch (e) {
         logger.e("File write error: $e");
         _showErrorDialog("Failed to save image.");
@@ -149,65 +170,6 @@ Future<void> _onShareClicked() async {
     }
   }
 
-  // Future<void> _onShareClicked() async {
-  //   if (_isSharing) return;
-  //   setState(() => _isSharing = true);
-  //   try {
-  //     if (!mounted) return;
-
-  //     final boundaryContext = _shareWidgetKey.currentContext;
-  //     if (boundaryContext == null) {
-  //       _showErrorDialog("Cannot share: Widget not ready.");
-  //       return;
-  //     }
-
-  //     final boundary =
-  //         boundaryContext.findRenderObject() as RenderRepaintBoundary?;
-  //     if (boundary == null) {
-  //       _showErrorDialog("Cannot share: Unable to capture content.");
-  //       return;
-  //     }
-
-  //     // Wait for rendering if needed
-  //     if (boundary.debugNeedsPaint) {
-  //       await Future.delayed(const Duration(milliseconds: 50));
-  //       await WidgetsBinding.instance.endOfFrame;
-  //     }
-
-  //     // Convert widget to image
-  //     final image = await boundary.toImage(pixelRatio: 3.0);
-  //     final byteData = await image.toByteData(format: ImageByteFormat.png);
-  //     if (byteData == null) {
-  //       _showErrorDialog("Failed to generate image.");
-  //       return;
-  //     }
-
-  //     final pngBytes = byteData.buffer.asUint8List();
-
-  //     // Save to temporary file
-  //     final tempDir = await getTemporaryDirectory();
-  //     final filePath =
-  //         '${tempDir.path}/shared_polaroid_${DateTime.now().millisecondsSinceEpoch}.png';
-  //     final file = File(filePath);
-
-  //     await file.writeAsBytes(pngBytes);
-
-  //     final result = await Share.shareXFiles(
-  //       [XFile(file.path)],
-  //       subject: 'Rolla Travel trip!',
-  //       text: 'I just created a trip with Rolla Travel!',
-  //     );
-  //     logger.i("Share result: $result");
-  //   } catch (e) {
-  //     if (!mounted) return;
-  //     _showErrorDialog(
-  //         "Sharing failed: ${e.toString().replaceAll('Exception: ', '')}");
-  //     logger.e("Sharing error: $e");
-  //   } finally {
-  //     if (mounted) setState(() => _isSharing = false);
-  //   }
-  // }
-
   void _showErrorDialog(String message) {
     if (!mounted) return;
 
@@ -225,15 +187,6 @@ Future<void> _onShareClicked() async {
       ),
     );
   }
-
-  // void _playListClicked() {
-  //   Navigator.push(
-  //     context,
-  //     MaterialPageRoute(
-  //       builder: (context) => const SoundScreen(),
-  //     ),
-  //   );
-  // }
 
   void _playListClicked () {
     if (widget.tripSound == "tripSound") {

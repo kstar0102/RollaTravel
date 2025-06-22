@@ -231,10 +231,12 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
     }
   }
 
+  
+
   Future<void> _moveMarkerToAddress(String address) async {
     final response = await http.get(
       Uri.parse(
-          'https://api.mapbox.com/geocoding/v5/mapbox.places/$address.json?access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw'),
+          'https://api.mapbox.com/geocoding/v5/mapbox.places/$address.json?access_token=$mapboxAccessToken'),
     );
 
     if (response.statusCode == 200) {
@@ -243,16 +245,24 @@ class AnotherLocationScreenState extends ConsumerState<AnotherLocationScreen> {
       if (features.isNotEmpty) {
         final location = features.first['geometry']['coordinates'];
         final latLng = LatLng(location[1], location[0]);
+
         setState(() {
           _selectedLocation = latLng;
           logger.i("Selected location: $_selectedLocation");
         });
+
+        // Move the map, then force rebuild after a short delay
         _mapController.move(latLng, 13.0);
+
+        // Force redraw after slight delay to avoid blank tiles
+        await Future.delayed(const Duration(milliseconds: 300));
+        _mapController.move(latLng, 13.0); // Re-move to same point
       }
     } else {
       throw Exception('Failed to load location');
     }
   }
+
 
   Future<void> _updateAddressFromLocation(LatLng location) async {
     final response = await http.get(

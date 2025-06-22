@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:RollaTravel/src/screen/home/home_sound_screen.dart';
@@ -164,6 +165,23 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
   //     if (mounted) setState(() => _isSharing = false);
   //   }
   // }
+
+   Future<void> _waitForImageToLoad(File imageFile) async {
+    final completer = Completer<void>();
+    final image = FileImage(imageFile);
+
+    final stream = image.resolve(const ImageConfiguration());
+    final listener = ImageStreamListener((_, __) {
+      completer.complete();
+    }, onError: (_, __) {
+      completer.complete(); // Continue even if there's an error
+    });
+
+    stream.addListener(listener);
+    await completer.future;
+    stream.removeListener(listener);
+  }
+  
   Future<void> _onShareClicked() async {
     if (_isSharing) return;
     
@@ -191,6 +209,9 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
         _showErrorDialog("Unable to capture content.");
         return;
       }
+
+        // 🛠 Ensure image is loaded
+      await _waitForImageToLoad(File(widget.imagePath));
 
       // Convert to image with error handling
       ui.Image? image;
