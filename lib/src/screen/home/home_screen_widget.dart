@@ -38,6 +38,7 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
   bool isAddComments = false;
   bool isLiked = false;
   bool showLikesDropdown = false;
+  bool isView = false;
   final TextEditingController _addCommitController = TextEditingController();
   List<String>? stopAddresses;
   List<LatLng> locations = [];
@@ -280,20 +281,47 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
     List<dynamic> droppins, 
     int droppinIndex,   
   ) async {
+    logger.i(droppins[droppinIndex]);
     final apiservice = ApiService();
-    
-    // Get the initial liked_users and viewlist
+    int viewcount = 0;
+     bool hasAlreadyViewed = false;
+    if (droppins[droppinIndex]['view_count'] != null && droppins[droppinIndex]['view_count'].isNotEmpty) {
+      List<String> viewCountList = droppins[droppinIndex]['view_count'].split(',');
+      viewcount = viewCountList.length;
+      if (viewCountList.contains(GlobalVariables.userId.toString())) {
+        hasAlreadyViewed = true;
+      }
+    } else {
+      viewcount = 0;
+    }
+
+    if (!hasAlreadyViewed) {
+       try {
+        final result = await apiservice.markDropinAsViewed(
+          userId: GlobalVariables.userId!,
+          dropinId: droppins[droppinIndex]['id'],
+        );
+        if (result['statusCode'] == true) {
+          logger.i("Successfully viewed this user");
+          String currentViewCount = droppins[droppinIndex]['view_count'] ?? '';
+          if (currentViewCount.isEmpty) {
+            droppins[droppinIndex]['view_count'] = GlobalVariables.userId.toString();
+          } else {
+            droppins[droppinIndex]['view_count'] = '$currentViewCount,${GlobalVariables.userId}';
+          }
+          viewcount = droppins[droppinIndex]['view_count'].split(',').length;
+          setState(() {});
+        } else {
+          logger.e("Failed to mark as viewed: ${result['message']}");
+        }
+      } catch (error) {
+        logger.e("Error while calling API: $error");
+      }
+    }
+
     List<dynamic> likedUsers = droppins[droppinIndex]['liked_users'];
     bool isLiked = likedUsers.map((user) => user['id']).contains(GlobalVariables.userId);
     int droppinlikes = likedUsers.length;
-    // int viewcount = droppins[droppinIndex]['view_count'].split(',').length;
-    int viewcount = 0;
-
-    if (droppins[droppinIndex]['view_count'] != null && droppins[droppinIndex]['view_count'].isNotEmpty) {
-      viewcount = droppins[droppinIndex]['view_count'].split(',').length;
-    } else {
-      viewcount = 0; // Set to 0 if 'view_count' is null or empty
-    }
     
     // Show dialog
     if (!mounted) return;
@@ -311,28 +339,62 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
                 children: [
                   // Caption and Close button
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          droppins[droppinIndex]['image_caption'] ?? '',
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0), // Increased vertical padding
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final text = droppins[droppinIndex]['image_caption'] ?? '';
+                        final textSpan = TextSpan(
+                          text: text,
                           style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey,
-                              fontFamily: 'inter',
-                              letterSpacing: -0.1),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.close, color: Colors.black),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ],
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey,
+                            fontFamily: 'inter',
+                            letterSpacing: -0.1,
+                          ),
+                        );
+                        final textPainter = TextPainter(
+                          text: textSpan,
+                          textAlign: TextAlign.start,
+                          textDirection: TextDirection.ltr, 
+                          maxLines: 3,
+                        )..layout(maxWidth: constraints.maxWidth - 40); 
+                        int lineCount = textPainter.computeLineMetrics().length;
+                        double height = lineCount * 24.0; 
+                        height = height < 50 ? 50 : (height > 80 ? 80 : height);
+                        return SizedBox(
+                          height: height,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  text,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey,
+                                    fontFamily: 'inter',
+                                    letterSpacing: -0.1,
+                                  ),
+                                  overflow: TextOverflow.ellipsis, // Ensures text overflow shows '...'
+                                  maxLines: 3, // Allows up to 3 lines of text to show
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.close, color: Colors.black),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                     ),
                   ),
+
+
                   // PageView for swiping through images
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.5,

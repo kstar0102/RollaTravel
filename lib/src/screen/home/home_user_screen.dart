@@ -44,6 +44,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
   bool isloding = true;
   bool isfollow = false;
   bool isMefollow = false;
+  bool isFollowingBool = false;
   List<Map<String, dynamic>>? userTrips;
   bool isLoadingTrips = true;
   LatLng? startPoint;
@@ -81,7 +82,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
       final result  = await ApiService().fetchUserTrips(widget.userId);
       var userProfile = result['trips'];
       final userInfo = result['userInfo'];
-      // logger.i(userInfo);
+      logger.i(userInfo);
       rollaUserName = userInfo[0]['rolla_username'];
       userRealName = "${userInfo[0]['first_name'] ?? ''} ${userInfo[0]['last_name'] ?? ''}";
       rollaUserImage = userInfo[0]['photo'];
@@ -94,6 +95,12 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
       if(userInfo[0]['id'] == GlobalVariables.userId){
         isMefollow = true;
       }
+
+      if (userInfo[0]['following_user_id'] != null) {
+        List<dynamic> followingUserIds = json.decode(userInfo[0]['following_user_id']);
+        isFollowingBool = followingUserIds.any((user) => user['id'] == GlobalVariables.userId);
+      }
+      logger.i(isFollowingBool);
 
       if (userInfo[0]['garage'] != null && userInfo[0]['garage'].isNotEmpty) {
         garageLogoUrl = userInfo[0]['garage'][0]['logo_path'];
@@ -269,14 +276,12 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
                 children: [
                   // Caption and Close button
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          (droppins[droppinIndex]['image_caption'] ?? '').length > 40 
-                              ? (droppins[droppinIndex]['image_caption'] ?? '').substring(0, 40) + '...' 
-                              : (droppins[droppinIndex]['image_caption'] ?? ''),
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final text = droppins[droppinIndex]['image_caption'] ?? '';
+                        final textSpan = TextSpan(
+                          text: text,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -284,16 +289,45 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
                             fontFamily: 'inter',
                             letterSpacing: -0.1,
                           ),
-                          overflow: TextOverflow.ellipsis, // Ensures text overflow shows '...'
-                          maxLines: 1, // Ensures only one line is used for the caption
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.close, color: Colors.black),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ],
+                        );
+                        final textPainter = TextPainter(
+                          text: textSpan,
+                          textAlign: TextAlign.start,
+                          textDirection: TextDirection.ltr,
+                          maxLines: 3,
+                        )..layout(maxWidth: constraints.maxWidth - 40);
+                        int lineCount = textPainter.computeLineMetrics().length;
+                        double height = lineCount * 24.0; 
+                        height = height < 50 ? 50 : (height > 80 ? 80 : height);
+                        return SizedBox(
+                          height: height,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  text,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey,
+                                    fontFamily: 'inter',
+                                    letterSpacing: -0.1,
+                                  ),
+                                  overflow: TextOverflow.ellipsis, 
+                                  maxLines: 3,
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.close, color: Colors.black),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                     ),
                   ),
                   // PageView for swiping through images
@@ -769,84 +803,82 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
                               SizedBox(height: vhh(context, 1)),
                               SizedBox(
                                 height: 100,
-                                child: (dropPinsData).isEmpty
-                                ? const Center(
-                                    child: Text("No drop pins available",
+                                child: !isFollowingBool
+                                  ? const Center(
+                                      child: Text(
+                                        "Private account",
                                         style: TextStyle(
-                                            color: Colors.grey,
-                                            letterSpacing: -0.1,
-                                            fontFamily: 'inter')),
-                                  )
-                                : ListView.builder(
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: dropPinsData.length,
-                                  itemBuilder: (context, index) {
-                                    final dropPin = dropPinsData[index]
-                                        as Map<String, dynamic>;
-                                    final String imagePath =
-                                        dropPin['image_path'] ?? '';
-                                    // final String caption =
-                                    //     dropPin['image_caption'] ?? 'No caption';
-                                    // final List<dynamic> likedUsers =
-                                    //     dropPin['liked_users'] ?? [];
+                                          color: Colors.grey,
+                                          letterSpacing: -0.1,
+                                          fontFamily: 'inter',
+                                        ),
+                                      ),
+                                    )
+                                  :(dropPinsData).isEmpty
+                                  ? const Center(
+                                      child: Text("No drop pins available",
+                                          style: TextStyle(
+                                              color: Colors.grey,
+                                              letterSpacing: -0.1,
+                                              fontFamily: 'inter')),
+                                    )
+                                  : ListView.builder(
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: dropPinsData.length,
+                                    itemBuilder: (context, index) {
+                                      final dropPin = dropPinsData[index]
+                                          as Map<String, dynamic>;
+                                      final String imagePath =
+                                          dropPin['image_path'] ?? '';
 
-                                    return Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 3),
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          // _showImageDialog(
-                                          //   dropPin['image_path'], 
-                                          //   dropPin['image_caption'],
-                                          //   dropPin['liked_users'].length,
-                                          //   dropPin['liked_users'],
-                                          //   dropPin['id'],
-                                          //   widget.userId,
-                                          //   dropPin['view_count'],
-                                          //   dropPin['stop_index'],);
-                                          _showImageDialog(dropPinsData, index);
-                                        },
-                                        child: imagePath.isNotEmpty
-                                            ? Container(
-                                                width: 100,
-                                                height: 100,
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
-                                                  gradient: LinearGradient(
-                                                    colors: [
-                                                      Colors.black
-                                                          .withValues(alpha: 0.5),
-                                                      Colors.transparent
-                                                    ],
-                                                    begin: Alignment.bottomCenter,
-                                                    end: Alignment.topCenter,
+                                      return Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 3),
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            _showImageDialog(dropPinsData, index);
+                                          },
+                                          child: imagePath.isNotEmpty
+                                              ? Container(
+                                                  width: 100,
+                                                  height: 100,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(8),
+                                                    gradient: LinearGradient(
+                                                      colors: [
+                                                        Colors.black
+                                                            .withValues(alpha: 0.5),
+                                                        Colors.transparent
+                                                      ],
+                                                      begin: Alignment.bottomCenter,
+                                                      end: Alignment.topCenter,
+                                                    ),
                                                   ),
-                                                ),
-                                                child: Image.network(
-                                                  imagePath,
-                                                  fit: BoxFit.cover,
-                                                  loadingBuilder: (context, child,
-                                                      loadingProgress) {
-                                                    if (loadingProgress == null) {
-                                                      return child;
-                                                    } else {
-                                                      return const Center(
-                                                          child:
-                                                              SpinningLoader());
-                                                    }
-                                                  },
-                                                  errorBuilder: (context, error,
-                                                      stackTrace) {
-                                                    return const Icon(
-                                                        Icons.broken_image,
-                                                        size: 100);
-                                                  },
-                                                ),
-                                              )
-                                            : const Icon(
-                                                Icons.image_not_supported,
-                                                size: 100),
+                                                  child: Image.network(
+                                                    imagePath,
+                                                    fit: BoxFit.cover,
+                                                    loadingBuilder: (context, child,
+                                                        loadingProgress) {
+                                                      if (loadingProgress == null) {
+                                                        return child;
+                                                      } else {
+                                                        return const Center(
+                                                            child:
+                                                                SpinningLoader());
+                                                      }
+                                                    },
+                                                    errorBuilder: (context, error,
+                                                        stackTrace) {
+                                                      return const Icon(
+                                                          Icons.broken_image,
+                                                          size: 100);
+                                                    },
+                                                  ),
+                                                )
+                                              : const Icon(
+                                                  Icons.image_not_supported,
+                                                  size: 100),
                                       ),
                                     );
                                   },
@@ -864,17 +896,27 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
                         Container(
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           color: kColorWhite,
-                        child: Column(
-                          children: [
-                            const Padding(padding: EdgeInsets.symmetric(horizontal: 10),
-                              child: Divider(
-                                height: 1,
-                                thickness: 2,
-                                color: Colors.blue,
+                          child: Column(
+                            children: [
+                              const Padding(padding: EdgeInsets.symmetric(horizontal: 10),
+                                child: Divider(
+                                  height: 1,
+                                  thickness: 2,
+                                  color: Colors.blue,
+                                ),
                               ),
-                            ),
-                            SizedBox(height: vhh(context, 1)),
-                            userTrips == null
+                              SizedBox(height: vhh(context, 1)),
+                              !isFollowingBool ? const Center(
+                                  child: Text(
+                                    "Private account",
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                      letterSpacing: -0.1,
+                                      fontFamily: 'inter',
+                                    ),
+                                  ),
+                                )
+                              : userTrips == null
                                 ? const Center(
                                     child: SpinningLoader())
                                 : userTrips!.isEmpty
@@ -955,9 +997,9 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
                                           ),
                                         ),
                                       ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
                       ],
                     ),
                   ),

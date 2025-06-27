@@ -381,14 +381,12 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                 children: [
                   // Caption and Close button
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          (droppins[droppinIndex]['image_caption'] ?? '').length > 40 
-                              ? (droppins[droppinIndex]['image_caption'] ?? '').substring(0, 40) + '...' 
-                              : (droppins[droppinIndex]['image_caption'] ?? ''),
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final text = droppins[droppinIndex]['image_caption'] ?? '';
+                        final textSpan = TextSpan(
+                          text: text,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -396,18 +394,48 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             fontFamily: 'inter',
                             letterSpacing: -0.1,
                           ),
-                          overflow: TextOverflow.ellipsis, // Ensures text overflow shows '...'
-                          maxLines: 1, // Ensures only one line is used for the caption
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.close, color: Colors.black),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ],
+                        );
+                        final textPainter = TextPainter(
+                          text: textSpan,
+                          textAlign: TextAlign.start,
+                          textDirection: TextDirection.ltr,
+                          maxLines: 3,
+                        )..layout(maxWidth: constraints.maxWidth - 40);
+                        int lineCount = textPainter.computeLineMetrics().length;
+                        double height = lineCount * 24.0; 
+                        height = height < 50 ? 50 : (height > 80 ? 80 : height);
+                        return SizedBox(
+                          height: height,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  text,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey,
+                                    fontFamily: 'inter',
+                                    letterSpacing: -0.1,
+                                  ),
+                                  overflow: TextOverflow.ellipsis, 
+                                  maxLines: 3,
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.close, color: Colors.black),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                     ),
                   ),
+
                   // PageView for swiping through images
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.5,

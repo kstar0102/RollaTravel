@@ -15,7 +15,7 @@ class ProfileFollowingScreen extends ConsumerStatefulWidget {
 }
 
 class ProfileFollowScreenState extends ConsumerState<ProfileFollowingScreen> {
-  final int _currentIndex = 4;
+  final int _currentIndex = 5;
   double keyboardHeight = 0;
   List<Map<String, dynamic>> followers = [];
   final logger = Logger();

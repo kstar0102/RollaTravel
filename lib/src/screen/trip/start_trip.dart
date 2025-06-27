@@ -1253,89 +1253,66 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
                                                           MainAxisSize.min,
                                                       children: [
                                                         Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .symmetric(
-                                                                  horizontal:
-                                                                      8.0,
-                                                                  vertical:
-                                                                      4.0),
-                                                          child: Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceBetween,
-                                                            children: [
-                                                              Text(
-                                                                markerData
-                                                                    .caption,
-                                                                style:
-                                                                    const TextStyle(
-                                                                  fontSize: 16,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  color: Colors
-                                                                      .grey,
-                                                                  fontFamily:
-                                                                      'inter',
+                                                          padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 12.0), // Increased vertical padding
+                                                          child: SizedBox(
+                                                            height: 40, 
+                                                            child: Row(
+                                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                              children: [
+                                                                Expanded(
+                                                                  child: Text(
+                                                                    (markerData.caption.length) > 20
+                                                                      ? '${markerData.caption.substring(0, 40)}...'
+                                                                      : (markerData.caption),
+                                                                    style: const TextStyle(
+                                                                      fontSize: 16,
+                                                                      fontWeight: FontWeight.bold,
+                                                                      color: Colors.grey,
+                                                                      fontFamily: 'inter',
+                                                                      letterSpacing: -0.1,
+                                                                    ),
+                                                                    overflow: TextOverflow.ellipsis,
+                                                                    maxLines: 1,
+                                                                  ),
                                                                 ),
-                                                              ),
-                                                              IconButton(
-                                                                icon: const Icon(
-                                                                    Icons.close,
-                                                                    color: Colors
-                                                                        .black),
-                                                                onPressed: () {
-                                                                  Navigator.of(
-                                                                          context)
-                                                                      .pop();
-                                                                },
-                                                              ),
-                                                            ],
+                                                                IconButton(
+                                                                  icon: const Icon(Icons.close, color: Colors.black),
+                                                                  onPressed: () {
+                                                                    Navigator.of(context).pop();
+                                                                  },
+                                                                ),
+                                                              ],
+                                                            ),
                                                           ),
                                                         ),
                                                         Image.network(
                                                           markerData.imagePath,
                                                           fit: BoxFit.cover,
-                                                          loadingBuilder: (context,
-                                                              child,
-                                                              loadingProgress) {
-                                                            if (loadingProgress ==
-                                                                null) {
+                                                          loadingBuilder: (context, child, loadingProgress) {
+                                                            if (loadingProgress == null) {
                                                               return child;
                                                             } else {
                                                               return const Center(
-                                                                child:
-                                                                    SpinningLoader(),
+                                                                child:SpinningLoader(),
                                                               );
                                                             }
                                                           },
                                                           errorBuilder:
-                                                              (context, error,
-                                                                  stackTrace) {
+                                                              (context, error, stackTrace) {
                                                             return const Icon(
-                                                                Icons
-                                                                    .broken_image,
+                                                                Icons.broken_image,
                                                                 size: 100);
                                                           },
                                                         ),
-                                                        if (delayText
-                                                            .isNotEmpty)
+                                                        if (delayText.isNotEmpty)
                                                           Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .only(
-                                                                    top: 8.0),
+                                                            padding:const EdgeInsets.only(top: 8.0),
                                                             child: Text(
                                                               delayText,
-                                                              style:
-                                                                  const TextStyle(
+                                                              style:const TextStyle(
                                                                 fontSize: 14,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600,
-                                                                color: Colors
-                                                                    .redAccent,
+                                                                fontWeight:FontWeight.w600,
+                                                                color: Colors.redAccent,
                                                                 fontFamily:
                                                                     'inter',
                                                               ),

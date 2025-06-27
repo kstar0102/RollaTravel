@@ -60,7 +60,7 @@ class BottomNavBar extends ConsumerWidget {
             MaterialPageRoute(builder: (context) => const DropPinScreen()),
           );
         } else {
-          if(GlobalVariables.droppinCount > 7 ){
+          if(GlobalVariables.droppinCount > 6 ){
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const LimitDropPinScreen()),

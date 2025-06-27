@@ -4,7 +4,6 @@ import 'dart:ui';
 import 'package:RollaTravel/src/utils/spinner_loader.dart';
 import 'package:RollaTravel/src/utils/trip_marker_provider.dart';
 import 'package:uuid/uuid.dart';
-// import 'package:RollaTravel/main.dart';
 import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/screen/droppin/another_location_screen.dart';
 import 'package:RollaTravel/src/screen/droppin/choosen_location_screen.dart';
@@ -12,7 +11,6 @@ import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/utils/common.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:RollaTravel/src/utils/location.permission.dart';
-// import 'package:RollaTravel/src/utils/stop_marker_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,9 +21,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:logger/logger.dart';
 import 'dart:async';
-
 import 'package:shared_preferences/shared_preferences.dart';
-// import 'package:workmanager/workmanager.dart';
 
 class SelectLocationScreen extends ConsumerStatefulWidget {
   final LatLng? selectedLocation;
@@ -383,34 +379,6 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
           };
         }
       }).toList();
-
-      // droppins = stopMarkers.asMap().entries.map((entry) {
-      //   final int index = entry.key + 1;
-      //   final TripMarkerData marker = entry.value;
-      //   final bool isLast = entry.key == stopMarkers.length - 1;
-
-      //   if (dropPinId != null && entry.key < dropcount!) {
-      //     // For earlier entries before dropcount, no delay_time
-      //     return {
-      //       "id": currentDropId,
-      //       "stop_index": index,
-      //       "image_path": marker.imagePath,
-      //       "image_caption": marker.caption,
-      //     }..addAll(isLast ? {"delay_time": formattedUploadTime} : {});
-      //   } else {
-      //     // For entries at or after dropcount
-      //     final mapData = {
-      //       "stop_index": index,
-      //       "image_path": marker.imagePath,
-      //       "image_caption": marker.caption,
-      //     };
-      //     if (isLast) {
-      //       mapData["delay_time"] = formattedUploadTime;
-      //     }
-      //     return mapData;
-      //   }
-      //   // currentDropId++; // increment only if used
-      // }).toList();
       logger.i(droppins);
 
 
@@ -489,47 +457,22 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
           );
         }
       }else {
-        // Duration delay;
         String message;
-            
-        // final uniqueTaskId = "uploadTripTask_${uuid.v4()}"; 
-        // final String taskKey = uniqueTaskId; 
-        // await prefs.setInt('${taskKey}_tripId', tripId);
-        // await prefs.setInt('${taskKey}_userId', GlobalVariables.userId!);
-        // await prefs.setString('${taskKey}_startAddress', startAddress ?? '');
-        // await prefs.setString('${taskKey}_stopAddressesString', stopAddressesString);
-        // await prefs.setString('${taskKey}_formattedDestination', formattedDestination);
-        // await prefs.setString('${taskKey}_tripCaption', GlobalVariables.tripCaption ?? '');
-        // await prefs.setString('${taskKey}_tripStartDate', GlobalVariables.tripStartDate ?? '');
-        // await prefs.setString('${taskKey}_tripEndDate', formattedDate);
-        // await prefs.setString('${taskKey}_tripMiles', tripMiles ?? '');
-        // await prefs.setString('${taskKey}_tripSound', arrangedSongs);
-        // await prefs.setString('${taskKey}_tripTag', GlobalVariables.selectedUserIds.toString());
-        // await prefs.setString('${taskKey}_startLocation', startLocation.toString());
-        // await prefs.setString('${taskKey}_destinationLocation', endLocation.toString());
-        // await prefs.setString('${taskKey}_stopLocations', jsonEncode(stopLocations));
-        // await prefs.setString('${taskKey}_droppins', jsonEncode(droppins));
-        // await prefs.setString('${taskKey}_tripCoordinates', jsonEncode(tripCoordinates));
-
         setState(() {
           isuploadingData = false;
         });
 
         switch (GlobalVariables.delaySetting) {
           case 1:
-            // delay = const Duration(minutes: 30);
             message = "Your trip will be uploaded after 30 minutes.";
             break;
           case 2:
-            // delay = const Duration(hours: 2);
             message = "Your trip will be uploaded after 2 hours.";
             break;
           case 3:
-            // delay = const Duration(hours: 12);
             message = "Your trip will be uploaded after 12 hours.";
             break;
           default:
-            // delay = Duration.zero;
             message = "Your trip will be uploaded immediately.";
         }
 
@@ -943,7 +886,9 @@ class SelectLocationScreenState extends ConsumerState<SelectLocationScreen> {
                                       onMapReady: () {
                                         _mapReadyCompleter.complete();
                                         if (widget.selectedLocation != const LatLng(0, 0)) {
-                                          _mapController.move(widget.selectedLocation!, 12.0);
+                                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                                            _mapController.move(widget.selectedLocation!, 12.0);
+                                          });
                                         }
                                       },
                                     ),

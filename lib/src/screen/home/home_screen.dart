@@ -52,124 +52,100 @@ class HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObser
   }
 
   Future<void> _followedTrips() async {
-  try {
-    final blockUsers = await apiService.fetchBlockUsers(GlobalVariables.userId!);
-    final blockedUserIds = blockUsers.isEmpty
-        ? <String>{}
-        : blockUsers.map((user) => user['id'].toString()).toSet();
-
-    final data = await apiService.fetchFollowerTrip(GlobalVariables.userId!);
-    logger.i(data);
-
-    // Find the first trip data where the user_id matches GlobalVariables.userId
-    final userTripData = data.firstWhere(
-      (trip) => trip['user']['id'] == GlobalVariables.userId,
-      orElse: () => {}, // If no trip data is found, return an empty map (safe fallback)
-    );
-
-    if (userTripData.isNotEmpty) {
-      logger.i(userTripData);
-      final pendingIdsRaw = userTripData['user']['following_pending_userid'];
-      final acceptedRow = userTripData['user']['following_user_id'];
-      final tagNotificationRaw = userTripData['user']['tag_notification'];
-      final commentNotificationRaw = userTripData['user']['comment_notification'];
-      final likenotificationRaw = userTripData['user']['like_notification'];
-
-      int pendingCount = 0;
-      int acceptedCount = 0;
-      int tagNotificationCount = 0; 
-      int commentNotificationCount = 0;
-      int likeNotificationCount = 0; 
-
-      // Process pending follow requests
-      if (pendingIdsRaw != null && pendingIdsRaw.toString().trim().isNotEmpty) {
-        List<dynamic> pendingData = jsonDecode(pendingIdsRaw);
-        pendingList = pendingData
-            .map((e) => e['id'] as int?)
-            .whereType<int>()
-            .toList();
-        pendingCount = pendingData.length;
-      }
-
-      // Process accepted follow requests
-      if (acceptedRow != null && acceptedRow.toString().trim().isNotEmpty) {
-        List<dynamic> acceptedData = jsonDecode(acceptedRow);
-        acceptedCount = acceptedData
-            .where((item) => item['notificationBool'] == false)
-            .length;
-      }
-
-      // Process tag notifications where notificationBool is false
-      if (commentNotificationRaw != null && commentNotificationRaw.toString().trim().isNotEmpty) {
-        List<dynamic> commentNotificationRawData = jsonDecode(commentNotificationRaw);
-        commentNotificationCount = commentNotificationRawData
-            .where((item) => item['notificationBool'] == false)
-            .length;
-      }
-
-      if (likenotificationRaw != null && likenotificationRaw.toString().trim().isNotEmpty) {
-        List<dynamic> likenotificationRawData = jsonDecode(likenotificationRaw);
-        likeNotificationCount = likenotificationRawData
-            .where((item) => item['notificationBool'] == false)
-            .length;
-      }
-
-      if (tagNotificationRaw != null && tagNotificationRaw.toString().trim().isNotEmpty) {
-        List<dynamic> tagNotificationData = jsonDecode(tagNotificationRaw);
-        tagNotificationCount = tagNotificationData
-            .where((item) => item['notificationBool'] == false)
-            .length;
-      }
-
-      // Calculate total count
-      totalCount = pendingCount + acceptedCount + tagNotificationCount + commentNotificationCount + likeNotificationCount;
-
-    } else {
-      logger.w("No trip data found for user_id: ${GlobalVariables.userId}");
-    }
-
-
-
-    final currentUserId = GlobalVariables.userId.toString();
-    final now = DateTime.now();
-
-    final filteredTrips = data.where((trip) {
-      final user = trip['user'];
-      final userId = user['id'].toString();
-      if (blockedUserIds.contains(userId)) return false;
-
-      final mutedIds = trip['muted_ids']?.split(',') ?? [];
-      if (mutedIds.contains(currentUserId)) return false;
-
-      // ✅ Keep only if at least one droppin is visible now
-      final droppins = trip['droppins'] as List<dynamic>? ?? [];
-      final hasVisibleDroppin = droppins.any((droppin) {
-        final delayTimeStr = droppin['deley_time'];
-        if (delayTimeStr == null || delayTimeStr.isEmpty) {
-          return true;
+    try {
+      final blockUsers = await apiService.fetchBlockUsers(GlobalVariables.userId!);
+      final blockedUserIds = blockUsers.isEmpty
+          ? <String>{}
+          : blockUsers.map((user) => user['id'].toString()).toSet();
+      final data = await apiService.fetchFollowerTrip(GlobalVariables.userId!);
+      final userTripData = data['userinfo'];
+      if (userTripData != null && userTripData['id'] == GlobalVariables.userId) {
+        final pendingIdsRaw = userTripData['following_pending_userid'];
+        final acceptedRow = userTripData['following_user_id'];
+        final tagNotificationRaw = userTripData['tag_notification'];
+        final commentNotificationRaw = userTripData['comment_notification'];
+        final likenotificationRaw = userTripData['like_notification'];
+        int pendingCount = 0;
+        int acceptedCount = 0;
+        int tagNotificationCount = 0; 
+        int commentNotificationCount = 0;
+        int likeNotificationCount = 0; 
+        if (pendingIdsRaw != null && pendingIdsRaw.toString().trim().isNotEmpty) {
+          List<dynamic> pendingData = jsonDecode(pendingIdsRaw);
+          pendingList = pendingData
+              .map((e) => e['id'] as int?)
+              .whereType<int>()
+              .toList();
+          pendingCount = pendingData.length;
         }
-        final delayTime = DateTime.tryParse(delayTimeStr);
-        return delayTime == null || !delayTime.isAfter(now);
-      });
+        if (acceptedRow != null && acceptedRow.toString().trim().isNotEmpty) {
+          List<dynamic> acceptedData = jsonDecode(acceptedRow);
+          acceptedCount = acceptedData
+              .where((item) => item['notificationBool'] == false)
+              .length;
+        }
+        if (commentNotificationRaw != null && commentNotificationRaw.toString().trim().isNotEmpty) {
+          List<dynamic> commentNotificationRawData = jsonDecode(commentNotificationRaw);
+          commentNotificationCount = commentNotificationRawData
+              .where((item) => item['notificationBool'] == false)
+              .length;
+        }
+        if (likenotificationRaw != null && likenotificationRaw.toString().trim().isNotEmpty) {
+          List<dynamic> likenotificationRawData = jsonDecode(likenotificationRaw);
+          likeNotificationCount = likenotificationRawData
+              .where((item) => item['notificationBool'] == false)
+              .length;
+        }
+        if (tagNotificationRaw != null && tagNotificationRaw.toString().trim().isNotEmpty) {
+          List<dynamic> tagNotificationData = jsonDecode(tagNotificationRaw);
+          tagNotificationCount = tagNotificationData
+              .where((item) => item['notificationBool'] == false)
+              .length;
+        }
+        totalCount = pendingCount + acceptedCount + tagNotificationCount + commentNotificationCount + likeNotificationCount;
+      } else {
+        logger.w("No trip data found for user_id: ${GlobalVariables.userId}");
+      }
+      final currentUserId = GlobalVariables.userId.toString();
+      final now = DateTime.now();
+      final tripsData = data['trips'];
+      if(tripsData != null){
+        final filteredTrips = tripsData.where((trip) {
+          final user = trip['user'];
+          final userId = user['id'].toString();
+          if (blockedUserIds.contains(userId)) return false;
 
-      return hasVisibleDroppin;
-    }).toList();
+          final mutedIds = trip['muted_ids']?.split(',') ?? [];
+          if (mutedIds.contains(currentUserId)) return false;
+          final droppins = trip['droppins'] as List<dynamic>? ?? [];
+          final hasVisibleDroppin = droppins.any((droppin) {
+            final delayTimeStr = droppin['deley_time'];
+            if (delayTimeStr == null || delayTimeStr.isEmpty) {
+              return true;
+            }
+            final delayTime = DateTime.tryParse(delayTimeStr);
+            return delayTime == null || !delayTime.isAfter(now);
+          });
 
-    setState(() {
-      trips = filteredTrips.reversed.toList();
-    });
-    if (GlobalVariables.homeTripID != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _scrollToTrip(GlobalVariables.homeTripID!);
+          return hasVisibleDroppin;
+        }).toList();
+
+        setState(() {
+          trips = filteredTrips.reversed.toList();
+        });
+        if (GlobalVariables.homeTripID != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _scrollToTrip(GlobalVariables.homeTripID!);
+          });
+        }
+      }
+    } catch (error) {
+      logger.i('Error fetching trips: $error');
+      setState(() {
+        trips = [];
       });
     }
-  } catch (error) {
-    logger.i('Error fetching trips: $error');
-    setState(() {
-      trips = [];
-    });
   }
-}
 
 
   void _scrollToTrip(int tripId) {
@@ -251,9 +227,10 @@ class HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObser
                   GestureDetector(
                     onTap: () {
                       if (totalCount != 0) {
-                        Navigator.push(
+                        Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (context) => NotificationScreen(userid: GlobalVariables.userId,)), // replace with your page
+                          MaterialPageRoute(builder: (context) => 
+                            NotificationScreen(userid: GlobalVariables.userId,)),
                         );
                       }
                     },

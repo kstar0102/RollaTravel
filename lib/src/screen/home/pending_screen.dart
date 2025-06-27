@@ -18,7 +18,7 @@ class NotificationScreen extends ConsumerStatefulWidget {
 }
 
 class NotificationScreenState extends ConsumerState<NotificationScreen> with WidgetsBindingObserver {
-  final int _currentIndex = 0;
+  final int _currentIndex = 5;
   List<Map<String, dynamic>> followers = [];
   final logger = Logger();
 

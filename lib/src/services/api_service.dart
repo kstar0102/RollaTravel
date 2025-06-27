@@ -778,7 +778,29 @@ class ApiService {
   }
 
 
-  Future<List<Map<String, dynamic>>> fetchFollowerTrip(int userId) async {
+  // Future<List<Map<String, dynamic>>> fetchFollowerTrip(int userId) async {
+  //   final url = Uri.parse('$baseUrl/user/follwed_user/trips?user_id=$userId');
+
+  //   final response = await http.get(
+  //     url,
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //   );
+
+  //   if (response.statusCode == 200) {
+  //     final data = json.decode(response.body);
+  //     if (data['statusCode'] == true) {
+  //       return List<Map<String, dynamic>>.from(data['data']);
+  //     } else {
+  //       throw Exception('Failed to load followers: ${data['message']}');
+  //     }
+  //   } else {
+  //     throw Exception('Failed to load followers: ${response.statusCode}');
+  //   }
+  // }
+
+  Future<Map<String, dynamic>> fetchFollowerTrip(int userId) async {
     final url = Uri.parse('$baseUrl/user/follwed_user/trips?user_id=$userId');
 
     final response = await http.get(
@@ -791,16 +813,20 @@ class ApiService {
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       if (data['statusCode'] == true) {
-        return List<Map<String, dynamic>>.from(data['data']);
+        return {
+          'userinfo': data['userinfo'],
+          'trips': List<Map<String, dynamic>>.from(data['data']),
+        };
       } else {
-        throw Exception('Failed to load followers: ${data['message']}');
+        throw Exception('Failed to load trips: ${data['message']}');
       }
     } else {
-      throw Exception('Failed to load followers: ${response.statusCode}');
+      throw Exception('Failed to load trips: ${response.statusCode}');
     }
   }
 
   Future<List<Map<String, dynamic>>> fetchFollowedUsers(int userId) async {
+    // logger.i(userId);
     final url = Uri.parse('$baseUrl/user/followed_users?user_id=$userId');
 
     final response = await http.get(
@@ -809,6 +835,7 @@ class ApiService {
         'Content-Type': 'application/json',
       },
     );
+    // logger.i(response);
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
