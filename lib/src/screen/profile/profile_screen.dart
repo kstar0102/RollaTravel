@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/screen/home/home_follower_screen.dart';
+import 'package:RollaTravel/src/screen/home/home_view_screen.dart';
 import 'package:RollaTravel/src/screen/profile/edit_profile.dart';
 import 'package:RollaTravel/src/screen/profile/profile_following_screen.dart';
 import 'package:RollaTravel/src/screen/profile/profile_map_widget.dart';
@@ -353,18 +354,60 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
+  Future<void> _goViewScreen(String viewlist, String imagePath) async {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => HomeViewScreen(viewdList: viewlist, imagePath: imagePath)),
+    );
+  }
+
   Future<void> _showImageDialog(
     List<dynamic> droppins, 
     int droppinIndex,   
   ) async {
     final apiservice = ApiService();
+    int viewcount = 0;
+    //  bool hasAlreadyViewed = false;
+    if (droppins[droppinIndex]['view_count'] != null && droppins[droppinIndex]['view_count'].isNotEmpty) {
+      List<String> viewCountList = droppins[droppinIndex]['view_count'].split(',');
+      viewcount = viewCountList.length;
+      if (viewCountList.contains(GlobalVariables.userId.toString())) {
+        // hasAlreadyViewed = true;
+      }
+    } else {
+      viewcount = 0;
+    }
+
+    // if (!hasAlreadyViewed) {
+    //    try {
+    //     final result = await apiservice.markDropinAsViewed(
+    //       userId: GlobalVariables.userId!,
+    //       dropinId: droppins[droppinIndex]['id'],
+    //     );
+    //     if (result['statusCode'] == true) {
+    //       logger.i("Successfully viewed this user");
+    //       String currentViewCount = droppins[droppinIndex]['view_count'] ?? '';
+    //       if (currentViewCount.isEmpty) {
+    //         droppins[droppinIndex]['view_count'] = GlobalVariables.userId.toString();
+    //       } else {
+    //         droppins[droppinIndex]['view_count'] = '$currentViewCount,${GlobalVariables.userId}';
+    //       }
+    //       viewcount = droppins[droppinIndex]['view_count'].split(',').length;
+    //       setState(() {});
+    //     } else {
+    //       logger.e("Failed to mark as viewed: ${result['message']}");
+    //     }
+    //   } catch (error) {
+    //     logger.e("Error while calling API: $error");
+    //   }
+    // }
     
     // Get the initial liked_users and viewlist
     List<dynamic> likedUsers = droppins[droppinIndex]['liked_users'];
     bool isLiked = likedUsers.map((user) => user['id']).contains(GlobalVariables.userId);
     int droppinlikes = likedUsers.length;
-    int viewcount = (droppins[droppinIndex]['view_count'] ?? '').split(',').length;
-    logger.i(droppins[droppinIndex]['view_count']);
+    // int viewcount = (droppins[droppinIndex]['view_count'] ?? '').split(',').length;
+    // logger.i(droppins[droppinIndex]['view_count']);
     // Show dialog
     if (!mounted) return;
     showDialog(
@@ -538,7 +581,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                         const Spacer(),
                         GestureDetector(
                           onTap: () {
-                            // Handle the view count and actions here if needed
+                            _goViewScreen(droppins[droppinIndex]['view_count'], droppins[droppinIndex]['image_path']);
                           },
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),

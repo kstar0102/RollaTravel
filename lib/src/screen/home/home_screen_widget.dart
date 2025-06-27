@@ -2,6 +2,7 @@ import 'package:RollaTravel/src/screen/home/home_screen.dart';
 import 'package:RollaTravel/src/screen/home/home_sound_screen.dart';
 import 'package:RollaTravel/src/screen/home/home_tag_screen.dart';
 import 'package:RollaTravel/src/screen/home/home_user_screen.dart';
+import 'package:RollaTravel/src/screen/home/home_view_screen.dart';
 import 'package:RollaTravel/src/screen/profile/profile_screen.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
@@ -277,11 +278,19 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
     return viewedIds.contains(userId);
   }
 
+  Future<void> _goViewScreen(String viewlist, String imagePath) async {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => HomeViewScreen(viewdList: viewlist, imagePath: imagePath)),
+    );
+  }
+
   Future<void> _showImageDialog(
     List<dynamic> droppins, 
     int droppinIndex,   
+    int droppinUserId
   ) async {
-    logger.i(droppins[droppinIndex]);
+    logger.i(droppinUserId);
     final apiservice = ApiService();
     int viewcount = 0;
      bool hasAlreadyViewed = false;
@@ -295,7 +304,7 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
       viewcount = 0;
     }
 
-    if (!hasAlreadyViewed) {
+    if (!hasAlreadyViewed && droppinUserId != GlobalVariables.userId) {
        try {
         final result = await apiservice.markDropinAsViewed(
           userId: GlobalVariables.userId!,
@@ -503,7 +512,9 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
                         const Spacer(),
                         GestureDetector(
                           onTap: () {
-                            // Handle the view count and actions here if needed
+                            if(droppinUserId == GlobalVariables.userId){
+                              _goViewScreen(droppins[droppinIndex]['view_count'], droppins[droppinIndex]['image_path']);
+                            }
                           },
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
@@ -1132,7 +1143,7 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
                         //   droppin['view_count'],
                         //   index,
                         // );
-                        _showImageDialog(filteredDroppins, index);
+                        _showImageDialog(filteredDroppins, index, widget.post['user']['id']);
                       },
                       // onTap: () {
                       //   Navigator.push(
@@ -1241,7 +1252,7 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
                                           }
                                         }).toList();
                                         final index = locations.indexOf(location);
-                                        _showImageDialog(filteredDroppins, index);
+                                        _showImageDialog(filteredDroppins, index, widget.post['user']['id']);
                                         
                                         // final droppin =
                                         //     widget.post['droppins'][index];
@@ -1249,8 +1260,7 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
                                         //   droppin['image_path'],
                                         //   droppin['image_caption'],
                                         //   droppin['liked_users'].length,
-                                        //   droppin['liked_users'],
-                                        //   droppin['id'],
+                                          //   droppin['id'],
                                         //   widget.post['user_id'],
                                         //   droppin['view_count'],
                                         //   index,
