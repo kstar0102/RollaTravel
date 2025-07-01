@@ -105,7 +105,7 @@ class _TripMapWidgetState extends State<TripMapWidget> {
   }
 
   Future<void> _getLocations() async {
-    logger.i(widget.trip);
+    // logger.i(widget.trip);
     List<LatLng> tempLocations = [];
     
     try {

@@ -37,7 +37,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   String? followingCount;
   String? garageImageUrl;
   String? username;
-  String? happyPlace;
+  String? happyPlaceText;
+  String? realName;
+  String? bioText;
   bool _isLoading = false;
   final logger = Logger();
   List<Map<String, dynamic>>? userTrips;
@@ -71,11 +73,12 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     try {
       final apiService = ApiService();
       final result = await apiService.fetchUserTrips(GlobalVariables.userId!);
-      logger.i(result);
+      // logger.i(result);
 
       if (result.isNotEmpty) {
         final trips = result['trips'] as List<dynamic>;
         final userInfoList = result['userInfo'] as List<dynamic>?;
+        logger.i(userInfoList);
         final now = DateTime.now();
         logger.i(now);
         List<Map<String, dynamic>> filteredTrips = [];
@@ -131,7 +134,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
 
           setState(() {
             username = user['rolla_username'] ?? '@unknown';
-            happyPlace = user['happy_place'];
+            happyPlaceText = user['happy_place'];
+            bioText = user['bio'] ?? "";
+            realName = user['first_name'] + user['last_name'];
 
             final rawFollowing = user['following_user_id'];
 
@@ -406,8 +411,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     List<dynamic> likedUsers = droppins[droppinIndex]['liked_users'];
     bool isLiked = likedUsers.map((user) => user['id']).contains(GlobalVariables.userId);
     int droppinlikes = likedUsers.length;
-    // int viewcount = (droppins[droppinIndex]['view_count'] ?? '').split(',').length;
-    // logger.i(droppins[droppinIndex]['view_count']);
+
     // Show dialog
     if (!mounted) return;
     showDialog(
@@ -1042,7 +1046,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                           children: [
                             SizedBox(height: vhh(context, 1)),
                             Text(
-                              GlobalVariables.realName!,
+                              realName ?? "",
                               style: const TextStyle(
                                   color: kColorBlack,
                                   fontSize: 17,
@@ -1052,9 +1056,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             ),
                             SizedBox(height: vhh(context, 0.5)),
                             Text(
-                              GlobalVariables.bio != null
-                                  ? GlobalVariables.bio!
-                                  : " ",
+                              bioText ?? "",
                               style: const TextStyle(
                                   color: kColorGrey,
                                   fontSize: 15,
@@ -1174,7 +1176,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    const Text(
+                                   const Text(
                                       happyplace,
                                       style: TextStyle(
                                           color: kColorBlack,
@@ -1184,9 +1186,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                           fontFamily: 'inter'),
                                     ),
                                     Text(
-                                      GlobalVariables.happyPlace != null
-                                          ? GlobalVariables.happyPlace!
-                                          : " ",
+                                      happyPlaceText ?? "",
                                       style: const TextStyle(
                                           color: kColorButtonPrimary,
                                           fontSize: 14,

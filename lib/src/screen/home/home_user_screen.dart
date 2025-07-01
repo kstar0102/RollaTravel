@@ -37,6 +37,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
   String? userRealName;
   String? rollaUserImage;
   String? tripCount;
+  String? bioText;
   String? followingCount;
   String? happlyPlace;
   String? garageLogoUrl;
@@ -88,8 +89,12 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
       rollaUserImage = userInfo[0]['photo'];
       userid = userInfo[0]['id'];
 
+      if (userInfo[0]['happy_place'] != null) {
+        happlyPlace = userInfo[0]['happy_place'];
+      }
+
       if (userInfo[0]['bio'] != null) {
-        happlyPlace = userInfo[0]['bio'];
+        bioText = userInfo[0]['bio'];
       }
 
       if(userInfo[0]['id'] == GlobalVariables.userId){
@@ -729,14 +734,13 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
                           ),
                         ),
                         Text(
-                          happlyPlace ?? "",
+                          bioText ?? "",
                           style: const TextStyle(
-                            color: kColorButtonPrimary,
-                            fontSize: 14,
-                            letterSpacing: -0.1,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'inter'
-                          ),
+                              color: kColorGrey,
+                              fontSize: 15,
+                              letterSpacing: -0.1,
+                              fontWeight: FontWeight.w400,
+                              fontFamily: 'inter'),
                         ),
                         SizedBox(height: vhh(context, 2)),
                         Row(
