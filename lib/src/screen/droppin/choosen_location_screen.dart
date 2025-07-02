@@ -246,213 +246,221 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     SizedBox(height: vhh(context, 6)),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: RepaintBoundary(
-                        key: _shareWidgetKey,
-                        child: Container(
-                          width: vhh(context, 100),
-                          height: vhh(context, 60),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withValues(alpha: 0.9),
-                                spreadRadius: 1.5,
-                                blurRadius: 15,
-                                offset: const Offset(0, 0),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            children: [
-                              Stack(
+                     Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),  // Padding for the whole content
+                      child: Container(
+                        width: vhh(context, 100),
+                        height: vhh(context, 62),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.9),
+                              spreadRadius: 1.5,
+                              blurRadius: 15,
+                              offset: const Offset(0, 0),
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20),  // Apply rounded corners to the child content
+                          child: RepaintBoundary(
+                            key: _shareWidgetKey,
+                            child: Container(
+                              width: vhh(context, 100),
+                              height: vhh(context, 60),
+                              color: Colors.white, // Same background color for the inner content
+                              child: Column(
                                 children: [
-                                  Center(
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        // Handle tap on the logo if needed
-                                      },
-                                      child: Image.asset(
-                                        'assets/images/icons/logo.png',
-                                        width: 90,
-                                        height: 80,
-                                      ),
-                                    ),
-                                  ),
-                                  Positioned(
-                                    right: 0,
-                                    top: 10,
-                                    child: IconButton(
-                                      icon: const Icon(Icons.close,
-                                          color: Colors.black, size: 28),
-                                      onPressed: _onCloseClicked,
-                                    ),
-                                  ),
-                                ],
-                              ),
-
-                              // Additional Rows and Summary
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 11.0),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text(
-                                      destination,
-                                      style: TextStyle(
-                                        color: kColorBlack,
-                                        fontSize: 13,
-                                        letterSpacing: -0.1,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'inter',
-                                      ),
-                                    ),
-                                    Text(
-                                      GlobalVariables.editDestination ?? "",
-                                      style: const TextStyle(
-                                        color: kColorButtonPrimary,
-                                        fontSize: 13,
-                                        letterSpacing: -0.1,
-                                        decoration: TextDecoration.underline,
-                                        decorationColor: kColorButtonPrimary,
-                                        fontFamily: 'inter',
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 7),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text(
-                                      soundtrack,
-                                      style: TextStyle(
-                                        color: kColorBlack,
-                                        fontSize: 13,
-                                        letterSpacing: -0.1,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'inter',
-                                      ),
-                                    ),
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(20),
-                                        color: Colors.white,
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black.withValues(alpha: 0.3),
-                                            spreadRadius: 0.5,
-                                            blurRadius: 6,
-                                            offset: const Offset(-3, 5),
-                                          ),
-                                        ],
-                                        border: Border.all(
-                                          color: kColorButtonPrimary,
-                                          width: 1,
-                                        ),
-                                      ),
-                                      padding:
-                                          const EdgeInsets.symmetric(horizontal: 12, vertical: 2.5),
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          _playListClicked();
-                                        },
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Image.asset(
-                                              "assets/images/icons/music.png",
-                                              width: 12,
-                                              height: 12,
-                                            ),
-                                            const SizedBox(width: 3),
-                                            const Text(
-                                              'playlist',
-                                              style: TextStyle(
-                                                fontSize: 11,
-                                                color: Colors.black,
-                                                fontWeight: FontWeight.bold,
-                                                letterSpacing: -0.1,
-                                                fontFamily: 'Inter',
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 5),
-                              Center(
-                                child: SizedBox(
-                                  width: vww(context, 60),
-                                  height: vhh(context, 42),
-                                  child: Column(
+                                  Stack(
                                     children: [
-                                      Container(
-                                        height: vhh(context, 35),
-                                        decoration: BoxDecoration(
-                                          border: Border.all(
-                                              color: kColorStrongGrey,
-                                              width: 0.8),
-                                          borderRadius: const BorderRadius.only(
-                                            topLeft: Radius.circular(8.0), 
-                                            topRight: Radius.circular(8.0),
-                                          ), 
-                                        ),
-                                        child: Column(
-                                          children: [
-                                            Align(
-                                              alignment: Alignment.centerLeft,
-                                              child: Padding(
-                                                padding: const EdgeInsets.only(
-                                                    left: 10.0,
-                                                    top: 3,
-                                                    bottom: 3),
-                                                child: Text(
-                                                  widget.caption,
-                                                  style: const TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight: FontWeight.bold,
-                                                      color: Colors.grey,
-                                                      fontFamily: 'inter'),
-                                                ),
-                                              ),
-                                            ),
-                                            // Image
-                                            Expanded(
-                                              child: Image.file(
-                                                File(widget.imagePath),
-                                                fit: BoxFit.cover,
-                                                width: vww(context, 100),
-                                              ),
-                                            ),
-                                          ],
+                                      Center(
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            // Handle tap on the logo if needed
+                                          },
+                                          child: Image.asset(
+                                            'assets/images/icons/logo.png',
+                                            width: 90,
+                                            height: 80,
+                                          ),
                                         ),
                                       ),
-                                      SizedBox(height: vhh(context, 0.5)),
-                                      const Padding(
-                                        padding: EdgeInsets.only(top: 5.0),
-                                        child: Text(
-                                          "the Rolla travel app.",
-                                          style: TextStyle(
-                                              fontSize: 16,
-                                              letterSpacing: -0.1,
-                                              fontWeight: FontWeight.bold,
-                                              fontFamily: 'inter'),
+                                      Positioned(
+                                        right: 0,
+                                        top: 10,
+                                        child: IconButton(
+                                          icon: const Icon(Icons.close,
+                                              color: Colors.black, size: 28),
+                                          onPressed: _onCloseClicked,
                                         ),
                                       ),
                                     ],
                                   ),
-                                ),
+
+                                  // Additional Rows and Summary
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 11.0),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        const Text(
+                                          destination,
+                                          style: TextStyle(
+                                            color: kColorBlack,
+                                            fontSize: 13,
+                                            letterSpacing: -0.1,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: 'inter',
+                                          ),
+                                        ),
+                                        Text(
+                                          GlobalVariables.editDestination ?? "",
+                                          style: const TextStyle(
+                                            color: kColorButtonPrimary,
+                                            fontSize: 13,
+                                            letterSpacing: -0.1,
+                                            decoration: TextDecoration.underline,
+                                            decorationColor: kColorButtonPrimary,
+                                            fontFamily: 'inter',
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 7),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        const Text(
+                                          soundtrack,
+                                          style: TextStyle(
+                                            color: kColorBlack,
+                                            fontSize: 13,
+                                            letterSpacing: -0.1,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: 'inter',
+                                          ),
+                                        ),
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(20),
+                                            color: Colors.white,
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black.withValues(alpha: 0.3),
+                                                spreadRadius: 0.5,
+                                                blurRadius: 6,
+                                                offset: const Offset(-3, 5),
+                                              ),
+                                            ],
+                                            border: Border.all(
+                                              color: kColorButtonPrimary,
+                                              width: 1,
+                                            ),
+                                          ),
+                                          padding:
+                                              const EdgeInsets.symmetric(horizontal: 12, vertical: 2.5),
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              _playListClicked();
+                                            },
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Image.asset(
+                                                  "assets/images/icons/music.png",
+                                                  width: 12,
+                                                  height: 12,
+                                                ),
+                                                const SizedBox(width: 3),
+                                                const Text(
+                                                  'playlist',
+                                                  style: TextStyle(
+                                                    fontSize: 11,
+                                                    color: Colors.black,
+                                                    fontWeight: FontWeight.bold,
+                                                    letterSpacing: -0.1,
+                                                    fontFamily: 'Inter',
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Center(
+                                    child: SizedBox(
+                                      width: vww(context, 60),
+                                      height: vhh(context, 42),
+                                      child: Column(
+                                        children: [
+                                          Container(
+                                            height: vhh(context, 35),
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                  color: kColorStrongGrey,
+                                                  width: 0.8),
+                                              borderRadius: const BorderRadius.only(
+                                                topLeft: Radius.circular(8.0), 
+                                                topRight: Radius.circular(8.0),
+                                              ), 
+                                            ),
+                                            child: Column(
+                                              children: [
+                                                Align(
+                                                  alignment: Alignment.centerLeft,
+                                                  child: Padding(
+                                                    padding: const EdgeInsets.only(
+                                                        left: 10.0,
+                                                        top: 3,
+                                                        bottom: 3),
+                                                    child: Text(
+                                                      widget.caption,
+                                                      style: const TextStyle(
+                                                          fontSize: 16,
+                                                          fontWeight: FontWeight.bold,
+                                                          color: Colors.grey,
+                                                          fontFamily: 'inter'),
+                                                    ),
+                                                  ),
+                                                ),
+                                                // Image
+                                                Expanded(
+                                                  child: Image.file(
+                                                    File(widget.imagePath),
+                                                    fit: BoxFit.cover,
+                                                    width: vww(context, 100),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          SizedBox(height: vhh(context, 0.5)),
+                                          const Padding(
+                                            padding: EdgeInsets.only(top: 5.0),
+                                            child: Text(
+                                              "the Rolla travel app.",
+                                              style: TextStyle(
+                                                  fontSize: 16,
+                                                  letterSpacing: -0.1,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontFamily: 'inter'),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
                         ),
                       ),
