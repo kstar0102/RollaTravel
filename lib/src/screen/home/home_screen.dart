@@ -229,8 +229,12 @@ class HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObser
                       if (totalCount != 0) {
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (context) => 
-                            NotificationScreen(userid: GlobalVariables.userId,)),
+                          PageRouteBuilder(
+                            pageBuilder: (context, animation1, animation2) =>
+                                NotificationScreen(userid: GlobalVariables.userId,),
+                            transitionDuration: Duration.zero,
+                            reverseTransitionDuration: Duration.zero,
+                          ),
                         );
                       }
                     },

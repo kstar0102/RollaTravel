@@ -173,9 +173,13 @@ class NotificationScreenState extends ConsumerState<NotificationScreen> with Wid
                   const SizedBox(width: 16),
                   InkWell(
                     onTap: () {
-                      Navigator.push(
+                      Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => const HomeScreen()), 
+                        PageRouteBuilder(
+                          pageBuilder: (context, animation1, animation2) => const HomeScreen(),
+                          transitionDuration: Duration.zero,
+                          reverseTransitionDuration: Duration.zero,
+                        ),
                       );
                     },
                     child: Image.asset(
