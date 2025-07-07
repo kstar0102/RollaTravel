@@ -37,6 +37,8 @@ class GlobalVariables {
   static List<int> selectedUserIds= [];
   static List<dynamic>? dropPinsData;
   static bool isTripStarted = false;
+  static bool openComment = false;
   static int mapStyleSelected = 0;
   static int droppinCount= 0;
+  static int? likedDroppinId;
 }

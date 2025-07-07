@@ -228,10 +228,6 @@ class NotificationScreenState extends ConsumerState<NotificationScreen> with Wid
                           final from = follower['from'];
                           final tripId = follower['tripId'];
                           final userId = follower['id'];
-                          logger.i(from);
-                          logger.i(tripId);
-                          logger.i(userId);
-
                           if (from == 'tag') {
                             GlobalVariables.homeTripID = tripId;
                             Navigator.push(
@@ -239,7 +235,9 @@ class NotificationScreenState extends ConsumerState<NotificationScreen> with Wid
                               MaterialPageRoute(builder: (_) => const HomeScreen()),
                             );
                           } else if (from == 'comment'){
-                            GlobalVariables.homeTripID = tripId;
+                            GlobalVariables.homeTripID = follower['trip'];
+                            logger.i(follower['trip']);
+                            GlobalVariables.openComment = true;
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (_) => const HomeScreen()),
@@ -247,6 +245,7 @@ class NotificationScreenState extends ConsumerState<NotificationScreen> with Wid
                           }
                           else if (from == 'like'){
                             GlobalVariables.homeTripID = tripId;
+                            GlobalVariables.likedDroppinId = follower['likeid']; 
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (_) => const HomeScreen()),

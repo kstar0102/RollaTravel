@@ -59,7 +59,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObser
           : blockUsers.map((user) => user['id'].toString()).toSet();
       final data = await apiService.fetchFollowerTrip(GlobalVariables.userId!);
       final userTripData = data['userinfo'];
-      logger.i(userTripData);
+      // logger.i(userTripData);
       if (userTripData != null && userTripData['id'] == GlobalVariables.userId) {
         final pendingIdsRaw = userTripData['following_pending_userid'];
         final acceptedRow = userTripData['following_user_id'];
@@ -313,6 +313,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObser
                               return PostWidget(
                                 post: trip,
                                 dropIndex: index,
+                                openComment: GlobalVariables.openComment,
                                 onLikesUpdated: (updatedLikes) {
                                   setState(() {
                                     trips![index]['totalLikes'] = updatedLikes;
