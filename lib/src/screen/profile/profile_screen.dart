@@ -78,9 +78,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
       if (result.isNotEmpty) {
         final trips = result['trips'] as List<dynamic>;
         final userInfoList = result['userInfo'] as List<dynamic>?;
-        logger.i(userInfoList);
+        // logger.i(userInfoList);
         final now = DateTime.now();
-        logger.i(now);
+        // logger.i(now);
         List<Map<String, dynamic>> filteredTrips = [];
 
         for (var trip in trips) {

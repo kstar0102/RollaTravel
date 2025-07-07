@@ -59,17 +59,20 @@ class HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObser
           : blockUsers.map((user) => user['id'].toString()).toSet();
       final data = await apiService.fetchFollowerTrip(GlobalVariables.userId!);
       final userTripData = data['userinfo'];
+      logger.i(userTripData);
       if (userTripData != null && userTripData['id'] == GlobalVariables.userId) {
         final pendingIdsRaw = userTripData['following_pending_userid'];
         final acceptedRow = userTripData['following_user_id'];
         final tagNotificationRaw = userTripData['tag_notification'];
         final commentNotificationRaw = userTripData['comment_notification'];
         final likenotificationRaw = userTripData['like_notification'];
+        final followednotificationRaw = userTripData['followed_user_id'];
         int pendingCount = 0;
         int acceptedCount = 0;
         int tagNotificationCount = 0; 
         int commentNotificationCount = 0;
         int likeNotificationCount = 0; 
+        int followedNotificationCount = 0; 
         if (pendingIdsRaw != null && pendingIdsRaw.toString().trim().isNotEmpty) {
           List<dynamic> pendingData = jsonDecode(pendingIdsRaw);
           pendingList = pendingData
@@ -102,7 +105,15 @@ class HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObser
               .where((item) => item['notificationBool'] == false)
               .length;
         }
-        totalCount = pendingCount + acceptedCount + tagNotificationCount + commentNotificationCount + likeNotificationCount;
+        if (followednotificationRaw != null && followednotificationRaw.toString().trim().isNotEmpty) {
+          List<dynamic> followednotificationRawData = jsonDecode(followednotificationRaw);
+          followedNotificationCount = followednotificationRawData
+              .where((item) => item['notificationBool'] == false)
+              .length;
+        }
+        totalCount = pendingCount + acceptedCount 
+        + tagNotificationCount + commentNotificationCount 
+        + likeNotificationCount + followedNotificationCount; 
       } else {
         logger.w("No trip data found for user_id: ${GlobalVariables.userId}");
       }

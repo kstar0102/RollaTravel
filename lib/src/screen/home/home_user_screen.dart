@@ -83,7 +83,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
       final result  = await ApiService().fetchUserTrips(widget.userId);
       var userProfile = result['trips'];
       final userInfo = result['userInfo'];
-      logger.i(userInfo);
+      // logger.i(userInfo);
       rollaUserName = userInfo[0]['rolla_username'];
       userRealName = "${userInfo[0]['first_name'] ?? ''} ${userInfo[0]['last_name'] ?? ''}";
       rollaUserImage = userInfo[0]['photo'];
@@ -105,7 +105,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
         List<dynamic> followingUserIds = json.decode(userInfo[0]['following_user_id']);
         isFollowingBool = followingUserIds.any((user) => user['id'] == GlobalVariables.userId);
       }
-      logger.i(isFollowingBool);
+      // logger.i(isFollowingBool);
 
       if (userInfo[0]['garage'] != null && userInfo[0]['garage'].isNotEmpty) {
         garageLogoUrl = userInfo[0]['garage'][0]['logo_path'];
@@ -185,7 +185,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
         dropPinsData = allDroppins.isNotEmpty ? allDroppins : [];
         isLoadingTrips = false;
       });
-      logger.i(dropPinsData);
+      // logger.i(dropPinsData);
 
     } catch (e) {
       logger.e("Error fetching user profile: $e");

@@ -684,27 +684,33 @@ class ApiService {
   Future<List<Map<String, dynamic>>> fetchFollowers(int userId) async {
     final url = Uri.parse('$baseUrl/user/following_users?user_id=$userId');
 
-    final response = await http.get(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    );
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      if (data['statusCode'] == true) {
-        return List<Map<String, dynamic>>.from(data['data']);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['statusCode'] == true) {
+          return List<Map<String, dynamic>>.from(data['data']);
+        } else {
+          throw Exception('Failed to load followers: ${data['message']}');
+        }
       } else {
-        throw Exception('Failed to load followers: ${data['message']}');
+        throw Exception('Failed to load followers: ${response.statusCode}');
       }
-    } else {
-      throw Exception('Failed to load followers: ${response.statusCode}');
+    } catch (e) {
+      logger.e('Error fetching followers: $e');
+      return [];
     }
   }
 
+
   Future<List<Map<String, dynamic>>> fetchNotificationUsers(int userId) async {
-    final url = Uri.parse('$baseUrl/user/notification_users?user_id=$userId');
+    final url = Uri.parse('$baseUrl/user/notification_users?id=$userId');
 
     final response = await http.get(
       url,
@@ -1057,7 +1063,7 @@ class ApiService {
   }
 
   Future<Map<String, dynamic>?> fetchUserInfo(int userId) async {
-    final url = Uri.parse('$baseUrl/user/info?user_id=$userId');
+    final url = Uri.parse('$baseUrl/user/info?id=$userId');
     try {
       final response = await http.get(url, headers: {
         'Content-Type': 'application/json',

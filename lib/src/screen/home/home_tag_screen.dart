@@ -1,3 +1,4 @@
+import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:RollaTravel/src/utils/spinner_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,6 +20,7 @@ class HomeTagScreenState extends ConsumerState<HomeTagScreen> with WidgetsBindin
   final int _currentIndex = 0;
   final logger = Logger();
   List<dynamic> taggedUsers = []; 
+  List<Map<String, dynamic>> followers = [];
   bool isLoading = true; 
 
   @override
@@ -42,7 +44,12 @@ class HomeTagScreenState extends ConsumerState<HomeTagScreen> with WidgetsBindin
   }
 
   Future<void> fetchTaggedUsers() async {
+    final apiservice = ApiService();
     if (widget.taglist != null && widget.taglist != "[]") {
+      followers = await apiservice.fetchFollowers(GlobalVariables.userId!);
+      logger.i(followers);
+
+      // Clean up the tag list and convert it into a list of integers
       String cleanedTagList = widget.taglist!.replaceAll('[', '').replaceAll(']', '');
       List<int> tagIds = cleanedTagList.split(',').map((id) {
         try {
@@ -52,22 +59,31 @@ class HomeTagScreenState extends ConsumerState<HomeTagScreen> with WidgetsBindin
           return null; 
         }
       }).where((id) => id != null).cast<int>().toList(); 
-      for (int id in tagIds) {
+      logger.i(tagIds);
+
+      // Filter followers to only include those whose ID is in tagIds
+      final matchingFollowers = followers.where((follower) => tagIds.contains(follower['id'])).toList();
+      logger.i('Matching Followers: $matchingFollowers');
+
+      // Fetch user data for each matching follower
+      for (var follower in matchingFollowers) {
         try {
-          final userData = await ApiService().fetchUserInfo(id);
-          logger.i('Fetched user info for ID $id: $userData'); 
+          final userData = await ApiService().fetchUserInfo(follower['id']);
+          logger.i('Fetched user info for ID ${follower['id']}: $userData'); 
           setState(() {
             taggedUsers.add(userData);
           });
         } catch (e) {
-          logger.e('Error fetching user info for ID $id: $e');
+          logger.e('Error fetching user info for ID ${follower['id']}: $e');
         }
       }
     }
+
     setState(() {
       isLoading = false;
     });
   }
+
 
 
   @override
