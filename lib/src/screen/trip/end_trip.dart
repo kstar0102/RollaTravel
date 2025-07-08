@@ -114,19 +114,36 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
       }
 
       // Convert to image with error handling
-      ui.Image? image;
+      ui.Image originalImage;
       try {
-        image = await boundary.toImage(pixelRatio: 3.0);
+        originalImage = await boundary.toImage(pixelRatio: 3.0);
       } catch (e) {
         logger.e("Image capture error: $e");
         _showErrorDialog("Failed to capture image.");
         return;
       }
+      final width = originalImage.width.toDouble();
+      final height = originalImage.height.toDouble();
 
-      // Convert to bytes
-      final byteData = await image.toByteData(format: ImageByteFormat.png);
-      if (byteData == null) {
-        _showErrorDialog("Failed to convert image.");
+      // Create canvas with rounded clipping
+      final recorder = ui.PictureRecorder();
+      final canvas = Canvas(recorder);
+
+      final rrect = RRect.fromRectAndRadius(
+        Rect.fromLTWH(0, 0, width, height),
+        const Radius.circular(60), // same as your UI
+      );
+
+      canvas.clipRRect(rrect);
+      canvas.drawImage(originalImage, Offset.zero, Paint());
+
+      final clippedImage = await recorder
+          .endRecording()
+          .toImage(originalImage.width, originalImage.height);
+
+      final pngBytes = await clippedImage.toByteData(format: ui.ImageByteFormat.png);
+      if (pngBytes == null) {
+        _showErrorDialog("Failed to encode image.");
         return;
       }
 
@@ -137,7 +154,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
       final file = File(filePath);
       
       try {
-        await file.writeAsBytes(byteData.buffer.asUint8List());
+        await file.writeAsBytes(pngBytes.buffer.asUint8List());
         if (!(await file.exists())) {
           _showErrorDialog("File not saved.");
           return;
@@ -247,8 +264,6 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: RepaintBoundary(
-                        key: _shareWidgetKey,
                         child: Container(
                           decoration: BoxDecoration(
                             color: Colors.white,
@@ -262,304 +277,326 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                               ),
                             ]
                           ),
-                          child: Column(
-                            children: [
-                              Stack(
-                                children: [
-                                  Center(
-                                    child: GestureDetector(
-                                      onTap: () {},
-                                      child: Image.asset(
-                                        'assets/images/icons/logo.png',
-                                        width: 90,
-                                        height: 80,
-                                      ),
-                                    ),
-                                  ),
-                                  Positioned(
-                                    right: 0,
-                                    top: 10,
-                                    child: IconButton(
-                                      icon: const Icon(Icons.close,
-                                          color: Colors.black, size: 28),
-                                      onPressed: () {
-                                        GlobalVariables.editDestination = null;
-                                        ref.read(pathCoordinatesProvider.notifier).state = [];
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(builder: (context) =>const StartTripScreen()));
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 11.0),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text(
-                                      destination,
-                                      style: TextStyle(
-                                        color: kColorBlack,
-                                        fontSize: 13,
-                                        letterSpacing: -0.1,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'inter',
-                                      ),
-                                    ),
-                                    Flexible(
-                                      child: Text(
-                                        widget.endDestination,
-                                        style: const TextStyle(
-                                          color: kColorButtonPrimary,
-                                          fontSize: 14,
-                                          decoration: TextDecoration.underline,
-                                          decorationColor: kColorButtonPrimary,
-                                          fontFamily: 'inter',
-                                        ),
-                                        softWrap: true,
-                                        overflow: TextOverflow.visible,
-                                      ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20), 
+                            child: RepaintBoundary(
+                              key: _shareWidgetKey,
+                              child: Container(
+                                width: vhh(context, 100),
+                                height: vhh(context, 60),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20), // Rounded corners for image
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withValues(alpha: 0.3),
+                                      blurRadius: 10,
+                                      spreadRadius: 2,
+                                      offset: const Offset(0, 4),
                                     ),
                                   ],
                                 ),
-                              ),
-
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                clipBehavior: Clip.hardEdge,
+                                child: Column(
                                   children: [
-                                    const Text(
-                                      soundtrack,
-                                      style: TextStyle(
-                                        color: kColorBlack,
-                                        fontSize: 13,
-                                        letterSpacing: -0.1,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'inter',
-                                      ),
+                                    Stack(
+                                      children: [
+                                        Center(
+                                          child: GestureDetector(
+                                            onTap: () {},
+                                            child: Image.asset(
+                                              'assets/images/icons/logo.png',
+                                              width: 90,
+                                              height: 80,
+                                            ),
+                                          ),
+                                        ),
+                                        Positioned(
+                                          right: 0,
+                                          top: 10,
+                                          child: IconButton(
+                                            icon: const Icon(Icons.close,
+                                                color: Colors.black, size: 28),
+                                            onPressed: () {
+                                              GlobalVariables.editDestination = null;
+                                              ref.read(pathCoordinatesProvider.notifier).state = [];
+                                              Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(builder: (context) =>const StartTripScreen()));
+                                            },
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(20),
-                                        color: Colors.white,
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black.withValues(alpha: 0.3),
-                                            spreadRadius: 0.5,
-                                            blurRadius: 6,
-                                            offset: const Offset(-3, 5),
+                                    Padding(
+                                      padding:
+                                          const EdgeInsets.symmetric(horizontal: 11.0),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          const Text(
+                                            destination,
+                                            style: TextStyle(
+                                              color: kColorBlack,
+                                              fontSize: 13,
+                                              letterSpacing: -0.1,
+                                              fontWeight: FontWeight.bold,
+                                              fontFamily: 'inter',
+                                            ),
+                                          ),
+                                          Flexible(
+                                            child: Text(
+                                              widget.endDestination,
+                                              style: const TextStyle(
+                                                color: kColorButtonPrimary,
+                                                fontSize: 14,
+                                                decoration: TextDecoration.underline,
+                                                decorationColor: kColorButtonPrimary,
+                                                fontFamily: 'inter',
+                                              ),
+                                              softWrap: true,
+                                              overflow: TextOverflow.visible,
+                                            ),
                                           ),
                                         ],
-                                        border: Border.all(
-                                          color: kColorButtonPrimary,
-                                          width: 1.2,
-                                        ),
                                       ),
-                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2.5),
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          _playListClicked();
-                                        },
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Image.asset(
-                                              "assets/images/icons/music.png",
-                                              width: 12,
-                                              height: 12,
+                                    ),
+
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          const Text(
+                                            soundtrack,
+                                            style: TextStyle(
+                                              color: kColorBlack,
+                                              fontSize: 13,
+                                              letterSpacing: -0.1,
+                                              fontWeight: FontWeight.bold,
+                                              fontFamily: 'inter',
                                             ),
-                                            const SizedBox(width: 3),
-                                            const Text(
-                                              'playlist',
-                                              style: TextStyle(
-                                                fontSize: 11,
-                                                color: Colors.black,
-                                                fontWeight: FontWeight.bold,
-                                                letterSpacing: -0.1,
-                                                fontFamily: 'Inter',
+                                          ),
+                                          Container(
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(20),
+                                              color: Colors.white,
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.black.withValues(alpha: 0.3),
+                                                  spreadRadius: 0.5,
+                                                  blurRadius: 6,
+                                                  offset: const Offset(-3, 5),
+                                                ),
+                                              ],
+                                              border: Border.all(
+                                                color: kColorButtonPrimary,
+                                                width: 1.2,
                                               ),
                                             ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              Padding(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: vww(context, 2)),
-                                child: Container(
-                                  height: vhh(context, 30),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: kColorStrongGrey,
-                                      width: 1,
-                                    ),
-                                  ),
-                                  child: Stack(
-                                    children: [
-                                      FlutterMap(
-                                          mapController: _mapController,
-                                          options: MapOptions(
-                                            initialCenter: widget.startLocation!,
-                                            initialZoom: 11.0,
-                                          ),
-                                          children: [
-                                            TileLayer(
-                                              urlTemplate:
-                                                  "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw",
-                                              additionalOptions: const {
-                                                'access_token':
-                                                    'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw',
+                                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2.5),
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                _playListClicked();
                                               },
-                                            ),
-                                            if (pathCoordinates.isNotEmpty)
-                                              PolylineLayer(
-                                                polylines: [
-                                                  Polyline(
-                                                    points: pathCoordinates,
-                                                    strokeWidth: 4.0,
-                                                    color: Colors.blue,
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Image.asset(
+                                                    "assets/images/icons/music.png",
+                                                    width: 12,
+                                                    height: 12,
+                                                  ),
+                                                  const SizedBox(width: 3),
+                                                  const Text(
+                                                    'playlist',
+                                                    style: TextStyle(
+                                                      fontSize: 11,
+                                                      color: Colors.black,
+                                                      fontWeight: FontWeight.bold,
+                                                      letterSpacing: -0.1,
+                                                      fontFamily: 'Inter',
+                                                    ),
                                                   ),
                                                 ],
                                               ),
-                                            MarkerLayer(
-                                              markers: [
-                                                if (widget.stopMarkers.isNotEmpty)
-                                                  ...widget.stopMarkers.map((markerData) {
-                                                    int index = widget.stopMarkers.indexOf(markerData) + 1;
-                                                    return Marker(
-                                                      width: 20.0,
-                                                      height: 20.0,
-                                                      point: markerData.location,
-                                                      child: GestureDetector(
-                                                        onTap: () {
-                                                          // Display the image in a dialog
-                                                          showDialog(
-                                                            context: context,
-                                                            builder: (context) => AlertDialog(
-                                                              content: Column(
-                                                                mainAxisSize: MainAxisSize.min,
-                                                                children: [
-                                                                  Padding(
-                                                                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical:4.0),
-                                                                    child: Row(
-                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: vww(context, 2)),
+                                      child: Container(
+                                        height: vhh(context, 30),
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                            color: kColorStrongGrey,
+                                            width: 1,
+                                          ),
+                                        ),
+                                        child: Stack(
+                                          children: [
+                                            FlutterMap(
+                                                mapController: _mapController,
+                                                options: MapOptions(
+                                                  initialCenter: widget.startLocation!,
+                                                  initialZoom: 11.0,
+                                                ),
+                                                children: [
+                                                  TileLayer(
+                                                    urlTemplate:
+                                                        "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw",
+                                                    additionalOptions: const {
+                                                      'access_token':
+                                                          'pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw',
+                                                    },
+                                                  ),
+                                                  if (pathCoordinates.isNotEmpty)
+                                                    PolylineLayer(
+                                                      polylines: [
+                                                        Polyline(
+                                                          points: pathCoordinates,
+                                                          strokeWidth: 4.0,
+                                                          color: Colors.blue,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  MarkerLayer(
+                                                    markers: [
+                                                      if (widget.stopMarkers.isNotEmpty)
+                                                        ...widget.stopMarkers.map((markerData) {
+                                                          int index = widget.stopMarkers.indexOf(markerData) + 1;
+                                                          return Marker(
+                                                            width: 20.0,
+                                                            height: 20.0,
+                                                            point: markerData.location,
+                                                            child: GestureDetector(
+                                                              onTap: () {
+                                                                // Display the image in a dialog
+                                                                showDialog(
+                                                                  context: context,
+                                                                  builder: (context) => AlertDialog(
+                                                                    content: Column(
+                                                                      mainAxisSize: MainAxisSize.min,
                                                                       children: [
-                                                                        Text(
-                                                                          markerData.caption,
-                                                                          style: const TextStyle(
-                                                                            fontSize: 16,
-                                                                            fontWeight: FontWeight.bold,
-                                                                            color: Colors.grey,
-                                                                            fontFamily:'inter',
+                                                                        Padding(
+                                                                          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical:4.0),
+                                                                          child: Row(
+                                                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                            children: [
+                                                                              Text(
+                                                                                markerData.caption,
+                                                                                style: const TextStyle(
+                                                                                  fontSize: 16,
+                                                                                  fontWeight: FontWeight.bold,
+                                                                                  color: Colors.grey,
+                                                                                  fontFamily:'inter',
+                                                                                ),
+                                                                              ),
+                                                                              IconButton(
+                                                                                icon: const Icon(
+                                                                                    Icons.close,
+                                                                                    color:Colors.black),
+                                                                                onPressed:() {
+                                                                                  Navigator.of(context).pop();
+                                                                                },
+                                                                              ),
+                                                                            ],
                                                                           ),
                                                                         ),
-                                                                        IconButton(
-                                                                          icon: const Icon(
-                                                                              Icons.close,
-                                                                              color:Colors.black),
-                                                                          onPressed:() {
-                                                                            Navigator.of(context).pop();
+                                                                        Image.network(
+                                                                          markerData.imagePath,
+                                                                          fit: BoxFit.cover,
+                                                                          loadingBuilder:(context, child, loadingProgress) {
+                                                                            if (loadingProgress ==null) {
+                                                                              return child;
+                                                                            } else {
+                                                                              return const Center(
+                                                                                child:SpinningLoader(),
+                                                                              );
+                                                                            }
+                                                                          },
+                                                                          errorBuilder:
+                                                                              (context,
+                                                                                  error,
+                                                                                  stackTrace) {
+                                                                            return const Icon(
+                                                                                Icons
+                                                                                    .broken_image,
+                                                                                size:
+                                                                                    100);
                                                                           },
                                                                         ),
                                                                       ],
                                                                     ),
                                                                   ),
-                                                                  Image.network(
-                                                                    markerData.imagePath,
-                                                                    fit: BoxFit.cover,
-                                                                    loadingBuilder:(context, child, loadingProgress) {
-                                                                      if (loadingProgress ==null) {
-                                                                        return child;
-                                                                      } else {
-                                                                        return const Center(
-                                                                          child:SpinningLoader(),
-                                                                        );
-                                                                      }
-                                                                    },
-                                                                    errorBuilder:
-                                                                        (context,
-                                                                            error,
-                                                                            stackTrace) {
-                                                                      return const Icon(
-                                                                          Icons
-                                                                              .broken_image,
-                                                                          size:
-                                                                              100);
-                                                                    },
+                                                                );
+                                                              },
+                                                              child: Container(
+                                                                width: 30,
+                                                                height: 30,
+                                                                decoration:
+                                                                    BoxDecoration(
+                                                                  shape:
+                                                                      BoxShape.circle,
+                                                                  color: Colors.white,
+                                                                  border: Border.all(
+                                                                    color: Colors.black,
+                                                                    width:
+                                                                        2, // Black border
                                                                   ),
-                                                                ],
+                                                                ),
+                                                                alignment:
+                                                                    Alignment.center,
+                                                                child: Text(
+                                                                  index
+                                                                      .toString(), // Display index number
+                                                                  style:
+                                                                      const TextStyle(
+                                                                    fontSize: 13,
+                                                                    fontWeight:
+                                                                        FontWeight.bold,
+                                                                    color: Colors.black,
+                                                                  ),
+                                                                ),
                                                               ),
                                                             ),
                                                           );
-                                                        },
-                                                        child: Container(
-                                                          width: 30,
-                                                          height: 30,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            shape:
-                                                                BoxShape.circle,
-                                                            color: Colors.white,
-                                                            border: Border.all(
-                                                              color: Colors.black,
-                                                              width:
-                                                                  2, // Black border
-                                                            ),
-                                                          ),
-                                                          alignment:
-                                                              Alignment.center,
-                                                          child: Text(
-                                                            index
-                                                                .toString(), // Display index number
-                                                            style:
-                                                                const TextStyle(
-                                                              fontSize: 13,
-                                                              fontWeight:
-                                                                  FontWeight.bold,
-                                                              color: Colors.black,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    );
-                                                  }),
-                                              ],
-                                            ),
+                                                        }),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
                                           ],
                                         ),
-                                    ],
-                                  ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 1),
+                                    Image.asset(
+                                      'assets/images/icons/logo.png',
+                                      width: 90,
+                                      height: 80,
+                                    ),
+                                    const SizedBox(height: 1),
+                                    const Text(
+                                      'the Rolla travel app',
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'inter'),
+                                    ),
+                                    const SizedBox(height: 10),
+                                  ],
                                 ),
-                              ),
-                              const SizedBox(height: 1),
-                              Image.asset(
-                                'assets/images/icons/logo.png',
-                                width: 90,
-                                height: 80,
-                              ),
-                              const SizedBox(height: 1),
-                              const Text(
-                                'the Rolla travel app',
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: 'inter'),
-                              ),
-                              const SizedBox(height: 10),
-                            ],
+                                ),
+                            ),
                           ),
                         ),
-                      ),
                     ),
                     const SizedBox(height: 10),
                     Container(

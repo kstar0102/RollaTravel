@@ -47,7 +47,7 @@ class HomeTagScreenState extends ConsumerState<HomeTagScreen> with WidgetsBindin
     final apiservice = ApiService();
     if (widget.taglist != null && widget.taglist != "[]") {
       followers = await apiservice.fetchFollowers(GlobalVariables.userId!);
-      logger.i(followers);
+      // logger.i(followers);
 
       // Clean up the tag list and convert it into a list of integers
       String cleanedTagList = widget.taglist!.replaceAll('[', '').replaceAll(']', '');
@@ -59,17 +59,17 @@ class HomeTagScreenState extends ConsumerState<HomeTagScreen> with WidgetsBindin
           return null; 
         }
       }).where((id) => id != null).cast<int>().toList(); 
-      logger.i(tagIds);
+      // logger.i(tagIds);
 
       // Filter followers to only include those whose ID is in tagIds
       final matchingFollowers = followers.where((follower) => tagIds.contains(follower['id'])).toList();
-      logger.i('Matching Followers: $matchingFollowers');
+      // logger.i('Matching Followers: $matchingFollowers');
 
       // Fetch user data for each matching follower
       for (var follower in matchingFollowers) {
         try {
           final userData = await ApiService().fetchUserInfo(follower['id']);
-          logger.i('Fetched user info for ID ${follower['id']}: $userData'); 
+          // logger.i('Fetched user info for ID ${follower['id']}: $userData'); 
           setState(() {
             taggedUsers.add(userData);
           });
@@ -78,6 +78,7 @@ class HomeTagScreenState extends ConsumerState<HomeTagScreen> with WidgetsBindin
         }
       }
     }
+    // logger.i(taggedUsers);
 
     setState(() {
       isLoading = false;

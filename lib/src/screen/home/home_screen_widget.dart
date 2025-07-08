@@ -775,13 +775,37 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
   }
 
   void _goTagScreen() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) =>
-              HomeTagScreen(taglist: widget.post['trip_tags'])),
-    );
+    final followingData = widget.post['user']['following_user_id'];
+    // logger.i(widget.post['user']['id']);
+    if(widget.post['user']['id'] == GlobalVariables.userId){
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomeTagScreen(taglist: widget.post['trip_tags']),
+        ),
+      );
+    } else {
+      try {
+        final List<dynamic> followingList = json.decode(followingData);
+        // logger.i(followingList);
+        for (var item in followingList) {
+          final int id = item['id'];
+          if (GlobalVariables.userId == id) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HomeTagScreen(taglist: widget.post['trip_tags']),
+              ),
+            );
+            return;
+          }
+        }
+      } catch (e) {
+        logger.e("Invalid JSON in following_user_id: $e");
+      }
+    }
   }
+
 
   void _goUserScreen() {
     if (GlobalVariables.userId != widget.post['user_id']) {
