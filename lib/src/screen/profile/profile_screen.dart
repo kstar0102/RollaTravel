@@ -40,6 +40,8 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   String? happyPlaceText;
   String? realName;
   String? bioText;
+  String? userImageUrl;
+  int? garageId;
   bool _isLoading = false;
   final logger = Logger();
   List<Map<String, dynamic>>? userTrips;
@@ -66,26 +68,22 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
         });
       }
     });
-    garageImageUrl = GlobalVariables.garageLogoUrl;
   }
 
   Future<void> _loadUserTrips() async {
     try {
       final apiService = ApiService();
       final result = await apiService.fetchUserTrips(GlobalVariables.userId!);
-      // logger.i(result);
 
       if (result.isNotEmpty) {
         final trips = result['trips'] as List<dynamic>;
         final userInfoList = result['userInfo'] as List<dynamic>?;
         // logger.i(userInfoList);
         final now = DateTime.now();
-        // logger.i(now);
         List<Map<String, dynamic>> filteredTrips = [];
 
         for (var trip in trips) {
           if (trip['droppins'] != null) {
-            // Filter droppins based on deley_time
             List<dynamic> originalDroppins =
                 List<dynamic>.from(trip['droppins']);
             List<dynamic> filteredDroppins = [];
@@ -136,7 +134,11 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
             username = user['rolla_username'] ?? '@unknown';
             happyPlaceText = user['happy_place'];
             bioText = user['bio'] ?? "";
-            realName = user['first_name'] + user['last_name'];
+            realName = '${user['first_name']} ${user['last_name']}';
+
+            if(user['photo'] != null && user['photo'].toString().isNotEmpty){
+              GlobalVariables.userImageUrl = user['photo'];
+            }
 
             final rawFollowing = user['following_user_id'];
 
@@ -154,8 +156,12 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
 
             final garageList = user['garage'] as List<dynamic>?;
             if (garageList != null && garageList.isNotEmpty) {
-              garageImageUrl = garageList.first['logo_path'];
-              GlobalVariables.garageLogoUrl = garageImageUrl;
+              setState(() {
+                GlobalVariables.garageLogoUrl = garageList.first['logo_path'];
+                garageImageUrl = garageList.first['logo_path'];
+                GlobalVariables.garage = garageList.first['id'].toString();
+              });
+              logger.i(GlobalVariables.garageLogoUrl);
             } else {
               garageImageUrl = null;
               GlobalVariables.garageLogoUrl = garageImageUrl;
@@ -351,8 +357,13 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     Navigator.pushReplacement(
       context,
       PageRouteBuilder(
-        pageBuilder: (context, animation1, animation2) =>
-            const EditProfileScreen(),
+        pageBuilder: (context, animation1, animation2) =>EditProfileScreen(
+          username: username!,
+          happyPlace: happyPlaceText ?? '',
+          realName: realName!,
+          bio: bioText ?? '',
+          selectedImage: null,
+        ),
         transitionDuration: Duration.zero,
         reverseTransitionDuration: Duration.zero,
       ),

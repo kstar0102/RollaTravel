@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/screen/home/home_screen.dart';
 import 'package:RollaTravel/src/screen/trip/start_trip.dart';
@@ -45,14 +47,36 @@ class TripTagSettingScreenState extends State<TripTagSearchScreen> {
     final authService = ApiService();
 
     try {
+      final userresponse = await authService.fetchUserInfo(GlobalVariables.userId!);
       final response = await authService.fetchAllUserData();
+      
       if (response.containsKey("status") && response.containsKey("data")) {
         setState(() {
           allUserData = response["data"];
-          
-          // Filter out the current user from the list
+
+          // Decode the lists of following and followed user IDs
+          List<dynamic> followingUsers = List.from(jsonDecode(userresponse?['following_user_id']));
+          List<dynamic> followedUsers = List.from(jsonDecode(userresponse?['followed_user_id']));
+
+          // Combine both lists and remove duplicates
+          Set<int> uniqueUserIds = <int>{};
+
+          // Add ids from following users
+          for (var user in followingUsers) {
+            uniqueUserIds.add(user['id']);
+          }
+
+          // Add ids from followed users
+          for (var user in followedUsers) {
+            uniqueUserIds.add(user['id']);
+          }
+
+          // Log the unique user IDs
+          // logger.i("uniqueUserIds: $uniqueUserIds");
+
+          // Filter the users by checking if their ID is in the uniqueUserIds set
           filteredUserData = allUserData
-              .where((user) => user['id'] != GlobalVariables.userId)
+              .where((user) => uniqueUserIds.contains(user['id']) && user['id'] != GlobalVariables.userId)
               .toList();
 
           isLoading = false;

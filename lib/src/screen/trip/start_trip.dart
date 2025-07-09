@@ -200,7 +200,7 @@ class _StartTripScreenState extends ConsumerState<StartTripScreen> {
           });
           ref.read(tripMarkersProvider.notifier).state = markers;
           GlobalVariables.droppinCount = markers.length;
-          logger.i(GlobalVariables.droppinCount);
+          // logger.i(GlobalVariables.droppinCount);
 
           var startLocation = tripData['trips'][0]['start_location'];
           if (startLocation is String) {

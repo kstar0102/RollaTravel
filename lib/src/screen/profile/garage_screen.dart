@@ -1,5 +1,4 @@
 import 'package:RollaTravel/src/constants/app_styles.dart';
-import 'package:RollaTravel/src/screen/profile/edit_profile.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:RollaTravel/src/utils/spinner_loader.dart';
@@ -35,6 +34,7 @@ class _GarageScreenState extends ConsumerState<GarageScreen> {
         }
       });
     });
+    // logger.i(GlobalVariables.bio);
     loadCarData();
   }
 
@@ -65,10 +65,10 @@ class _GarageScreenState extends ConsumerState<GarageScreen> {
               children: [
                 InkWell(
                   onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const EditProfileScreen()));
+                    // Navigator.push(
+                    //     context,
+                    //     MaterialPageRoute(
+                    //         builder: (context) => const EditProfileScreen()));
                   },
                   child: Image.asset(
                     'assets/images/icons/allow-left.png',

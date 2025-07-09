@@ -646,6 +646,7 @@ class ApiService {
       if (bio != null) "bio": bio,
       if (garage != null) "garage": garage,
     };
+    logger.i(body);
 
     try {
       final response = await http.put(

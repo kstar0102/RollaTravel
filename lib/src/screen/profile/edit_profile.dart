@@ -17,7 +17,19 @@ import 'package:logger/logger.dart';
 import 'dart:ui';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
-  const EditProfileScreen({super.key});
+  final String username;
+  final String realName;
+  final String bio;
+  final String happyPlace;
+  final XFile? selectedImage;
+  const EditProfileScreen({
+    super.key,
+    required this.username,
+    required this.realName,
+    required this.bio,
+    required this.happyPlace,
+    required this.selectedImage,
+  }); 
 
   @override
   ConsumerState<EditProfileScreen> createState() => _EditProfileScreenState();
@@ -34,13 +46,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   String? _base64Image;
   bool _isLoading = false;
   bool _ischangeimage = false;
-
+  List<dynamic> carData = [];
+  int? selectedCarId;
   String? imageUrl;
 
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController bioController = TextEditingController();
-  final TextEditingController garageController = TextEditingController();
   final TextEditingController placeController = TextEditingController();
 
   bool _showSaveButton = false;
@@ -56,14 +68,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         });
       }
     });
-
-    usernameController.text = GlobalVariables.userName!;
-    nameController.text = GlobalVariables.realName!;
-    if (GlobalVariables.bio != null) {
-      bioController.text = GlobalVariables.bio!;
-    }
-    if (GlobalVariables.garage != null) {
-      garageController.text = GlobalVariables.garage!;
+    usernameController.text = widget.username;
+    nameController.text = widget.realName;
+    if (widget.bio != '') {
+      bioController.text = widget.bio;
     }
     if (GlobalVariables.happyPlace != null) {
       placeController.text = GlobalVariables.happyPlace!;
@@ -72,8 +80,20 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     usernameController.addListener(_onTextChanged);
     nameController.addListener(_onTextChanged);
     bioController.addListener(_onTextChanged);
-    garageController.addListener(_onTextChanged);
     placeController.addListener(_onTextChanged);
+    loadCarData();
+  }
+
+  Future<void> loadCarData() async {
+    final apiService = ApiService();
+    try {
+      final data = await apiService.fetchCarData(); // API call to get car data
+      setState(() {
+        carData = data;
+      });
+    } catch (e) {
+      logger.e('Error fetching car data: $e');
+    }
   }
 
   @override
@@ -82,14 +102,95 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     usernameController.removeListener(_onTextChanged);
     nameController.removeListener(_onTextChanged);
     bioController.removeListener(_onTextChanged);
-    garageController.removeListener(_onTextChanged);
     placeController.removeListener(_onTextChanged);
     usernameController.dispose();
     nameController.dispose();
     bioController.dispose();
-    garageController.dispose();
     placeController.dispose();
   }
+
+ void _showGarageDialog() {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text(
+          'My Garage',
+          style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'interBold'),
+        ),
+        content: SizedBox(
+          width: double.maxFinite,
+          height: 500,
+          child: carData.isEmpty
+              ? const Center(child: SpinningLoader())
+              : ListView.separated(
+                  itemCount: carData.length,
+                  itemBuilder: (context, index) {
+                    final car = carData[index];
+                    return SizedBox(
+                      height: 45, 
+                      child: ListTile(
+                        leading: Image.network(
+                          car['logo_path'],
+                          width: 40,
+                          height: 40,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(
+                              Icons.image_not_supported,
+                              color: Colors.grey,
+                              size: 40,
+                            );
+                          },
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) {
+                              return child;
+                            }
+                            return const SizedBox(
+                              width: 40,
+                              height: 40,
+                              child: SpinningLoader(),
+                            );
+                          },
+                          fit: BoxFit.cover,
+                        ),
+                        title: Text(car['car_type']),
+                        onTap: () {
+                          setState(() {
+                            selectedCarId = car['id'];
+                            GlobalVariables.garage = car['id'].toString();
+                            GlobalVariables.garageLogoUrl = car['logo_path'];
+                          });
+                          Navigator.pop(context); 
+                        },
+                      ),
+                    );
+                  },
+                  separatorBuilder: (context, index) => const Divider(), 
+                ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context); // Close the dialog
+            },
+            child: const Text('Cancel', 
+              style: TextStyle(
+                color: kColorButtonPrimary,
+                fontFamily: "inter",
+                fontSize: 14
+                ),
+              ),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+
 
   void _onTextChanged() {
     if (!_showSaveButton) {
@@ -105,10 +206,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         if (bioController.text != GlobalVariables.bio) {
           _showSaveButton = true;
           GlobalVariables.bio = bioController.text;
-        }
-        if (garageController.text != GlobalVariables.garage) {
-          _showSaveButton = true;
-          GlobalVariables.garage = garageController.text;
         }
         if (placeController.text != GlobalVariables.happyPlace) {
           _showSaveButton = true;
@@ -219,7 +316,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         happyPlace: placeController.text.trim(),
         photo: imageUrl ?? '',
         bio: bioController.text.trim(),
-        garage: garageController.text.trim(),
+        garage: selectedCarId.toString(),
       );
 
       if (response['statusCode'] != false) {
@@ -241,7 +338,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         }
 
         GlobalVariables.bio = bioController.text.toString();
-        GlobalVariables.garage = garageController.text.toString();
         GlobalVariables.happyPlace = placeController.text.toString();
       } else {
         if (mounted) {
@@ -362,8 +458,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                       )
                                     : GlobalVariables.userImageUrl != null
                                         ? DecorationImage(
-                                            image: NetworkImage(GlobalVariables
-                                                .userImageUrl!), // Use NetworkImage for URL
+                                            image: NetworkImage(GlobalVariables.userImageUrl!),
                                             fit: BoxFit.cover,
                                           )
                                         : null,
@@ -567,7 +662,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                             .garageLogoUrl!.isNotEmpty
                                     ? GestureDetector(
                                         onTap: () {
-                                          onGarageClicked(); // This will always work regardless of the logo URL's value
+                                          // onGarageClicked(); 
+                                          _showGarageDialog();
                                         },
                                         child: SizedBox(
                                           width: 30,
@@ -582,7 +678,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                         onTap: () {
                                           onGarageClicked(); // Allow onTap to trigger even if no logo is present
                                         },
-                                        child: const Text("                 "),
+                                        child: const Text("                    "),
                                       ),
                               ],
                             ),
