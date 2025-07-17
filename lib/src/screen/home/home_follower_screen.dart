@@ -1,5 +1,6 @@
 import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
+import 'package:RollaTravel/src/utils/back_button_two_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:RollaTravel/src/utils/index.dart';
@@ -19,6 +20,9 @@ class HomeFollowScreenState extends ConsumerState<HomeFollowScreen> with Widgets
   final int _currentIndex = 0;
   List<Map<String, dynamic>> followers = [];
   final logger = Logger();
+
+  final GlobalKey _backButtonKey = GlobalKey();
+  double backButtonWidth = 0;
 
   @override
   void initState() {
@@ -51,8 +55,20 @@ class HomeFollowScreenState extends ConsumerState<HomeFollowScreen> with Widgets
     }
   }
 
+  void onBackPressed() {
+    Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final RenderBox renderBox =
+          _backButtonKey.currentContext?.findRenderObject() as RenderBox;
+      setState(() {
+        backButtonWidth = renderBox.size.width;
+      });
+    });
+
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
@@ -68,51 +84,16 @@ class HomeFollowScreenState extends ConsumerState<HomeFollowScreen> with Widgets
               SizedBox(
                 height: vhh(context, 6),
               ),
-              Row(
-                children: [
-                  const SizedBox(width: 16),
-                  InkWell(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                    child: Image.asset(
-                      'assets/images/icons/allow-left.png',
-                      width: vww(context, 5),
-                      height: 20,
-                    ),
-                  ),
-                  Expanded(
-                    child: Center(
-                      child: Column(
-                        children: [
-                          const Text(
-                            'Followers',
-                            style: TextStyle(
-                              fontSize: 20,
-                              letterSpacing: -0.1,
-                              fontFamily: 'interBold',
-                            ),
-                          ),
-                          Text(
-                            'List of the users who follow ${widget.fromUser}',
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: Colors.grey,
-                              letterSpacing: -0.1,
-                              fontFamily: 'inter',
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 48),
-                ],
+              BackButtonTwoHeader(
+                onBackPressed: onBackPressed, 
+                title: 'Followers', 
+                fromUser: widget.fromUser!, 
+                backButtonKey: _backButtonKey, 
+                backButtonWidth: backButtonWidth
               ),
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20),
                 child: Divider(),),
-
               Expanded(
                 child: ListView.builder(
                   itemCount: followers.length,

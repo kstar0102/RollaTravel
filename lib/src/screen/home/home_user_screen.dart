@@ -205,52 +205,25 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
   void follow() async {
     final apiservice = ApiService();
 
-      if(isfollow == false && isPending == false){
-        final result = await apiservice.requestFollowPending(userid!, GlobalVariables.userId!);
-        if (result['statusCode'] == true) {
-          setState(() {
-            isPending = true;  
-          });
-        }
+    if(isfollow == false && isPending == false){
+      final result = await apiservice.requestFollowPending(userid!, GlobalVariables.userId!);
+      if (result['statusCode'] == true) {
+        setState(() {
+          isPending = true;  
+        });
       }
+    }
 
-      if(isfollow == true && isPending == false) {
-        logger.i("unfollow cliecked");
-        final result = await apiservice.removeUserfollow(userid!, GlobalVariables.userId!);  
-        if (result['statusCode'] == true) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => HomeUserScreen(userId: userid!,)),
-          );
-          // _fetchUserProfile();
-          // setState(() {
-          //   isPending = false;  
-          //   isfollow == false;
-          // });
-        }
+    if(isfollow == true && isPending == false) {
+      logger.i("unfollow cliecked");
+      final result = await apiservice.removeUserfollow(userid!, GlobalVariables.userId!);  
+      if (result['statusCode'] == true) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => HomeUserScreen(userId: userid!,)),
+        );
       }
-
-      // if(is)
-    // try {
-    //   final result = await apiservice.requestFollowPending(userid!, GlobalVariables.userId!);
-    //   if (result['statusCode'] == true) {
-    //     if(isfollow == false){
-    //       setState(() {
-    //         isPending = true;  
-    //       });
-    //     }
-        // setState(() {
-        //   isfollow = !isfollow;
-        //   if (isfollow) {
-        //     followingCount = (int.parse(followingCount!) + 1).toString();
-        //   } else {
-        //     followingCount = (int.parse(followingCount!) - 1).toString();
-        //   }
-        // });
-    //   }
-    // } catch (e) {
-    //   logger.i('Error: $e');
-    // }
+    }
   }
 
   Future<void> _showImageDialog(

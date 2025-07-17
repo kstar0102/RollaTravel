@@ -819,6 +819,7 @@ class ApiService {
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
+      logger.i(data);
       if (data['statusCode'] == true) {
         return {
           'userinfo': data['userinfo'],
@@ -833,8 +834,8 @@ class ApiService {
   }
 
   Future<List<Map<String, dynamic>>> fetchFollowedUsers(int userId) async {
-    // logger.i(userId);
-    final url = Uri.parse('$baseUrl/user/followed_users?user_id=$userId');
+    logger.i(userId);
+    final url = Uri.parse('$baseUrl/user/followed_users?id=$userId');
 
     final response = await http.get(
       url,

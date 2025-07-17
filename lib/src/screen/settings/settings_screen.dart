@@ -3,6 +3,7 @@ import 'package:RollaTravel/src/screen/auth/signin_screen.dart';
 import 'package:RollaTravel/src/screen/profile/block_screen.dart';
 import 'package:RollaTravel/src/screen/profile/profile_screen.dart';
 import 'package:RollaTravel/src/translate/en.dart';
+import 'package:RollaTravel/src/utils/back_button_header.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:RollaTravel/src/utils/index.dart';
 import 'package:RollaTravel/src/utils/stop_marker_provider.dart';
@@ -25,6 +26,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   final int _currentIndex = 5;
   bool isPrivateAccount = true;
   final logger = Logger();
+  final GlobalKey _backButtonKey = GlobalKey();
+  double backButtonWidth = 0;
+
   @override
   void initState() {
     super.initState();
@@ -131,14 +135,33 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
+  void _onBackPressed() {
+    Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation1, animation2) =>
+              const ProfileScreen(),
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final RenderBox renderBox = _backButtonKey.currentContext?.findRenderObject() as RenderBox;
+      setState(() {
+        backButtonWidth = renderBox.size.width;
+      });
+    });
+
     return Scaffold(
       body: PopScope(
-        canPop: false, // Prevents default back navigation
+        canPop: false,
         onPopInvokedWithResult: (didPop, result) {
           if (!didPop) {
-            return; // Prevent pop action
+            return;
           }
         },
         child: Scaffold(
@@ -161,40 +184,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
                         SizedBox(height: vhh(context, 6)),
-                        
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            InkWell(
-                              onTap: () {
-                                Navigator.pushReplacement(
-                                  context,
-                                  PageRouteBuilder(
-                                    pageBuilder: (context, animation1, animation2) =>
-                                          const ProfileScreen(),
-                                    transitionDuration: Duration.zero,
-                                    reverseTransitionDuration: Duration.zero,
-                                  ),
-                                );
-                              },
-                              child: Image.asset(
-                                'assets/images/icons/allow-left.png',
-                                width: vww(context, 3),
-                              ),
-                            ),
-                            const Text(
-                              settings,
-                              style: TextStyle(
-                                color: kColorBlack,
-                                fontSize: 21,
-                                letterSpacing: -0.1,
-                                fontWeight: FontWeight.w600,
-                                fontFamily: 'inter',
-                              ),
-                            ),
-                            SizedBox(width: vww(context, 3)),
-                          ],
+                        BackButtonHeader(
+                          onBackPressed: _onBackPressed,
+                          title: settings,
+                          backButtonKey: _backButtonKey,
+                          backButtonWidth: backButtonWidth,
                         ),
                         SizedBox(height: vhh(context, 3)),
                         const Divider(color: kColorStrongGrey, thickness: 1, height: 1,),

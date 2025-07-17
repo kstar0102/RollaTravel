@@ -21,6 +21,9 @@ class TripSetttingScreenState extends State<TripSetttingScreen> {
   final int _currentIndex = 5;
   final logger = Logger();
 
+  final GlobalKey _backButtonKey = GlobalKey();
+  double backButtonWidth = 0;
+
   final List<String> _mapStyles = [
     "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw",
     "https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoicm9sbGExIiwiYSI6ImNseGppNHN5eDF3eHoyam9oN2QyeW5mZncifQ.iLIVq7aRpvMf6J3NmQTNAw",
@@ -64,6 +67,14 @@ class TripSetttingScreenState extends State<TripSetttingScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final RenderBox renderBox = _backButtonKey.currentContext?.findRenderObject() as RenderBox;
+      setState(() {
+        backButtonWidth = renderBox.size.width;
+      });
+    });
+
     return Scaffold(
       backgroundColor: kColorWhite,
       body: PopScope(
@@ -84,8 +95,9 @@ class TripSetttingScreenState extends State<TripSetttingScreen> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     IconButton(
+                      key: _backButtonKey,
                       icon: Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.only(left: 10, right: 10, top: 1, bottom: 5),
                         child: Image.asset('assets/images/icons/allow-left.png', width: 20, height: 20),
                       ),
                       onPressed: () {
@@ -116,7 +128,7 @@ class TripSetttingScreenState extends State<TripSetttingScreen> {
                         ],
                       ),
                     ),
-                    const SizedBox(width: 20,)
+                    SizedBox(width: backButtonWidth),
                   ],
                 ),
               ),

@@ -1,5 +1,6 @@
 import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
+import 'package:RollaTravel/src/utils/back_button_two_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:RollaTravel/src/utils/index.dart';
@@ -19,6 +20,9 @@ class ProfileFollowScreenState extends ConsumerState<ProfileFollowingScreen> {
   double keyboardHeight = 0;
   List<Map<String, dynamic>> followers = [];
   final logger = Logger();
+
+  final GlobalKey _backButtonKey = GlobalKey();
+  double backButtonWidth = 0;
 
   @override
   void initState() {
@@ -45,8 +49,27 @@ class ProfileFollowScreenState extends ConsumerState<ProfileFollowingScreen> {
     }
   }
 
+  void onBackPressed() {
+    Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation1, animation2) =>
+              const ProfileScreen(),
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final RenderBox renderBox = _backButtonKey.currentContext?.findRenderObject() as RenderBox;
+      setState(() {
+        backButtonWidth = renderBox.size.width;
+      });
+    });
+    
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
@@ -62,20 +85,19 @@ class ProfileFollowScreenState extends ConsumerState<ProfileFollowingScreen> {
               SizedBox(
                 height: vhh(context, 6),
               ),
+              BackButtonTwoHeader(
+                onBackPressed: onBackPressed, 
+                title: 'Following', 
+                fromUser: '', 
+                backButtonKey: _backButtonKey, 
+                backButtonWidth: backButtonWidth
+              ),
               Row(
                 children: [
                   const SizedBox(width: 16),
                   InkWell(
                     onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        PageRouteBuilder(
-                          pageBuilder: (context, animation1, animation2) =>
-                                const ProfileScreen(),
-                          transitionDuration: Duration.zero,
-                          reverseTransitionDuration: Duration.zero,
-                        ),
-                      );
+                      
                     },
                     child: Image.asset(
                       'assets/images/icons/allow-left.png',

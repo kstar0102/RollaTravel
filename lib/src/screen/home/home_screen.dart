@@ -256,7 +256,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObser
                         children: [
                           Image.asset(
                             'assets/images/icons/notification.png',
-                            width: vww(context, 4),
+                            width: vww(context, 5),
                           ),
                           if (totalCount > 0)
                             Positioned(
@@ -285,7 +285,6 @@ class HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObser
                       ),
                     ),
                   ),
-
                   const Spacer(),
                   IconButton(
                     icon: const Icon(Icons.close, color: Colors.white),

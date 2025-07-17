@@ -2,6 +2,7 @@ import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/screen/home/home_screen.dart';
 import 'package:RollaTravel/src/screen/home/home_user_screen.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
+import 'package:RollaTravel/src/utils/back_button_header.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,6 +23,9 @@ class NotificationScreenState extends ConsumerState<NotificationScreen> with Wid
   final int _currentIndex = 5;
   List<Map<String, dynamic>> followers = [];
   final logger = Logger();
+
+  final GlobalKey _backButtonKey = GlobalKey();
+  double backButtonWidth = 0;
 
   @override
   void initState() {
@@ -154,8 +158,26 @@ class NotificationScreenState extends ConsumerState<NotificationScreen> with Wid
     }
   }
 
+  void _onBackPressed() {
+    Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation1, animation2) => const HomeScreen(),
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final RenderBox renderBox = _backButtonKey.currentContext?.findRenderObject() as RenderBox;
+      setState(() {
+        backButtonWidth = renderBox.size.width;
+      });
+    });
+
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
@@ -168,53 +190,19 @@ class NotificationScreenState extends ConsumerState<NotificationScreen> with Wid
         body: Center(
           child: Column(
             children: [
-              SizedBox(
-                height: vhh(context, 6),
+              SizedBox(height: vhh(context, 7),),
+              Padding(padding: EdgeInsets.symmetric(horizontal: vww(context, 4)),
+                child: BackButtonHeader(
+                  onBackPressed: _onBackPressed,
+                  title: 'Notifications',
+                  backButtonKey: _backButtonKey,
+                  backButtonWidth: backButtonWidth,
+                ),
               ),
-              Row(
-                children: [
-                  const SizedBox(width: 16),
-                  InkWell(
-                    onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        PageRouteBuilder(
-                          pageBuilder: (context, animation1, animation2) => const HomeScreen(),
-                          transitionDuration: Duration.zero,
-                          reverseTransitionDuration: Duration.zero,
-                        ),
-                      );
-                    },
-                    child: Image.asset(
-                      'assets/images/icons/allow-left.png',
-                      width: vww(context, 5),
-                      height: 20,
-                    ),
-                  ),
-                  const Expanded(
-                    child: Center(
-                      child: Column(
-                        children: [
-                           Text(
-                            'Notifications',
-                            style: TextStyle(
-                              fontSize: 20,
-                              letterSpacing: -0.1,
-                              fontFamily: 'interBold',
-                            ),
-                          ),
-                          SizedBox(height: 10,)
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 48),
-                ],
-              ),
+              SizedBox(height: vhh(context, 0.5),),
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20),
                 child: Divider(),),
-
               Expanded(
                 child: ListView.builder(
                   itemCount: followers.length,

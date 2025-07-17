@@ -52,6 +52,7 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
   final ApiService apiService = ApiService();
   int likes = 0;
   bool isFollowing = false;
+  int viewcount = 0;
 
   @override
   void initState() {
@@ -316,60 +317,45 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
     );
   }
 
+  Future<void> addCount(int userid, int droppinid) async{
+    try{
+      final apiservice = ApiService();
+      final result = await apiservice.markDropinAsViewed(
+        userId: userid,
+        dropinId: droppinid,
+      );
+      if (result['statusCode'] == true) {
+        setState(() {
+          viewcount = result['data']['viewed_count'];
+        });
+      }else {
+        logger.e("Failed to mark as viewed: ${result['message']}");
+      }
+    }catch(error){
+      logger.e("Error while calling API: $error");
+    }
+  }
+
   Future<void> _showImageDialog(
-    List<dynamic> droppins, 
-    int droppinIndex,   
-    int droppinUserId
+    List<dynamic> droppins,
+    int droppinIndex,
+    int droppinUserId,
   ) async {
-    logger.i(droppinUserId);
+    await addCount(GlobalVariables.userId!, droppins[droppinIndex]['id']);
     final apiservice = ApiService();
-    int viewcount = 0;
-     bool hasAlreadyViewed = false;
-    if (droppins[droppinIndex]['view_count'] != null && droppins[droppinIndex]['view_count'].isNotEmpty) {
-      List<String> viewCountList = droppins[droppinIndex]['view_count'].split(',');
-      viewcount = viewCountList.length;
-      if (viewCountList.contains(GlobalVariables.userId.toString())) {
-        hasAlreadyViewed = true;
-      }
-    } else {
-      viewcount = 0;
-    }
-
-    if (!hasAlreadyViewed && droppinUserId != GlobalVariables.userId) {
-       try {
-        final result = await apiservice.markDropinAsViewed(
-          userId: GlobalVariables.userId!,
-          dropinId: droppins[droppinIndex]['id'],
-        );
-        if (result['statusCode'] == true) {
-          logger.i("Successfully viewed this user");
-          String currentViewCount = droppins[droppinIndex]['view_count'] ?? '';
-          if (currentViewCount.isEmpty) {
-            droppins[droppinIndex]['view_count'] = GlobalVariables.userId.toString();
-          } else {
-            droppins[droppinIndex]['view_count'] = '$currentViewCount,${GlobalVariables.userId}';
-          }
-          viewcount = droppins[droppinIndex]['view_count'].split(',').length;
-          setState(() {});
-        } else {
-          logger.e("Failed to mark as viewed: ${result['message']}");
-        }
-      } catch (error) {
-        logger.e("Error while calling API: $error");
-      }
-    }
-
+    
     List<dynamic> likedUsers = droppins[droppinIndex]['liked_users'];
     bool isLiked = likedUsers.map((user) => user['id']).contains(GlobalVariables.userId);
     int droppinlikes = likedUsers.length;
     
-    // Show dialog
     if (!mounted) return;
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
+            bool isSwpaLoading = false; // Define loading state
+
             return Dialog(
               insetPadding: const EdgeInsets.symmetric(horizontal: 30),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -379,7 +365,7 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
                 children: [
                   // Caption and Close button
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0), // Increased vertical padding
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0),
                     child: LayoutBuilder(
                       builder: (context, constraints) {
                         final text = droppins[droppinIndex]['image_caption'] ?? '';
@@ -396,11 +382,11 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
                         final textPainter = TextPainter(
                           text: textSpan,
                           textAlign: TextAlign.start,
-                          textDirection: TextDirection.ltr, 
+                          textDirection: TextDirection.ltr,
                           maxLines: 3,
-                        )..layout(maxWidth: constraints.maxWidth - 40); 
+                        )..layout(maxWidth: constraints.maxWidth - 40);
                         int lineCount = textPainter.computeLineMetrics().length;
-                        double height = lineCount * 24.0; 
+                        double height = lineCount * 24.0;
                         height = height < 50 ? 50 : (height > 80 ? 80 : height);
                         return SizedBox(
                           height: height,
@@ -417,8 +403,8 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
                                     fontFamily: 'inter',
                                     letterSpacing: -0.1,
                                   ),
-                                  overflow: TextOverflow.ellipsis, // Ensures text overflow shows '...'
-                                  maxLines: 3, // Allows up to 3 lines of text to show
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 3,
                                 ),
                               ),
                               IconButton(
@@ -433,53 +419,59 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
                       },
                     ),
                   ),
+                  
+                  // Show loading spinner while fetching data
+                  if (isSwpaLoading)
+                    // ignore: dead_code
+                    const Center(
+                      child: CircularProgressIndicator(), // Show loading indicator
+                    )
+                  else
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.5,
+                      width: MediaQuery.of(context).size.width * 0.9,
+                      child: PageView.builder(
+                        controller: PageController(initialPage: droppinIndex),
+                        itemCount: droppins.length,
+                        itemBuilder: (context, index) {
+                          final droppin = droppins[index];
+                          return Image.network(
+                            droppin['image_path'],
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Icon(Icons.broken_image, size: 100),
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) {
+                                return child;
+                              } else {
+                                return const Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              }
+                            },
+                          );
+                        },
+                        onPageChanged: (index) async {
+                          setState(() {
+                            isSwpaLoading = true; // Start loading when page changes
+                          });
 
-
-                  // PageView for swiping through images
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.5,
-                    width: MediaQuery.of(context).size.width * 0.9,
-                    child: PageView.builder(
-                      controller: PageController(initialPage: droppinIndex),
-                      itemCount: droppins.length,
-                      itemBuilder: (context, index) {
-                        final droppin = droppins[index];
-                        return Image.network(
-                          droppin['image_path'],
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              const Icon(Icons.broken_image, size: 100),
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) {
-                              return child;
-                            } else {
-                              return const Center(
-                                child: SpinningLoader(),
-                              );
-                            }
-                          },
-                        );
-                      },
-                      onPageChanged: (index) {
-                        setState(() {
-                          droppinIndex = index; // Update the index when the page changes
+                          // Wait for the API call before updating the UI
+                          await addCount(GlobalVariables.userId!, droppins[index]['id']);
                           
-                          // Update the likedUsers and viewcount based on the new image
-                          likedUsers = droppins[droppinIndex]['liked_users'];
-                          isLiked = likedUsers.map((user) => user['id']).contains(GlobalVariables.userId);
-                          droppinlikes = likedUsers.length;
-                          
-                          if (droppins[droppinIndex]['view_count'] != null && droppins[droppinIndex]['view_count'].isNotEmpty) {
-                            viewcount = droppins[droppinIndex]['view_count'].split(',').length;
-                          } else {
-                            viewcount = 0; // Set to 0 if 'view_count' is null or empty
-                          }
-                          
-                        });
-                      },
+                          setState(() {
+                            droppinIndex = index;
+                            likedUsers = droppins[droppinIndex]['liked_users'];
+                            isLiked = likedUsers.map((user) => user['id']).contains(GlobalVariables.userId);
+                            droppinlikes = likedUsers.length;
+                            isSwpaLoading = false; // Stop loading after API call completes
+                          });
+                        },
+                      ),
                     ),
-                  ),
+                  
                   const Divider(height: 1, color: Colors.grey),
+                  
                   // Like and View count buttons
                   Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -543,7 +535,7 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
                         const Spacer(),
                         GestureDetector(
                           onTap: () {
-                            if(droppinUserId == GlobalVariables.userId){
+                            if (droppinUserId == GlobalVariables.userId) {
                               _goViewScreen(droppins[droppinIndex]['view_count'], droppins[droppinIndex]['image_path']);
                             }
                           },
@@ -635,23 +627,290 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
     });
   }
 
+
+  // Future<void> _showImageDialog(
+  //   List<dynamic> droppins, 
+  //   int droppinIndex,   
+  //   int droppinUserId
+  // ) async {
+
+  //   await addCount(GlobalVariables.userId!, droppins[droppinIndex]['id']);
+  //   final apiservice = ApiService();
+    
+  //   List<dynamic> likedUsers = droppins[droppinIndex]['liked_users'];
+  //   bool isLiked = likedUsers.map((user) => user['id']).contains(GlobalVariables.userId);
+  //   int droppinlikes = likedUsers.length;
+    
+  //   // Show dialog
+  //   if (!mounted) return;
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return StatefulBuilder(
+  //         builder: (BuildContext context, StateSetter setState) {
+  //           return Dialog(
+  //             insetPadding: const EdgeInsets.symmetric(horizontal: 30),
+  //             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+  //             child: Column(
+  //               mainAxisSize: MainAxisSize.min,
+  //               crossAxisAlignment: CrossAxisAlignment.start,
+  //               children: [
+  //                 // Caption and Close button
+  //                 Padding(
+  //                   padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0), // Increased vertical padding
+  //                   child: LayoutBuilder(
+  //                     builder: (context, constraints) {
+  //                       final text = droppins[droppinIndex]['image_caption'] ?? '';
+  //                       final textSpan = TextSpan(
+  //                         text: text,
+  //                         style: const TextStyle(
+  //                           fontSize: 16,
+  //                           fontWeight: FontWeight.bold,
+  //                           color: Colors.grey,
+  //                           fontFamily: 'inter',
+  //                           letterSpacing: -0.1,
+  //                         ),
+  //                       );
+  //                       final textPainter = TextPainter(
+  //                         text: textSpan,
+  //                         textAlign: TextAlign.start,
+  //                         textDirection: TextDirection.ltr, 
+  //                         maxLines: 3,
+  //                       )..layout(maxWidth: constraints.maxWidth - 40); 
+  //                       int lineCount = textPainter.computeLineMetrics().length;
+  //                       double height = lineCount * 24.0; 
+  //                       height = height < 50 ? 50 : (height > 80 ? 80 : height);
+  //                       return SizedBox(
+  //                         height: height,
+  //                         child: Row(
+  //                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                           children: [
+  //                             Expanded(
+  //                               child: Text(
+  //                                 text,
+  //                                 style: const TextStyle(
+  //                                   fontSize: 16,
+  //                                   fontWeight: FontWeight.bold,
+  //                                   color: Colors.grey,
+  //                                   fontFamily: 'inter',
+  //                                   letterSpacing: -0.1,
+  //                                 ),
+  //                                 overflow: TextOverflow.ellipsis,
+  //                                 maxLines: 3, 
+  //                               ),
+  //                             ),
+  //                             IconButton(
+  //                               icon: const Icon(Icons.close, color: Colors.black),
+  //                               onPressed: () {
+  //                                 Navigator.of(context).pop();
+  //                               },
+  //                             ),
+  //                           ],
+  //                         ),
+  //                       );
+  //                     },
+  //                   ),
+  //                 ),
+
+  //                 SizedBox(
+  //                   height: MediaQuery.of(context).size.height * 0.5,
+  //                   width: MediaQuery.of(context).size.width * 0.9,
+  //                   child: PageView.builder(
+  //                     controller: PageController(initialPage: droppinIndex),
+  //                     itemCount: droppins.length,
+  //                     itemBuilder: (context, index) {
+  //                       final droppin = droppins[index];
+  //                       return Image.network(
+  //                         droppin['image_path'],
+  //                         fit: BoxFit.cover,
+  //                         errorBuilder: (context, error, stackTrace) =>
+  //                             const Icon(Icons.broken_image, size: 100),
+  //                         loadingBuilder: (context, child, loadingProgress) {
+  //                           if (loadingProgress == null) {
+  //                             return child;
+  //                           } else {
+  //                             return const Center(
+  //                               child: SpinningLoader(),
+  //                             );
+  //                           }
+  //                         },
+  //                       );
+  //                     },
+  //                     onPageChanged: (index) async  {
+  //                       await addCount(GlobalVariables.userId!, droppins[droppinIndex]['id']);
+  //                       setState(() {
+  //                         droppinIndex = index; // Update the index when the page changes
+                          
+  //                         // Update the likedUsers and viewcount based on the new image
+  //                         likedUsers = droppins[droppinIndex]['liked_users'];
+  //                         isLiked = likedUsers.map((user) => user['id']).contains(GlobalVariables.userId);
+  //                         droppinlikes = likedUsers.length;
+                          
+  //                       });
+  //                     },
+  //                   ),
+  //                 ),
+  //                 const Divider(height: 1, color: Colors.grey),
+  //                 // Like and View count buttons
+  //                 Padding(
+  //                   padding: const EdgeInsets.all(8.0),
+  //                   child: Row(
+  //                     children: [
+  //                       GestureDetector(
+  //                         behavior: HitTestBehavior.opaque,
+  //                         onTap: () async {
+  //                           final response = await apiservice.toggleDroppinLike(
+  //                             userId: GlobalVariables.userId!,
+  //                             droppinId: droppins[droppinIndex]['id'],
+  //                             flag: !isLiked,
+  //                           );
+  //                           if (response != null && response['statusCode'] == true) {
+  //                             setState(() {
+  //                               isLiked = !isLiked;
+  //                               if (isLiked) {
+  //                                 droppinlikes++;
+  //                                 droppins[droppinIndex]['liked_users'].add({
+  //                                   'photo': GlobalVariables.userImageUrl,
+  //                                   'first_name': GlobalVariables.realName?.split(' ')[0],
+  //                                   'last_name': GlobalVariables.realName?.split(' ')[1],
+  //                                   'rolla_username': GlobalVariables.userName,
+  //                                 });
+  //                               } else {
+  //                                 droppinlikes--;
+  //                                 droppins[droppinIndex]['liked_users'].removeWhere((user) =>
+  //                                     user['rolla_username'] == GlobalVariables.userName);
+  //                               }
+  //                               setState(() {
+  //                                 likes = _calculateTotalLikes(droppins);
+  //                               });
+  //                             });
+  //                             logger.i(response['message']);
+  //                           } else {
+  //                             logger.e('Failed to toggle like');
+  //                           }
+  //                         },
+  //                         child: Icon(
+  //                           isLiked ? Icons.favorite : Icons.favorite_border,
+  //                           color: isLiked ? Colors.red : Colors.black,
+  //                         ),
+  //                       ),
+  //                       const SizedBox(width: 4),
+  //                       GestureDetector(
+  //                         onTap: () {
+  //                           setState(() {
+  //                             showLikesDropdown = !showLikesDropdown;
+  //                           });
+  //                         },
+  //                         child: Text(
+  //                           '$droppinlikes likes',
+  //                           style: const TextStyle(
+  //                             fontWeight: FontWeight.bold,
+  //                             fontSize: 16,
+  //                             letterSpacing: -0.1,
+  //                             fontFamily: 'inter',
+  //                           ),
+  //                         ),
+  //                       ),
+  //                       const Spacer(),
+  //                       GestureDetector(
+  //                         onTap: () {
+  //                           if(droppinUserId == GlobalVariables.userId){
+  //                             _goViewScreen(droppins[droppinIndex]['view_count'], droppins[droppinIndex]['image_path']);
+  //                           }
+  //                         },
+  //                         child: Container(
+  //                           padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+  //                           decoration: BoxDecoration(
+  //                             color: const Color(0xFF933F10),
+  //                             borderRadius: BorderRadius.circular(16),
+  //                           ),
+  //                           child: Text(
+  //                             '$viewcount Views',
+  //                             style: const TextStyle(
+  //                               color: Colors.white,
+  //                               fontWeight: FontWeight.bold,
+  //                               fontSize: 15,
+  //                               letterSpacing: -0.1,
+  //                               fontFamily: 'Inter',
+  //                             ),
+  //                           ),
+  //                         ),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ),
+  //                 if (showLikesDropdown)
+  //                   Column(
+  //                     children: likedUsers.map((user) {
+  //                       final photo = user['photo'] ?? '';
+  //                       final firstName = user['first_name'] ?? 'Unknown';
+  //                       final lastName = user['last_name'] ?? '';
+  //                       final username = user['rolla_username'] ?? '@unknown';
+  //                       return Padding(
+  //                         padding: const EdgeInsets.symmetric(vertical: 4.0),
+  //                         child: Row(
+  //                           children: [
+  //                             Container(
+  //                               height: 40,
+  //                               width: 40,
+  //                               decoration: BoxDecoration(
+  //                                 borderRadius: BorderRadius.circular(100),
+  //                                 border: Border.all(
+  //                                   color: Colors.grey,
+  //                                   width: 2,
+  //                                 ),
+  //                                 image: photo.isNotEmpty
+  //                                     ? DecorationImage(image: NetworkImage(photo), fit: BoxFit.cover)
+  //                                     : null,
+  //                               ),
+  //                               child: photo.isEmpty ? const Icon(Icons.person, size: 20) : null,
+  //                             ),
+  //                             const SizedBox(width: 5),
+  //                             Column(
+  //                               crossAxisAlignment: CrossAxisAlignment.start,
+  //                               children: [
+  //                                 Text(
+  //                                   '$firstName $lastName',
+  //                                   style: const TextStyle(
+  //                                     fontWeight: FontWeight.bold,
+  //                                     fontSize: 13,
+  //                                     letterSpacing: -0.1,
+  //                                     fontFamily: 'inter',
+  //                                     color: Colors.black,
+  //                                   ),
+  //                                 ),
+  //                                 Text(
+  //                                   username,
+  //                                   style: const TextStyle(
+  //                                     fontSize: 12,
+  //                                     letterSpacing: -0.1,
+  //                                     color: Colors.grey,
+  //                                     fontFamily: 'inter',
+  //                                   ),
+  //                                 ),
+  //                               ],
+  //                             ),
+  //                           ],
+  //                         ),
+  //                       );
+  //                     }).toList(),
+  //                   ),
+  //               ],
+  //             ),
+  //           );
+  //         },
+  //       );
+  //     },
+  //   ).then((_) {
+  //     widget.onLikesUpdated(likes);
+  //   });
+  // }
+
   Future<void> _showLikeDialog(BuildContext context, String imagePath,
       String followingId, int userId, int tripId) async {
     List<String> followingIds = followingId.split(',');
     isFollowing =
         followingIds.any((id) => int.tryParse(id) == GlobalVariables.userId);
-    // if (isFollowing) {
-    //   followingIds.remove(GlobalVariables.userId.toString());
-    //   logger.i("User $userId unfollowed.");
-    // } else {
-    //   followingIds.add(GlobalVariables.userId.toString());
-    //   logger.i("User $userId followed.");
-    // }
-
-    // String updatedFollowingIdsStr = followingIds.join(',');
-    // setState(() {
-    //   widget.post['user']['following_user_id'] = updatedFollowingIdsStr;
-    // });
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -805,7 +1064,6 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
       }
     }
   }
-
 
   void _goUserScreen() {
     if (GlobalVariables.userId != widget.post['user_id']) {

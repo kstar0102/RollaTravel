@@ -4,6 +4,7 @@ import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:RollaTravel/src/screen/home/home_screen.dart';
 import 'package:RollaTravel/src/screen/trip/start_trip.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
+import 'package:RollaTravel/src/utils/back_button_header.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:RollaTravel/src/utils/spinner_loader.dart';
 import 'package:RollaTravel/src/widget/bottombar.dart';
@@ -23,8 +24,11 @@ class TripTagSettingScreenState extends State<TripTagSearchScreen> {
   final FocusNode _searchFocusNode = FocusNode();
   List<dynamic> allUserData = [];
   List<dynamic> filteredUserData = [];
-  final int _currentIndex = 2;
+  final int _currentIndex = 5;
   List<int> selectedUserIds = [];
+
+  final GlobalKey _backButtonKey = GlobalKey();
+  double backButtonWidth = 0;
 
   @override
   void initState() {
@@ -104,9 +108,20 @@ class TripTagSettingScreenState extends State<TripTagSearchScreen> {
     });
   }
 
+  void _onBackPressed() {
+     GlobalVariables.selectedUserIds = selectedUserIds;
+    Navigator.push(context, MaterialPageRoute(builder: (context) => const StartTripScreen()));
+  }
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final RenderBox renderBox = _backButtonKey.currentContext?.findRenderObject() as RenderBox;
+      setState(() {
+        backButtonWidth = renderBox.size.width;
+      });
+    });
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: PopScope(
@@ -116,42 +131,21 @@ class TripTagSettingScreenState extends State<TripTagSearchScreen> {
             return;
           }
         },
-        child: Center(
+        child: Container(
+          decoration: const BoxDecoration(
+            color: kColorWhite,
+          ),
+          padding: EdgeInsets.symmetric(horizontal: vww(context, 4)),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 40), // Spacing from the top
-              Row(
-                children: [
-                  const SizedBox(width: 20),
-                  InkWell(
-                    onTap: () {
-                      GlobalVariables.selectedUserIds = selectedUserIds;
-                      Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => const StartTripScreen()));
-                    },
-                    child: Image.asset(
-                      'assets/images/icons/allow-left.png',
-                      width: vww(context, 5),
-                      height: 20,
-                    ),
-                  ),
-                  const Expanded(
-                    child: Center(
-                      child: Text(
-                        'Tag Rolla users',
-                        style: TextStyle(
-                          fontSize: 21,
-                          fontFamily: 'inter',
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: -0.1
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 48),
-                ],
+              SizedBox(height: vhh(context, 7)),
+              BackButtonHeader(
+                onBackPressed: _onBackPressed,
+                title: 'Tag Rolla users',
+                backButtonKey: _backButtonKey,
+                backButtonWidth: backButtonWidth,
               ),
               const SizedBox(height: 10),
               Row(
@@ -227,13 +221,13 @@ class TripTagSettingScreenState extends State<TripTagSearchScreen> {
                 ],
               ),
               isLoading
-                    ? const Padding(
-                        padding: EdgeInsets.all(20),
-                        child: SpinningLoader(),
-                      )
-                    : Expanded(
-                      child: _buildUserList(),
-                      ),
+                ? const Padding(
+                    padding: EdgeInsets.all(20),
+                    child: SpinningLoader(),
+                  )
+                : Expanded(
+                  child: _buildUserList(),
+                  ),
             ],
           ),
         ),
@@ -256,7 +250,7 @@ class TripTagSettingScreenState extends State<TripTagSearchScreen> {
         bool isSelected = selectedUserIds.contains(userid);
 
         return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 20.0),
+          padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 0.0),
           child: GestureDetector(
             onTap: () {
               // Navigator.push(
