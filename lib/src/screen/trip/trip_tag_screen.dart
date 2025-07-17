@@ -71,9 +71,6 @@ class TripTagSettingScreenState extends State<TripTagSearchScreen> {
             uniqueUserIds.add(user['id']);
           }
 
-          // Log the unique user IDs
-          // logger.i("uniqueUserIds: $uniqueUserIds");
-
           // Filter the users by checking if their ID is in the uniqueUserIds set
           filteredUserData = allUserData
               .where((user) => uniqueUserIds.contains(user['id']) && user['id'] != GlobalVariables.userId)

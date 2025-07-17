@@ -3,6 +3,7 @@ import 'package:RollaTravel/src/screen/profile/garage_screen.dart';
 import 'package:RollaTravel/src/screen/profile/profile_screen.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/translate/en.dart';
+import 'package:RollaTravel/src/utils/back_button_header.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:RollaTravel/src/utils/index.dart';
 import 'package:RollaTravel/src/utils/spinner_loader.dart';
@@ -49,6 +50,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   List<dynamic> carData = [];
   int? selectedCarId;
   String? imageUrl;
+  
+  final GlobalKey _backButtonKey = GlobalKey();
+  double backButtonWidth = 0;
 
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
@@ -109,88 +113,86 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     placeController.dispose();
   }
 
- void _showGarageDialog() {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text(
-          'My Garage',
-          style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'interBold'),
-        ),
-        content: SizedBox(
-          width: double.maxFinite,
-          height: 500,
-          child: carData.isEmpty
-              ? const Center(child: SpinningLoader())
-              : ListView.separated(
-                  itemCount: carData.length,
-                  itemBuilder: (context, index) {
-                    final car = carData[index];
-                    return SizedBox(
-                      height: 45, 
-                      child: ListTile(
-                        leading: Image.network(
-                          car['logo_path'],
-                          width: 40,
-                          height: 40,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Icon(
-                              Icons.image_not_supported,
-                              color: Colors.grey,
-                              size: 40,
-                            );
-                          },
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) {
-                              return child;
-                            }
-                            return const SizedBox(
-                              width: 40,
-                              height: 40,
-                              child: SpinningLoader(),
-                            );
-                          },
-                          fit: BoxFit.cover,
-                        ),
-                        title: Text(car['car_type']),
-                        onTap: () {
-                          setState(() {
-                            selectedCarId = car['id'];
-                            GlobalVariables.garage = car['id'].toString();
-                            GlobalVariables.garageLogoUrl = car['logo_path'];
-                          });
-                          Navigator.pop(context); 
-                        },
-                      ),
-                    );
-                  },
-                  separatorBuilder: (context, index) => const Divider(), 
-                ),
-        ),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context); // Close the dialog
-            },
-            child: const Text('Cancel', 
-              style: TextStyle(
-                color: kColorButtonPrimary,
-                fontFamily: "inter",
-                fontSize: 14
-                ),
-              ),
+  void _showGarageDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+            'My Garage',
+            style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'interBold'),
           ),
-        ],
-      );
-    },
-  );
-}
-
-
+          content: SizedBox(
+            width: double.maxFinite,
+            height: 500,
+            child: carData.isEmpty
+                ? const Center(child: SpinningLoader())
+                : ListView.separated(
+                    itemCount: carData.length,
+                    itemBuilder: (context, index) {
+                      final car = carData[index];
+                      return SizedBox(
+                        height: 45, 
+                        child: ListTile(
+                          leading: Image.network(
+                            car['logo_path'],
+                            width: 40,
+                            height: 40,
+                            errorBuilder: (context, error, stackTrace) {
+                              return const Icon(
+                                Icons.image_not_supported,
+                                color: Colors.grey,
+                                size: 40,
+                              );
+                            },
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) {
+                                return child;
+                              }
+                              return const SizedBox(
+                                width: 40,
+                                height: 40,
+                                child: SpinningLoader(),
+                              );
+                            },
+                            fit: BoxFit.cover,
+                          ),
+                          title: Text(car['car_type']),
+                          onTap: () {
+                            setState(() {
+                              selectedCarId = car['id'];
+                              GlobalVariables.garage = car['id'].toString();
+                              GlobalVariables.garageLogoUrl = car['logo_path'];
+                            });
+                            Navigator.pop(context); 
+                          },
+                        ),
+                      );
+                    },
+                    separatorBuilder: (context, index) => const Divider(), 
+                  ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Close the dialog
+              },
+              child: const Text('Cancel', 
+                style: TextStyle(
+                  color: kColorButtonPrimary,
+                  fontFamily: "inter",
+                  fontSize: 14
+                  ),
+                ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   void _onTextChanged() {
     if (!_showSaveButton) {
@@ -381,6 +383,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Get the back button width (measured by the GlobalKey)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final RenderBox renderBox = _backButtonKey.currentContext?.findRenderObject() as RenderBox;
+      setState(() {
+        backButtonWidth = renderBox.size.width;
+      });
+    });
+
     return Scaffold(
       backgroundColor: kColorWhite,
       body: PopScope(
@@ -409,32 +419,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
                         SizedBox(height: vhh(context, 7)),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            InkWell(
-                              onTap: () {
-                                _onBackPressed();
-                              },
-                              child: Image.asset(
-                                'assets/images/icons/allow-left.png',
-                                width: vww(context, 3),
-                              ),
-                            ),
-                            // Spacer to center the "Edit Profile" text
-                            const Spacer(),
-                            const Text(
-                              editprofile,
-                              style: TextStyle(
-                                  color: kColorBlack,
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.w500,
-                                  letterSpacing: -0.1,
-                                  fontFamily: 'inter'),
-                            ),
-                            const Spacer(), // Another Spacer to balance out the positioning
-                          ],
+                        BackButtonHeader(
+                          onBackPressed: _onBackPressed,
+                          title: editprofile,
+                          backButtonKey: _backButtonKey,
+                          backButtonWidth: backButtonWidth,
                         ),
                         SizedBox(height: vhh(context, 1)),
                         Row(

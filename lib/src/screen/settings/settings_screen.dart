@@ -161,6 +161,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
                         SizedBox(height: vhh(context, 6)),
+                        
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -222,56 +223,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 ),
                               ),
                               SizedBox(height: vhh(context, 2)),
-                              // Row(
-                              //   mainAxisAlignment: MainAxisAlignment
-                              //       .spaceEvenly,
-                              //   children: [
-                              //     Column(
-                              //       children: [
-                              //         const Text(
-                              //           "Private\naccount",
-                              //           textAlign: TextAlign.center,
-                              //           style: TextStyle(
-                              //               fontFamily: 'inter',
-                              //               letterSpacing: -0.1,
-                              //               fontWeight: FontWeight.bold),
-                              //         ),
-                              //         Radio<bool>(
-                              //           value: true,
-                              //           groupValue: isPrivateAccount,
-                              //           activeColor: Colors.blue,
-                              //           onChanged: (bool? value) {
-                              //             setState(() {
-                              //               isPrivateAccount = value ?? true;
-                              //             });
-                              //           },
-                              //         ),
-                              //       ],
-                              //     ),
-                              //     Column(
-                              //       children: [
-                              //         const Text(
-                              //           "Public\naccount",
-                              //           textAlign: TextAlign.center,
-                              //           style: TextStyle(
-                              //               fontFamily: 'inter',
-                              //               letterSpacing: -0.1,
-                              //               fontWeight: FontWeight.bold),
-                              //         ),
-                              //         Radio<bool>(
-                              //           value: false,
-                              //           groupValue: isPrivateAccount,
-                              //           activeColor: Colors.blue,
-                              //           onChanged: (bool? value) {
-                              //             setState(() {
-                              //               isPrivateAccount = value ?? false;
-                              //             });
-                              //           },
-                              //         ),
-                              //       ],
-                              //     ),
-                              //   ],
-                              // ),
                             ],
                           ),
                         ),
