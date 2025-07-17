@@ -341,7 +341,20 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
     int droppinIndex,
     int droppinUserId,
   ) async {
-    await addCount(GlobalVariables.userId!, droppins[droppinIndex]['id']);
+    if(GlobalVariables.userId != droppinUserId){
+      await addCount(GlobalVariables.userId!, droppins[droppinIndex]['id']);
+    }else {
+      if(droppins[droppinIndex]['viewed_count'] == null){
+        setState(() {
+          viewcount = 0;
+        });
+      }else{
+        setState(() {
+          viewcount = droppins[droppinIndex]['viewed_count'];
+        });
+      }
+    }
+    
     final apiservice = ApiService();
     
     List<dynamic> likedUsers = droppins[droppinIndex]['liked_users'];
@@ -456,8 +469,19 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
                             isSwpaLoading = true; // Start loading when page changes
                           });
 
-                          // Wait for the API call before updating the UI
-                          await addCount(GlobalVariables.userId!, droppins[index]['id']);
+                          if(GlobalVariables.userId != droppinUserId){
+                            await addCount(GlobalVariables.userId!, droppins[droppinIndex]['id']);
+                          }else {
+                            if(droppins[droppinIndex]['viewed_count'] == null){
+                              setState(() {
+                                viewcount = 0;
+                              });
+                            }else{
+                              setState(() {
+                                viewcount = droppins[droppinIndex]['viewed_count'];
+                              });
+                            }
+                          }
                           
                           setState(() {
                             droppinIndex = index;
