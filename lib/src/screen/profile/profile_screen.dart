@@ -383,41 +383,12 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   ) async {
     final apiservice = ApiService();
     int viewcount = 0;
-    //  bool hasAlreadyViewed = false;
-    if (droppins[droppinIndex]['view_count'] != null && droppins[droppinIndex]['view_count'].isNotEmpty) {
-      List<String> viewCountList = droppins[droppinIndex]['view_count'].split(',');
-      viewcount = viewCountList.length;
-      if (viewCountList.contains(GlobalVariables.userId.toString())) {
-        // hasAlreadyViewed = true;
-      }
+    if (droppins[droppinIndex]['viewed_count'] != null && droppins[droppinIndex]['viewed_count'].isNotEmpty) {
+      viewcount = droppins[droppinIndex]['viewed_count'];
     } else {
       viewcount = 0;
     }
 
-    // if (!hasAlreadyViewed) {
-    //    try {
-    //     final result = await apiservice.markDropinAsViewed(
-    //       userId: GlobalVariables.userId!,
-    //       dropinId: droppins[droppinIndex]['id'],
-    //     );
-    //     if (result['statusCode'] == true) {
-    //       logger.i("Successfully viewed this user");
-    //       String currentViewCount = droppins[droppinIndex]['view_count'] ?? '';
-    //       if (currentViewCount.isEmpty) {
-    //         droppins[droppinIndex]['view_count'] = GlobalVariables.userId.toString();
-    //       } else {
-    //         droppins[droppinIndex]['view_count'] = '$currentViewCount,${GlobalVariables.userId}';
-    //       }
-    //       viewcount = droppins[droppinIndex]['view_count'].split(',').length;
-    //       setState(() {});
-    //     } else {
-    //       logger.e("Failed to mark as viewed: ${result['message']}");
-    //     }
-    //   } catch (error) {
-    //     logger.e("Error while calling API: $error");
-    //   }
-    // }
-    
     // Get the initial liked_users and viewlist
     List<dynamic> likedUsers = droppins[droppinIndex]['liked_users'];
     bool isLiked = likedUsers.map((user) => user['id']).contains(GlobalVariables.userId);
@@ -521,13 +492,15 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                       },
                       onPageChanged: (index) {
                         setState(() {
-                          droppinIndex = index; // Update the index when the page changes
-                          
-                          // Update the likedUsers and viewcount based on the new image
+                          droppinIndex = index;
                           likedUsers = droppins[droppinIndex]['liked_users'];
                           isLiked = likedUsers.map((user) => user['id']).contains(GlobalVariables.userId);
                           droppinlikes = likedUsers.length;
-                          viewcount = (droppins[droppinIndex]['view_count'] ?? '').split(',').length;
+                          if (droppins[droppinIndex]['viewed_count'] != null && droppins[droppinIndex]['viewed_count'].isNotEmpty) {
+                            viewcount = droppins[droppinIndex]['viewed_count'];
+                          } else {
+                            viewcount = 0;
+                          }
                         });
                       },
                     ),
@@ -690,181 +663,6 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
       (sum, droppin) => sum + (droppin['liked_users'].length as int),
     );
   }
-
-
-  // void _showImageDialog(
-  //     String imagePath, String caption, int likes, List<dynamic> likedUsers) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return StatefulBuilder(
-  //         builder: (BuildContext context, StateSetter setState) {
-  //           return Dialog(
-  //             insetPadding: const EdgeInsets.symmetric(horizontal: 30),
-  //             shape: RoundedRectangleBorder(
-  //                 borderRadius: BorderRadius.circular(10)),
-  //             child: Column(
-  //               mainAxisSize: MainAxisSize.min,
-  //               crossAxisAlignment: CrossAxisAlignment.start,
-  //               children: [
-  //                 // Caption and Close Icon Row
-  //                 Padding(
-  //                   padding: const EdgeInsets.symmetric(
-  //                       horizontal: 8.0, vertical: 4.0),
-  //                   child: Row(
-  //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                     children: [
-  //                       Text(
-  //                         caption,
-  //                         style: const TextStyle(
-  //                           fontSize: 16,
-  //                           fontWeight: FontWeight.bold,
-  //                           color: Colors.grey,
-  //                           fontFamily: 'inter',
-  //                         ),
-  //                       ),
-  //                       IconButton(
-  //                         icon: const Icon(Icons.close, color: Colors.black),
-  //                         onPressed: () {
-  //                           Navigator.of(context).pop();
-  //                           setState(() {
-  //                             showLikesDropdown = false;
-  //                           });
-  //                         },
-  //                       ),
-  //                     ],
-  //                   ),
-  //                 ),
-  //                 Stack(
-  //                   alignment: Alignment.center,
-  //                   children: [
-  //                     Image.network(
-  //                       imagePath,
-  //                       fit: BoxFit.cover,
-  //                       width: MediaQuery.of(context).size.width * 0.9,
-  //                       height: MediaQuery.of(context).size.height * 0.5,
-  //                       errorBuilder: (context, error, stackTrace) =>
-  //                           const Icon(Icons.broken_image, size: 100),
-  //                       loadingBuilder: (context, child, loadingProgress) {
-  //                         if (loadingProgress == null) {
-  //                           return child;
-  //                         } else {
-  //                           return const Center(
-  //                             child: SpinningLoader(),
-  //                           );
-  //                         }
-  //                       },
-  //                     ),
-  //                   ],
-  //                 ),
-  //                 const Divider(height: 1, color: Colors.grey),
-  //                 Padding(
-  //                   padding: const EdgeInsets.all(8.0),
-  //                   child: Row(
-  //                     children: [
-  //                       GestureDetector(
-  //                         behavior: HitTestBehavior.opaque,
-  //                         onTap: () {
-  //                           setState(() {
-  //                             isLiked = !isLiked;
-  //                           });
-  //                         },
-  //                         child: Icon(
-  //                           isLiked ? Icons.favorite : Icons.favorite_border,
-  //                           color: isLiked ? Colors.red : Colors.black,
-  //                         ),
-  //                       ),
-  //                       const SizedBox(width: 4),
-  //                       GestureDetector(
-  //                         onTap: () {
-  //                           setState(() {
-  //                             showLikesDropdown =
-  //                                 !showLikesDropdown; // Toggle the visibility of the dropdown
-  //                           });
-  //                         },
-  //                         child: Text(
-  //                           '$likes likes',
-  //                           style: const TextStyle(
-  //                             fontWeight: FontWeight.bold,
-  //                             fontSize: 16,
-  //                             fontFamily: 'inter',
-  //                           ),
-  //                         ),
-  //                       ),
-  //                     ],
-  //                   ),
-  //                 ),
-  //                 if (showLikesDropdown)
-  //                   Column(
-  //                     children: likedUsers.map((user) {
-  //                       final photo = user['photo'] ?? '';
-  //                       final firstName = user['first_name'] ?? 'Unknown';
-  //                       final lastName = user['last_name'] ?? '';
-  //                       final username = user['rolla_username'] ?? '@unknown';
-
-  //                       return Padding(
-  //                         padding: const EdgeInsets.symmetric(vertical: 4.0),
-  //                         child: Row(
-  //                           children: [
-  //                             // User Profile Picture
-  //                             Container(
-  //                               height: 40,
-  //                               width: 40,
-  //                               decoration: BoxDecoration(
-  //                                 borderRadius: BorderRadius.circular(100),
-  //                                 border: Border.all(
-  //                                   color: Colors.grey,
-  //                                   width: 2,
-  //                                 ),
-  //                                 image: photo.isNotEmpty
-  //                                     ? DecorationImage(
-  //                                         image: NetworkImage(photo),
-  //                                         fit: BoxFit.cover,
-  //                                       )
-  //                                     : null,
-  //                               ),
-  //                               child: photo.isEmpty
-  //                                   ? const Icon(Icons.person,
-  //                                       size: 20) // Placeholder icon
-  //                                   : null,
-  //                             ),
-  //                             const SizedBox(width: 5),
-  //                             // User Information
-  //                             Column(
-  //                               crossAxisAlignment: CrossAxisAlignment.start,
-  //                               children: [
-  //                                 Text(
-  //                                   '$firstName $lastName',
-  //                                   style: const TextStyle(
-  //                                     fontWeight: FontWeight.bold,
-  //                                     fontSize: 13,
-  //                                     fontFamily: 'inter',
-  //                                     color: Colors.black,
-  //                                   ),
-  //                                 ),
-  //                                 Text(
-  //                                   username,
-  //                                   style: const TextStyle(
-  //                                     fontSize: 12,
-  //                                     color: Colors.grey,
-  //                                     fontFamily: 'inter',
-  //                                   ),
-  //                                 ),
-  //                               ],
-  //                             ),
-  //                           ],
-  //                         ),
-  //                       );
-  //                     }).toList(),
-  //                   ),
-  //               ],
-  //             ),
-  //           );
-  //         },
-  //       );
-  //     },
-  //   );
-  // }
 
   @override
   Widget build(BuildContext context) {

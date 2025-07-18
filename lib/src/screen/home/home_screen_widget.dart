@@ -317,7 +317,11 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
     );
   }
 
-  Future<void> addCount(int userid, int droppinid) async{
+  Future<void> addCount(
+    int userid, 
+    int droppinid, 
+    List<dynamic> droppins, 
+    int droppinIndex) async{
     try{
       final apiservice = ApiService();
       final result = await apiservice.markDropinAsViewed(
@@ -327,6 +331,7 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
       if (result['statusCode'] == true) {
         setState(() {
           viewcount = result['data']['viewed_count'];
+          droppins[droppinIndex]['viewed_count'] = viewcount;
         });
       }else {
         logger.e("Failed to mark as viewed: ${result['message']}");
@@ -342,7 +347,7 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
     int droppinUserId,
   ) async {
     if(GlobalVariables.userId != droppinUserId){
-      await addCount(GlobalVariables.userId!, droppins[droppinIndex]['id']);
+      await addCount(GlobalVariables.userId!, droppins[droppinIndex]['id'], droppins, droppinIndex);
     }else {
       if(droppins[droppinIndex]['viewed_count'] == null){
         setState(() {
@@ -466,19 +471,19 @@ class PostWidgetState extends State<PostWidget> with WidgetsBindingObserver {
                         },
                         onPageChanged: (index) async {
                           setState(() {
-                            isSwpaLoading = true; // Start loading when page changes
+                            isSwpaLoading = true;
                           });
 
                           if(GlobalVariables.userId != droppinUserId){
-                            await addCount(GlobalVariables.userId!, droppins[droppinIndex]['id']);
+                            await addCount(GlobalVariables.userId!, droppins[index]['id'], droppins, droppinIndex);
                           }else {
-                            if(droppins[droppinIndex]['viewed_count'] == null){
+                            if(droppins[index]['viewed_count'] == null){
                               setState(() {
                                 viewcount = 0;
                               });
                             }else{
                               setState(() {
-                                viewcount = droppins[droppinIndex]['viewed_count'];
+                                viewcount = droppins[index]['viewed_count'];
                               });
                             }
                           }

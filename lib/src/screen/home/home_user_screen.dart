@@ -53,6 +53,7 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
   List<LatLng> locations = [];
   late List<dynamic> dropPinsData = [];
   bool isPending = false;
+  int viewcount = 0;
 
   @override
   void initState() {
@@ -226,53 +227,43 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
     }
   }
 
+  Future<void> addCount(
+    int userid, 
+    int droppinid, 
+    List<dynamic> droppins, 
+    int droppinIndex) async{
+    try{
+      final apiservice = ApiService();
+      final result = await apiservice.markDropinAsViewed(
+        userId: userid,
+        dropinId: droppinid,
+      );
+      if (result['statusCode'] == true) {
+        setState(() {
+          viewcount = result['data']['viewed_count'];
+          droppins[droppinIndex]['viewed_count'] = viewcount;
+        });
+      }else {
+        logger.e("Failed to mark as viewed: ${result['message']}");
+      }
+    }catch(error){
+      logger.e("Error while calling API: $error");
+    }
+  }
+
   Future<void> _showImageDialog(
     List<dynamic> droppins, 
     int droppinIndex,   
-    // int droppinUserId
   ) async {
     final apiservice = ApiService();
-    int viewcount = 0;
-     bool hasAlreadyViewed = false;
-    if (droppins[droppinIndex]['view_count'] != null && droppins[droppinIndex]['view_count'].isNotEmpty) {
-      List<String> viewCountList = droppins[droppinIndex]['view_count'].split(',');
-      viewcount = viewCountList.length;
-      if (viewCountList.contains(GlobalVariables.userId.toString())) {
-        hasAlreadyViewed = true;
-      }
-    } else {
-      viewcount = 0;
-    }
-
-    if (!hasAlreadyViewed) {
-       try {
-        final result = await apiservice.markDropinAsViewed(
-          userId: GlobalVariables.userId!,
-          dropinId: droppins[droppinIndex]['id'],
-        );
-        if (result['statusCode'] == true) {
-          logger.i("Successfully viewed this user");
-          String currentViewCount = droppins[droppinIndex]['view_count'] ?? '';
-          if (currentViewCount.isEmpty) {
-            droppins[droppinIndex]['view_count'] = GlobalVariables.userId.toString();
-          } else {
-            droppins[droppinIndex]['view_count'] = '$currentViewCount,${GlobalVariables.userId}';
-          }
-          viewcount = droppins[droppinIndex]['view_count'].split(',').length;
-          setState(() {});
-        } else {
-          logger.e("Failed to mark as viewed: ${result['message']}");
-        }
-      } catch (error) {
-        logger.e("Error while calling API: $error");
-      }
-    }
+    logger.i(droppins);
+    logger.i(droppinIndex);
+    await addCount(GlobalVariables.userId!, droppins[droppinIndex]['id'], droppins, droppinIndex);
     
     // Get the initial liked_users and viewlist
     List<dynamic> likedUsers = droppins[droppinIndex]['liked_users'];
     bool isLiked = likedUsers.map((user) => user['id']).contains(GlobalVariables.userId);
     int droppinlikes = likedUsers.length;
-    // int viewcount = (droppins[droppinIndex]['view_count'] ?? '').split(',').length;
 
     // Show dialog
     if (!mounted) return;
@@ -369,16 +360,15 @@ class HomeUserScreenState extends ConsumerState<HomeUserScreen> with WidgetsBind
                           },
                         );
                       },
-                      onPageChanged: (index) {
+                      onPageChanged: (index) async {
+                        logger.i(index);
+                        logger.i(droppins[index]);
+                        await addCount(GlobalVariables.userId!, droppins[index]['id'], droppins, droppinIndex);
                         setState(() {
                           droppinIndex = index; 
-                          
                           likedUsers = droppins[droppinIndex]['liked_users'];
                           isLiked = likedUsers.map((user) => user['id']).contains(GlobalVariables.userId);
                           droppinlikes = likedUsers.length;
-                          // viewcount = droppins[droppinIndex]['view_count'].split(',').length;
-                          viewcount = (droppins[droppinIndex]['view_count'] ?? '').split(',').length;
-
                         });
                       },
                     ),
