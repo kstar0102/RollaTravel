@@ -651,7 +651,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                             .garageLogoUrl!.isNotEmpty
                                     ? GestureDetector(
                                         onTap: () {
-                                          // onGarageClicked(); 
                                           _showGarageDialog();
                                         },
                                         child: SizedBox(
@@ -665,7 +664,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                       )
                                     : GestureDetector(
                                         onTap: () {
-                                          onGarageClicked(); // Allow onTap to trigger even if no logo is present
+                                          _showGarageDialog();
                                         },
                                         child: const Text("                    "),
                                       ),

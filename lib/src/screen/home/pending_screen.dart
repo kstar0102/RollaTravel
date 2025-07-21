@@ -4,6 +4,7 @@ import 'package:RollaTravel/src/screen/home/home_user_screen.dart';
 import 'package:RollaTravel/src/services/api_service.dart';
 import 'package:RollaTravel/src/utils/back_button_header.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
+import 'package:RollaTravel/src/utils/spinner_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:RollaTravel/src/utils/index.dart';
@@ -23,6 +24,7 @@ class NotificationScreenState extends ConsumerState<NotificationScreen> with Wid
   final int _currentIndex = 5;
   List<Map<String, dynamic>> followers = [];
   final logger = Logger();
+  bool isloding = false;
 
   final GlobalKey _backButtonKey = GlobalKey();
   double backButtonWidth = 0;
@@ -158,7 +160,46 @@ class NotificationScreenState extends ConsumerState<NotificationScreen> with Wid
     }
   }
 
-  void _onBackPressed() {
+  void _onBackPressed() async {
+    List<Map<String, dynamic>> unviewedFollowers = followers
+      .where((follower) => follower['viewed'] == false)
+      .toList();
+
+    setState(() {
+      isloding = true; 
+    });
+
+    try {
+      for (var follower in unviewedFollowers) {
+        final fromItem = follower['from'];
+        final userId = follower['id'];
+        if (fromItem == 'follow') {
+          logger.i(userId);
+          await ApiService().viewedFollowingNotification(GlobalVariables.userId!, userId);
+        } 
+        else if (fromItem == 'pending') {
+          logger.i(userId);
+          await ApiService().viewedPendingNotification(GlobalVariables.userId!, userId);
+        } else if (fromItem == 'followed') {
+          logger.i(userId);
+          await ApiService().viewedFollowedNotification(GlobalVariables.userId!, userId);
+        } else if (fromItem == 'tag') {
+          logger.i(userId);
+          await ApiService().viewedTagNotification(GlobalVariables.userId!, userId);
+        } else if (fromItem == 'comment') {
+          await ApiService().viewedCommentNotification(GlobalVariables.userId!, userId);
+        } else if (fromItem == 'like') {
+          await ApiService().viewedlikeNotification(GlobalVariables.userId!, userId);
+        }
+      }
+    } catch (e) {
+      logger.e("Error while marking followers as viewed: $e");
+    } finally {
+      setState(() {
+        isloding = false;
+      });
+    }
+    if(!mounted) return;
     Navigator.pushReplacement(
       context,
       PageRouteBuilder(
@@ -169,6 +210,7 @@ class NotificationScreenState extends ConsumerState<NotificationScreen> with Wid
     );
   }
 
+
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -178,6 +220,12 @@ class NotificationScreenState extends ConsumerState<NotificationScreen> with Wid
       });
     });
 
+    if (isloding) {
+      return const Scaffold(
+        body: Center(child: SpinningLoader()),
+      );
+    }
+
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
@@ -185,6 +233,7 @@ class NotificationScreenState extends ConsumerState<NotificationScreen> with Wid
           return;
         }
       },
+      
       child: Scaffold(
         backgroundColor: kColorWhite,
         body: Center(
@@ -208,7 +257,6 @@ class NotificationScreenState extends ConsumerState<NotificationScreen> with Wid
                   itemCount: followers.length,
                   itemBuilder: (context, index) {
                     final follower = followers[index];
-                    // logger.i(follower);
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 20),
                       child: InkWell(
@@ -254,151 +302,164 @@ class NotificationScreenState extends ConsumerState<NotificationScreen> with Wid
                             );
                           }
                         },
-                        child: Row(
-                          children: [
-                            Container(
-                              height: vhh(context, 7),
-                              width: vhh(context, 7),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: kColorHereButton,
-                                  width: 2,
-                                ),
-                              ),
-                              child: ClipOval(
-                                child: follower['photo'] != null
-                                    ? Image.network(
-                                        follower['photo'],
-                                        fit: BoxFit.cover,
-                                        errorBuilder:
-                                            (context, error, stackTrace) =>
-                                                const Icon(Icons.error),
-                                      )
-                                    : const Icon(Icons.person),
-                              ),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: follower['viewed'] == true 
+        ? Colors.grey.shade200 // viewed = true → gray background
+        : Colors.white, 
+                            border: Border.all(
+                              color: Colors.grey.shade300,
+                              width: 1, 
                             ),
-                            const SizedBox(width: 5),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Text(
-                                      "@${follower['rolla_username']}",
-                                      style: const TextStyle(
-                                        fontFamily: 'inter',
-                                        fontSize: 13,
-                                        letterSpacing: -0.1,
-                                        fontWeight: FontWeight.bold
-                                      ),
-                                    ),
-                                    const SizedBox(width: 3),
-                                    const Icon(Icons.verified,
-                                        color: Colors.blue, size: 14),
-                                  ],
-                                ),
-                                Text(
-                                  _getFollowStatusText(follower['from'], follower['rolla_username']),
-                                  style: const TextStyle(
-                                    fontFamily: 'inter',
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 13,
-                                    letterSpacing: -0.1
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          child: Row(
+                            children: [
+                              Container(
+                                height: vhh(context, 7),
+                                width: vhh(context, 7),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: kColorHereButton,
+                                    width: 2,
                                   ),
                                 ),
-                                Text(
-                                  _formatDate(follower['follow_date'] ?? ''),
-                                  style: const TextStyle(
-                                    fontSize: 9,
-                                    color: kColorStrongGrey,
-                                    fontFamily: 'inter',
-                                    letterSpacing: -0.1,
-                                  ),
-                                )
-                              ],
-                            ),
-                            const Spacer(),
-                            follower['from'] == 'pending'
-                              ? Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    SizedBox(
-                                      width: 60,
-                                      height: 23,
-                                      child: ElevatedButton(
-                                        onPressed: () {
-                                          _acceptButton(follower['id']);
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.white,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(30),
-                                            side: BorderSide(
-                                              color: Colors.grey.withValues(alpha: 0.4), 
-                                              width: 0.5,  
-                                            ),
-                                          ),
-                                          padding: EdgeInsets.zero,  
-                                          shadowColor: Colors.black.withValues(alpha: 0.4), 
-                                          elevation: 4,  
-                                        ),
-                                        child: const Text(
-                                          'Accept',
-                                          style: TextStyle(
-                                            fontFamily: 'inter',
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.bold,
-                                            letterSpacing: -0.1,
-                                            color: kColorGreen,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    SizedBox(
-                                      width: 60,
-                                      height: 23,
-                                      child: ElevatedButton(
-                                        onPressed: () {
-                                          _denyButton(follower['id']);
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.white,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(30),
-                                            side: BorderSide(
-                                              color: Colors.grey.withValues(alpha: 0.4), 
-                                              width: 0.5,  
-                                            ),
-                                          ),
-                                          padding: EdgeInsets.zero,  
-                                          shadowColor: Colors.black.withValues(alpha: 0.4), 
-                                          elevation: 4,  
-                                        ),
-                                        child: const Text(
-                                          'Deny',
-                                          style: TextStyle(
-                                            fontFamily: 'inter',
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.bold,
-                                            letterSpacing: -0.1,
-                                            color: Colors.red,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              : IconButton(
-                                  icon: const Icon(Icons.close),
-                                  onPressed: () {
-                                    _acceptRequestCloseButton(follower['id'], follower['from']);
-                                  },
-                                  color: Colors.black,
-                                  iconSize: 20,
+                                child: ClipOval(
+                                  child: follower['photo'] != null
+                                      ? Image.network(
+                                          follower['photo'],
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (context, error, stackTrace) =>
+                                                  const Icon(Icons.error),
+                                        )
+                                      : const Icon(Icons.person),
                                 ),
-                          ],
+                              ),
+                              const SizedBox(width: 5),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                        "@${follower['rolla_username']}",
+                                        style: const TextStyle(
+                                          fontFamily: 'inter',
+                                          fontSize: 13,
+                                          letterSpacing: -0.1,
+                                          fontWeight: FontWeight.bold
+                                        ),
+                                      ),
+                                      const SizedBox(width: 3),
+                                      const Icon(Icons.verified,
+                                          color: Colors.blue, size: 14),
+                                    ],
+                                  ),
+                                  Text(
+                                    _getFollowStatusText(follower['from'], follower['rolla_username']),
+                                    style: const TextStyle(
+                                      fontFamily: 'inter',
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 13,
+                                      letterSpacing: -0.1
+                                    ),
+                                  ),
+                                  Text(
+                                    _formatDate(follower['follow_date'] ?? ''),
+                                    style: const TextStyle(
+                                      fontSize: 9,
+                                      color: kColorStrongGrey,
+                                      fontFamily: 'inter',
+                                      letterSpacing: -0.1,
+                                    ),
+                                  )
+                                ],
+                              ),
+                              const Spacer(),
+                              follower['from'] == 'pending'
+                                ? Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      SizedBox(
+                                        width: 60,
+                                        height: 23,
+                                        child: ElevatedButton(
+                                          onPressed: () {
+                                            _acceptButton(follower['id']);
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.white,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(30),
+                                              side: BorderSide(
+                                                color: Colors.grey.withValues(alpha: 0.4), 
+                                                width: 0.5,  
+                                              ),
+                                            ),
+                                            padding: EdgeInsets.zero,  
+                                            shadowColor: Colors.black.withValues(alpha: 0.4), 
+                                            elevation: 4,  
+                                          ),
+                                          child: const Text(
+                                            'Accept',
+                                            style: TextStyle(
+                                              fontFamily: 'inter',
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.bold,
+                                              letterSpacing: -0.1,
+                                              color: kColorGreen,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      SizedBox(
+                                        width: 60,
+                                        height: 23,
+                                        child: ElevatedButton(
+                                          onPressed: () {
+                                            _denyButton(follower['id']);
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.white,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(30),
+                                              side: BorderSide(
+                                                color: Colors.grey.withValues(alpha: 0.4), 
+                                                width: 0.5,  
+                                              ),
+                                            ),
+                                            padding: EdgeInsets.zero,  
+                                            shadowColor: Colors.black.withValues(alpha: 0.4), 
+                                            elevation: 4,  
+                                          ),
+                                          child: const Text(
+                                            'Deny',
+                                            style: TextStyle(
+                                              fontFamily: 'inter',
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.bold,
+                                              letterSpacing: -0.1,
+                                              color: Colors.red,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                : IconButton(
+                                    icon: const Icon(Icons.close),
+                                    onPressed: () {
+                                      _acceptRequestCloseButton(follower['id'], follower['from']);
+                                    },
+                                    color: Colors.black,
+                                    iconSize: 20,
+                                  ),
+                            ],
+                          ),
                         ),
                       ),
                       
