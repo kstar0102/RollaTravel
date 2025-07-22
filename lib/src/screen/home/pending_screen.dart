@@ -313,7 +313,7 @@ class NotificationScreenState extends ConsumerState<NotificationScreen> with Wid
                             ),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
                           child: Row(
                             children: [
                               Container(
