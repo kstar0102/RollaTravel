@@ -305,8 +305,8 @@ class NotificationScreenState extends ConsumerState<NotificationScreen> with Wid
                         child: Container(
                           decoration: BoxDecoration(
                             color: follower['viewed'] == true 
-        ? Colors.grey.shade200 // viewed = true → gray background
-        : Colors.white, 
+                              ? Colors.grey.shade200
+                              : Colors.white, 
                             border: Border.all(
                               color: Colors.grey.shade300,
                               width: 1, 
@@ -317,8 +317,8 @@ class NotificationScreenState extends ConsumerState<NotificationScreen> with Wid
                           child: Row(
                             children: [
                               Container(
-                                height: vhh(context, 7),
-                                width: vhh(context, 7),
+                                height: vhh(context, 6),
+                                width: vhh(context, 6),
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   border: Border.all(
