@@ -79,8 +79,6 @@ class NotificationScreenState extends ConsumerState<NotificationScreen> with Wid
   }
 
   Future<void> _acceptRequestCloseButton (int userId, String fromItem) async {
-    // logger.i('userid : $userId');
-    // logger.i('item : $fromItem');
     try {
       final apiservice = ApiService();
       if(fromItem == "follow"){
@@ -305,8 +303,8 @@ class NotificationScreenState extends ConsumerState<NotificationScreen> with Wid
                         child: Container(
                           decoration: BoxDecoration(
                             color: follower['viewed'] == true 
-                              ? Colors.grey.shade200
-                              : Colors.white, 
+                              ? Colors.white
+                              : Colors.grey.shade200, 
                             border: Border.all(
                               color: Colors.grey.shade300,
                               width: 1, 
@@ -450,14 +448,22 @@ class NotificationScreenState extends ConsumerState<NotificationScreen> with Wid
                                       ),
                                     ],
                                   )
-                                : IconButton(
-                                    icon: const Icon(Icons.close),
-                                    onPressed: () {
+                                : GestureDetector(
+                                    onTap: () {
                                       _acceptRequestCloseButton(follower['id'], follower['from']);
                                     },
-                                    color: Colors.black,
-                                    iconSize: 20,
+                                    behavior: HitTestBehavior.translucent, // ensures invisible padding is tappable
+                                    child: Container(
+                                      padding: const EdgeInsets.all(12), // expands tap target
+                                      alignment: Alignment.center,
+                                      child: const Icon(
+                                        Icons.close,
+                                        size: 20,
+                                        color: Colors.black,
+                                      ),
+                                    ),
                                   ),
+
                             ],
                           ),
                         ),
