@@ -283,7 +283,7 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                               key: _shareWidgetKey,
                               child: Container(
                                 width: vhh(context, 100),
-                                height: vhh(context, 60),
+                                height: vhh(context, 65),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(20), // Rounded corners for image
@@ -581,16 +581,22 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                                       width: 90,
                                       height: 80,
                                     ),
-                                    const SizedBox(height: 1),
-                                    const Text(
-                                      'the Rolla travel app',
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: 'inter'),
-                                    ),
-                                    const SizedBox(height: 10),
+                                    const Expanded(
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              "the Rolla travel app.",
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                letterSpacing: -0.1,
+                                                fontWeight: FontWeight.bold,
+                                                fontFamily: 'inter',
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                   ],
                                 ),
                                 ),

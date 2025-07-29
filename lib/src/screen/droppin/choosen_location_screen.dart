@@ -5,7 +5,6 @@ import 'package:RollaTravel/src/screen/home/home_sound_screen.dart';
 import 'package:RollaTravel/src/screen/trip/start_trip.dart';
 import 'package:RollaTravel/src/utils/global_variable.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:RollaTravel/src/utils/index.dart';
@@ -14,7 +13,6 @@ import 'package:RollaTravel/src/translate/en.dart';
 import 'package:RollaTravel/src/constants/app_styles.dart';
 import 'package:latlong2/latlong.dart';
 import 'dart:io';
-import 'dart:ui';
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -176,88 +174,6 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
     }
   }
 
-
-//   Future<void> _showImageDialog() async {
-//   if (_isSharing) return;
-
-//   setState(() => _isSharing = true);
-
-//   try {
-//     await Future.delayed(const Duration(milliseconds: 300));
-//     final boundaryContext = _shareWidgetKey.currentContext;
-//     if (boundaryContext == null || !boundaryContext.mounted) {
-//       _showErrorDialog("Widget not ready for preview.");
-//       return;
-//     }
-
-//     await WidgetsBinding.instance.endOfFrame;
-//     await Future.delayed(const Duration(milliseconds: 100));
-
-//     final boundary = boundaryContext.findRenderObject() as RenderRepaintBoundary?;
-//     if (boundary == null) {
-//       _showErrorDialog("Unable to capture content.");
-//       return;
-//     }
-
-//     await _waitForImageToLoad(File(widget.imagePath));
-
-//     ui.Image? image;
-//     try {
-//       image = await boundary.toImage(pixelRatio: 3.0);
-//     } catch (e) {
-//       logger.e("Image capture error: $e");
-//       _showErrorDialog("Failed to capture image.");
-//       return;
-//     }
-
-//     final byteData = await image.toByteData(format: ImageByteFormat.png);
-//     if (byteData == null) {
-//       _showErrorDialog("Failed to convert image.");
-//       return;
-//     }
-
-//     final pngBytes = byteData.buffer.asUint8List();
-
-//     if (!mounted) return;
-//     showDialog(
-//       context: context,
-//       builder: (context) => Dialog(
-//         insetPadding: const EdgeInsets.all(20),
-//         backgroundColor: Colors.transparent,
-//         child: Container(
-//           color: Colors.blueGrey,
-//           padding: const EdgeInsets.all(10),
-//           child: Column(
-//             mainAxisSize: MainAxisSize.min,
-//             children: [
-//               ClipRRect(
-//                 borderRadius: BorderRadius.circular(20), // match your UI corner radius
-//                 child: Transform(
-//                   alignment: Alignment.center,
-//                   transform: Matrix4.rotationX(3.14159), // flip vertically
-//                   child: Image.memory(pngBytes),
-//                 ),
-//               ),
-
-
-//               const SizedBox(height: 10),
-//               TextButton(
-//                 onPressed: () => Navigator.pop(context),
-//                 child: const Text("Close", style: TextStyle(color: Colors.black)),
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   } finally {
-//     if (mounted) {
-//       setState(() => _isSharing = false);
-//     }
-//   }
-// }
-
-
   /// Helper method to show an error dialog
   void _showErrorDialog(String message) {
     if (!mounted) return;
@@ -330,7 +246,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                SizedBox(height: vhh(context, 6)),
+                SizedBox(height: vhh(context, 7)),
                   Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),  // Padding for the whole content
                   child: Container(
@@ -360,7 +276,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                             borderRadius: BorderRadius.circular(20), // Rounded corners for image
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.grey.withOpacity(0.3),
+                                color: Colors.grey.withValues(alpha: 0.3),
                                 blurRadius: 10,
                                 spreadRadius: 2,
                                 offset: const Offset(0, 4),
@@ -503,12 +419,13 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                                         height: vhh(context, 35),
                                         decoration: BoxDecoration(
                                           border: Border.all(
-                                              color: kColorStrongGrey,
-                                              width: 0.8),
+                                            color: kColorStrongGrey,
+                                            width: 0.8,
+                                          ),
                                           borderRadius: const BorderRadius.only(
-                                            topLeft: Radius.circular(8.0), 
+                                            topLeft: Radius.circular(8.0),
                                             topRight: Radius.circular(8.0),
-                                          ), 
+                                          ),
                                         ),
                                         child: Column(
                                           children: [
@@ -516,20 +433,21 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                                               alignment: Alignment.centerLeft,
                                               child: Padding(
                                                 padding: const EdgeInsets.only(
-                                                    left: 10.0,
-                                                    top: 3,
-                                                    bottom: 3),
+                                                  left: 10.0,
+                                                  top: 3,
+                                                  bottom: 3,
+                                                ),
                                                 child: Text(
                                                   widget.caption,
                                                   style: const TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight: FontWeight.bold,
-                                                      color: Colors.grey,
-                                                      fontFamily: 'inter'),
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.grey,
+                                                    fontFamily: 'inter',
+                                                  ),
                                                 ),
                                               ),
                                             ),
-                                            // Image
                                             Expanded(
                                               child: Image.file(
                                                 File(widget.imagePath),
@@ -540,22 +458,28 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                                           ],
                                         ),
                                       ),
-                                      SizedBox(height: vhh(context, 0.5)),
-                                      const Padding(
-                                        padding: EdgeInsets.only(top: 5.0),
-                                        child: Text(
-                                          "the Rolla travel app.",
-                                          style: TextStyle(
-                                              fontSize: 16,
-                                              letterSpacing: -0.1,
-                                              fontWeight: FontWeight.bold,
-                                              fontFamily: 'inter'),
+                                      // Text vertically centered in remaining space
+                                      const Expanded(
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              "the Rolla travel app.",
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                letterSpacing: -0.1,
+                                                fontWeight: FontWeight.bold,
+                                                fontFamily: 'inter',
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ],
                                   ),
                                 ),
                               ),
+
                             ],
                           ),
                         ),

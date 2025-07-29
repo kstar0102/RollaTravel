@@ -59,7 +59,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObser
           : blockUsers.map((user) => user['id'].toString()).toSet();
       final data = await apiService.fetchFollowerTrip(GlobalVariables.userId!);
       final userTripData = data['userinfo'];
-      // logger.i(userTripData);
+      logger.i(userTripData);
       if (userTripData != null && userTripData['id'] == GlobalVariables.userId) {
         final pendingIdsRaw = userTripData['following_pending_userid'];
         final acceptedRow = userTripData['following_user_id'];
@@ -67,12 +67,14 @@ class HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObser
         final commentNotificationRaw = userTripData['comment_notification'];
         final likenotificationRaw = userTripData['like_notification'];
         final followednotificationRaw = userTripData['followed_user_id'];
+
         int pendingCount = 0;
         int acceptedCount = 0;
         int tagNotificationCount = 0; 
         int commentNotificationCount = 0;
         int likeNotificationCount = 0; 
         int followedNotificationCount = 0; 
+        
         if (pendingIdsRaw != null && pendingIdsRaw.toString().trim().isNotEmpty) {
           List<dynamic> pendingData = jsonDecode(pendingIdsRaw);
           pendingCount = pendingData
@@ -174,23 +176,23 @@ class HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObser
     }
   }
 
-  void follwingUser() async {
-    List<int> followedUserIds = [];
-    final apiService = ApiService();
-    final List<Map<String, dynamic>> users =
-        await apiService.fetchFollowedUsers(GlobalVariables.userId!);
+  // void follwingUser() async {
+  //   List<int> followedUserIds = [];
+  //   final apiService = ApiService();
+  //   final List<Map<String, dynamic>> users =
+  //       await apiService.fetchFollowedUsers(GlobalVariables.userId!);
 
-    setState(() {
-      followedUserIds = users
-          .map((user) => user['id'])
-          .where((id) => id != null)
-          .map<int>((id) => int.parse(id.toString()))
-          .toList();
+  //   setState(() {
+  //     followedUserIds = users
+  //         .map((user) => user['id'])
+  //         .where((id) => id != null)
+  //         .map<int>((id) => int.parse(id.toString()))
+  //         .toList();
 
-      isSelected = !isSelected;
-    });
-    logger.i(followedUserIds);
-  }
+  //     isSelected = !isSelected;
+  //   });
+  //   logger.i(followedUserIds);
+  // }
 
   @override
   Widget build(BuildContext context) {

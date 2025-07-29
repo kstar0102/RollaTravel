@@ -105,6 +105,12 @@ class NotificationScreenState extends ConsumerState<NotificationScreen> with Wid
         if(result['statusCode'] == true){
           _loadFollowers();
         }
+      } else if(fromItem == "followed"){
+          final result = await apiservice.tappedFollowed(GlobalVariables.userId!, userId);
+          logger.i(result);
+          if(result['statusCode'] == true){
+            _loadFollowers();
+          }
       }
       
     } catch (e) {
