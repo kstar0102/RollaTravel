@@ -458,6 +458,7 @@ class ChoosenLocationScreenState extends ConsumerState<ChoosenLocationScreen> {
                                           ],
                                         ),
                                       ),
+                                      const Spacer(),
                                       // Text vertically centered in remaining space
                                       const Expanded(
                                         child: Column(

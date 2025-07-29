@@ -226,12 +226,16 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
   }
 
   Future<void> _pickImageFromGallery() async {
-    try {
+    try { 
       final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
       if (pickedFile != null) {
         logger.i('📷 Image selected from gallery: ${pickedFile.path}');
-        // ✅ Immediately turn off flash before navigation
-        await _cameraController!.setFlashMode(FlashMode.off);
+        
+        // ✅ Only turn off flash if the camera controller is initialized
+        if (_cameraController != null && _cameraController!.value.isInitialized) {
+          await _cameraController!.setFlashMode(FlashMode.off);
+        }
+
         if (mounted) {
           Navigator.push(
             context,
@@ -246,6 +250,29 @@ class PhotoSelectScreenState extends State<PhotoSelectScreen> {
       logger.e("❌ Error selecting image: $e");
     }
   }
+
+
+  // Future<void> _pickImageFromGallery() async {
+  //   try {
+  //     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+  //     if (pickedFile != null) {
+  //       logger.i('📷 Image selected from gallery: ${pickedFile.path}');
+  //       // ✅ Immediately turn off flash before navigation
+  //       await _cameraController!.setFlashMode(FlashMode.off);
+  //       if (mounted) {
+  //         Navigator.push(
+  //           context,
+  //           MaterialPageRoute(
+  //             builder: (context) =>
+  //                 TakePictureScreen(imagePath: pickedFile.path),
+  //           ),
+  //         );
+  //       }
+  //     }
+  //   } catch (e) {
+  //     logger.e("❌ Error selecting image: $e");
+  //   }
+  // }
 
   // Future<void> _toggleFlash() async {
   //   if (_cameraController == null) return;
